@@ -15,13 +15,25 @@ Dự án này được phát triển như một phần của khóa luận tốt 
 git clone https://github.com/YKhoa2405/dev_job_ui.git
 ```
 
-#### Chạy dự án
+### Chạy dự án
+
+
+#### Di chuyển đến thư mục
 ```bash
 cd dev_job_ui
 ```
+
+#### Cài đặt các phụ thuộc
 ```bash
 npm install
 ```
+
+#### Chạy dự án
 ```bash
 npm run dev
+```
+
+#### Mở trình duyệt và truy cập
+```bash
+http://localhost:3000
 ```
