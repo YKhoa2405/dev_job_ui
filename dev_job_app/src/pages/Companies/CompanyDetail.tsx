@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { authApi, endpoints } from '../../common/API';
 import moment from 'moment';
 import "moment/locale/vi";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { ICompanyDetail } from '../../types/company';
 import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX } from 'lucide-react';

@@ -20,7 +20,6 @@ import Permission from './pages/Permissions/Permission';
 import Register from './pages/Auth/Register';
 import Skills from './pages/Skills/Skills';
 import Dashboard from './pages/Dashboard/Dashboard';
-import EditResumes from './pages/Resumes/EditResumes';
 import EditCompanies from './pages/Companies/EditCompanies';
 import EditJobs from './pages/Jobs/EditJobs';
 import CompanyDetail from './pages/Companies/CompanyDetail';
@@ -94,7 +93,7 @@ function App() {
           element={
             <>
               <PageTitle title="Chỉnh sửa công ty" />
-              <EditCompanies  />
+              <EditCompanies />
             </>
           }
         />
@@ -133,15 +132,8 @@ function App() {
         <Route
           path="/admin/resumes"
           element={<>
-            <PageTitle title="CV" />
+            <PageTitle title="Ứng tuyển" />
             <Resumes /></>} />
-
-        <Route
-          path="/admin/resumes/:id"
-          element={
-            <>
-              <PageTitle title="Chi tiết CV" />
-              <EditResumes /></>} />
 
         {/* service */}
         <Route

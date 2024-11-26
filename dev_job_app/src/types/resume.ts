@@ -1,4 +1,4 @@
-export type ICvDetail = {
+export type IResumeDetail = {
     _id: string;             
     email: string;        
     userId: string;
@@ -17,7 +17,7 @@ export type ICvDetail = {
     status:string
 }
 
-export type ICvList = {
+export type IResumeList = {
     _id: string;            
     status: string;
     companyId:{

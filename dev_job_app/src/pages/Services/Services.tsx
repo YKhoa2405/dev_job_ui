@@ -5,7 +5,6 @@ import { IServiceDetail, IServiceList } from '../../types/service';
 import { Fragment, useEffect, useState } from 'react';
 import API, { authApi, endpoints } from '../../common/API';
 import { toast } from 'react-toastify';
-import EditServices from './EditServices';
 import Loading from '../../common/Loader/Loading';
 import Swal from 'sweetalert2';
 import { Dialog, Transition } from '@headlessui/react';

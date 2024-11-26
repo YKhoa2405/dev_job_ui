@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { ICvDetail } from '../../types/cv';
+import { ICvDetail } from '../../types/resume';
 import API, { authApi, endpoints } from '../../common/API';
 import moment from 'moment';
 import "moment/locale/vi";

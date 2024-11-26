@@ -1,27 +1,41 @@
-import { ChevronLeft, ChevronRight, Eye, Pencil, Plus, TrashIcon } from 'lucide-react';
-
-import { Link } from 'react-router-dom';
-import { IJobList } from '../../types/job';
+import { ChevronLeft, ChevronRight, Pencil, TrashIcon } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
-import { useEffect, useState } from 'react';
-import EditResumes from './EditResumes';
-import { ICvList } from '../../types/cv';
+import { Fragment, useEffect, useState } from 'react';
+import { IResumeList, IResumeDetail } from '../../types/resume';
 import { authApi, endpoints } from '../../common/API';
 import Loading from '../../common/Loader/Loading';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
+import { Dialog, Transition } from '@headlessui/react';
+import moment from 'moment';
 
 
 const Resumes = () => {
-  const [resumeData, setResumeData] = useState<ICvList[]>([]);
+  const [resumeData, setResumeData] = useState<IResumeList[]>([]);
   const [currentPage, setCurrentPage] = useState(1); // To store current page
   const [totalPages, setTotalPages] = useState(1); // To store total number of pages
   const [totalItems, setTotalItems] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedResumeId, setSelectedResumeId] = useState<string | null>(null);
   const [limit, setLimit] = useState(10);
   const [status, setStatus] = useState('')
+  const [statusUpdate, setStatusUpdate] = useState('')
+
   const [loading, setLoading] = useState(false)
+  const [loadingModal, setLoadingModal] = useState(false)
+
+
+  const [isOpen, setIsOpen] = useState(false);  // Để điều khiển modal
+  const [resumeDetail, setResumeDetail] = useState<IResumeDetail | null>(null);
+
+
+  const openModal = (id: string) => {
+    fetchResumeDetail(id);  // Lấy chi tiết item theo ID
+    setIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsOpen(false);
+    setResumeDetail(null);  // Reset lại chi tiết
+  };
 
 
   const displayOptions = [
@@ -39,15 +53,6 @@ const Resumes = () => {
     { value: 'Từ chối', label: 'Từ chối' },
   ];
 
-  const openModal = (id: string) => {
-    setSelectedResumeId(id); // Lưu ID của resume được chọn
-    setIsModalOpen(true); // Mở modal
-  };
-
-  const closeModal = () => {
-    setSelectedResumeId(null); // Xóa ID khi đóng modal
-    setIsModalOpen(false);
-  };
 
   useEffect(() => {
     fetchListResume(currentPage, limit, status);
@@ -77,6 +82,39 @@ const Resumes = () => {
       setLoading(false)
     }
   };
+
+  const fetchResumeDetail = async (id: string) => {
+    setLoadingModal(true)
+    try {
+      const token: any = localStorage.getItem("access_token");
+      const res = await authApi(token).get(endpoints['resumeDetail'](id));
+      setResumeDetail(res.data.data)
+    } catch (error) {
+      console.log('Error fetching resume:', error);
+    } finally { setLoadingModal(false) }
+  }
+
+  const handleUpdateResume = async (id: string) => {
+    try {
+      const token: any = localStorage.getItem("access_token");
+      await authApi(token).patch(endpoints['resumeDetail'](id), {
+        status: statusUpdate,
+      });
+      toast.success('Cập nhật thành công!', {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      closeModal()
+      fetchListResume()
+    } catch (error) {
+      console.log('Error fetching resume:', error);
+      toast.error('Cập nhật thất bại!', {
+        position: "top-right",
+        autoClose: 3000,
+
+      });
+    }
+  }
 
   const handleDeleteResume = async (id: string) => {
     try {
@@ -124,7 +162,141 @@ const Resumes = () => {
 
   return (
     <>
-      <Breadcrumb pageName="Quản lý CV" />
+      <Breadcrumb pageName="Quản lý hồ sơ ứng tuyển" />
+      <Transition appear show={isOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={closeModal}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-4xl h-auto bg-white rounded-lg shadow-xl p-6">
+                {/* Header */}
+                <Dialog.Title
+                  as="h3"
+                  className="text-lg font-semibold leading-6 text-gray-900">
+                  Chi tiết hồ sơ ứng tuyển
+                </Dialog.Title>
+
+                {/* Body */}
+                <div className="mt-4">
+                  {loadingModal ? (
+                    <Loading />
+                  ) : (
+                    <div>
+                      <div className="p-6.5">
+                        <div className="flex space-x-4 mb-4.5">
+                          <div className="flex-1">
+                            <label className="mb-2.5 block text-black dark:text-white">Email <span className="text-meta-1">*</span></label>
+                            <div className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white">
+                              {resumeDetail?.email}
+                            </div>
+                          </div>
+
+                          <div className="flex-1">
+                            <label className="mb-2.5 block text-black dark:text-white">Họ và tên <span className="text-meta-1">*</span></label>
+                            <div className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white">
+                              {resumeDetail?.name}
+                            </div>
+                          </div>
+
+                          <div className="flex-1">
+                            <label className="mb-2.5 block text-black dark:text-white">Số điện thoại <span className="text-meta-1">*</span></label>
+                            <div className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black ">
+                              {resumeDetail?.phone}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex space-x-4 mb-4.5">
+                          <div className="flex-1">
+                            <label className="mb-2.5 block text-black dark:text-white">Tiêu đề việc làm <span className="text-meta-1">*</span></label>
+                            <div className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white">
+                              {resumeDetail?.jobId.name}
+                            </div>
+                          </div>
+
+                          <div className="flex-1">
+                            <label className="mb-2.5 block text-black dark:text-white">Tên công ty <span className="text-meta-1">*</span></label>
+                            <div className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white">
+                              {resumeDetail?.companyId.name}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Hàng 1 */}
+                        <div className="flex space-x-4 mb-4.5">
+                          <div className="flex-1">
+                            <label className="mb-2.5 block text-black dark:text-white">CV <span className="text-meta-1">*</span></label>
+                            <button
+                              className="w-full rounded border-[1.5px] border-stroke bg-transparent bg-blue-600 py-3 px-5 text-white "
+                              onClick={() => window.open(resumeDetail?.cv, '_blank')}
+                            >
+                              Xem CV
+                            </button>
+
+                          </div>
+                          <div className="flex-1">
+                            <label className="mb-2.5 block text-black dark:text-white">Ngày tạo <span className="text-meta-1">*</span></label>
+                            <div className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white">
+                              {moment(resumeDetail?.createdAt).format("ddd, DD/MM/YYYY, HH:mm")}
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <label className="mb-2.5 block text-black dark:text-white">Trạng thái </label>
+                            <select
+                              value={statusUpdate || resumeDetail?.status}
+                              onChange={(e) => setStatusUpdate(e.target.value)}
+                              className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                            >
+                              <option value="" disabled hidden>Chọn trạng thái </option>
+                              {statusOptions.map(option => (
+                                <option key={option.value} value={option.label}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer */}
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    onClick={closeModal}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">Hủy
+                  </button>
+                  <button
+                    onClick={() => handleUpdateResume(resumeDetail?._id || '')}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">Xác nhận
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </Dialog>
+      </Transition>
       <div className="flex flex-col gap-10">
         <div className="rounded-sm border border-stroke bg-white shadow-default">
           <div className="grid grid-cols-6 gap-x-6 py-3 px-2 md:px-6 xl:px-7.5">
@@ -136,7 +308,7 @@ const Resumes = () => {
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
               >
-                <option value="" disabled>Chọn trạng thái</option>
+                <option value="">Tất cả</option>
                 {statusOptions.map(option => (
                   <option key={option.value} value={option.label}>
                     {option.label}
@@ -152,7 +324,7 @@ const Resumes = () => {
         <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
           <div className="mb-6 flex items-center justify-between">
             <h4 className="text-xl font-semibold text-black dark:text-white">
-              Danh sách CV
+              Danh sách hồ sơ ứng tuyển
             </h4>
           </div>
 
@@ -221,9 +393,9 @@ const Resumes = () => {
                       <button onClick={() => handleDeleteResume(item._id)} className="hover:text-red-600">
                         <TrashIcon size={20} />
                       </button>
-                      <Link className="hover:text-primary" to={`${item._id}`}>
+                      <button type='button' className="hover:text-primary" onClick={() => openModal(item._id)}>
                         <Pencil size={20} />
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </div>
