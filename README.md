@@ -2,10 +2,6 @@
 
 Khóa luận tốt nghiệp đề tài phát triển hệ thống hỗ trợ tìm kiếm việc làm - giao diện được thiết ké dành cho Admin
 
-## Mục Lục
-- [Giới Thiệu](#giới-thiệu)
-- [Cài Đặt](#cài-đặt)
-- [Cách Sử Dụng](#cách-sử-dụng)
 
 ## Giới Thiệu
 
@@ -16,5 +12,16 @@ Dự án này được phát triển như một phần của khóa luận tốt 
 
 ### Clone Dự Án
 ```bash
-[git clone https://github.com/username/tên-dự-án.git](https://github.com/YKhoa2405/dev_job_ui.git)
+git clone https://github.com/YKhoa2405/dev_job_ui.git
+```
+
+#### Chạy dự án
+```bash
 cd dev_job_ui
+```
+```bash
+npm install
+```
+```bash
+npm run dev
+```
