@@ -1,5 +1,20 @@
-# job_search_ui
-Khóa luận tốt nghiệp đề tài phát triển hệ thống hỗ trợ tìm kiếm việc làm - giao diện
+# dev_job_ui
 
-mobile app: React Native
-web: ReactJS
+Khóa luận tốt nghiệp đề tài phát triển hệ thống hỗ trợ tìm kiếm việc làm - giao diện được thiết ké dành cho Admin
+
+## Mục Lục
+- [Giới Thiệu](#giới-thiệu)
+- [Cài Đặt](#cài-đặt)
+- [Cách Sử Dụng](#cách-sử-dụng)
+
+## Giới Thiệu
+
+Dự án này được phát triển như một phần của khóa luận tốt nghiệp nhằm giải quyết các vấn đề trong việc quản lý dữ liệu.
+
+Ứng dụng cung cấp giao diện quản trị trực quan, giúp người quản lý (admin) thực hiện các thao tác
+
+
+### Clone Dự Án
+```bash
+[git clone https://github.com/username/tên-dự-án.git](https://github.com/YKhoa2405/dev_job_ui.git)
+cd dev_job_ui
