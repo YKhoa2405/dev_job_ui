@@ -10,7 +10,7 @@ Dự án này được phát triển như một phần của khóa luận tốt 
 Ứng dụng cung cấp giao diện quản trị trực quan, giúp người quản lý (admin) thực hiện các thao tác
 
 
-### Clone Dự Án
+## Clone Dự Án
 ```bash
 git clone https://github.com/YKhoa2405/dev_job_ui.git
 ```
