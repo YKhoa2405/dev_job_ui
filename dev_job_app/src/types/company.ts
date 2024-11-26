@@ -31,7 +31,7 @@ export type ICompanyDetail = {
     website: string
     field: string
     followers: number
-    size: number
+    size: string
     about: string
     isApproved: boolean
     createBy: {

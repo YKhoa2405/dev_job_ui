@@ -58,10 +58,10 @@ const EditCompanies = () => {
                 address: companyDetail?.address,
                 field: companyDetail?.field,
                 website: companyDetail?.website,
-                isApproved:companyDetail?.isApproved,
+                isApproved: companyDetail?.isApproved,
                 // // avatar: companyDetail?.avatar,
                 about: companyDetail?.about,
-                
+
             });
             toast.success('Cập nhật thành công!', {
                 position: "top-right",
@@ -82,7 +82,7 @@ const EditCompanies = () => {
         <>
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-title-md2 font-semibold text-black dark:text-white">
-                    Chi tiết công ty
+                    Chỉnh sửa công ty
                 </h2>
                 <nav>
                     <ol className="flex items-center gap-2">
@@ -91,7 +91,7 @@ const EditCompanies = () => {
                                 Quản lý công ty /
                             </Link>
                         </li>
-                        <li className="font-medium text-primary">Chi tiết công ty</li>
+                        <li className="font-medium text-primary">Chỉnh sửa công ty</li>
                     </ol>
                 </nav>
             </div>
@@ -128,7 +128,7 @@ const EditCompanies = () => {
                                 <div className="flex-1">
                                     <label className="mb-2.5 block text-black dark:text-white">Quy mô công ty</label>
                                     <input
-                                        type="number"
+                                        type="text"
                                         name="size"
                                         value={companyDetail?.size || ''}
                                         onChange={handleInputChange}

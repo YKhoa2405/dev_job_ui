@@ -23,6 +23,7 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import EditResumes from './pages/Resumes/EditResumes';
 import EditCompanies from './pages/Companies/EditCompanies';
 import EditJobs from './pages/Jobs/EditJobs';
+import CompanyDetail from './pages/Companies/CompanyDetail';
 
 
 
@@ -49,7 +50,7 @@ function App() {
 
       <Routes>
         <Route
-          path="/"
+          path="/dashboard"
           element={<>
             <PageTitle title="Bảng điều khiển" />
             <Dashboard /></>
@@ -89,11 +90,24 @@ function App() {
             <CreateCompany /></>} />
 
         <Route
-          path="/admin/companies/:id"
+          path="/admin/companies/:id/edit"
+          element={
+            <>
+              <PageTitle title="Chỉnh sửa công ty" />
+              <EditCompanies  />
+            </>
+          }
+        />
+
+        <Route
+          path="/admin/companies/:id/detail"
           element={
             <>
               <PageTitle title="Chi tiết công ty" />
-              <EditCompanies /></>} />
+              <CompanyDetail />
+            </>
+          }
+        />
 
         {/* Jobs */}
         <Route
@@ -148,7 +162,7 @@ function App() {
           element={<>
             <PageTitle title="Kĩ năng" />
             <Skills /></>} />
-            
+
         {/* role */}
         <Route
           path="/admin/roles"

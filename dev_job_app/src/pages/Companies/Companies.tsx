@@ -225,13 +225,13 @@ const Companies = () => {
                   </div>
                   <div className="col-span-1 hidden sm:flex items-center">
                     <div className="flex items-center space-x-3.5">
-                      <div className="hover:text-primary">
-
-                      </div>
+                      <Link className="hover:text-primary" to={`${item._id}/detail`}>
+                        <Eye size={20} />
+                      </Link>
                       <button onClick={() => handleDeleteCompany(item._id)} className="hover:text-red-500">
                         <TrashIcon size={20} />
                       </button>
-                      <Link className="hover:text-primary" to={`${item._id}`}>
+                      <Link className="hover:text-primary" to={`${item._id}/edit`}>
                         <Pencil size={20} />
                       </Link>
                     </div>

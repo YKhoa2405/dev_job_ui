@@ -30,6 +30,7 @@ export const endpoints = {
 
     // jobs
     'jobs': '/jobs',
+    'jobsByCompany': (companyId: string) => `/jobs/${companyId}/jobs`,
     'jobDetail': (jobId: string) => `/jobs/${jobId}`,
 
 

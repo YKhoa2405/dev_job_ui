@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX, Eye, Pencil, Plus, Search, TrashIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX, Pencil, Plus, Search, TrashIcon } from 'lucide-react';
 
 import { Link } from 'react-router-dom';
 import { IJobList } from '../../types/job';
