@@ -149,7 +149,7 @@ const Jobs = () => {
                 onChange={(e) => setLevel(e.target.value)}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
               >
-                <option value="" disabled>Chọn level</option>
+                <option value="" >Tất cả</option>
 
                 {levelOptions.map(option => (
                   <option key={option.value} value={option.label}>
@@ -167,7 +167,7 @@ const Jobs = () => {
                 onChange={(e) => setSalary(e.target.value)}
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
               >
-                <option value="" disabled>Chọn lương</option>
+                <option value="" >Tất cả</option>
                 {salaryOptions.map(s => (
                   <option key={s.value} value={s.label}>
                     {s.label}

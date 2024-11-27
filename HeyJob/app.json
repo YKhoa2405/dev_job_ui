@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "HeyJob",
+    "slug": "HeyJob",
+    "version": "1.0.0",
+    "scheme": "heyjob",
+    "android": {
+      "package": "com.khoa2405.heyjob"  
+    }
+  },
+  "name": "HeyJob"
+}
