@@ -10,6 +10,9 @@ export default function Login({ navigation }) {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const handleLogin = () => {
+        navigation.navigate('MainTab')
+    }
 
     return (
         <View style={[StyleShare.container, { marginHorizontal: 20, }]}>

@@ -4,7 +4,7 @@ import { mainColor, bgButton2, bgImage, grey, orange, white } from "./Color";
 const StyleShare = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor:grey
+        backgroundColor: grey
     },
     logo: {
         width: 80,
@@ -21,7 +21,7 @@ const StyleShare = StyleSheet.create({
         fontWeight: 'bold',
         color: mainColor
     },
-    textText20: {
+    titleText20: {
         fontSize: 20,
         fontWeight: 'bold',
         color: mainColor
@@ -44,7 +44,7 @@ const StyleShare = StyleSheet.create({
     line: {
         height: 1,
         flex: 1,
-        backgroundColor: bgButton2
+        backgroundColor: grey
     },
     lineText: {
         marginHorizontal: 5,
@@ -94,17 +94,35 @@ const StyleShare = StyleSheet.create({
         alignSelf: 'flex-start',
         backgroundColor: grey,
         marginRight: 10,
-        marginTop: 10
     },
+    // Search
     searchHome: {
         flexDirection: 'row',
         backgroundColor: white,
         width: '85%',
         marginRight: 10,
-        borderRadius: 10, padding: 10,
+        borderRadius: 10, padding: 12,
         alignItems: 'center',
         elevation: 2
     },
+
+    searchDetail: {
+        flexDirection: 'row',
+        backgroundColor: 'white',
+        width: '100%',
+        borderRadius: 10,
+        padding:12,
+        alignItems: 'center',
+        elevation: 2,
+        marginBottom: 10,
+    },
+    searchInput: {
+        flex: 1, // Để chiếm toàn bộ không gian còn lại
+        fontSize: 16,
+        color: '#333',
+        padding: 0, // Loại bỏ padding mặc định của TextInput
+    },
+
     imageNullData: {
         width: 200,
         height: 200,
@@ -126,7 +144,43 @@ const StyleShare = StyleSheet.create({
         paddingVertical: 10,
         borderRadius: 10,
         marginTop: 10
-    }
+    },
+
+    // drop down
+    dropdownButtonStyle: {
+        width: 200,
+        height: 40,
+        backgroundColor: white,
+        borderRadius: 10,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+    },
+    dropdownButtonTxtStyle: {
+        flex: 1,
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    dropdownButtonArrowStyle: {
+        fontSize: 26,
+    },
+    dropdownMenuStyle: {
+        borderRadius: 8,
+    },
+    dropdownItemStyle: {
+        width: '100%',
+        flexDirection: 'row',
+        paddingHorizontal: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 8,
+    },
+    dropdownItemTxtStyle: {
+        flex: 1,
+        fontSize: 16,
+        fontWeight: '500',
+    },
 })
 
 export default StyleShare
