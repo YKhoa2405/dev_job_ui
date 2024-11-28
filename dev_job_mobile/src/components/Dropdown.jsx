@@ -4,7 +4,7 @@ import SelectDropdown from 'react-native-select-dropdown';
 import Icon from 'react-native-vector-icons/Ionicons'; // Đảm bảo bạn sử dụng đúng thư viện Icon
 import StyleShare from '../assets/themes/StyleShare';
 
-const CustomDropdown = ({
+const Dropdown = ({
     data,
     placeholder = 'Select your mood',
     onSelect,
@@ -44,4 +44,4 @@ const CustomDropdown = ({
     );
 };
 
-export default CustomDropdown;
+export default Dropdown;

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableWithoutFeedback, TouchableOpacity, FlatList } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import { bgButton2, grey, mainColor, white, orange } from "../../assets/themes/Color";
 import { Avatar } from "react-native-paper";
@@ -7,6 +7,7 @@ import Icon from "react-native-vector-icons/Ionicons"
 import Button from "../../components/Button";
 
 export default function Profile({ navigation }) {
+
 
     const aboutApp = [
         { id: 1, icon: 'business', title: 'Về HeyJob' },
@@ -24,15 +25,13 @@ export default function Profile({ navigation }) {
     const handleManageJobClick = (id) => {
         switch (id) {
             case 1:
-                navigation.navigate('SaveJob')
+                navigation.navigate('JobSaved')
                 break;
             case 2:
-                navigation.navigate('ApplyJob')
+                navigation.navigate('JobApplied')
                 break;
             case 3:
-                console.log('Công ty đã theo dõi clicked');
-                navigation.navigate('ListFollow')
-
+                navigation.navigate('CompaniesFollow')
                 break;
             default:
                 console.log('Unknown item clicked');
@@ -66,6 +65,8 @@ export default function Profile({ navigation }) {
             ))}
         </View>
     );
+
+
     return (
         <View style={StyleShare.container}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
@@ -83,19 +84,32 @@ export default function Profile({ navigation }) {
                 <View style={styles.containerMain}>
                     <View style={styles.manageJob}>
                         <Text style={[StyleShare.titleText16, { marginVertical: 10 }]}>CV của bạn</Text>
-                        <Text style={[ { marginBottom: 30 }]}>Tải lên CV để chúng tôi hiển thị những việc làm phù hợp với bạn và dễ dàng ứng tuyển sau này </Text>
+                        <Text style={[{ marginBottom: 30 }]}>Tải lên CV để chúng tôi hiển thị những việc làm phù hợp với bạn và dễ dàng ứng tuyển sau này </Text>
+                        {/* CV */}
+                        <View style={styles.cvContainer}>
+                            <View style={StyleShare.flexBetween}>
+                                <Text style={StyleShare.titleText16}>Tên CV</Text>
+                                <Icon name="trash-outline" size={20} color={'red'} />
+                            </View>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
+                                <Icon name="time-outline" size={18} />
+                                <Text style={{ marginHorizontal: 5 }}>24/5/2003</Text>
+                            </View>
+                            <TouchableOpacity style={styles.previewCV}>
+                                <Text style={StyleShare.titleText16}>Xem CV</Text>
+                            </TouchableOpacity>
+                        </View>
+
                         <Button
                             title={'Tải lên CV mới'}
                             backgroundColor={mainColor}
                             textColor={white}
-                        // onPress={() => handleLogin()}
                         />
                     </View>
                 </View>
                 <View style={styles.containerMain}>
                     <View style={styles.manageJob}>
                         <Text style={[StyleShare.titleText16, { marginVertical: 10 }]}>Quản lý việc làm</Text>
-
                         <ManageJobGrid></ManageJobGrid>
                     </View>
                     <View style={styles.manageJob}>
@@ -168,7 +182,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     gridItem: {
-        width: (Dimensions.get('window').width - 50) / 2, // 40 là tổng padding/margin
+        width: (Dimensions.get('window').width - 50) / 2,
         padding: 16,
         backgroundColor: grey,
         borderRadius: 8,
@@ -187,12 +201,27 @@ const styles = StyleSheet.create({
         height: 24
     },
     technologyContainer: {
-        // Container chứa các Chip công nghệ
         flexDirection: 'row',
         flexWrap: 'wrap',
         marginTop: 10
     },
 
+    cvContainer: {
+        borderRadius: 8,
+        borderColor: bgButton2,
+        borderWidth: 2,
+        marginBottom: 10,
+        padding: 10
+    },
+    previewCV: {
+        marginTop: 10,
+        borderRadius: 8,
+        borderColor: bgButton2,
+        borderWidth: 2,
+        paddingVertical: 5,
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 
 
 })

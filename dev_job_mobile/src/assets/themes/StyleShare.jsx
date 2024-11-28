@@ -101,7 +101,8 @@ const StyleShare = StyleSheet.create({
         backgroundColor: white,
         width: '85%',
         marginRight: 10,
-        borderRadius: 10, padding: 12,
+        borderRadius: 10,
+         padding: 12,
         alignItems: 'center',
         elevation: 2
     },
@@ -111,7 +112,7 @@ const StyleShare = StyleSheet.create({
         backgroundColor: 'white',
         width: '100%',
         borderRadius: 10,
-        padding:12,
+        padding: 12,
         alignItems: 'center',
         elevation: 2,
         marginBottom: 10,
@@ -145,11 +146,20 @@ const StyleShare = StyleSheet.create({
         borderRadius: 10,
         marginTop: 10
     },
+    // style item job
+    jobItemContainer: {
+        backgroundColor: white,
+        borderRadius: 10,
+        padding: 20,
+        backgroundColor: white,
+        marginTop: 15,
+        marginHorizontal: 20
+    },
 
     // drop down
     dropdownButtonStyle: {
-        width: 200,
-        height: 40,
+        width: 175,
+        height: 35,
         backgroundColor: white,
         borderRadius: 10,
         flexDirection: 'row',
@@ -159,11 +169,10 @@ const StyleShare = StyleSheet.create({
     },
     dropdownButtonTxtStyle: {
         flex: 1,
-        fontSize: 16,
         fontWeight: '500',
     },
     dropdownButtonArrowStyle: {
-        fontSize: 26,
+        fontSize: 20,
     },
     dropdownMenuStyle: {
         borderRadius: 8,

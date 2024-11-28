@@ -7,7 +7,7 @@ import { mainColor, grey, orange, white } from "../../assets/themes/Color";
 import { Avatar, Chip } from "react-native-paper";
 import moment from "moment";
 
-export default function JobNearBy() {
+export default function JobNearBy({navigation}) {
     const latitude = 11111
     const longitude = 11111
 

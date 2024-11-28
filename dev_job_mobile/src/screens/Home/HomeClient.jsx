@@ -5,7 +5,7 @@ import { Avatar } from "react-native-paper";
 import Icon from 'react-native-vector-icons/Ionicons'
 
 
-export default function HomeClient() {
+export default function HomeClient({navigation}) {
     return(
         <View style={StyleShare.container}>
             <View style={[StyleShare.flexBetween, { marginHorizontal: 20, marginTop: 30 }]}>
@@ -15,19 +15,19 @@ export default function HomeClient() {
                 <Avatar.Image  size={36} style={{ backgroundColor: 'white' }} />
             </View>
             <View style={{ marginHorizontal: 20, marginVertical: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <TouchableOpacity onPress={() => navigation.navigate('JobSearch')} style={StyleShare.searchHome}>
+                <TouchableOpacity onPress={() => navigation.navigate('JobSearchResult')} style={StyleShare.searchHome}>
                     <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
                     <Text>Tìm kiếm việc làm</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.searchMap} onPress={() => navigation.navigate('SearchJobMap')}>
+                <TouchableOpacity style={styles.searchMap} onPress={() => navigation.navigate('JobNearBy')}>
                     <Icon name="map" size={20} color={orange} />
                 </TouchableOpacity>
             </View>
             <ScrollView style={styles.headerMain} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
                 <View>
                     <View style={StyleShare.flexBetween}>
-                        <Text style={StyleShare.titleText20}>Gợi ý việc làm phù hợp</Text>
-                        <TouchableOpacity style={StyleShare.titleText16} onPress={() => navigation.navigate("ViewAll", { title: "Gợi ý việc làm phù hợp", api: "job_recommned" })}>
+                        <Text style={StyleShare.titleText20}>Gợi ý việc làm</Text>
+                        <TouchableOpacity style={StyleShare.titleText16} onPress={() => navigation.navigate("JobSuggestions", { title: "Gợi ý việc làm", api: "job_recommned" })}>
                             <Text style={StyleShare.lineText}>Xem tất cả</Text>
                         </TouchableOpacity>
                     </View>
@@ -36,7 +36,7 @@ export default function HomeClient() {
                 <View style={{ marginTop: 40 }}>
                     <View style={StyleShare.flexBetween}>
                         <Text style={StyleShare.titleText20}>Việc làm hấp dẫn</Text>
-                        <TouchableOpacity style={StyleShare.titleText16} onPress={() => navigation.navigate("ViewAll", { title: "Việc làm hấp dẫn", api: "job_salary" })}>
+                        <TouchableOpacity style={StyleShare.titleText16} onPress={() => navigation.navigate("JobSuggestions", { title: "Việc làm hấp dẫn", api: "job_salary" })}>
                             <Text style={StyleShare.lineText}>Xem tất cả</Text>
                         </TouchableOpacity>
                     </View>
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     },
 
     searchMap: {
-        padding: 10,
+        padding: 12,
         borderRadius: 10,
         backgroundColor: 'white',
         elevation: 2

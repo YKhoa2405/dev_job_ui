@@ -36,7 +36,7 @@ export default function Companies() {
     const renderItem = ({ item }) => {
         return (
             <TouchableWithoutFeedback>
-                <View style={styles.jobItemContainer}>
+                <View style={styles.itemContainer}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View style={styles.containerAvatarJob}>
                             <Avatar.Image source={{ uri: item.job.employer.avatar }} size={36} style={{ backgroundColor: 'white' }} />
@@ -120,6 +120,4 @@ const styles = StyleSheet.create({
         marginTop: 15,
         marginHorizontal: 20
     }
-
-
 })

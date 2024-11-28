@@ -17,6 +17,13 @@ import JobDetail from './src/screens/Job/JobDetail';
 import CompanyDetail from './src/screens/Company/CompanyDetail';
 import JobNearBy from './src/screens/Job/JobNearBy';
 import Chat from './src/screens/Chat/Chat';
+import JobSearch from './src/screens/Job/JobSearch';
+import JobSearchResult from './src/screens/Job/JobSearchResult';
+import CompaniesFollow from './src/screens/Company/CompaniesFollow';
+import JobSaved from './src/screens/Job/JobSaved';
+import JobApplied from './src/screens/Job/JobApplied';
+import JobSuggestions from './src/screens/Job/JobSuggestions';
+import ResumeApply from './src/screens/Resume/ResumeApply';
 
 
 const Stack = createNativeStackNavigator();
@@ -30,11 +37,18 @@ export default function App() {
         <Stack.Screen name="MainTab" component={MainTab} />
         <Stack.Screen name="JobDetail" component={JobDetail} />
         <Stack.Screen name="JobNearBy" component={JobNearBy} />
+        <Stack.Screen name="JobSearch" component={JobSearch} />
+        <Stack.Screen name="JobSearchResult" component={JobSearchResult} />
+        <Stack.Screen name="JobSaved" component={JobSaved} />
+        <Stack.Screen name="JobApplied" component={JobApplied} />
+        <Stack.Screen name="JobSuggestions" component={JobSuggestions} />
         <Stack.Screen name="CompanyDetail" component={CompanyDetail} />
-
+        <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
+        <Stack.Screen name="ResumeApply" component={ResumeApply} />
 
       </Stack.Navigator>
     </NavigationContainer>
+
   );
 }
 
@@ -48,7 +62,7 @@ function MainTab() {
           tabBarIcon: ({ focused, color, size }) => {
             let iconName;
             if (route.name === 'HomeClient') {
-              iconName = focused ? 'home' : 'home-outline';
+              iconName = focused ? 'briefcase' : 'briefcase-outline';
             }
             else if (route.name === 'Companies') {
               iconName = focused ? 'business' : 'business-outline';
@@ -60,7 +74,7 @@ function MainTab() {
               iconName = focused ? 'person-circle' : 'person-circle-outline';
             }
 
-            return <Icon name={iconName} size={28} color={color} />;
+            return <Icon name={iconName} size={26} color={color} />;
           },
           tabBarActiveTintColor: orange,
           tabBarInactiveTintColor: 'gray',
