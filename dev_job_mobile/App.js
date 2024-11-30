@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import { orange } from './src/assets/themes/Color';
 import Icon from 'react-native-vector-icons/Ionicons'
+import { Provider } from 'react-redux'
 
 import Wellcome from './src/screens/Auth/Wellcome';
 import Login from './src/screens/Auth/Login';
@@ -24,6 +25,7 @@ import JobSaved from './src/screens/Job/JobSaved';
 import JobApplied from './src/screens/Job/JobApplied';
 import JobSuggestions from './src/screens/Job/JobSuggestions';
 import ResumeApply from './src/screens/Resume/ResumeApply';
+import { store } from './src/redux/store';
 
 
 const Stack = createNativeStackNavigator();
@@ -31,23 +33,26 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="AuthStack" component={AuthStack} />
-        <Stack.Screen name="MainTab" component={MainTab} />
-        <Stack.Screen name="JobDetail" component={JobDetail} />
-        <Stack.Screen name="JobNearBy" component={JobNearBy} />
-        <Stack.Screen name="JobSearch" component={JobSearch} />
-        <Stack.Screen name="JobSearchResult" component={JobSearchResult} />
-        <Stack.Screen name="JobSaved" component={JobSaved} />
-        <Stack.Screen name="JobApplied" component={JobApplied} />
-        <Stack.Screen name="JobSuggestions" component={JobSuggestions} />
-        <Stack.Screen name="CompanyDetail" component={CompanyDetail} />
-        <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
-        <Stack.Screen name="ResumeApply" component={ResumeApply} />
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="AuthStack" component={AuthStack} />
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="MainTab" component={MainTab} />
+          <Stack.Screen name="JobDetail" component={JobDetail} />
+          <Stack.Screen name="JobNearBy" component={JobNearBy} />
+          <Stack.Screen name="JobSearch" component={JobSearch} />
+          <Stack.Screen name="JobSearchResult" component={JobSearchResult} />
+          <Stack.Screen name="JobSaved" component={JobSaved} />
+          <Stack.Screen name="JobApplied" component={JobApplied} />
+          <Stack.Screen name="JobSuggestions" component={JobSuggestions} />
+          <Stack.Screen name="CompanyDetail" component={CompanyDetail} />
+          <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
+          <Stack.Screen name="ResumeApply" component={ResumeApply} />
 
-      </Stack.Navigator>
-    </NavigationContainer>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
 
   );
 }
@@ -100,11 +105,6 @@ function AuthStack() {
       <Stack.Screen
         name="Wellcome"
         component={Wellcome}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Login"
-        component={Login}
         options={{ headerShown: false }}
       />
       <Stack.Screen

@@ -5,9 +5,13 @@ import { bgButton2, grey, mainColor, white, orange } from "../../assets/themes/C
 import { Avatar } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons"
 import Button from "../../components/Button";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../redux/slice/userSlice";
 
 export default function Profile({ navigation }) {
-
+    const dispatch = useDispatch()
+    const user = useSelector((state) => state.user.user)
+    console.log(user)
 
     const aboutApp = [
         { id: 1, icon: 'business', title: 'Về HeyJob' },
@@ -39,12 +43,10 @@ export default function Profile({ navigation }) {
         }
     };
 
-    const handleLogout = async () => {
+    const handleLogout = () => {
+        dispatch(logout());
         navigation.navigate('Login')
-        dispatch({
-            'type': 'logout'
-        })
-    }
+    };
 
     const ManageJobGrid = () => (
         <View style={styles.grid}>
@@ -78,7 +80,7 @@ export default function Profile({ navigation }) {
                     />
                     <View>
                         <Text style={StyleShare.titleText16}>NguyenyKhoa</Text>
-                        <Text >NguyenYfdsh</Text>
+                        <Text >{user.email}</Text>
                     </View>
                 </View>
                 <View style={styles.containerMain}>

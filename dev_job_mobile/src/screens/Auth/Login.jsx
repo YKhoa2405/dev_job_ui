@@ -4,15 +4,56 @@ import { mainColor, orange, white } from "../../assets/themes/Color";
 import StyleShare from "../../assets/themes/StyleShare";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
+import API, { endpoints } from "../../assets/config/API";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDispatch, useSelector } from 'react-redux';
+import { loginSuccess } from "../../redux/slice/userSlice";
+
 
 export default function Login({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
 
-    const handleLogin = () => {
-        navigation.navigate('MainTab')
-    }
+
+
+    const handleLogin = async () => {
+        // if (!email || !password) {
+        //     ToastMess({ type: 'error', text1: 'Vui lòng không để trống các trường.' });
+        //     return;
+        // }
+
+        setLoading(true)
+        try {
+            let header = {
+                'Content-Type': 'application/x-www-form-urlencoded' // Change Content-Type
+            };
+            let data = {
+                username: 'ungvien@gmail.com',
+                // username: 'tuyendung2',
+                // password: 'caichyrua11',
+                password: '123456',
+            };
+            let res = await API.post(endpoints['login'], data, { headers: header });
+            const { access_token, ...userInfo } = res.data.data;
+            await AsyncStorage.setItem("access_token", access_token)
+
+            dispatch(
+                loginSuccess({
+                    user: userInfo,
+                })
+            )
+            navigation.navigate('MainTab')
+        } catch (error) {
+            if (error.response && error.response.status === 400) {
+                ToastMess({ type: 'error', text1: 'Email hoặc mật khẩu không chính xác' })
+            }
+            console.log(error)
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <View style={[StyleShare.container, { marginHorizontal: 20, }]}>

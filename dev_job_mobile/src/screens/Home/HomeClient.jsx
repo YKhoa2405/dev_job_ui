@@ -3,9 +3,11 @@ import StyleShare from "../../assets/themes/StyleShare";
 import { bgButton2, mainColor, white, orange } from "../../assets/themes/Color";
 import { Avatar } from "react-native-paper";
 import Icon from 'react-native-vector-icons/Ionicons'
+import { useSelector } from 'react-redux';
 
 
 export default function HomeClient({navigation}) {
+    
     return(
         <View style={StyleShare.container}>
             <View style={[StyleShare.flexBetween, { marginHorizontal: 20, marginTop: 30 }]}>

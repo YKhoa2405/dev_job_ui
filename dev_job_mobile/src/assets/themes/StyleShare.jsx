@@ -94,6 +94,7 @@ const StyleShare = StyleSheet.create({
         alignSelf: 'flex-start',
         backgroundColor: grey,
         marginRight: 10,
+        marginTop:10
     },
     // Search
     searchHome: {
