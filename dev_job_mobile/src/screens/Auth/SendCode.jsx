@@ -4,15 +4,56 @@ import StyleShare from "../../assets/themes/StyleShare";
 import { mainColor, orange, white } from "../../assets/themes/Color";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
-export default function Verify({ navigation, route }) {
+import { ToastMess } from "../../components/ToastMess";
+import API, { endpoints } from "../../assets/config/API";
+export default function SendCode({ navigation, route }) {
 
-    // const { email } = route.params;
+    const { email } = route.params;
     const [loading, setLoading] = useState(false);
     const [otp, setOtp] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [newPasswordAg, setNewPasswordAg] = useState('');
 
 
+    const handleResetPassword = async () => {
+        if (!email || !otp || !newPassword || !newPasswordAg) {
+            ToastMess({ type: 'error', text1: 'Vui lòng điền đầy đủ thông tin.' });
+            return;
+        }
+        if (newPassword !== newPasswordAg) {
+            ToastMess({ type: 'error', text1: 'Mật khẩu và mật khẩu xác nhận không khớp.' });
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await API.post(endpoints['changePassword'], { email, code: otp, newPassword }, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+
+            ToastMess({ type: 'success', text1: 'Đổi mật khẩu thành công.' });
+            navigation.navigate("Login");
+        } catch (error) {
+            if (error.response) {
+                if (error.response.status === 400) {
+                    ToastMess({ type: 'error', text1: 'Mã OTP không hợp lệ hoặc đã hết hạn.' });
+                    console.log(error)
+
+                } else {
+                    ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
+                    console.log(error)
+                }
+            } else {
+                ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
+                console.log(error)
+            }
+        } finally {
+            setLoading(false);
+        }
+
+    };
 
     return (
         <ScrollView style={[StyleShare.container, { paddingHorizontal: 20 }]} showsVerticalScrollIndicator={false}>

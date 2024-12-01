@@ -9,7 +9,7 @@ import { Provider } from 'react-redux'
 import Wellcome from './src/screens/Auth/Wellcome';
 import Login from './src/screens/Auth/Login';
 import Register from './src/screens/Auth/Register';
-import Verify from './src/screens/Auth/Verify';
+import Verify from './src/screens/Auth/SendCode';
 import Profile from './src/screens/Profile/Profile';
 import ForgotPasswork from './src/screens/Auth/ForgotPassword';
 import HomeClient from './src/screens/Home/HomeClient';
@@ -26,6 +26,8 @@ import JobApplied from './src/screens/Job/JobApplied';
 import JobSuggestions from './src/screens/Job/JobSuggestions';
 import ResumeApply from './src/screens/Resume/ResumeApply';
 import { store } from './src/redux/store';
+import Toast from 'react-native-toast-message';
+import SendCode from './src/screens/Auth/SendCode';
 
 
 const Stack = createNativeStackNavigator();
@@ -37,8 +39,10 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="AuthStack" component={AuthStack} />
-          <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="MainTab" component={MainTab} />
+          {/* <Stack.Screen name="ForgotPasswork" component={ForgotPasswork} />
+          <Stack.Screen name="Login" component={Login} /> */}
+
           <Stack.Screen name="JobDetail" component={JobDetail} />
           <Stack.Screen name="JobNearBy" component={JobNearBy} />
           <Stack.Screen name="JobSearch" component={JobSearch} />
@@ -51,6 +55,7 @@ export default function App() {
           <Stack.Screen name="ResumeApply" component={ResumeApply} />
 
         </Stack.Navigator>
+        <Toast />
       </NavigationContainer>
     </Provider>
 
@@ -113,13 +118,18 @@ function AuthStack() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="ForgotPass"
+        name="Login"
+        component={Login}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ForgotPasswork"
         component={ForgotPasswork}
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="SendOtp"
-        component={Verify}
+        name="SendCode"
+        component={SendCode}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

@@ -78,7 +78,7 @@ export default function Login({ navigation }) {
                     autoCapitalize="none"
                 />
                 <View style={{ alignItems: "flex-end" }}>
-                    <TouchableOpacity onPress={() => { navigation.navigate("ForgotPass") }}>
+                    <TouchableOpacity onPress={() => { navigation.navigate("ForgotPasswork") }}>
                         <Text style={styles.textInput}>Quên mật khẩu ?</Text>
                     </TouchableOpacity>
                 </View>

@@ -17,14 +17,6 @@ export default function CompanyDetail({ navigation, route }) {
     const [companyDetail, setCompanyDetail] = useState('');
 
     const Tab = createMaterialTopTabNavigator();
-    const employer = {
-        avatar: 'https://example.com/avatar.jpg',
-        employer: {
-            company_name: 'Công ty TNHH ABC',
-            followers_count: 1500,
-            size: 50, // số lượng nhân viên
-        },
-    };
 
     useEffect(() => {
         fetchCompanyDetail();

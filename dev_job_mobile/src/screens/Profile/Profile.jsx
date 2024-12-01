@@ -44,8 +44,8 @@ export default function Profile({ navigation }) {
     };
 
     const handleLogout = () => {
+        navigation.navigate('AuthStack')
         dispatch(logout());
-        navigation.navigate('Login')
     };
 
     const ManageJobGrid = () => (
@@ -80,7 +80,7 @@ export default function Profile({ navigation }) {
                     />
                     <View>
                         <Text style={StyleShare.titleText16}>NguyenyKhoa</Text>
-                        <Text >{user.email}</Text>
+                        <Text >Email</Text>
                     </View>
                 </View>
                 <View style={styles.containerMain}>

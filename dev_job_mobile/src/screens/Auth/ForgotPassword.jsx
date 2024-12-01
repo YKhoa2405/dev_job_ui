@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
-import { bgButton2, mainColor, white } from "../../assets/themes/Color";
+import { bgButton2, mainColor, orange, white } from "../../assets/themes/Color";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
+
+import { ToastMess } from "../../components/ToastMess";
+import Loading from "../../components/Loading";
+import API, { endpoints } from "../../assets/config/API";
 export default function ForgotPassword({ navigation }) {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handlePasswordReset = async () => {
+    const handleSendCode = async () => {
         if (!email) {
             ToastMess({ type: 'error', text1: 'Vui lòng nhập địa chỉ Email.' });
             return
@@ -17,20 +21,17 @@ export default function ForgotPassword({ navigation }) {
         try {
             let form = new FormData();
             form.append('email', email);
-            const response = await API.post(endpoints['send_otp'], form, {
+            await API.post(endpoints['sendCode'], { email }, {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
             });
 
-            if (response.status === 200) {
-                // Thành công
-                ToastMess({ type: 'success', text1: 'Vui lòng kiểm tra email của bạn để đặt lại mật khẩu.' });
-                navigation.navigate("SendOtp", { email: email });
-            }
+            ToastMess({ type: 'success', text1: 'Vui lòng kiểm tra email của bạn để đặt lại mật khẩu.' });
+            navigation.navigate("SendCode", { email: email });
         } catch (error) {
             // Xử lý các lỗi xảy ra trong quá trình gửi yêu cầu
-            if (error.response && error.response.status === 404) {
+            if (error.response && error.response.status === 400) {
                 ToastMess({ type: 'error', text1: 'Không tìm thấy tài khoản.' });
                 console.log(error)
 
@@ -61,11 +62,12 @@ export default function ForgotPassword({ navigation }) {
             <View style={styles.containerFooter}>
                 {loading ? (
                     <ActivityIndicator color={orange} size={'large'} />
+
                 ) : (
                     <Button title={'Đặt lại mật khẩu'}
                         backgroundColor={mainColor}
                         textColor={white}
-                        onPress={() => handlePasswordReset()} />
+                        onPress={() => handleSendCode()} />
                 )}
                 <Button title={'Trở về đăng nhập'}
                     backgroundColor={bgButton2}
