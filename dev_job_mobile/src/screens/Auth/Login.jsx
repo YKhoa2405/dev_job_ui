@@ -16,8 +16,6 @@ export default function Login({ navigation }) {
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
 
-
-
     const handleLogin = async () => {
         // if (!email || !password) {
         //     ToastMess({ type: 'error', text1: 'Vui lòng không để trống các trường.' });
@@ -54,6 +52,10 @@ export default function Login({ navigation }) {
             setLoading(false);
         }
     };
+
+    const handleLoginGoogle = async()=>{
+        
+    }
 
     return (
         <View style={[StyleShare.container, { marginHorizontal: 20, }]}>
@@ -101,7 +103,7 @@ export default function Login({ navigation }) {
                     <View style={StyleShare.line}></View>
                 </View>
                 <View style={StyleShare.flexCenter}>
-                    <TouchableOpacity style={styles.optionLoginContainer}>
+                    <TouchableOpacity style={styles.optionLoginContainer} onPress={()=>handleLoginGoogle()}>
                         <Image source={require('../../assets/images/google.png')} style={styles.optionImage} />
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.optionLoginContainer}>

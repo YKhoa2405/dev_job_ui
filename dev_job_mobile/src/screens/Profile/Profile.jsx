@@ -44,8 +44,8 @@ export default function Profile({ navigation }) {
     };
 
     const handleLogout = () => {
-        navigation.navigate('AuthStack')
         dispatch(logout());
+        navigation.navigate('AuthStack')
     };
 
     const ManageJobGrid = () => (
@@ -74,13 +74,13 @@ export default function Profile({ navigation }) {
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
                 <View style={styles.containerTop}>
                     <Avatar.Image
-                        // source={{ uri: user.avatar }}
+                        source={{ uri: user?.avatar }}
                         size={60}
                         style={{ marginLeft: 40, marginRight: 20, backgroundColor: white }}
                     />
                     <View>
-                        <Text style={StyleShare.titleText16}>NguyenyKhoa</Text>
-                        <Text >Email</Text>
+                        <Text style={StyleShare.titleText16}>{user?.name}</Text>
+                        <Text >{user?.email}</Text>
                     </View>
                 </View>
                 <View style={styles.containerMain}>

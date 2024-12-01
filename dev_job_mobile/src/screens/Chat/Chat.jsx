@@ -9,10 +9,34 @@ import moment from "moment";
 import Icon from "react-native-vector-icons/Ionicons"
 import { useState } from "react";
 import StyleShare from "../../assets/themes/StyleShare";
+import Loading from "../../components/Loading";
 
 export default function Chat({ navigation }) {
     const [searchKeywork, setSearchKeywork] = useState('')
     const [loading, setLoading] = useState(false)
+    const chatRooms=[
+        1,2
+    ]
+
+    const renderItem = ({ item }) => {
+        return (
+            <TouchableWithoutFeedback onPress={()=>navigation.navigate('ChatDetail')}>
+                <View style={styles.containerChatRoom}>
+                    <Avatar.Image  size={50} style={{ marginEnd: 15 }} />
+                    <View style={{ flex: 1 }}>
+                        <View style={StyleShare.flexBetween}>
+                            <Text style={StyleShare.titleText16}>Name</Text>
+                            <Text style={{ color: 'grey' }}>
+                                16h60
+                            </Text>
+                        </View>
+                        <Text style={{ marginTop: 5 }} ellipsizeMode="tail" numberOfLines={1}>Tin han cuoi</Text>
+                    </View>
+                </View>
+            </TouchableWithoutFeedback >
+        )
+    };
+
     return (
         <View style={{ flex: 1 }}>
             <UIHeader title={'Nhắn tin'} />
@@ -30,15 +54,13 @@ export default function Chat({ navigation }) {
 
             </View>
             <View>
-                {loading ? ( // Show loading indicator when loading
-                    <View style={styles.loadingContainer}>
-                        <ActivityIndicator size="large" color={orange} />
-                    </View>
+                {loading ? ( 
+                    <Loading/>
                 ) : (
                     <FlatList
-                        // data={chatRooms}
+                        data={chatRooms}
                         // keyExtractor={item => item.id}
-                        // renderItem={renderItem}
+                        renderItem={renderItem}
                         ListEmptyComponent={
                             <View style={{ marginTop: 50, alignItems: 'center' }}>
                                 <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />

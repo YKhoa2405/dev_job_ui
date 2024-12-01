@@ -28,6 +28,7 @@ import ResumeApply from './src/screens/Resume/ResumeApply';
 import { store } from './src/redux/store';
 import Toast from 'react-native-toast-message';
 import SendCode from './src/screens/Auth/SendCode';
+import ChatDetail from './src/screens/Chat/ChatDetail';
 
 
 const Stack = createNativeStackNavigator();
@@ -53,6 +54,8 @@ export default function App() {
           <Stack.Screen name="CompanyDetail" component={CompanyDetail} />
           <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
           <Stack.Screen name="ResumeApply" component={ResumeApply} />
+          <Stack.Screen name="ChatDetail" component={ChatDetail} />
+
 
         </Stack.Navigator>
         <Toast />

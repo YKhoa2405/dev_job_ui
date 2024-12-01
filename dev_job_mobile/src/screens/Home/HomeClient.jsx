@@ -17,7 +17,7 @@ export default function HomeClient({navigation}) {
                 <Avatar.Image  size={36} style={{ backgroundColor: 'white' }} />
             </View>
             <View style={{ marginHorizontal: 20, marginVertical: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <TouchableOpacity onPress={() => navigation.navigate('JobSearchResult')} style={StyleShare.searchHome}>
+                <TouchableOpacity onPress={() => navigation.navigate('JobSearch')} style={StyleShare.searchHome}>
                     <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
                     <Text>Tìm kiếm việc làm</Text>
                 </TouchableOpacity>

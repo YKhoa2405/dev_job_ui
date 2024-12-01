@@ -8,12 +8,13 @@ import { Avatar, Chip } from "react-native-paper";
 import * as Location from 'expo-location';
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Loading from "../../components/Loading";
 
 export default function JobNearBy({ navigation }) {
     const [latitude, setLatitude] = useState(0)
     const [longitude, setLongitude] = useState(0)
     const [distance, setDistance] = useState(5);
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
     const [jobs, setJobs] = useState([])
 
     useEffect(() => {
@@ -24,9 +25,9 @@ export default function JobNearBy({ navigation }) {
                 navigation.goBack()
                 return;
             }
-
+            
             let currentLocation = await Location.getCurrentPositionAsync({});
-
+            
             const { latitude, longitude } = currentLocation.coords;
 
             setLatitude(latitude)
@@ -107,75 +108,79 @@ export default function JobNearBy({ navigation }) {
                 title={'Việc làm gần bạn'}
                 handleLeftIcon={() => navigation.goBack()}
             />
-            <View style={styles.sliderContainer}>
-                <Text style={{ color: mainColor, fontWeight: '500', backgroundColor: 'white' }}>Phạm vi: {distance} km</Text>
-                <Slider
-                    style={styles.slider}
-                    minimumValue={1}
-                    maximumValue={10}
-                    step={1}
-                    value={5}
-                    onValueChange={(value) => setDistance(value)}
-                    minimumTrackTintColor={mainColor}
-                    maximumTrackTintColor={mainColor}
-                    thumbTintColor={mainColor}
-                />
-            </View>
-            <MapView
-                provider={PROVIDER_GOOGLE}
-                style={styles.map}
-                initialRegion={{
-                    latitude: latitude,
-                    longitude: longitude,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                }}
-            >
-                <Marker
-                    coordinate={{
+            {loading ? <>
+                <Loading />
+            </> : <>
+                <View style={styles.sliderContainer}>
+                    <Text style={{ color: mainColor, fontWeight: '500', backgroundColor: 'white' }}>Phạm vi: {distance} km</Text>
+                    <Slider
+                        style={styles.slider}
+                        minimumValue={1}
+                        maximumValue={10}
+                        step={1}
+                        value={5}
+                        onValueChange={(value) => setDistance(value)}
+                        minimumTrackTintColor={mainColor}
+                        maximumTrackTintColor={mainColor}
+                        thumbTintColor={mainColor}
+                    />
+                </View>
+                <MapView
+                    provider={PROVIDER_GOOGLE}
+                    style={styles.map}
+                    initialRegion={{
                         latitude: latitude,
                         longitude: longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
                     }}
-                    title="Vị trí của bạn"
-                    description="vị trí hiện tại của bạn"
-                />
-                {jobs.map((job) => (
+                >
                     <Marker
-                        key={job._id}
                         coordinate={{
-                            latitude: job.latitude,
-                            longitude: job.longitude,
+                            latitude: latitude,
+                            longitude: longitude,
                         }}
-                        icon={require("../../assets/images/marker_job.png")}
-                        title={job.title}
-                        description={job.companyId.name}
+                        title="Vị trí của bạn"
+                        description="vị trí hiện tại của bạn"
                     />
-                ))}
-                {latitude !== null && longitude !== null && (
-                    <>
-                        <Circle
-                            center={{ latitude: latitude, longitude: longitude }}
-                            radius={5 * 1000} // Radius in meters
-                            strokeColor="rgba(255, 0, 0, 0.5)" // Màu viền vòng tròn
-                            fillColor="rgba(255, 0, 0, 0.1)" // Màu nền vòng tròn
+                    {jobs.map((job) => (
+                        <Marker
+                            key={job._id}
+                            coordinate={{
+                                latitude: job.latitude,
+                                longitude: job.longitude,
+                            }}
+                            icon={require("../../assets/images/marker_job.png")}
+                            title={job.title}
+                            description={job.companyId.name}
                         />
-                    </>
-                )}
+                    ))}
+                    {latitude !== null && longitude !== null && (
+                        <>
+                            <Circle
+                                center={{ latitude: latitude, longitude: longitude }}
+                                radius={5 * 1000} // Radius in meters
+                                strokeColor="rgba(255, 0, 0, 0.5)" // Màu viền vòng tròn
+                                fillColor="rgba(255, 0, 0, 0.1)" // Màu nền vòng tròn
+                            />
+                        </>
+                    )}
 
-            </MapView>
-            <View style={styles.containerListJob}>
-                <View style={StyleShare.flexBetween}>
-                    <View style={StyleShare.flexCenter}>
-                        <Text style={{ color: mainColor, fontWeight: '500', marginRight: 5 }}>{jobs.length}</Text>
-                        <Text>việc làm trong khu vực</Text>
+                </MapView>
+                <View style={styles.containerListJob}>
+                    <View style={StyleShare.flexBetween}>
+                        <View style={StyleShare.flexCenter}>
+                            <Text style={{ color: mainColor, fontWeight: '500', marginRight: 5 }}>{jobs.length}</Text>
+                            <Text>việc làm trong khu vực</Text>
+                        </View>
                     </View>
+                    <FlatList
+                        renderItem={renderItem}
+                        data={jobs}
+                        horizontal={true}
+                        showsHorizontalScrollIndicator={false} />
                 </View>
-                <FlatList
-                    renderItem={renderItem}
-                    data={jobs}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false} />
-            </View>
+            </>}
         </View>
     );
 }
