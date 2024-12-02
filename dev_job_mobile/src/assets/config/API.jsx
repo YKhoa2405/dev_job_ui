@@ -7,7 +7,7 @@ const HOST = 'http://192.168.1.120:8000';
 export const endpoints = {
     // auths
     'login': '/auth/login',
-    'loginGoogle':'/auth/google/',
+    'loginGoogle': '/auth/google/',
     // users
     'users': '/users',
     'listUsers': '/users/allUser',
@@ -46,6 +46,10 @@ export const endpoints = {
     // resume
     'resume': 'applications',
     'resumeDetail': (resumeId) => `/applications/${resumeId}`,
+
+    // cv
+    'uploadCV': '/cv/upload',
+    'cvByUser': (userId) => `/cv/${userId}`
 
 };
 

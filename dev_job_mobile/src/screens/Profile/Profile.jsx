@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableWithoutFeedback, TouchableOpacity, FlatList } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableWithoutFeedback, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import { bgButton2, grey, mainColor, white, orange } from "../../assets/themes/Color";
 import { Avatar } from "react-native-paper";
@@ -7,11 +7,25 @@ import Icon from "react-native-vector-icons/Ionicons"
 import Button from "../../components/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slice/userSlice";
+import * as DocumentPicker from 'expo-document-picker';
+import { ToastMess } from "../../components/ToastMess";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { authApi, endpoints } from "../../assets/config/API";
+import { fetchListCvByUser } from "../../redux/slice/cvSLice";
+import moment from "moment";
+import 'moment/locale/vi';
 
 export default function Profile({ navigation }) {
     const dispatch = useDispatch()
     const user = useSelector((state) => state.user.user)
-    console.log(user)
+    const [cv, setCV] = useState(null);
+    const [loading, setLoading] = useState(false)
+
+    const { cvData, status } = useSelector((state) => state.cv); // Lấy `data` từ `cv`
+    console.log(cvData)
+    useEffect(() => {
+        dispatch(fetchListCvByUser(user?._id)); // Gọi API để lấy dữ liệu CV
+    }, [dispatch]);
 
     const aboutApp = [
         { id: 1, icon: 'business', title: 'Về HeyJob' },
@@ -69,6 +83,45 @@ export default function Profile({ navigation }) {
     );
 
 
+    const handleUploadCV = async () => {
+        setLoading(true);
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+            });
+
+            if (!result.canceled) {
+                const cv = result.assets[0];
+
+                const formData = new FormData();
+                formData.append('name', cv.name);
+                formData.append('url', {
+                    uri: cv.uri,
+                    name: cv.name,
+                    type: cv.mimeType
+                });
+
+                const token = await AsyncStorage.getItem('access_token');
+                console.log(formData)
+                const response = await authApi(token).post(endpoints['uploadCV'], formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                ToastMess({ type: 'success', text1: 'Tải lên thành công' });
+            } else {
+                ToastMess({ type: 'error', text1: 'Chỉ hỗ trợ định dạng pdf, docx' });
+            }
+        } catch (error) {
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
+            console.log(error)
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     return (
         <View style={StyleShare.container}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
@@ -88,25 +141,38 @@ export default function Profile({ navigation }) {
                         <Text style={[StyleShare.titleText16, { marginVertical: 10 }]}>CV của bạn</Text>
                         <Text style={[{ marginBottom: 30 }]}>Tải lên CV để chúng tôi hiển thị những việc làm phù hợp với bạn và dễ dàng ứng tuyển sau này </Text>
                         {/* CV */}
-                        <View style={styles.cvContainer}>
-                            <View style={StyleShare.flexBetween}>
-                                <Text style={StyleShare.titleText16}>Tên CV</Text>
-                                <Icon name="trash-outline" size={20} color={'red'} />
-                            </View>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-                                <Icon name="time-outline" size={18} />
-                                <Text style={{ marginHorizontal: 5 }}>24/5/2003</Text>
-                            </View>
-                            <TouchableOpacity style={styles.previewCV}>
-                                <Text style={StyleShare.titleText16}>Xem CV</Text>
-                            </TouchableOpacity>
-                        </View>
+                        {cvData && cvData.length > 0 ? (
+                            <>
+                                {cvData.map((cv) => (
+                                    <View key={cv._id} style={styles.cvContainer}>
+                                        <View style={StyleShare.flexBetween}>
+                                            <Text style={StyleShare.titleText16}>{cv.name}</Text>
+                                            <Icon name="trash-outline" size={20} color={'red'} />
+                                        </View>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
+                                            <Icon name="time-outline" size={18} />
+                                            <Text style={{ marginHorizontal: 5 }}>{moment(cv.createdAt).format('DD/MM/YYYY')}</Text>
+                                        </View>
+                                        <TouchableOpacity style={styles.previewCV}>
+                                            <Text style={StyleShare.titleText16}>Xem CV</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                ))}
+                            </>
+                        ):<></>}
 
-                        <Button
-                            title={'Tải lên CV mới'}
-                            backgroundColor={mainColor}
-                            textColor={white}
-                        />
+
+                        {loading ? <>
+                            <ActivityIndicator color={orange} size={'large'} />
+                        </> : <>
+
+                            <Button
+                                title={'Tải lên CV mới'}
+                                backgroundColor={mainColor}
+                                textColor={white}
+                                onPress={() => handleUploadCV()}
+                            />
+                        </>}
                     </View>
                 </View>
                 <View style={styles.containerMain}>
