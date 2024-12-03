@@ -1,27 +1,96 @@
-import React, { useState } from "react"
-import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Image, TextInput, ScrollView, StyleSheet } from "react-native"
+import React, { useEffect, useState } from "react"
+import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Image, TextInput, ScrollView, StyleSheet, ActivityIndicator } from "react-native"
 import StyleShare from "../../assets/themes/StyleShare"
 import UIHeader from "../../components/UIHeader"
 import { bgButton2, grey, mainColor, white, orange } from "../../assets/themes/Color"
 import Icon from 'react-native-vector-icons/Ionicons'
+import { useDispatch, useSelector } from "react-redux"
+import { fetchListCvByUser } from "../../redux/slice/cvSLice"
+import moment from "moment"
+import Loading from "../../components/Loading"
+import * as DocumentPicker from 'expo-document-picker';
+import { ToastMess } from "../../components/ToastMess";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { authApi, endpoints } from "../../assets/config/API";
 
+export default function ResumeApply({ navigation, route }) {
+    const { jobId, companyName, jobTitle, location, salary, companyId } = route.params;
 
-export default function ResumeApply({ navigation }) {
+    const dispatch = useDispatch()
+    const user = useSelector((state) => state.user.user)
     const [loading, setLoading] = useState(false)
-    const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
-    const [phone, setPhone] = useState('')
-    const [yourCV, setYourCV] = useState([])
+    const [loadingUpload, setLoadingUpload] = useState(false)
 
-    const renderFileImage = (mimeType) => {
-        if (mimeType === 'application/pdf') {
-            return require('../../assets/images/pdf.png');
-        } else if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-            return require('../../assets/images/google-docs.png');
-        } else {
-            return null;
+    const [name, setName] = useState(user.name)
+    const [email, setEmail] = useState(user.email)
+    const [phone, setPhone] = useState('')
+
+    const { cvData, status } = useSelector((state) => state.cv);
+    useEffect(() => {
+        if (user._id) {
+            dispatch(fetchListCvByUser(user?._id));
         }
+    }, [dispatch]);
+    console.log(cvData)
+    const handleUploadCV = async () => {
+        setLoadingUpload(true)
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+            });
+
+            if (!result.canceled) {
+                const cv = result.assets[0];
+
+                const formData = new FormData();
+                formData.append('name', cv.name);
+                formData.append('url', {
+                    uri: cv.uri,
+                    name: cv.name,
+                    type: cv.mimeType
+                });
+
+                const token = await AsyncStorage.getItem('access_token');
+                await authApi(token).post(endpoints['uploadCV'], formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                dispatch(fetchListCvByUser(user?._id));
+                ToastMess({ type: 'success', text1: 'Tải lên thành công' });
+            } else {
+                ToastMess({ type: 'error', text1: 'Chỉ hỗ trợ định dạng pdf, docx' });
+            }
+        } catch (error) {
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
+        } finally { setLoadingUpload(false) }
     };
+
+    const handleApplyJob = async () => {
+        setLoading(true)
+        const formData = new FormData();
+        formData.append('companyId', companyId);
+        formData.append('jobId', jobId);
+        formData.append('name', name);
+        formData.append('phone', phone);
+        formData.append('email', email);
+
+        try {
+            const token = await AsyncStorage.getItem('access_token');
+            await authApi(token).post(endpoints['resumeApply'], formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            ToastMess({ type: 'success', text1: 'Ứng tuyển thành công' });
+        } catch (error) {
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
+        } finally{
+            setLoading(false)
+        }
+    }
+
     return (
         <View style={StyleShare.container}>
             <UIHeader leftIcon={"arrow-back"}
@@ -30,46 +99,59 @@ export default function ResumeApply({ navigation }) {
                 handleLeftIcon={() => { navigation.goBack() }} />
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>
                 <View style={{ paddingHorizontal: 20, backgroundColor: white, paddingVertical: 10 }}>
-                    <Text style={[StyleShare.titleText20, { marginTop: 5 }]}>Tên việc làm</Text>
-                    <Text style={StyleShare.titleText16}>Tee ncong ty</Text>
+                    <Text style={[StyleShare.titleText20, { marginVertical: 5, marginLeft: 3 }]}>{jobTitle}</Text>
+                    <Text style={StyleShare.titleText16}>{companyName}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
                         <Icon name="location-outline" size={18} />
-                        <Text style={{ fontWeight: '500', marginHorizontal: 5 }}>10</Text>
+                        <Text style={{ fontWeight: '500', marginHorizontal: 5 }}>{location}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
                         <Icon name="cash-outline" size={18} />
-                        <Text style={{ fontWeight: '500', marginHorizontal: 5 }}>10</Text>
+                        <Text style={{ fontWeight: '500', marginHorizontal: 5 }}>{salary}</Text>
                     </View>
                 </View>
-                <TouchableWithoutFeedback>
+                {loadingUpload ? <>
                     <View style={styles.uploadBox}>
-                        <Icon name="cloud-upload" size={30} color="orange" />
-                        <Text style={StyleShare.titleText16}>Nhấn để tải lên</Text>
-                        <Text style={styles.supportText}>Hỗ trợ định dạng .doc, .docx, pdf</Text>
+                        <Loading />
                     </View>
-                </TouchableWithoutFeedback>
+                </> : <>
+                    <TouchableWithoutFeedback onPress={() => handleUploadCV()}>
+                        <View style={styles.uploadBox}>
+                            <Icon name="cloud-upload" size={30} color="orange" />
+                            <Text style={StyleShare.titleText16}>Nhấn để tải lên</Text>
+                            <Text style={styles.supportText}>Hỗ trợ định dạng .doc, .docx, pdf</Text>
+                        </View>
+                    </TouchableWithoutFeedback>
+                </>}
 
                 <View style={styles.selectCvContainer}>
                     <Text style={StyleShare.titleText16}>Chọn CV của bạn</Text>
-                    {/* CV */}
-                    {yourCV ? <>
+                    {status === 'loading' ? (
+
+                        <Loading />
+                    ) : cvData && cvData.length > 0 ? (
+                        <>
+                            {cvData.map((cv) => (
+                                <TouchableOpacity style={styles.cvContainer} key={cv.id}>
+                                    <View style={StyleShare.flexBetween}>
+                                        <Text style={StyleShare.titleText16}>{cv.name}</Text>
+                                        <Icon name="radio-button-off" size={20} color={'grey'} />
+                                    </View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
+                                        <Icon name="time-outline" size={18} />
+                                        <Text style={{ marginHorizontal: 5 }}>{moment(cv.createdAt).format('DD/MM/YYYY')}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            ))}
+                        </>
+                    ) : (
+                        // Hiển thị khi không có CV
                         <View style={{ alignItems: 'center' }}>
                             <Image source={require("../../assets/images/denied.png")} style={{ marginVertical: 20 }} />
                             <Text>Chưa có CV nào, hãy tải lên CV của bạn</Text>
                         </View>
-                    </> : <>
-                        <TouchableOpacity style={styles.cvContainer}>
-                            <View style={StyleShare.flexBetween}>
-                                <Text style={StyleShare.titleText16}>Tên CV</Text>
-                                <Icon name="radio-button-off" size={20} color={'grey'} />
-                            </View>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-                                <Icon name="time-outline" size={18} />
-                                <Text style={{ marginHorizontal: 5 }}>24/5/2003</Text>
-                            </View>
-                        </TouchableOpacity>
+                    )}
 
-                    </>}
 
                 </View>
 
@@ -103,7 +185,7 @@ export default function ResumeApply({ navigation }) {
                         />
                     </View>
                 </View>
-                <View style={{ paddingHorizontal: 20, paddingVertical:10, backgroundColor:white }}>
+                <View style={{ paddingHorizontal: 20, paddingVertical: 10, backgroundColor: white }}>
                     <Text style={StyleShare.titleText16}>Lưu ý</Text>
 
                     <Text style={{ marginTop: 10, lineHeight: 24 }}><Text style={{ fontWeight: '500', color: orange }}>DevJob</Text> khuyên tất cả các bạn hãy luôn cẩn trọng trong quá trình tìm việc và chủ động nghiên cứu về thông tin công ty, vị trí việc làm trước khi ứng tuyển.
@@ -115,7 +197,7 @@ export default function ResumeApply({ navigation }) {
                 {loading ? (
                     <ActivityIndicator color={orange} size={'large'} />
                 ) : (
-                    <TouchableOpacity style={styles.buttonApply} onPress={() => handleApply()}>
+                    <TouchableOpacity style={styles.buttonApply} onPress={() => handleApplyJob()}>
                         <Text style={styles.buttonText}>Ứng tuyển</Text>
                     </TouchableOpacity>
                 )}
@@ -174,7 +256,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: bgButton2,
         paddingHorizontal: 10,
-        paddingVertical: 5,
+        paddingVertical: 10,
         marginTop: 5,
         marginBottom: 10,
         borderRadius: 10

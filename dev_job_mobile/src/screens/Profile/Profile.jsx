@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableWithoutFeedback, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableWithoutFeedback, TouchableOpacity, FlatList, ActivityIndicator, Alert } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import { bgButton2, grey, mainColor, white, orange } from "../../assets/themes/Color";
 import { Avatar } from "react-native-paper";
@@ -18,14 +18,13 @@ import 'moment/locale/vi';
 export default function Profile({ navigation }) {
     const dispatch = useDispatch()
     const user = useSelector((state) => state.user.user)
-    const [cv, setCV] = useState(null);
     const [loading, setLoading] = useState(false)
 
     const { cvData, status } = useSelector((state) => state.cv); // Lấy `data` từ `cv`
     console.log(cvData)
     useEffect(() => {
-        dispatch(fetchListCvByUser(user?._id)); // Gọi API để lấy dữ liệu CV
-    }, [dispatch]);
+        dispatch(fetchListCvByUser(user?._id));
+    }, [dispatch,user?._id]);
 
     const aboutApp = [
         { id: 1, icon: 'business', title: 'Về HeyJob' },
@@ -52,7 +51,6 @@ export default function Profile({ navigation }) {
                 navigation.navigate('CompaniesFollow')
                 break;
             default:
-                console.log('Unknown item clicked');
                 break;
         }
     };
@@ -102,23 +100,48 @@ export default function Profile({ navigation }) {
                 });
 
                 const token = await AsyncStorage.getItem('access_token');
-                console.log(formData)
-                const response = await authApi(token).post(endpoints['uploadCV'], formData, {
+                await authApi(token).post(endpoints['uploadCV'], formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
 
+                dispatch(fetchListCvByUser(user?._id));
                 ToastMess({ type: 'success', text1: 'Tải lên thành công' });
             } else {
                 ToastMess({ type: 'error', text1: 'Chỉ hỗ trợ định dạng pdf, docx' });
             }
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
-            console.log(error)
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleDeleteCvByUser = async (cvId) => {
+        Alert.alert(
+            'Xác nhận xóa',
+            'Bạn có chắc chắn muốn xóa CV này không?',
+            [
+                {
+                    text: 'Hủy',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Đồng ý',
+                    onPress: async () => {
+                        try {
+                            const token = await AsyncStorage.getItem('access_token');
+                            await authApi(token).delete(endpoints['cvByUser'](cvId));
+                            dispatch(fetchListCvByUser(user?._id)); // Cập nhật danh sách CV
+                        } catch (error) {
+                            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
+                        }
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
     };
 
 
@@ -147,19 +170,21 @@ export default function Profile({ navigation }) {
                                     <View key={cv._id} style={styles.cvContainer}>
                                         <View style={StyleShare.flexBetween}>
                                             <Text style={StyleShare.titleText16}>{cv.name}</Text>
-                                            <Icon name="trash-outline" size={20} color={'red'} />
+                                            <TouchableOpacity onPress={() => handleDeleteCvByUser(cv._id)}>
+                                                <Icon name="trash-outline" size={20} color={'red'} />
+                                            </TouchableOpacity>
                                         </View>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
                                             <Icon name="time-outline" size={18} />
                                             <Text style={{ marginHorizontal: 5 }}>{moment(cv.createdAt).format('DD/MM/YYYY')}</Text>
                                         </View>
-                                        <TouchableOpacity style={styles.previewCV}>
+                                        <TouchableOpacity style={styles.previewCV} onPress={() => navigation.navigate('CvView', { cvUrl: cv.url })}>
                                             <Text style={StyleShare.titleText16}>Xem CV</Text>
                                         </TouchableOpacity>
                                     </View>
                                 ))}
                             </>
-                        ):<></>}
+                        ) : <></>}
 
 
                         {loading ? <>

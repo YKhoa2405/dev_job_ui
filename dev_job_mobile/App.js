@@ -29,6 +29,7 @@ import { store } from './src/redux/store';
 import Toast from 'react-native-toast-message';
 import SendCode from './src/screens/Auth/SendCode';
 import ChatDetail from './src/screens/Chat/ChatDetail';
+import CvView from './src/screens/Profile/CvView';
 
 
 const Stack = createNativeStackNavigator();
@@ -55,7 +56,8 @@ export default function App() {
           <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
           <Stack.Screen name="ResumeApply" component={ResumeApply} />
           <Stack.Screen name="ChatDetail" component={ChatDetail} />
-
+          <Stack.Screen name="CvView" component={CvView} />
+          
 
         </Stack.Navigator>
         <Toast />

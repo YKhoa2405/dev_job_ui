@@ -15,6 +15,7 @@ export const fetchListCvByUser = createAsyncThunk('cv/fetchListCvByUser', async 
     }
 });
 
+
 const cvSlice = createSlice({
     name: 'cv',
     initialState: {
@@ -31,9 +32,6 @@ const cvSlice = createSlice({
                 state.status = 'succeeded';
                 state.cvData = action.payload; // Cập nhật dữ liệu từ API
             })
-            .addCase(fetchListCvByUser.rejected, (state) => {
-                state.status = 'failed';
-            });
     },
 });
 
