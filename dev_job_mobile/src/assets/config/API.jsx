@@ -37,6 +37,12 @@ export const endpoints = {
     'jobsByCompany': (companyId) => `/jobs/${companyId}/jobs`,
     'jobDetail': (jobId) => `/jobs/${jobId}`,
 
+    // save-job
+    'saveJob':'/save-job',
+    'saveJobDetail':(id)=>`/save-job/${id}`,
+    'deleteAllSaveJob':'/save-job/clear-all',
+
+
     // roles
     'roles': 'roles',
     // permissions

@@ -160,7 +160,7 @@ const StyleShare = StyleSheet.create({
     // drop down
     dropdownButtonStyle: {
         width: 175,
-        height: 35,
+        height:35,
         backgroundColor: white,
         borderRadius: 10,
         flexDirection: 'row',

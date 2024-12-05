@@ -8,6 +8,7 @@ const Dropdown = ({
     data,
     placeholder = 'Select your mood',
     onSelect,
+    buttonStyle, // Add buttonStyle prop
 }) => {
     return (
         <SelectDropdown
@@ -15,7 +16,7 @@ const Dropdown = ({
             onSelect={onSelect}
             renderButton={(selectedItem, isOpened) => {
                 return (
-                    <View style={StyleShare.dropdownButtonStyle}>
+                    <View style={[StyleShare.dropdownButtonStyle, buttonStyle]}>
                         <Text style={StyleShare.dropdownButtonTxtStyle}>
                             {(selectedItem && selectedItem.title) || placeholder}
                         </Text>
@@ -44,4 +45,6 @@ const Dropdown = ({
     );
 };
 
+
 export default Dropdown;
+;
