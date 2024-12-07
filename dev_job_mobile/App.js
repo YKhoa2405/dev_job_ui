@@ -31,6 +31,10 @@ import SendCode from './src/screens/Auth/SendCode';
 import ChatDetail from './src/screens/Chat/ChatDetail';
 import CvView from './src/screens/Profile/CvView';
 import JobCreate from './src/screens/Company/JobCreate';
+import HomeCompany from './src/screens/Home/HomeCompany';
+import JobByCompany from './src/screens/Company/JobByCompany';
+import Services from './src/screens/Service/Services';
+import ServicesByCompany from './src/screens/Service/ServicesByCompany';
 
 
 const Stack = createNativeStackNavigator();
@@ -38,33 +42,32 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
-    // <Provider store={store}>
-    //   <NavigationContainer>
-    //     <Stack.Navigator screenOptions={{ headerShown: false }}>
-    //       <Stack.Screen name="AuthStack" component={AuthStack} />
-    //       <Stack.Screen name="MainTab" component={MainTab} />
-    //       {/* <Stack.Screen name="ForgotPasswork" component={ForgotPasswork} />
-    //       <Stack.Screen name="Login" component={Login} /> */}
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="AuthStack" component={AuthStack} />
+          <Stack.Screen name="HomeCompany" component={HomeCompany} />
+          <Stack.Screen name="MainTab" component={MainTab} />
+          <Stack.Screen name="JobCreate" component={JobCreate} />
+          <Stack.Screen name="JobByCompany" component={JobByCompany} />
+          <Stack.Screen name="JobDetail" component={JobDetail} />
+          <Stack.Screen name="JobNearBy" component={JobNearBy} />
+          <Stack.Screen name="JobSearch" component={JobSearch} />
+          <Stack.Screen name="JobSearchResult" component={JobSearchResult} />
+          <Stack.Screen name="JobSaved" component={JobSaved} />
+          <Stack.Screen name="JobApplied" component={JobApplied} />
+          <Stack.Screen name="JobSuggestions" component={JobSuggestions} />
+          <Stack.Screen name="CompanyDetail" component={CompanyDetail} />
+          <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
+          <Stack.Screen name="ResumeApply" component={ResumeApply} />
+          <Stack.Screen name="ChatDetail" component={ChatDetail} />
+          <Stack.Screen name="Services" component={Services} />
+          <Stack.Screen name="ServicesByCompany" component={ServicesByCompany} />
+        </Stack.Navigator>
+        <Toast />
+      </NavigationContainer>
+    </Provider>
 
-    //       <Stack.Screen name="JobDetail" component={JobDetail} />
-    //       <Stack.Screen name="JobNearBy" component={JobNearBy} />
-    //       <Stack.Screen name="JobSearch" component={JobSearch} />
-    //       <Stack.Screen name="JobSearchResult" component={JobSearchResult} />
-    //       <Stack.Screen name="JobSaved" component={JobSaved} />
-    //       <Stack.Screen name="JobApplied" component={JobApplied} />
-    //       <Stack.Screen name="JobSuggestions" component={JobSuggestions} />
-    //       <Stack.Screen name="CompanyDetail" component={CompanyDetail} />
-    //       <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
-    //       <Stack.Screen name="ResumeApply" component={ResumeApply} />
-    //       <Stack.Screen name="ChatDetail" component={ChatDetail} />
-    //       <Stack.Screen name="CvView" component={CvView} />
-          
-
-    //     </Stack.Navigator>
-    //     <Toast />
-    //   </NavigationContainer>
-    // </Provider>
-    <JobCreate/>
   );
 }
 

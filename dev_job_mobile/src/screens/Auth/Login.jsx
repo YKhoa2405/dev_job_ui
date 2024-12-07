@@ -42,7 +42,7 @@ export default function Login({ navigation }) {
                     user: userInfo,
                 })
             )
-            navigation.navigate('MainTab')
+            navigation.navigate('HomeCompany')
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 ToastMess({ type: 'error', text1: 'Email hoặc mật khẩu không chính xác' })

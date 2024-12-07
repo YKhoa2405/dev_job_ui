@@ -2,12 +2,17 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View, Text, TextInput, ActivityIndicator, TouchableOpacity } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import UIHeader from "../../components/UIHeader";
-import { mainColor, orange, white } from "../../assets/themes/Color";
+import { bgButton2, grey, mainColor, orange, white } from "../../assets/themes/Color";
 import Button from "../../components/Button"
-import API, { endpoints } from "../../assets/config/API";
+import API, { authApi, endpoints } from "../../assets/config/API";
 import Dropdown from "../../components/Dropdown";
 import axios from "axios";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import MultiSelect from 'react-native-multiple-select';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { ToastMess } from "../../components/ToastMess";
+
 
 
 export default function JobCreate({ navigation }) {
@@ -18,6 +23,7 @@ export default function JobCreate({ navigation }) {
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
     const [skills, setSkills] = useState([]);
+    const [open, setOpen] = useState(false); // Trạng thái mở/đóng Dropdown
 
     const [selectedProvinceId, setSelectedProvinceId] = useState('');
     const [selectedDistrictId, setSelectedDistrictId] = useState('');
@@ -103,7 +109,11 @@ export default function JobCreate({ navigation }) {
                     limit: limit,
                 },
             });
-            setSkills(res.data.data.result)
+            const formattedSkills = res.data.data.result.map(skill => ({
+                label: skill.name, // Tên hiển thị
+                value: skill.name,  // Giá trị của kỹ năng
+            }));
+            setSkills(formattedSkills)
         } catch (error) {
             console.log(error)
         }
@@ -198,32 +208,25 @@ export default function JobCreate({ navigation }) {
     };
 
     const handleCreateJob = async () => {
-        if (!name ||
-            !requirement ||
-            !description ||
-            !prioritize ||
-            !location ||
-            !jobType ||
-            !salary ||
-            !city ||
-            !level ||
-            !quantity ||
-            !selectedSkills) {
-            // ToastMess({ type: 'error', text1: 'Vui lòng không để trống các trường.' });
+        if (!name || !location || !city || !salary || !level || !jobType || !quantity || !selectedSkills || !startDate || !endDate || !description || !prioritize || !requirement) {
+            ToastMess({ type: 'error', text1: 'Vui lòng không để trống các trường.' });
+            return;
+        }
+        if (startDate >= endDate) {
+            ToastMess({ type: 'error', text1: 'Thời gian không hợp lệ.' });
             return;
         }
 
-        setLoading(true);
-
         const jobData = {
             name,
+            companyId: '67433ef7c2689cf41f1fae48',
             startDate: startDate,
             endDate: endDate,
             description,
             requirement,
             prioritize,
             location,
-            skills: skills,
+            skills: selectedSkills,
             jobType,
             city,
             salary,
@@ -233,223 +236,257 @@ export default function JobCreate({ navigation }) {
             longitude: lon,
         };
 
-        console.log(jobData)
+        setLoading(true)
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+            await authApi(token).post(endpoints['jobs'], jobData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            ToastMess({ type: 'success', text1: 'Thêm mới thành công.' });
+            navigation.goBack()
+
+        } catch (error) {
+            ToastMess({ type: 'error', text1: 'Thêm mới thất bại.' });
+            console.log(error)
+        }
+        finally {
+            setLoading(false)
+        }
     };
     return (
         <View style={StyleShare.container}>
             <UIHeader leftIcon={"arrow-back"}
                 handleLeftIcon={() => { navigation.goBack() }}
                 title={'Thêm tin tuyển dụng'} />
-            {loading ? (
-                <ActivityIndicator style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} size="large" color='orange' />
-            ) : (
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={styles.containerMain}>
-                        <Text style={styles.textInput}>Tiêu đề</Text>
-                        <TextInput
-                            placeholder="Tiêu đề tin tuyển dụng..."
-                            onChangeText={setName}
-                            value={name}
-                            style={styles.introduceInput}
+            <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled>
+                <View style={styles.containerMain}>
+                    <Text style={styles.textInput}>Tiêu đề</Text>
+                    <TextInput
+                        placeholder="Tiêu đề tin tuyển dụng..."
+                        onChangeText={setName}
+                        value={name}
+                        style={styles.introduceInput}
+                    />
+                    <View>
+                        <Text style={styles.textInput}>Địa điểm làm việc</Text>
+                        <Dropdown
+                            data={provinces.map(province => ({ title: province.full_name, id: province.id }))}
+                            onSelect={(item) => {
+                                setSelectedProvinceId(item.id);
+                                setSelectedDistrictId('');
+                                setSelectedWardId('');
+                                fetchDistricts(item.id);
+                            }}
+                            placeholder="Chọn tỉnh/thành phố"
+                            buttonStyle={{
+                                marginTop: 10,
+                                width: '100%',
+                                height: 50,
+                            }}
                         />
-                        <View>
-                            <Text style={styles.textInput}>Địa điểm làm việc</Text>
-                            <Dropdown
-                                data={provinces.map(province => ({ title: province.full_name, id: province.id }))}
-                                onSelect={(item) => {
-                                    setSelectedProvinceId(item.id);
-                                    setSelectedDistrictId('');
-                                    setSelectedWardId('');
-                                    fetchDistricts(item.id);
-                                }}
-                                placeholder="Chọn tỉnh/thành phố"
-                                buttonStyle={{
-                                    marginTop: 10,
-                                    width: '100%',
-                                    height: 50,
-                                }}
-                            />
 
-                            <Dropdown
-                                data={districts.map(district => ({ title: district.full_name, id: district.id }))}
-                                onSelect={(item) => {
-                                    setSelectedDistrictId(item.id);
-                                    setSelectedWardId('');
-                                    fetchWards(item.id);
-                                }}
-                                placeholder="Chọn quận/huyện"
-                                disabled={!selectedProvinceId}
-                                buttonStyle={{
-                                    marginTop: 10,
-                                    width: '100%',
-                                    height: 50,
-                                }}
-                            />
-
-                            <Dropdown
-                                data={wards.map(ward => ({ title: ward.full_name, id: ward.id }))}
-                                onSelect={(item) => {
-                                    setSelectedWardId(item.id);
-                                }}
-                                placeholder="Chọn phường/xã"
-                                disabled={!selectedDistrictId}
-                                buttonStyle={{
-                                    marginTop: 10,
-                                    width: '100%',
-                                    height: 50,
-                                }}
-                            />
-                            <TextInput
-                                style={[styles.introduceInput, { marginTop: 10 }]}
-                                placeholder="Tên đường, số công ty, vị trí cụ thể ..."
-                                onChangeText={setStreet}
-                                multiline={true} />
-                        </View>
-
-                        <View style={StyleShare.flexBetween}>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.textInput}>Mức lương</Text>
-                                <Dropdown
-                                    data={salaryData}
-                                    onSelect={(item) => {
-                                        setSalary(item.title)
-                                    }}
-                                    placeholder="Chọn mức lương"
-                                    buttonStyle={{
-                                        height: 50,
-                                    }}
-                                />
-                            </View>
-                            <View style={{ flex: 1, marginLeft: 20 }}>
-                                <Text style={styles.textInput}>Level</Text>
-                                <Dropdown
-                                    data={levelData}
-                                    onSelect={(item) => {
-                                        setLevel(item.title)
-                                    }}
-                                    placeholder="Chọn level"
-                                    buttonStyle={{
-                                        height: 50,
-                                    }}
-                                />
-                            </View>
-                        </View>
-
-                        <View style={StyleShare.flexBetween}>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.textInput}>Loại hình</Text>
-                                <Dropdown
-                                    data={jobTypeData}
-                                    onSelect={(item) => {
-                                        setJobType(item.title)
-                                    }}
-                                    placeholder="Chọn loại hình"
-                                    buttonStyle={{
-                                        height: 50,
-                                    }}
-                                />
-                            </View>
-                            <View style={{ flex: 1, marginLeft: 20 }}>
-                                <Text style={styles.textInput}>Số lượng tuyển</Text>
-                                <TextInput
-                                    style={styles.introduceInput}
-                                    placeholder="Số lượng tuyển..."
-                                    keyboardType="numeric"
-                                    maxLength={5}
-                                    onChangeText={(text) => {
-                                        // Chỉ cho phép nhập các ký tự số
-                                        const numericValue = text.replace(/[^0-9]/g, '');
-                                        setQuantity(numericValue ? parseInt(numericValue) : 0);
-                                    }}
-                                    value={quantity ? String(quantity) : ''}
-                                    multiline={false}
-                                />
-
-                            </View>
-                        </View>
-                        <View>
-                            <Text style={styles.textInput}>Kĩ năng</Text>
-                            <Dropdown
-                                data={skills.map(skill => ({ title: skill.name }))}
-                                onSelect={(item) => {
-                                    setSelectedSkills
-                                }}
-                                placeholder="Chọn kỹ năng"
-                                buttonStyle={{
-                                    width: '100%',
-                                    height: 50,
-                                }}
-                            />
-                        </View>
-                        <View style={StyleShare.flexBetween}>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.textInput}>Ngày bắt đầu</Text>
-                                <TouchableOpacity
-                                    style={styles.introduceInput}
-                                    onPress={() => showDatePicker('start')}
-                                >
-                                    <Text style={{ fontWeight: '500' }}>
-                                        {startDate ? startDate.toLocaleDateString() : 'Chọn ngày bắt đầu'}
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            {/* End Date */}
-                            <View style={{ flex: 1, marginLeft: 20 }}>
-                                <Text style={styles.textInput}>Ngày kết thúc</Text>
-                                <TouchableOpacity
-                                    style={styles.introduceInput}
-                                    onPress={() => showDatePicker('end')}
-                                >
-                                    <Text style={{ fontWeight: '500' }}>
-                                        {endDate ? endDate.toLocaleDateString() : 'Chọn ngày kết thúc'}
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                            <DateTimePickerModal
-                                isVisible={isDatePickerVisible}
-                                mode="date"
-                                onConfirm={handleConfirm}
-                                onCancel={hideDatePicker}
-                            />
-                        </View>
-
-                        <Text style={styles.textInput}>Mô tả công việc</Text>
-                        <TextInput
-                            style={styles.introduceInput}
-                            placeholder="Mô tả về công việc ..."
-                            onChangeText={setDescription}
-                            multiline={true}
-                            numberOfLines={7}
-                            textAlignVertical="top"
+                        <Dropdown
+                            data={districts.map(district => ({ title: district.full_name, id: district.id }))}
+                            onSelect={(item) => {
+                                setSelectedDistrictId(item.id);
+                                setSelectedWardId('');
+                                fetchWards(item.id);
+                            }}
+                            placeholder="Chọn quận/huyện"
+                            disabled={!selectedProvinceId}
+                            buttonStyle={{
+                                marginTop: 10,
+                                width: '100%',
+                                height: 50,
+                            }}
                         />
-                        <Text style={styles.textInput}>Yêu cầu ứng viên</Text>
-                        <TextInput
-                            style={styles.introduceInput}
-                            placeholder="Yêu cầu công việc dành cho ứng viên ..."
-                            onChangeText={setRequirement}
-                            multiline={true}
-                            numberOfLines={7}
-                            textAlignVertical="top"
+
+                        <Dropdown
+                            data={wards.map(ward => ({ title: ward.full_name, id: ward.id }))}
+                            onSelect={(item) => {
+                                setSelectedWardId(item.id);
+                            }}
+                            placeholder="Chọn phường/xã"
+                            disabled={!selectedDistrictId}
+                            buttonStyle={{
+                                marginTop: 10,
+                                width: '100%',
+                                height: 50,
+                            }}
                         />
-                        <Text style={styles.textInput}>Ưu tiên</Text>
                         <TextInput
-                            style={styles.introduceInput}
-                            placeholder="Ưu tiên tuyển dụng ..."
-                            onChangeText={setPrioritize}
-                            multiline={true}
-                            numberOfLines={7}
-                            textAlignVertical="top"
-                        />
-                        <View style={{ marginTop: 20 }}></View>
-                        {loading ? (
-                            <ActivityIndicator color={orange} size={'large'} />
-                        ) : (
-                            <Button title={'Đăng'} backgroundColor={mainColor} textColor={white} onPress={() => handleCreateJob()} />
-                        )}
+                            style={[styles.introduceInput, { marginTop: 10 }]}
+                            placeholder="Tên đường, số công ty, vị trí cụ thể ..."
+                            onChangeText={setStreet}
+                            multiline={true} />
                     </View>
-                </ScrollView>
-            )}
+
+                    <View style={StyleShare.flexBetween}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.textInput}>Mức lương</Text>
+                            <Dropdown
+                                data={salaryData}
+                                onSelect={(item) => {
+                                    setSalary(item.title)
+                                }}
+                                placeholder="Chọn mức lương"
+                                buttonStyle={{
+                                    height: 50,
+                                }}
+                            />
+                        </View>
+                        <View style={{ flex: 1, marginLeft: 20 }}>
+                            <Text style={styles.textInput}>Level</Text>
+                            <Dropdown
+                                data={levelData}
+                                onSelect={(item) => {
+                                    setLevel(item.title)
+                                }}
+                                placeholder="Chọn level"
+                                buttonStyle={{
+                                    height: 50,
+                                }}
+                            />
+                        </View>
+                    </View>
+
+                    <View style={StyleShare.flexBetween}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.textInput}>Loại hình</Text>
+                            <Dropdown
+                                data={jobTypeData}
+                                onSelect={(item) => {
+                                    setJobType(item.title)
+                                }}
+                                placeholder="Chọn loại hình"
+                                buttonStyle={{
+                                    height: 50,
+                                }}
+                            />
+                        </View>
+                        <View style={{ flex: 1, marginLeft: 20 }}>
+                            <Text style={styles.textInput}>Số lượng tuyển</Text>
+                            <TextInput
+                                style={styles.introduceInput}
+                                placeholder="Số lượng tuyển..."
+                                keyboardType="numeric"
+                                maxLength={5}
+                                onChangeText={(text) => {
+                                    // Chỉ cho phép nhập các ký tự số
+                                    const numericValue = text.replace(/[^0-9]/g, '');
+                                    setQuantity(numericValue ? parseInt(numericValue) : 0);
+                                }}
+                                value={quantity ? String(quantity) : ''}
+                                multiline={false}
+                            />
+
+                        </View>
+                    </View>
+                    <View>
+                        <Text style={styles.textInput}>Kĩ năng</Text>
+                        <DropDownPicker
+                            open={open} // Trạng thái mở/đóng
+                            value={selectedSkills} // Giá trị được chọn
+                            items={skills} // Dữ liệu hiển thị
+                            setOpen={setOpen} // Hàm thay đổi trạng thái mở/đóng
+                            setValue={setSelectedSkills} // Hàm thay đổi giá trị được chọn
+                            setItems={setSkills} // Hàm cập nhật dữ liệu nguồn
+                            multiple={true} // Cho phép chọn nhiều giá trị
+                            min={0} // Số lượng chọn tối thiểu
+                            max={10} // Số lượng chọn tối đa
+                            placeholder="Chọn kỹ năng" // Placeholder khi chưa chọn
+                            searchable={false} // Bật tìm kiếm
+                            mode="BADGE" // Hiển thị các mục đã chọn dưới dạng badge
+                            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a"]} // Màu badge
+                            listMode={"SCROLLVIEW"}
+                            style={{
+                                borderWidth: 0,
+                                borderColor: white,
+                                borderRadius: 10,
+                            }}
+                            dropDownContainerStyle={{
+                                backgroundColor: white, // Màu nền
+                                borderWidth: 1,             // Độ dày đường viền
+                                borderColor: grey,        // Màu đường viền
+                                borderRadius: 10,            // Bo góc
+                                maxHeight: 200,             // Giới hạn chiều cao
+                            }}
+                            textStyle={{
+                                fontWeight: '500'
+                            }}
+                        />
+                    </View>
+                    <View style={StyleShare.flexBetween}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.textInput}>Ngày bắt đầu</Text>
+                            <TouchableOpacity
+                                style={styles.introduceInput}
+                                onPress={() => showDatePicker('start')}
+                            >
+                                <Text style={{ fontWeight: '500' }}>
+                                    {startDate ? startDate.toLocaleDateString() : 'Chọn ngày bắt đầu'}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* End Date */}
+                        <View style={{ flex: 1, marginLeft: 20 }}>
+                            <Text style={styles.textInput}>Ngày kết thúc</Text>
+                            <TouchableOpacity
+                                style={styles.introduceInput}
+                                onPress={() => showDatePicker('end')}
+                            >
+                                <Text style={{ fontWeight: '500' }}>
+                                    {endDate ? endDate.toLocaleDateString() : 'Chọn ngày kết thúc'}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                        <DateTimePickerModal
+                            isVisible={isDatePickerVisible}
+                            mode="date"
+                            onConfirm={handleConfirm}
+                            onCancel={hideDatePicker}
+                        />
+                    </View>
+
+                    <Text style={styles.textInput}>Mô tả công việc</Text>
+                    <TextInput
+                        style={styles.introduceInput}
+                        placeholder="Mô tả về công việc ..."
+                        onChangeText={setDescription}
+                        multiline={true}
+                        numberOfLines={7}
+                        textAlignVertical="top"
+                    />
+                    <Text style={styles.textInput}>Yêu cầu ứng viên</Text>
+                    <TextInput
+                        style={styles.introduceInput}
+                        placeholder="Yêu cầu công việc dành cho ứng viên ..."
+                        onChangeText={setRequirement}
+                        multiline={true}
+                        numberOfLines={7}
+                        textAlignVertical="top"
+                    />
+                    <Text style={styles.textInput}>Ưu tiên</Text>
+                    <TextInput
+                        style={styles.introduceInput}
+                        placeholder="Ưu tiên tuyển dụng ..."
+                        onChangeText={setPrioritize}
+                        multiline={true}
+                        numberOfLines={7}
+                        textAlignVertical="top"
+                    />
+                    <View style={{ marginTop: 20 }}></View>
+                    {loading ? (
+                        <ActivityIndicator color={orange} size={'large'} />
+                    ) : (
+                        <Button title={'Đăng'} backgroundColor={mainColor} textColor={white} onPress={() => handleCreateJob()} />
+                    )}
+                </View>
+            </ScrollView>
+
 
         </View>
     )

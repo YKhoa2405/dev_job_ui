@@ -59,9 +59,9 @@ const Jobs = () => {
   const fetchListJob = async (currentPage = 1, limit = 10, name = '', salary = '', level = '') => {
     setLoading(true)
     const searchQuery = {
-      name: name ? `/${name}/i` : '',  // Regular expression for case-insensitive matching
+      name: name ? `/${name}/i` : '', 
       salary: salary ? salary : '',
-      level: level ? level : ''  // Level filter (no regex needed here)
+      level: level ? level : ''
     };
     try {
       const token: any = localStorage.getItem("access_token");

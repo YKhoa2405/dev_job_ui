@@ -154,7 +154,8 @@ const StyleShare = StyleSheet.create({
         padding: 20,
         backgroundColor: white,
         marginTop: 15,
-        marginHorizontal: 20
+        marginHorizontal: 20,
+        elevation:2
     },
 
     // drop down

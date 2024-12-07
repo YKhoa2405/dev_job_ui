@@ -20,7 +20,7 @@ export default function Profile({ navigation }) {
     const user = useSelector((state) => state.user.user)
     const [loading, setLoading] = useState(false)
 
-    const { cvData, status } = useSelector((state) => state.cv); // Lấy `data` từ `cv`
+    const { cvData, status } = useSelector((state) => state.cv);
     console.log(cvData)
     useEffect(() => {
         dispatch(fetchListCvByUser(user?._id));

@@ -14,8 +14,6 @@ const Services = () => {
     const [searchKeyword, setSearchKeyword] = useState<string>('')
     const [loading, setLoading] = useState(false)
     const [loadingModal, setLoadingModal] = useState(false)
-
-
     const [isOpen, setIsOpen] = useState(false);  // Để điều khiển modal
     const [serviceDetail, setServiceDetail] = useState<IServiceDetail | null>(null);
 
