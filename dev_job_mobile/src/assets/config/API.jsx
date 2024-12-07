@@ -28,6 +28,7 @@ export const endpoints = {
 
     // company
     'companies': '/companies',
+    'companyByUser': '/companies/user',
     'companiesDetail': (companyId) => `/companies/${companyId}`,
 
 

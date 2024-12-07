@@ -10,7 +10,7 @@ import Wellcome from './src/screens/Auth/Wellcome';
 import Login from './src/screens/Auth/Login';
 import Register from './src/screens/Auth/Register';
 import Verify from './src/screens/Auth/SendCode';
-import Profile from './src/screens/Profile/Profile';
+import Profile from './src/screens/Profile/ProfileClient';
 import ForgotPasswork from './src/screens/Auth/ForgotPassword';
 import HomeClient from './src/screens/Home/HomeClient';
 import Companies from './src/screens/Company/Companies';
@@ -35,6 +35,7 @@ import HomeCompany from './src/screens/Home/HomeCompany';
 import JobByCompany from './src/screens/Company/JobByCompany';
 import Services from './src/screens/Service/Services';
 import ServicesByCompany from './src/screens/Service/ServicesByCompany';
+import ProfileCompany from './src/screens/Profile/ProfileCompany';
 
 
 const Stack = createNativeStackNavigator();
@@ -46,8 +47,10 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="AuthStack" component={AuthStack} />
-          <Stack.Screen name="HomeCompany" component={HomeCompany} />
           <Stack.Screen name="MainTab" component={MainTab} />
+          <Stack.Screen name="HomeCompany" component={HomeCompany} />
+          <Stack.Screen name="Login" component={Login} />
+
           <Stack.Screen name="JobCreate" component={JobCreate} />
           <Stack.Screen name="JobByCompany" component={JobByCompany} />
           <Stack.Screen name="JobDetail" component={JobDetail} />
@@ -59,6 +62,8 @@ export default function App() {
           <Stack.Screen name="JobSuggestions" component={JobSuggestions} />
           <Stack.Screen name="CompanyDetail" component={CompanyDetail} />
           <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
+          <Stack.Screen name="ProfileCompany" component={ProfileCompany} />
+
           <Stack.Screen name="ResumeApply" component={ResumeApply} />
           <Stack.Screen name="ChatDetail" component={ChatDetail} />
           <Stack.Screen name="Services" component={Services} />
@@ -105,7 +110,6 @@ function MainTab() {
         <Tab.Screen name="HomeClient" component={HomeClient} />
         <Tab.Screen name="Companies" component={Companies} />
         <Tab.Screen name="Chat" component={Chat} />
-
         <Tab.Screen name="Profile" component={Profile} />
       </Tab.Navigator>
     </KeyboardAvoidingView>

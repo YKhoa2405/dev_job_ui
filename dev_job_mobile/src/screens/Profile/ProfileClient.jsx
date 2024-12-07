@@ -21,10 +21,9 @@ export default function Profile({ navigation }) {
     const [loading, setLoading] = useState(false)
 
     const { cvData, status } = useSelector((state) => state.cv);
-    console.log(cvData)
     useEffect(() => {
         dispatch(fetchListCvByUser(user?._id));
-    }, [dispatch,user?._id]);
+    }, [dispatch]);
 
     const aboutApp = [
         { id: 1, icon: 'business', title: 'Về HeyJob' },
@@ -57,7 +56,7 @@ export default function Profile({ navigation }) {
 
     const handleLogout = () => {
         dispatch(logout());
-        navigation.navigate('AuthStack')
+        navigation.navigate('Login')
     };
 
     const ManageJobGrid = () => (

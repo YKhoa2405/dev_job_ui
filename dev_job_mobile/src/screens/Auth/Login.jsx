@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from "react-native";
 import { mainColor, orange, white } from "../../assets/themes/Color";
 import StyleShare from "../../assets/themes/StyleShare";
@@ -15,6 +15,18 @@ export default function Login({ navigation }) {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
+    const user = useSelector((state) => state.user.user)
+
+    useEffect(() => {
+        if (user) {
+            const role = user.role?.name;
+            if (role === 'NORMAL_USER') {
+                navigation.navigate('MainTab');
+            } else if (role === 'EMPLOYER_USER') {
+                navigation.navigate('HomeCompany');
+            }
+        }
+    }, [user]);
 
     const handleLogin = async () => {
         // if (!email || !password) {
@@ -28,8 +40,8 @@ export default function Login({ navigation }) {
                 'Content-Type': 'application/x-www-form-urlencoded' // Change Content-Type
             };
             let data = {
-                username: 'ungvien@gmail.com',
-                // username: 'tuyendung2',
+                username: 'nhatuyendung1@gmail.com',
+                // username: 'ungvien@gmail.com',
                 // password: 'caichyrua11',
                 password: '123456',
             };
@@ -42,7 +54,6 @@ export default function Login({ navigation }) {
                     user: userInfo,
                 })
             )
-            navigation.navigate('HomeCompany')
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 ToastMess({ type: 'error', text1: 'Email hoặc mật khẩu không chính xác' })
@@ -53,8 +64,8 @@ export default function Login({ navigation }) {
         }
     };
 
-    const handleLoginGoogle = async()=>{
-        
+    const handleLoginGoogle = async () => {
+
     }
 
     return (
@@ -103,7 +114,7 @@ export default function Login({ navigation }) {
                     <View style={StyleShare.line}></View>
                 </View>
                 <View style={StyleShare.flexCenter}>
-                    <TouchableOpacity style={styles.optionLoginContainer} onPress={()=>handleLoginGoogle()}>
+                    <TouchableOpacity style={styles.optionLoginContainer} onPress={() => handleLoginGoogle()}>
                         <Image source={require('../../assets/images/google.png')} style={styles.optionImage} />
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.optionLoginContainer}>

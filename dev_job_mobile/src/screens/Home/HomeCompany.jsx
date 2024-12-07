@@ -31,7 +31,7 @@ export default function HomeCompany({ navigation }) {
                 <Icon name={'cart-outline'} size={20} color={mainColor}></Icon>
                 <Text style={StyleShare.lineText}>Mua dịch vụ</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.gridItemUtili} onPress={() => navigation.navigate('Profile')}>
+            <TouchableOpacity style={styles.gridItemUtili} onPress={() => navigation.navigate('ProfileCompany')}>
                 <Icon name={'person-outline'} size={20} color={mainColor}></Icon>
                 <Text style={StyleShare.lineText}>Hồ sơ</Text>
             </TouchableOpacity>
