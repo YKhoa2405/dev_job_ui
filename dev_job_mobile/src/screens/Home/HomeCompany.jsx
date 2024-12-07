@@ -7,11 +7,17 @@ import Icon from "react-native-vector-icons/Ionicons"
 import StyleShare from "../../assets/themes/StyleShare";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slice/userSlice";
+import { fetchCompanyByUser } from "../../redux/slice/companySlice";
 export default function HomeCompany({ navigation }) {
 
     const dispatch = useDispatch()
     const user = useSelector((state) => state.user.user)
-    const [loading, setLoading] = useState(false)
+
+    const { companyByUser, loading } = useSelector((state) => state.company);
+
+    useEffect(() => {
+        dispatch(fetchCompanyByUser());
+    }, []);
 
     const manageEmployers = [
         { id: 1, icon: 'megaphone-outline', title: 'Chiến dịch tuyển dụng' },
@@ -23,7 +29,7 @@ export default function HomeCompany({ navigation }) {
     ]
     const UtilitiesGrid = () => (
         <View style={styles.gridUtili}>
-            <TouchableOpacity style={styles.gridItemUtili} onPress={() => navigation.navigate('JobCreate')}>
+            <TouchableOpacity style={styles.gridItemUtili} onPress={() => navigation.navigate('JobCreate',{companyId:companyByUser._id})}>
                 <Icon name={'add-circle-outline'} size={20} color={mainColor}></Icon>
                 <Text style={StyleShare.lineText}>Tuyển dụng</Text>
             </TouchableOpacity>
@@ -46,7 +52,7 @@ export default function HomeCompany({ navigation }) {
     const ManageEmployersGrid = () => (
         <View style={styles.grid}>
             {manageEmployers.map((item) => (
-                <TouchableWithoutFeedback onPress={() => handleManageEmployersClick(item.id)} key={item.id}>
+                <TouchableOpacity onPress={() => handleManageEmployersClick(item.id)} key={item.id}>
                     <View style={styles.gridItem}>
                         <View style={StyleShare.flexBetween}>
                             <Icon name={item.icon} size={20} color={mainColor}></Icon>
@@ -56,20 +62,20 @@ export default function HomeCompany({ navigation }) {
                             <Text style={{ fontWeight: '500' }}>{item.title}</Text>
                         </View>
                     </View>
-                </TouchableWithoutFeedback>
+                </TouchableOpacity>
             ))}
         </View>
     );
 
     const handleLogout = () => {
         dispatch(logout());
-        navigation.navigate('AuthStack')
+        navigation.navigate('Login')
     };
 
     const handleManageEmployersClick = (id) => {
         switch (id) {
             case 1:
-                navigation.navigate('JobByCompany')
+                navigation.navigate('JobByCompany',{companyId:companyByUser._id})
                 break;
             case 2:
                 navigation.navigate('Services')

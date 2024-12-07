@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { mainColor, bgButton2, bgImage, grey, orange, white } from "./Color";
+import { mainColor, bgButton2, bgImage, grey, orange, white, bgNotifi } from "./Color";
 
 const StyleShare = StyleSheet.create({
     container: {
@@ -92,7 +92,7 @@ const StyleShare = StyleSheet.create({
     },
     chip: {
         alignSelf: 'flex-start',
-        backgroundColor: grey,
+        backgroundColor: bgNotifi,
         marginRight: 10,
         marginTop:10
     },
@@ -145,7 +145,8 @@ const StyleShare = StyleSheet.create({
         paddingHorizontal: 24,
         paddingVertical: 10,
         borderRadius: 10,
-        marginTop: 10
+        marginTop: 10,
+        elevation:2
     },
     // style item job
     jobItemContainer: {

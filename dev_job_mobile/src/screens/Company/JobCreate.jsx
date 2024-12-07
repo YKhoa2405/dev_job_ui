@@ -15,7 +15,8 @@ import { ToastMess } from "../../components/ToastMess";
 
 
 
-export default function JobCreate({ navigation }) {
+export default function JobCreate({ navigation, route }) {
+    const {companyId}= route.params
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [selectedDateType, setSelectedDateType] = useState(null);
     const [loading, setLoading] = useState(false)
@@ -219,7 +220,7 @@ export default function JobCreate({ navigation }) {
 
         const jobData = {
             name,
-            companyId: '67433ef7c2689cf41f1fae48',
+            companyId,
             startDate: startDate,
             endDate: endDate,
             description,

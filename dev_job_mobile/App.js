@@ -36,6 +36,7 @@ import JobByCompany from './src/screens/Company/JobByCompany';
 import Services from './src/screens/Service/Services';
 import ServicesByCompany from './src/screens/Service/ServicesByCompany';
 import ProfileCompany from './src/screens/Profile/ProfileCompany';
+import ResumeByJob from './src/screens/Resume/ResumeByJob';
 
 
 const Stack = createNativeStackNavigator();
@@ -65,6 +66,8 @@ export default function App() {
           <Stack.Screen name="ProfileCompany" component={ProfileCompany} />
 
           <Stack.Screen name="ResumeApply" component={ResumeApply} />
+          <Stack.Screen name="ResumeByJob" component={ResumeByJob} />
+
           <Stack.Screen name="ChatDetail" component={ChatDetail} />
           <Stack.Screen name="Services" component={Services} />
           <Stack.Screen name="ServicesByCompany" component={ServicesByCompany} />

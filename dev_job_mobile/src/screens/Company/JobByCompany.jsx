@@ -13,7 +13,8 @@ import { authApi, endpoints } from "../../assets/config/API";
 
 
 
-export default function JobByCompany({ navigation }) {
+export default function JobByCompany({ navigation, route }) {
+    const { companyId } = route.params
     const [jobData, setJobData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -23,23 +24,23 @@ export default function JobByCompany({ navigation }) {
     const [searchKeywork, setSearchKeywork] = useState('')
     const [selectedStatus, setSelectedStatus] = useState(null);
 
+
     useEffect(() => {
         fetchJobByCompany(currentPage, limit, '');
-    }, [currentPage]);
+    }, [currentPage, selectedStatus]);
 
-    const fetchJobByCompany = async (currentPage = 1, limit = 10, name = '') => {
+    const fetchJobByCompany = async (currentPage = 1, limit = 10,) => {
         setLoading(true)
-        const searchQuery = {
-            name: name ? `/${name}/i` : '',
-        };
+        const searchQuery = searchKeywork ? `/${searchKeywork}/i` : '';
         console.log(searchQuery)
         try {
             const token = await AsyncStorage.getItem("access_token");
-            const res = await authApi(token).get(endpoints['jobsByCompany']('67433ef7c2689cf41f1fae48'), {
+            const res = await authApi(token).get(endpoints['jobsByCompany'](companyId), {
                 params: {
                     page: currentPage,
                     limit: limit,
-                    name: searchQuery.name,
+                    name: searchQuery,
+                    isActive: selectedStatus
                 },
             });
             const data = res.data.data;
@@ -57,13 +58,15 @@ export default function JobByCompany({ navigation }) {
 
 
     const activeData = [
+        { title: 'Tất cả', value: null },
         { title: 'Hoạt động', value: true },
         { title: 'Dừng hoạt động', value: false },
+
     ];
 
     const renderItem = ({ item }) => {
         return (
-            <TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate('ResumeByJob', { jobId: item._id })}>
                 <View style={StyleShare.jobItemContainer}>
                     <View style={StyleShare.flexBetween}>
                         <Text style={StyleShare.titleText16}>{item.name}</Text>
@@ -79,7 +82,6 @@ export default function JobByCompany({ navigation }) {
                                 {s}
                             </Chip>
                         ))}
-
                     </View>
                     <View style={StyleShare.flexBetween}>
                         <View style={StyleShare.flexBetween}>
@@ -104,9 +106,7 @@ export default function JobByCompany({ navigation }) {
         <View style={StyleShare.container}>
             <UIHeader
                 leftIcon={"arrow-back"}
-                title={'Quản lý  tuyển dụng'}
-                rightIcon={'flash-off-outline'}
-                // handleRightIcon={}
+                title={'Quản lý tuyển dụng'}
                 handleLeftIcon={() => { navigation.goBack() }} />
             <View style={{ paddingHorizontal: 20, marginBottom: 5 }}>
                 <View style={StyleShare.searchDetail}>
@@ -121,20 +121,18 @@ export default function JobByCompany({ navigation }) {
                         }}
                     />
                 </View>
-                <View>
-                    <Dropdown
-                        data={activeData}
-                        onSelect={(item) => {
-                            setSelectedStatus(item.value); // Lưu giá trị true/false
-                        }}
-                        value={
-                            selectedStatus !== null
-                                ? activeData.find((item) => item.value === selectedStatus)?.title
-                                : null
-                        }
-                        placeholder="Chọn trạng thái"
-                    />
-                </View>
+                <Dropdown
+                    data={activeData}
+                    onSelect={(item) => {
+                        setSelectedStatus(item.value); // Lưu giá trị true/false
+                    }}
+                    value={
+                        selectedStatus !== null
+                            ? activeData.find((item) => item.value === selectedStatus)?.title
+                            : null
+                    }
+                    placeholder="Chọn trạng thái"
+                />
                 <View style={{ marginTop: 10 }}>
                     <Text style={StyleShare.titleText16}>{totalItems} việc làm</Text>
                 </View>
@@ -146,6 +144,8 @@ export default function JobByCompany({ navigation }) {
                     data={jobData}
                     keyExtractor={(item) => item._id}
                     renderItem={renderItem}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 15 }}
                     ListEmptyComponent={
                         <View style={{ marginTop: 50, alignItems: 'center' }}>
                             <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />

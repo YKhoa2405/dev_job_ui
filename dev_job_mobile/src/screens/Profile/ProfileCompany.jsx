@@ -18,9 +18,7 @@ export default function ProfileCompany({ navigation }) {
 
     useEffect(() => {
         dispatch(fetchCompanyByUser());
-    }, [dispatch]);
-
-    console.log(companyByUser)
+    }, []);
     return (
         <View style={StyleShare.container}>
             <UIHeader leftIcon={"arrow-back"}
