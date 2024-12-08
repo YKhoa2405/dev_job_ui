@@ -19,20 +19,21 @@ export default function JobByCompany({ navigation, route }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
-    const [limit, setLimit] = useState(10);
+
     const [loading, setLoading] = useState(false)
+    const [loadingMore, setLoadingMore] = useState(false);
     const [searchKeywork, setSearchKeywork] = useState('')
     const [selectedStatus, setSelectedStatus] = useState(null);
 
 
     useEffect(() => {
-        fetchJobByCompany(currentPage, limit, '');
-    }, [currentPage, selectedStatus]);
+        fetchJobByCompany(1);
+    }, [selectedStatus]);
 
-    const fetchJobByCompany = async (currentPage = 1, limit = 10,) => {
-        setLoading(true)
+    const fetchJobByCompany = async (currentPage = 1, limit = 10) => {
+        if (currentPage === 1) setLoading(true);
+        else setLoadingMore(true);
         const searchQuery = searchKeywork ? `/${searchKeywork}/i` : '';
-        console.log(searchQuery)
         try {
             const token = await AsyncStorage.getItem("access_token");
             const res = await authApi(token).get(endpoints['jobsByCompany'](companyId), {
@@ -44,15 +45,26 @@ export default function JobByCompany({ navigation, route }) {
                 },
             });
             const data = res.data.data;
-            setJobData(data.result); // Update company data
-            setCurrentPage(data.meta.currentPage); // Update the current page from API response
-            setTotalPages(data.meta.totalPages); // Update the total pages from API response
-            setTotalItems(data.meta.totalItems); // Update the total pages from API response
-            console.log(data.result)
+            if (currentPage === 1) {
+                setJobData(data.result);
+            } else {
+                setJobData((prev) => [...prev, ...data.result]);
+            }
+            setCurrentPage(data.meta.currentPage);
+            setTotalPages(data.meta.totalPages);
+            setTotalItems(data.meta.totalItems);
+            console.log(data)
         } catch (error) {
             console.log('Error fetching companies:', error);
         } finally {
-            setLoading(false)
+            setLoading(false);
+            setLoadingMore(false);
+        }
+    };
+
+    const loadMoreJobs = () => {
+        if (currentPage < totalPages && !loadingMore) {
+            fetchJobByCompany(currentPage + 1);
         }
     };
 
@@ -71,7 +83,7 @@ export default function JobByCompany({ navigation, route }) {
                     <View style={StyleShare.flexBetween}>
                         <Text style={StyleShare.titleText16}>{item.name}</Text>
                         <TouchableOpacity style={{ zIndex: 999 }} >
-                            <Icon name="notifications-circle" size={24} style={{ marginLeft: 10 }} color={orange} />
+                            <Icon name="notifications-circle" size={26} style={{ marginLeft: 10 }} color={orange} />
                         </TouchableOpacity>
                     </View>
                     <View style={StyleShare.technologyContainer}>
@@ -152,6 +164,13 @@ export default function JobByCompany({ navigation, route }) {
                             <Text style={StyleShare.titleText20}>Bạn chưa ứng tuyển việc làm </Text>
                             <Text style={{ padding: 20, textAlign: 'center' }}>Bạn chưa có bất kỳ đơn ứng tuyển nào, hãy ứng tuyển để nhận đươc việc làm mong muốn</Text>
                         </View>
+                    }
+                    onEndReached={loadMoreJobs} // Gọi khi đến cuối danh sách
+                    onEndReachedThreshold={0.7} // Ngưỡng để kích hoạt loadMore
+                    ListFooterComponent={
+                        loadingMore ? (
+                            <Loading/>
+                        ) : null
                     }
                 />
             )}
