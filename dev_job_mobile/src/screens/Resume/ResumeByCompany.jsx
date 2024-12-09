@@ -76,14 +76,7 @@ export default function ResumeByCompany({ navigation, route }) {
         return (
             <TouchableWithoutFeedback >
                 <View style={StyleShare.jobItemContainer}>
-                    <View style={StyleShare.flexBetween}>
-                        <Text style={StyleShare.titleText16}>{item.jobId.name}</Text>
-                        <View style={StyleShare.flexCenter}>
-                            <TouchableOpacity style={{ zIndex: 999, marginLeft: 10 }} onPress={() => handleDeleteJob(item._id)} >
-                                <Icon name="close" size={26} color={'red'} />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
+                    <Text style={StyleShare.titleText16}>{item.jobId.name}</Text>
                     <View style={StyleShare.line}></View>
                     <View style={{ marginVertical: 10 }}>
                         <Text style={{ color: mainColor, marginBottom: 5, fontWeight: '500' }}>{item.name} - {item.phone}</Text>
@@ -114,7 +107,7 @@ export default function ResumeByCompany({ navigation, route }) {
                         </View>
                     </View>
 
-                    <TouchableOpacity onPress={() => handleOpenCv(item.cv)}>
+                    <TouchableOpacity onPress={() => navigation.navigate("ResumeView", { resumeDetail: item })}>
                         <View style={[StyleShare.buttonDetailApply, { marginTop: 10 }]}>
                             <Icon name="document-outline" size={22} />
                             <Text style={{ marginLeft: 5 }}>Xem hồ sơ ứng viên</Text>
@@ -175,8 +168,8 @@ export default function ResumeByCompany({ navigation, route }) {
                             <Text style={{ padding: 20, textAlign: 'center' }}>Bạn chưa có đơn ứng tuyển nào gần đây, hãy đăng bài tuyển dụng để tìm kiếm ứng viên tìm năng</Text>
                         </View>
                     }
-                    onEndReached={loadMoreResume} // Gọi khi đến cuối danh sách
-                    onEndReachedThreshold={0.7} // Ngưỡng để kích hoạt loadMore
+                    onEndReached={loadMoreResume}
+                    onEndReachedThreshold={0.7}
                     ListFooterComponent={
                         loadingMore ? (
                             <Loading />

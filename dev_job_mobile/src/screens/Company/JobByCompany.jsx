@@ -97,6 +97,38 @@ export default function JobByCompany({ navigation, route }) {
         );
     };
 
+    const handleUpdateActiveJob = async (jobId) => {
+        Alert.alert(
+            'Cập nhật trạng thái',
+            'Xác nhận dừng tuyển dụng trước thời hạn với tin tuyển dụng này?',
+            [
+                {
+                    text: 'Hủy',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Đồng ý',
+                    onPress: async () => {
+                        try {
+                            const token = await AsyncStorage.getItem('access_token');
+                            await authApi(token).patch(endpoints['jobDetail'](jobId), { isActive: false });
+                            ToastMess({ type: 'success', text1: 'Cập nhật thành công thành công' });
+                            setJobData(prevJobs =>
+                                prevJobs.map(job =>
+                                    job._id === jobId ? { ...job, isActive: false } : job
+                                )
+                            );
+                        } catch (error) {
+                            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
+                            console.log(error)
+                        }
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
+    };
+
     const loadMoreJobs = () => {
         if (currentPage < totalPages && !loadingMore) {
             fetchJobByCompany(currentPage + 1);
@@ -112,13 +144,13 @@ export default function JobByCompany({ navigation, route }) {
                     <View style={StyleShare.flexBetween}>
                         <Text style={StyleShare.titleText16}>{item.name}</Text>
                         <View style={StyleShare.flexCenter}>
-                            {item.isActive ? <TouchableOpacity style={{ zIndex: 999 }} onPress={() => handleUpdateActiveJob(item.id)}>
+                            {item.isActive ? <TouchableOpacity style={{ zIndex: 999 }} onPress={() => handleUpdateActiveJob(item._id)}>
                                 <Icon name="notifications-circle" size={26} color={orange} />
                             </TouchableOpacity>
                                 : <View style={{ zIndex: 999 }}>
-                                    <Icon name="notifications-off-circle" size={26}  color={mainColor} />
+                                    <Icon name="notifications-off-circle" size={26} color={mainColor} />
                                 </View>}
-                            <TouchableOpacity style={{ zIndex: 999,marginLeft: 10 }} onPress={() => handleDeleteJob(item._id)} >
+                            <TouchableOpacity style={{ zIndex: 999, marginLeft: 10 }} onPress={() => handleDeleteJob(item._id)} >
                                 <Icon name="close" size={26} color={'red'} />
                             </TouchableOpacity>
                         </View>
@@ -155,7 +187,7 @@ export default function JobByCompany({ navigation, route }) {
         <View style={StyleShare.container}>
             <UIHeader
                 leftIcon={"arrow-back"}
-                title={'Quản lý tuyển dụng'}
+                title={'Chiến dịch tuyển dụng'}
                 handleLeftIcon={() => { navigation.goBack() }} />
             <View style={{ paddingHorizontal: 20, marginBottom: 5 }}>
                 <View style={StyleShare.searchDetail}>
@@ -206,7 +238,7 @@ export default function JobByCompany({ navigation, route }) {
                     onEndReachedThreshold={0.7} // Ngưỡng để kích hoạt loadMore
                     ListFooterComponent={
                         loadingMore ? (
-                            <Loading/>
+                            <Loading />
                         ) : null
                     }
                 />

@@ -91,6 +91,11 @@ export default function ResumeByJob({ navigation, route }) {
                         <Text style={StyleShare.titleText16}>Địa chỉ làm việc</Text>
                         <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.location}</Text>
                     </View>
+                    <View style={{ marginBottom: 10 }}>
+                        <Text style={StyleShare.titleText16}>Trạng thái</Text>
+                        {jobDetail.isActive ? <Text style={[StyleShare.titleText16, { color: orange, marginTop: 5 }]}>Đang hoạt động</Text>
+                            : <Text style={[StyleShare.titleText16, { color: mainColor, marginTop: 5 }]}>Hết hạn</Text>}
+                    </View>
                 </View>
             ) : (
                 <Text style={{ textAlign: 'center' }}>Không có dữ liệu</Text>
@@ -182,7 +187,7 @@ export default function ResumeByJob({ navigation, route }) {
                                             : item.status === 'Đã xem' ? 'blue'
                                                 : item.status === 'Chấp nhận' ? 'green'
                                                     : item.status === 'Từ chối' ? 'red'
-                                                        : gray
+                                                        : grey
                                 }]}>{item.status}
                             </Text>
                         </View>
@@ -224,6 +229,7 @@ export default function ResumeByJob({ navigation, route }) {
                     <Loading />
                 ) : (
                     <FlatList
+                        extraData={resumeData}
                         data={resumeData}
                         keyExtractor={(item) => item._id}
                         renderItem={renderItem}
@@ -272,26 +278,3 @@ export default function ResumeByJob({ navigation, route }) {
     )
 }
 
-const styles = StyleSheet.create({
-
-    descOption: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    descDetail: {
-        alignItems: 'center',
-        padding: 20
-    }, textDesc: {
-        marginTop: 10,
-        marginBottom: 5
-    },
-
-    infoContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 10
-    },
-    infoDesc: {
-        marginLeft: 20
-    },
-})
