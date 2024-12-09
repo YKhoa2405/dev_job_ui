@@ -54,6 +54,9 @@ export const endpoints = {
     'resume': 'applications',
     'resumeDetail': (resumeId) => `/applications/${resumeId}`,
     'resumeApply': '/applications/apply',
+    'resumeByCompany': (companyId) => `/applications/byCompany/${companyId}`,
+    'resumeByJob': (jobId) => `/applications/byJob/${jobId}`,
+
 
     // cv
     'uploadCV': '/cv/upload',

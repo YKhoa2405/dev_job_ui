@@ -17,7 +17,7 @@ export default function JobDetail({ route, navigation }) {
     const status = useSelector((state) => state.job.status);
     useEffect(() => {
         if (jobId) {
-            dispatch(fetchJobDetail(jobId)); // Gọi API để fetch job detail
+            dispatch(fetchJobDetail(jobId));
         }
     }, [jobId, dispatch]);
 
@@ -212,6 +212,4 @@ const styles = StyleSheet.create({
         fontWeight: "500",
         color: white
     },
-
-
 })

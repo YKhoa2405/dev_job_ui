@@ -21,15 +21,14 @@ export default function HomeCompany({ navigation }) {
 
     const manageEmployers = [
         { id: 1, icon: 'megaphone-outline', title: 'Chiến dịch tuyển dụng' },
-        { id: 2, icon: 'reader-outline', title: 'CV tiếp nhận' },
+        { id: 2, icon: 'reader-outline', title: 'Quản lý tuyển dụng' },
         { id: 4, icon: 'podium-outline', title: 'Thống kê tuyển dụng' },
-        { id: 3, icon: 'exit-outline', title: 'Hồ sơ ứng tuyển mới' },
         { id: 5, icon: 'card-outline', title: 'Dịch vụ của bạn' },
         { id: 6, icon: 'card-outline', title: 'Quản lý lịch trình' },
     ]
     const UtilitiesGrid = () => (
         <View style={styles.gridUtili}>
-            <TouchableOpacity style={styles.gridItemUtili} onPress={() => navigation.navigate('JobCreate',{companyId:companyByUser._id})}>
+            <TouchableOpacity style={styles.gridItemUtili} onPress={() => navigation.navigate('JobCreate', { companyId: companyByUser._id })}>
                 <Icon name={'add-circle-outline'} size={20} color={mainColor}></Icon>
                 <Text style={StyleShare.lineText}>Tuyển dụng</Text>
             </TouchableOpacity>
@@ -75,16 +74,13 @@ export default function HomeCompany({ navigation }) {
     const handleManageEmployersClick = (id) => {
         switch (id) {
             case 1:
-                navigation.navigate('JobByCompany',{companyId:companyByUser._id})
+                navigation.navigate('JobByCompany', { companyId: companyByUser._id })
                 break;
             case 2:
-                navigation.navigate('Services')
-                break;
-            case 3:
-                navigation.navigate('CVApplyNew')
+                navigation.navigate('ResumeByCompany', { companyId: companyByUser._id })
                 break;
             case 4:
-                navigation.navigate('Statistical')
+                navigation.navigate('CompanyStatistical')
                 break;
             case 5:
                 navigation.navigate('ServicesByCompany')
@@ -114,36 +110,6 @@ export default function HomeCompany({ navigation }) {
                 <UtilitiesGrid />
                 <Text style={[StyleShare.titleText16, { marginVertical: 10, marginTop: 10 }]}>Quản lý</Text>
                 <ManageEmployersGrid />
-                {/* <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Thông tin công ty</Text> */}
-                {/* <View style={styles.containerInfoCompany}>
-                    <View>
-                        <Text style={StyleShare.titleText16}>{user.employer.company_name}</Text>
-                        <View style={[StyleShare.flexBetween, { marginTop: 10 }]}>
-                            <View style={[StyleShare.flexCenter, { flex: 1 }]}>
-                                <Icon name="people-outline" size={18} />
-                                <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{user.employer.followers_count} người theo dõi</Text>
-                            </View>
-                            <View style={[StyleShare.flexCenter, { flex: 1 }]}>
-                                <Icon name="business-outline" size={18} />
-                                <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{user.employer.size} nhân viên</Text>
-                            </View>
-                        </View>
-                    </View>
-                    <View>
-                            <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Giới thiệu công ty</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{user.employer.description}</Text>
-                            <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Website</Text>
-                            <TouchableOpacity onPress={() => handleOpenWebsite(user.employer.website)}>
-                                <Text style={{ color: orange, marginTop: 5 }}>{user.employer.website}</Text>
-                            </TouchableOpacity>
-                            <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Email</Text>
-                            <TouchableOpacity onPress={() => handleOpenEmail(user.email)}>
-                                <Text style={{ color: orange, marginTop: 5 }}>{user.email}</Text>
-                            </TouchableOpacity>
-                            <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Địa chỉ công ty</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{user.employer.address}</Text>
-                        </View>
-                </View> */}
             </View>
 
             <View style={{ margin: 20 }}>

@@ -12,11 +12,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
 import { ToastMess } from "../../components/ToastMess";
 
-
-
-export default function JobByCompany({ navigation, route }) {
+export default function ResumeByCompany({ navigation, route }) {
     const { companyId } = route.params
-    const [jobData, setJobData] = useState([]);
+    const [resumeData, setResumeData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
@@ -24,37 +22,37 @@ export default function JobByCompany({ navigation, route }) {
     const [loading, setLoading] = useState(false)
     const [loadingMore, setLoadingMore] = useState(false);
     const [searchKeywork, setSearchKeywork] = useState('')
-    const [selectedStatus, setSelectedStatus] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState('');
     const activeData = [
         { title: 'Tất cả', value: null },
-        { title: 'Hoạt động', value: true },
-        { title: 'Dừng hoạt động', value: false },
+        { title: 'Chờ xử lý', value: 'Chờ xử lý' },
+        { title: 'Đã xem', value: 'Đã xem' },
+        { title: 'Chấp nhận', value: 'Chấp nhận' },
+        { title: 'Từ chối', value: 'Từ chối' },
     ];
 
-
     useEffect(() => {
-        fetchJobByCompany(1);
+        fetchResumeByCompany(1);
     }, [selectedStatus]);
 
-    const fetchJobByCompany = async (currentPage = 1, limit = 10) => {
+    const fetchResumeByCompany = async (currentPage = 1, limit = 10) => {
         if (currentPage === 1) setLoading(true);
         else setLoadingMore(true);
         const searchQuery = searchKeywork ? `/${searchKeywork}/i` : '';
         try {
             const token = await AsyncStorage.getItem("access_token");
-            const res = await authApi(token).get(endpoints['jobsByCompany'](companyId), {
+            const res = await authApi(token).get(endpoints['resumeByCompany']('67433ef7c2689cf41f1fae48'), {
                 params: {
                     page: currentPage,
                     limit: limit,
-                    name: searchQuery,
-                    isActive: selectedStatus
+                    status: selectedStatus
                 },
             });
             const data = res.data.data;
             if (currentPage === 1) {
-                setJobData(data.result);
+                setResumeData(data.result);
             } else {
-                setJobData((prev) => [...prev, ...data.result]);
+                setResumeData((prev) => [...prev, ...data.result]);
             }
             setCurrentPage(data.meta.currentPage);
             setTotalPages(data.meta.totalPages);
@@ -68,101 +66,76 @@ export default function JobByCompany({ navigation, route }) {
         }
     };
 
-    const handleDeleteJob = async (jobId) => {
-        Alert.alert(
-            'Xóa tin tuyển dụng',
-            'Tất cả hồ sơ ứng tuyển liên quan cũng bị xóa?',
-            [
-                {
-                    text: 'Hủy',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Đồng ý',
-                    onPress: async () => {
-                        try {
-                            const token = await AsyncStorage.getItem('access_token');
-                            await authApi(token).delete(endpoints['jobDetail'](jobId));
-                            ToastMess({ type: 'success', text1: 'Xóa tin tuyển dụng thành công' });
-                            setJobData(prevJobs => prevJobs.filter(job => job._id !== jobId));
-                            setTotalItems(prevTotalItems => prevTotalItems - 1);
-                        } catch (error) {
-                            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
-                            console.log(error)
-                        }
-                    },
-                },
-            ],
-            { cancelable: true }
-        );
-    };
-
-    const loadMoreJobs = () => {
+    const loadMoreResume = () => {
         if (currentPage < totalPages && !loadingMore) {
-            fetchJobByCompany(currentPage + 1);
+            fetchResumeByCompany(currentPage + 1);
         }
     };
 
-
-
     const renderItem = ({ item }) => {
         return (
-            <TouchableWithoutFeedback onPress={() => navigation.navigate('ResumeByJob', { jobId: item._id })}>
+            <TouchableWithoutFeedback >
                 <View style={StyleShare.jobItemContainer}>
                     <View style={StyleShare.flexBetween}>
-                        <Text style={StyleShare.titleText16}>{item.name}</Text>
+                        <Text style={StyleShare.titleText16}>{item.jobId.name}</Text>
                         <View style={StyleShare.flexCenter}>
-                            {item.isActive ? <TouchableOpacity style={{ zIndex: 999 }} onPress={() => handleUpdateActiveJob(item.id)}>
-                                <Icon name="notifications-circle" size={26} color={orange} />
-                            </TouchableOpacity>
-                                : <View style={{ zIndex: 999 }}>
-                                    <Icon name="notifications-off-circle" size={26}  color={mainColor} />
-                                </View>}
-                            <TouchableOpacity style={{ zIndex: 999,marginLeft: 10 }} onPress={() => handleDeleteJob(item._id)} >
+                            <TouchableOpacity style={{ zIndex: 999, marginLeft: 10 }} onPress={() => handleDeleteJob(item._id)} >
                                 <Icon name="close" size={26} color={'red'} />
                             </TouchableOpacity>
                         </View>
                     </View>
-                    <View style={StyleShare.technologyContainer}>
-                        <Chip style={StyleShare.chip}>{item.city}</Chip>
-                        <Chip style={StyleShare.chip}>{item.level}</Chip>
-                        {item.skills.map((s, index) => (
-                            <Chip key={index} style={StyleShare.chip}>
-                                {s}
-                            </Chip>
-                        ))}
+                    <View style={StyleShare.line}></View>
+                    <View style={{ marginVertical: 10 }}>
+                        <Text style={{ color: mainColor, marginBottom: 5, fontWeight: '500' }}>{item.name} - {item.phone}</Text>
+                        <TouchableOpacity>
+                            <Text style={{ color: orange, textDecorationLine: 'underline', fontWeight: '500' }} >{item.email}</Text>
+                        </TouchableOpacity>
                     </View>
+
                     <View style={StyleShare.flexBetween}>
                         <View style={StyleShare.flexBetween}>
                             <View style={StyleShare.flexCenter}>
                                 <Icon name="time" size={22} color={'grey'} style={{ marginRight: 5 }} />
-                                <Text>{moment(item.endDate).format("DD/MM/YYYY")}</Text>
+                                <Text>{moment(item.createdAt).format("DD/MM/YYYY")}</Text>
                             </View>
                         </View>
                         <View>
-                            {item.isActive ? <Text style={[StyleShare.titleText16, { color: orange }]}>Đang hoạt động</Text>
-                                : <Text style={[StyleShare.titleText16, { color: mainColor }]}>Hết hạn</Text>}
+                            <Text
+                                style={[StyleShare.titleText16,
+                                {
+                                    color:
+                                        item.status === 'Chờ xử lý' ? mainColor
+                                            : item.status === 'Đã xem' ? 'blue'
+                                                : item.status === 'Chấp nhận' ? 'green'
+                                                    : item.status === 'Từ chối' ? 'red'
+                                                        : gray
+                                }]}>{item.status}
+                            </Text>
                         </View>
                     </View>
+
+                    <TouchableOpacity onPress={() => handleOpenCv(item.cv)}>
+                        <View style={[StyleShare.buttonDetailApply, { marginTop: 10 }]}>
+                            <Icon name="document-outline" size={22} />
+                            <Text style={{ marginLeft: 5 }}>Xem hồ sơ ứng viên</Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
             </TouchableWithoutFeedback>
         );
     };
 
-
-
     return (
         <View style={StyleShare.container}>
-            <UIHeader
-                leftIcon={"arrow-back"}
-                title={'Quản lý tuyển dụng'}
-                handleLeftIcon={() => { navigation.goBack() }} />
+            <UIHeader leftIcon={"arrow-back"}
+                handleLeftIcon={() => { navigation.goBack() }}
+                title={'Quản lý tuyển dụng'} />
             <View style={{ paddingHorizontal: 20, marginBottom: 5 }}>
                 <View style={StyleShare.searchDetail}>
                     <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
                     <TextInput
                         style={StyleShare.searchInput}
-                        placeholder="Tìm kiếm tin tuyển dụng..."
+                        placeholder="Tìm kiếm hồ sơ ứng viên..."
                         value={searchKeywork}
                         onChangeText={(text) => setSearchKeywork(text)}
                         onSubmitEditing={() => {
@@ -173,24 +146,24 @@ export default function JobByCompany({ navigation, route }) {
                 <Dropdown
                     data={activeData}
                     onSelect={(item) => {
-                        setSelectedStatus(item.value); // Lưu giá trị true/false
+                        setSelectedStatus(item.value);
                     }}
                     value={
                         selectedStatus !== null
                             ? activeData.find((item) => item.value === selectedStatus)?.title
                             : null
                     }
-                    placeholder="Chọn trạng thái"
+                    placeholder="Trạng thái hồ sơ"
                 />
                 <View style={{ marginTop: 10 }}>
-                    <Text style={StyleShare.titleText16}>{totalItems} việc làm</Text>
+                    <Text style={StyleShare.titleText16}>{totalItems} hồ sơ ứng tuyển</Text>
                 </View>
             </View>
             {loading ? (
                 <Loading />
             ) : (
                 <FlatList
-                    data={jobData}
+                    data={resumeData}
                     keyExtractor={(item) => item._id}
                     renderItem={renderItem}
                     showsVerticalScrollIndicator={false}
@@ -198,15 +171,15 @@ export default function JobByCompany({ navigation, route }) {
                     ListEmptyComponent={
                         <View style={{ marginTop: 50, alignItems: 'center' }}>
                             <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
-                            <Text style={StyleShare.titleText20}>Bạn chưa ứng tuyển việc làm </Text>
-                            <Text style={{ padding: 20, textAlign: 'center' }}>Bạn chưa có bất kỳ đơn ứng tuyển nào, hãy ứng tuyển để nhận đươc việc làm mong muốn</Text>
+                            <Text style={StyleShare.textMainOption}>Chưa có đơn ứng tuyển mới nào </Text>
+                            <Text style={{ padding: 20, textAlign: 'center' }}>Bạn chưa có đơn ứng tuyển nào gần đây, hãy đăng bài tuyển dụng để tìm kiếm ứng viên tìm năng</Text>
                         </View>
                     }
-                    onEndReached={loadMoreJobs} // Gọi khi đến cuối danh sách
+                    onEndReached={loadMoreResume} // Gọi khi đến cuối danh sách
                     onEndReachedThreshold={0.7} // Ngưỡng để kích hoạt loadMore
                     ListFooterComponent={
                         loadingMore ? (
-                            <Loading/>
+                            <Loading />
                         ) : null
                     }
                 />

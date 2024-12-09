@@ -8,7 +8,8 @@ export const fetchJobDetail = createAsyncThunk('job/fetchJobDetail', async (jobI
     try {
         const token = await AsyncStorage.getItem("access_token");
         const response = await authApi(token).get(endpoints['jobDetail'](jobId));
-        return response.data.data; // Trả về dữ liệu từ API
+        console.log(response.data.data)
+        return response.data.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response);
     }
