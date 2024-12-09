@@ -5,6 +5,7 @@ import { KeyboardAvoidingView, Platform } from 'react-native';
 import { orange } from './src/assets/themes/Color';
 import Icon from 'react-native-vector-icons/Ionicons'
 import { Provider } from 'react-redux'
+import { store } from './src/redux/store';
 
 import Wellcome from './src/screens/Auth/Wellcome';
 import Login from './src/screens/Auth/Login';
@@ -25,11 +26,9 @@ import JobSaved from './src/screens/Job/JobSaved';
 import JobApplied from './src/screens/Job/JobApplied';
 import JobSuggestions from './src/screens/Job/JobSuggestions';
 import ResumeApply from './src/screens/Resume/ResumeApply';
-import { store } from './src/redux/store';
 import Toast from 'react-native-toast-message';
 import SendCode from './src/screens/Auth/SendCode';
 import ChatDetail from './src/screens/Chat/ChatDetail';
-import CvView from './src/screens/Profile/CvView';
 import JobCreate from './src/screens/Company/JobCreate';
 import HomeCompany from './src/screens/Home/HomeCompany';
 import JobByCompany from './src/screens/Company/JobByCompany';
@@ -39,6 +38,7 @@ import ProfileCompany from './src/screens/Profile/ProfileCompany';
 import ResumeByJob from './src/screens/Resume/ResumeByJob';
 import CompanyStatistical from './src/screens/Company/CompanyStatistical';
 import ResumeByCompany from './src/screens/Resume/ResumeByCompany';
+import ResumeView from './src/screens/Resume/ResumeView';
 
 
 const Stack = createNativeStackNavigator();
@@ -46,42 +46,43 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
-    // <Provider store={store}>
-    //   <NavigationContainer>
-    //     <Stack.Navigator screenOptions={{ headerShown: false }}>
-    //       <Stack.Screen name="AuthStack" component={AuthStack} />
-    //       <Stack.Screen name="MainTab" component={MainTab} />
-    //       <Stack.Screen name="HomeCompany" component={HomeCompany} />
-    //       <Stack.Screen name="Login" component={Login} />
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="AuthStack" component={AuthStack} />
+          <Stack.Screen name="MainTab" component={MainTab} />
+          <Stack.Screen name="HomeCompany" component={HomeCompany} />
+          <Stack.Screen name="Login" component={Login} />
 
-    //       <Stack.Screen name="JobCreate" component={JobCreate} />
-    //       <Stack.Screen name="JobByCompany" component={JobByCompany} />
-    //       <Stack.Screen name="JobDetail" component={JobDetail} />
-    //       <Stack.Screen name="JobNearBy" component={JobNearBy} />
-    //       <Stack.Screen name="JobSearch" component={JobSearch} />
-    //       <Stack.Screen name="JobSearchResult" component={JobSearchResult} />
-    //       <Stack.Screen name="JobSaved" component={JobSaved} />
-    //       <Stack.Screen name="JobApplied" component={JobApplied} />
-    //       <Stack.Screen name="JobSuggestions" component={JobSuggestions} />
-    //       <Stack.Screen name="CompanyDetail" component={CompanyDetail} />
-    //       <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
-    //       <Stack.Screen name="CompanyStatistical" component={CompanyStatistical} />
+          <Stack.Screen name="JobCreate" component={JobCreate} />
+          <Stack.Screen name="JobByCompany" component={JobByCompany} />
+          <Stack.Screen name="JobDetail" component={JobDetail} />
+          <Stack.Screen name="JobNearBy" component={JobNearBy} />
+          <Stack.Screen name="JobSearch" component={JobSearch} />
+          <Stack.Screen name="JobSearchResult" component={JobSearchResult} />
+          <Stack.Screen name="JobSaved" component={JobSaved} />
+          <Stack.Screen name="JobApplied" component={JobApplied} />
+          <Stack.Screen name="JobSuggestions" component={JobSuggestions} />
+          <Stack.Screen name="CompanyDetail" component={CompanyDetail} />
+          <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
+          <Stack.Screen name="CompanyStatistical" component={CompanyStatistical} />
 
-    //       <Stack.Screen name="ProfileCompany" component={ProfileCompany} />
+          <Stack.Screen name="ProfileCompany" component={ProfileCompany} />
 
-    //       <Stack.Screen name="ResumeApply" component={ResumeApply} />
-    //       <Stack.Screen name="ResumeByJob" component={ResumeByJob} />
-    //       <Stack.Screen name="ResumeByCompany" component={ResumeByCompany} />
+          <Stack.Screen name="ResumeApply" component={ResumeApply} />
+          <Stack.Screen name="ResumeByJob" component={ResumeByJob} />
+          <Stack.Screen name="ResumeByCompany" component={ResumeByCompany} />
+          <Stack.Screen name="ResumeView" component={ResumeView} />
 
 
-    //       <Stack.Screen name="ChatDetail" component={ChatDetail} />
-    //       <Stack.Screen name="Services" component={Services} />
-    //       <Stack.Screen name="ServicesByCompany" component={ServicesByCompany} />
-    //     </Stack.Navigator>
-    //     <Toast />
-    //   </NavigationContainer>
-    // </Provider>
-    <CvView/>
+
+          <Stack.Screen name="ChatDetail" component={ChatDetail} />
+          <Stack.Screen name="Services" component={Services} />
+          <Stack.Screen name="ServicesByCompany" component={ServicesByCompany} />
+        </Stack.Navigator>
+        <Toast />
+      </NavigationContainer>
+    </Provider>
   );
 }
 

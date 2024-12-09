@@ -20,7 +20,6 @@ export default function ResumeByJob({ navigation, route }) {
     const dispatch = useDispatch()
     const jobDetail = useSelector((state) => state.job.jobDetail);
     const status = useSelector((state) => state.job.status);
-    console.log(jobDetail)
     console.log(jobId)
     useEffect(() => {
         if (jobId) {
@@ -30,9 +29,7 @@ export default function ResumeByJob({ navigation, route }) {
 
     const ProfileTab1 = () => (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 10, flex: 1 }}>
-            {status === 'loading' ? <>
-                <Loading />
-            </> : <>
+            {status === 'loading' ? <Loading /> : jobDetail ? (
                 <View>
                     <Text style={StyleShare.titleText20}>{jobDetail?.name}</Text>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20, alignItems: 'center' }}>
@@ -95,7 +92,9 @@ export default function ResumeByJob({ navigation, route }) {
                         <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.location}</Text>
                     </View>
                 </View>
-            </>}
+            ) : (
+                <Text style={{ textAlign: 'center' }}>Không có dữ liệu</Text>
+            )}
 
         </ScrollView>
     );
@@ -159,45 +158,44 @@ export default function ResumeByJob({ navigation, route }) {
 
         const renderItem = ({ item }) => {
             return (
-                <TouchableWithoutFeedback >
-                    <View style={StyleShare.jobItemContainer}>
-                        <View style={{ marginVertical: 10 }}>
-                            <Text style={{ color: mainColor, marginBottom: 5, fontWeight: '500' }}>{item.name} - {item.phone}</Text>
-                            <TouchableOpacity>
-                                <Text style={{ color: orange, textDecorationLine: 'underline', fontWeight: '500' }} >{item.email}</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={StyleShare.flexBetween}>
-                            <View style={StyleShare.flexBetween}>
-                                <View style={StyleShare.flexCenter}>
-                                    <Icon name="time" size={22} color={'grey'} style={{ marginRight: 5 }} />
-                                    <Text>{moment(item.createdAt).format("DD/MM/YYYY")}</Text>
-                                </View>
-                            </View>
-                            <View>
-                                <Text
-                                    style={[StyleShare.titleText16,
-                                    {
-                                        color:
-                                            item.status === 'Chờ xử lý' ? mainColor
-                                                : item.status === 'Đã xem' ? 'blue'
-                                                    : item.status === 'Chấp nhận' ? 'green'
-                                                        : item.status === 'Từ chối' ? 'red'
-                                                            : gray
-                                    }]}>{item.status}
-                                </Text>
-                            </View>
-                        </View>
-
-                        <TouchableOpacity onPress={() => handleOpenCv(item.cv)}>
-                            <View style={[StyleShare.buttonDetailApply, { marginTop: 10 }]}>
-                                <Icon name="document-outline" size={22} />
-                                <Text style={{ marginLeft: 5 }}>Xem hồ sơ ứng viên</Text>
-                            </View>
+                <View style={StyleShare.jobItemContainer}>
+                    <View style={{ marginVertical: 10 }}>
+                        <Text style={{ color: mainColor, marginBottom: 5, fontWeight: '500' }}>{item.name} - {item.phone}</Text>
+                        <TouchableOpacity>
+                            <Text style={{ color: orange, textDecorationLine: 'underline', fontWeight: '500' }} >{item.email}</Text>
                         </TouchableOpacity>
                     </View>
-                </TouchableWithoutFeedback>
+
+                    <View style={StyleShare.flexBetween}>
+                        <View style={StyleShare.flexBetween}>
+                            <View style={StyleShare.flexCenter}>
+                                <Icon name="time" size={22} color={'grey'} style={{ marginRight: 5 }} />
+                                <Text>{moment(item.createdAt).format("DD/MM/YYYY")}</Text>
+                            </View>
+                        </View>
+                        <View>
+                            <Text
+                                style={[StyleShare.titleText16,
+                                {
+                                    color:
+                                        item.status === 'Chờ xử lý' ? mainColor
+                                            : item.status === 'Đã xem' ? 'blue'
+                                                : item.status === 'Chấp nhận' ? 'green'
+                                                    : item.status === 'Từ chối' ? 'red'
+                                                        : gray
+                                }]}>{item.status}
+                            </Text>
+                        </View>
+                    </View>
+
+                    <TouchableOpacity onPress={() => navigation.navigate("ResumeView", { resumeDetail: item })}>
+                        <View style={[StyleShare.buttonDetailApply, { marginTop: 10 }]}>
+                            <Icon name="document-outline" size={22} />
+                            <Text style={{ marginLeft: 5 }}>Xem hồ sơ ứng viên</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+
             );
         };
 
