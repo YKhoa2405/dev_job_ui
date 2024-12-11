@@ -25,6 +25,11 @@ export const endpoints = {
     //services
     'services': '/services',
     'servicesDetail': (serviceId) => `/services/${serviceId}`,
+    'paymentUrl': '/payments/create',
+    'paymentSave': '/payments/save',
+    'paymentByCompany': (companyId) => `/payments/${companyId}`,
+
+
 
     // company
     'companies': '/companies',
@@ -39,9 +44,9 @@ export const endpoints = {
     'jobDetail': (jobId) => `/jobs/${jobId}`,
 
     // save-job
-    'saveJob':'/save-job',
-    'saveJobDetail':(id)=>`/save-job/${id}`,
-    'deleteAllSaveJob':'/save-job/clear-all',
+    'saveJob': '/save-job',
+    'saveJobDetail': (id) => `/save-job/${id}`,
+    'deleteAllSaveJob': '/save-job/clear-all',
 
 
     // roles

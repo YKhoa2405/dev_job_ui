@@ -4,15 +4,19 @@ import UIHeader from "../../components/UIHeader";
 import Icon from "react-native-vector-icons/Ionicons";
 import { mainColor, bgButton2, grey, orange, white } from "../../assets/themes/Color";
 import StyleShare from "../../assets/themes/StyleShare";
-import API, { authApi, endpoints } from "../../assets/config/API";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loading from "../../components/Loading";
+import axios from "axios";
+import ToastMess from "../../components/ToastMess"
+import { authApi, endpoints } from "../../assets/config/API";
 
-export default function Services({ navigation }) {
+export default function Services({ navigation, route }) {
+    const { companyId } = route.params
     const [loading, setLoading] = useState(false);
     const [service, setService] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [searchKeywork, setSearchKeywork] = useState('')
+    const [url, setUrl] = useState('')
     useEffect(() => {
         fetchListService()
     }, [])
@@ -21,7 +25,6 @@ export default function Services({ navigation }) {
         setLoading(true)
         try {
             const token = await AsyncStorage.getItem("access_token");
-            console.log(token)
             const res = await authApi(token).get(endpoints['services'], {
                 params: {
                     name: name ? `/${name}/i` : ''
@@ -30,11 +33,29 @@ export default function Services({ navigation }) {
             const data = res.data.data;
             setService(data.result)
             setTotalItems(data.meta.totalItems);
-            console.log(data.result)
         } catch (error) {
             console.log('thong bao loi', error)
         } finally {
             setLoading(false)
+        }
+    }
+
+    const handlePayService = async (amount, serviceId) => {
+        console.log(endpoints['paymentUrl'])
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+            const response = await authApi(token).post(endpoints['paymentUrl'], { amount: amount }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            const url = response.data.data
+            setUrl(url)
+            console.log(url)
+            navigation.navigate('PaymentScreen', { url: url, serviceId: serviceId, companyId: companyId })
+        } catch (error) {
+            console.log(error)
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
         }
     }
 
@@ -55,7 +76,7 @@ export default function Services({ navigation }) {
                     <Text style={{ fontWeight: '500', fontSize: 16 }}>{item.description}</Text>
                     <Text style={{ fontWeight: '500', fontSize: 16, color: 'grey' }}>Thời hạn: <Text style={{ color: orange }}>{item.durationDays} ngày</Text></Text>
 
-                    <TouchableOpacity style={styles.buttonServices} onPress={() => handlePayService(item.price, item.id)}>
+                    <TouchableOpacity style={styles.buttonServices} onPress={() => handlePayService(item.price, item._id)}>
                         <Text style={{ color: white, fontWeight: 500 }}>Mua ngay</Text>
                     </TouchableOpacity>
                 </View>

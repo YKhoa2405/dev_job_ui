@@ -23,8 +23,8 @@ export default function HomeCompany({ navigation }) {
         { id: 1, icon: 'megaphone-outline', title: 'Chiến dịch tuyển dụng' },
         { id: 2, icon: 'reader-outline', title: 'Quản lý tuyển dụng' },
         { id: 4, icon: 'podium-outline', title: 'Thống kê tuyển dụng' },
-        { id: 5, icon: 'card-outline', title: 'Dịch vụ của bạn' },
-        { id: 6, icon: 'card-outline', title: 'Quản lý lịch trình' },
+        { id: 5, icon: 'file-tray-stacked-outline', title: 'Dịch vụ của bạn' },
+        { id: 6, icon: 'calendar-number-outline', title: 'Quản lý lịch trình' },
     ]
     const UtilitiesGrid = () => (
         <View style={styles.gridUtili}>
@@ -32,7 +32,7 @@ export default function HomeCompany({ navigation }) {
                 <Icon name={'add-circle-outline'} size={20} color={mainColor}></Icon>
                 <Text style={StyleShare.lineText}>Tuyển dụng</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.gridItemUtili} onPress={() => navigation.navigate('Services')}>
+            <TouchableOpacity style={styles.gridItemUtili} onPress={() => navigation.navigate('Services', { companyId: companyByUser._id })}>
                 <Icon name={'cart-outline'} size={20} color={mainColor}></Icon>
                 <Text style={StyleShare.lineText}>Mua dịch vụ</Text>
             </TouchableOpacity>
@@ -83,7 +83,7 @@ export default function HomeCompany({ navigation }) {
                 navigation.navigate('CompanyStatistical')
                 break;
             case 5:
-                navigation.navigate('ServicesByCompany')
+                navigation.navigate('ServicesByCompany', { companyId: companyByUser._id })
                 break
             default:
                 console.log('Unknown item clicked');

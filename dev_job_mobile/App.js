@@ -39,6 +39,7 @@ import ResumeByJob from './src/screens/Resume/ResumeByJob';
 import CompanyStatistical from './src/screens/Company/CompanyStatistical';
 import ResumeByCompany from './src/screens/Resume/ResumeByCompany';
 import ResumeView from './src/screens/Resume/ResumeView';
+import PaymentScreen from './src/screens/Service/PaymentScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -79,6 +80,8 @@ export default function App() {
           <Stack.Screen name="ChatDetail" component={ChatDetail} />
           <Stack.Screen name="Services" component={Services} />
           <Stack.Screen name="ServicesByCompany" component={ServicesByCompany} />
+          <Stack.Screen name="PaymentScreen" component={PaymentScreen} />
+
         </Stack.Navigator>
         <Toast />
       </NavigationContainer>
