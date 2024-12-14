@@ -29,6 +29,9 @@ export const endpoints = {
     'paymentSave': '/payments/save',
     'paymentByCompany': (companyId) => `/payments/${companyId}`,
 
+    // order
+    'order':'/orders',
+    'orderByCompany': (companyId) => `/orders/${companyId}`,
 
 
     // company

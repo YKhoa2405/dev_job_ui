@@ -1,78 +1,109 @@
-import React, { useContext, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View } from "react-native";
 import UIHeader from "../../components/UIHeader";
 import { WebView } from 'react-native-webview';
-import { ToastMess } from "../../components/ToastMess";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
-import axios from "axios";
 
 export default function PaymentScreen({ navigation, route }) {
-    const { url, serviceId, companyId } = route.params
+    const { url, serviceId, companyId } = route.params;
+    const [isProcessing, setIsProcessing] = useState(false); // Trạng thái để kiểm soát xử lý trùng lặp
 
     const handleNavigationStateChange = async (navState) => {
         const { url: newUrl } = navState;
 
-        // Phân tích URL để lấy thông tin
-        const urlParts = newUrl.split('?');
-        if (urlParts.length > 1) {
-            const queryParams = urlParts[1].split('&');
-            const params = {};
-            queryParams.forEach((param) => {
-                const parts = param.split('=');
-                params[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1]);
-            });
-            // Lấy các giá trị cần thiết từ params
-            const vnp_BankCode = params['vnp_BankCode']
-            const vnp_Amount = params['vnp_Amount']
-            const vnp_PayDate = params['vnp_PayDate'];
-            const vnp_OrderInfo = params['vnp_OrderInfo']
-            const vnp_TxnRef = params['vnp_TxnRef'];
-            const vnp_TransactionStatus = params['vnp_TransactionStatus'];
-            const vnp_ResponseCode = params['vnp_ResponseCode'];
+        // Nếu đang xử lý, ngừng lại
+        if (isProcessing) return;
 
+        // Validate URL
+        if (!newUrl.includes('?')) return;
 
-            if (vnp_ResponseCode != null) {
-                try {
-                    // Tạo body theo định dạng x-www-form-urlencoded
-                    const params = new URLSearchParams();
-                    params.append('companyId', companyId);
-                    params.append('serviceId', serviceId);
-                    params.append('vnp_BankCode', vnp_BankCode);
-                    params.append('vnp_Amount', vnp_Amount);
-                    params.append('vnp_PayDate', vnp_PayDate);
-                    params.append('vnp_OrderInfo', vnp_OrderInfo);
-                    params.append('vnp_TransactionStatus', vnp_TransactionStatus);
-                    params.append('vnp_TxnRef', vnp_TxnRef);
+        // Parse URL query parameters
+        const params = {};
+        const queryParams = newUrl.split('?')[1]?.split('&');
+        queryParams.forEach((param) => {
+            const [key, value] = param.split('=');
+            params[decodeURIComponent(key)] = decodeURIComponent(value);
+        });
 
-                    const token = await AsyncStorage.getItem("access-token");
-                    await authApi(token).post(endpoints['paymentSave'], params, {
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                    });
+        const {
+            vnp_BankCode,
+            vnp_Amount,
+            vnp_PayDate,
+            vnp_OrderInfo,
+            vnp_TxnRef,
+            vnp_TransactionStatus,
+            vnp_BankTranNo,
+            vnp_CardType,
+            vnp_ResponseCode,
+            vnp_TmnCode,
+            vnp_TransactionNo,
+        } = params;
 
-                    ToastMess({ type: 'success', text1: 'Thanh toán thành công.' });
+        console.log(params);
 
-                } catch (ex) {
-                    console.error(ex);
-                    ToastMess({ type: 'error', text1: 'Thanh toán thất bại, vui lòng thử lại.' });
+        if (vnp_ResponseCode) {
+            setIsProcessing(true); // Đặt trạng thái đang xử lý
+            try {
+                // Lưu thông tin thanh toán
+                const requestParams = new URLSearchParams({
+                    companyId,
+                    vnp_BankCode,
+                    vnp_Amount,
+                    vnp_PayDate,
+                    vnp_OrderInfo,
+                    vnp_TransactionStatus,
+                    vnp_TxnRef,
+                    vnp_BankTranNo,
+                    vnp_CardType,
+                    vnp_ResponseCode,
+                    vnp_TmnCode,
+                    vnp_TransactionNo,
+                });
 
+                const token = await AsyncStorage.getItem('access_token');
+                await authApi(token).post(endpoints['paymentSave'], requestParams, {
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                });
 
+                // Nếu giao dịch thành công, tạo đơn hàng
+                if (vnp_TransactionStatus === '00') {
+                    await handleCreateOrder(vnp_Amount);
                 }
-
-                // setTimeout(() => {
-                //     navigation.navigate('HomeEmployer'); // Chuyển hướng về màn hình Home sau 5 giây
-                // }, 5000);
+            } catch (error) {
+                console.error('Payment save failed:', error);
+            } finally {
+                setIsProcessing(false); // Hoàn tất xử lý
             }
         }
     };
+
+    const handleCreateOrder = async (amount) => {
+        try {
+            const params = new URLSearchParams();
+            params.append('companyId', companyId);
+            params.append('serviceId', serviceId);
+            params.append('amount', amount);
+
+            const token = await AsyncStorage.getItem('access_token');
+            await authApi(token).post(endpoints['order'], params, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+        } catch (error) {
+            console.error('Order creation failed:', error);
+        }
+    };
+
     return (
         <View style={{ flex: 1 }}>
-            <UIHeader leftIcon={"arrow-back"}
+            <UIHeader
+                leftIcon={"arrow-back"}
                 rightIcon={"ellipsis-horizontal"}
                 title={'Thanh toán dịch vụ'}
-                handleLeftIcon={() => { navigation.goBack() }} />
+                handleLeftIcon={() => { navigation.goBack(); }}
+            />
             <WebView
                 style={{ flex: 1 }}
                 source={{ uri: url }}
