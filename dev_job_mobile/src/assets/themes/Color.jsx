@@ -8,3 +8,4 @@ export const grey = "#F2F2F2"
 export const textColor = '#524B6B'
 export const bgNotifi = '#ece8fa'
 export const colorChat = '#faefe4'
+export const green ='#28a745'

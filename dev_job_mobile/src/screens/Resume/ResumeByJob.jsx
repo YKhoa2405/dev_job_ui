@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Image, TextInput, ScrollView, StyleSheet, ActivityIndicator, FlatList } from "react-native"
 import StyleShare from "../../assets/themes/StyleShare"
 import UIHeader from "../../components/UIHeader"
-import { grey, mainColor, white, orange, textColor } from "../../assets/themes/Color"
+import { grey, mainColor, white, orange, textColor, green } from "../../assets/themes/Color"
 import Icon from 'react-native-vector-icons/Ionicons'
 import { useDispatch, useSelector } from "react-redux"
 import moment from "moment"
@@ -93,8 +93,8 @@ export default function ResumeByJob({ navigation, route }) {
                     </View>
                     <View style={{ marginBottom: 10 }}>
                         <Text style={StyleShare.titleText16}>Trạng thái</Text>
-                        {jobDetail.isActive ? <Text style={[StyleShare.titleText16, { color: orange, marginTop: 5 }]}>Đang hoạt động</Text>
-                            : <Text style={[StyleShare.titleText16, { color: mainColor, marginTop: 5 }]}>Hết hạn</Text>}
+                        {jobDetail.isActive ? <Text style={[StyleShare.titleText16, { color: green, marginTop: 5 }]}>Đang hoạt động</Text>
+                            : <Text style={[StyleShare.titleText16, { color: 'red', marginTop: 5 }]}>Hết hạn</Text>}
                     </View>
                 </View>
             ) : (
@@ -130,7 +130,7 @@ export default function ResumeByJob({ navigation, route }) {
             else setLoadingMore(true);
             try {
                 const token = await AsyncStorage.getItem("access_token");
-                const res = await authApi(token).get(endpoints['resumeByJob']("67446a35913432f62add3b76"), {
+                const res = await authApi(token).get(endpoints['resumeByJob'](jobId), {
                     params: {
                         page: currentPage,
                         limit: limit,

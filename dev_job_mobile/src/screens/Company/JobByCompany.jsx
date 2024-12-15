@@ -5,7 +5,7 @@ import UIHeader from "../../components/UIHeader";
 import { Avatar, Chip } from "react-native-paper";
 import Icon from 'react-native-vector-icons/Ionicons'
 import Dropdown from "../../components/Dropdown";
-import { mainColor, orange } from "../../assets/themes/Color";
+import { green, mainColor, orange } from "../../assets/themes/Color";
 import moment from "moment";
 import Loading from "../../components/Loading";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -172,8 +172,8 @@ export default function JobByCompany({ navigation, route }) {
                             </View>
                         </View>
                         <View>
-                            {item.isActive ? <Text style={[StyleShare.titleText16, { color: orange }]}>Đang hoạt động</Text>
-                                : <Text style={[StyleShare.titleText16, { color: mainColor }]}>Hết hạn</Text>}
+                            {item.isActive ? <Text style={[StyleShare.titleText16, { color: green }]}>Đang hoạt động</Text>
+                                : <Text style={[StyleShare.titleText16, { color: 'red' }]}>Hết hạn</Text>}
                         </View>
                     </View>
                 </View>

@@ -40,8 +40,8 @@ export default function Login({ navigation }) {
                 'Content-Type': 'application/x-www-form-urlencoded' // Change Content-Type
             };
             let data = {
-                username: 'nhatuyendung1@gmail.com',
-                // username: 'ungvien@gmail.com',
+                // username: 'nhatuyendung1@gmail.com',
+                username: 'ungvien@gmail.com',
                 // password: 'caichyrua11',
                 password: '123456',
             };
@@ -109,9 +109,9 @@ export default function Login({ navigation }) {
                 )}
 
                 <View style={StyleShare.lineContainer}>
-                    <View style={StyleShare.line}></View>
+                    <View style={[StyleShare.line,{backgroundColor:white}]}></View>
                     <Text style={StyleShare.lineText}>hoặc đăng nhập bằng</Text>
-                    <View style={StyleShare.line}></View>
+                    <View style={[StyleShare.line,{backgroundColor:white}]}></View>
                 </View>
                 <View style={StyleShare.flexCenter}>
                     <TouchableOpacity style={styles.optionLoginContainer} onPress={() => handleLoginGoogle()}>
@@ -124,7 +124,7 @@ export default function Login({ navigation }) {
                 </View>
                 <View style={StyleShare.flexCenter}>
                     <Text>Bạn chưa có tài khoản ? </Text>
-                    <TouchableOpacity onPress={() => { navigation.navigate("Register") }}><Text style={{ fontWeight: '500', color: orange }}>Đăng ký ngay</Text></TouchableOpacity>
+                    <TouchableOpacity onPress={() => { navigation.navigate("ChooseRole") }}><Text style={{ fontWeight: '500', color: orange }}>Đăng ký ngay</Text></TouchableOpacity>
                 </View>
             </View>
         </View>

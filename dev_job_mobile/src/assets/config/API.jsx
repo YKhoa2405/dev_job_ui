@@ -49,7 +49,7 @@ export const endpoints = {
     // save-job
     'saveJob': '/save-job',
     'saveJobDetail': (id) => `/save-job/${id}`,
-    'deleteAllSaveJob': '/save-job/clear-all',
+    'deleteAllSaveJob': '/save-job/clearAll',
 
 
     // roles

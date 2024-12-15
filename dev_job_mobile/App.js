@@ -9,7 +9,6 @@ import { store } from './src/redux/store';
 
 import Wellcome from './src/screens/Auth/Wellcome';
 import Login from './src/screens/Auth/Login';
-import Register from './src/screens/Auth/Register';
 import Verify from './src/screens/Auth/SendCode';
 import Profile from './src/screens/Profile/ProfileClient';
 import ForgotPasswork from './src/screens/Auth/ForgotPassword';
@@ -40,6 +39,10 @@ import CompanyStatistical from './src/screens/Company/CompanyStatistical';
 import ResumeByCompany from './src/screens/Resume/ResumeByCompany';
 import ResumeView from './src/screens/Resume/ResumeView';
 import PaymentScreen from './src/screens/Service/PaymentScreen';
+import RegisterClient from './src/screens/Auth/RegisterClient';
+import RegisterCompany from './src/screens/Auth/RegisterCompany';
+
+import ChooseRole from './src/screens/Auth/ChooseRole';
 
 
 const Stack = createNativeStackNavigator();
@@ -139,8 +142,18 @@ function AuthStack() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="Register"
-        component={Register}
+        name="RegisterClient"
+        component={RegisterClient}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="RegisterCompany"
+        component={RegisterCompany}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ChooseRole"
+        component={ChooseRole}
         options={{ headerShown: false }}
       />
       <Stack.Screen

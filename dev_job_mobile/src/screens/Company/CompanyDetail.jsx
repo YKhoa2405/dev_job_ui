@@ -1,7 +1,7 @@
 import { StyleSheet, View, Text, Image, TouchableOpacity, TouchableWithoutFeedback, ActivityIndicator, Linking, FlatList, ScrollView } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import { mainColor, bgButton2, grey, orange, textColor, white } from "../../assets/themes/Color";
-import { Avatar } from "react-native-paper";
+import { Avatar, Chip } from "react-native-paper";
 import UIHeader from "../../components/UIHeader";
 import Icon from "react-native-vector-icons/Ionicons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
 import Loading from "../../components/Loading";
+import moment from "moment";
 
 
 export default function CompanyDetail({ navigation, route }) {
@@ -54,8 +55,80 @@ export default function CompanyDetail({ navigation, route }) {
         </ScrollView>
     );
     const ProfileTab2 = () => {
-        const [loading, setLoading] = useState(true);
-        const [jobs, setJobs] = useState([]);
+        const [jobData, setJobData] = useState([]);
+        const [currentPage, setCurrentPage] = useState(1);
+        const [totalPages, setTotalPages] = useState(1);
+        const [totalItems, setTotalItems] = useState(0);
+
+        const [loading, setLoading] = useState(false)
+        const [loadingMore, setLoadingMore] = useState(false);
+
+        useEffect(() => {
+            fetchJobByCompany(1);
+        }, []);
+
+        const fetchJobByCompany = async (currentPage = 1, limit = 10) => {
+            if (currentPage === 1) setLoading(true);
+            else setLoadingMore(true);
+            try {
+                const token = await AsyncStorage.getItem("access_token");
+                const res = await authApi(token).get(endpoints['jobsByCompany'](_id), {
+                    params: {
+                        page: currentPage,
+                        limit: limit,
+                    },
+                });
+                const data = res.data.data;
+                if (currentPage === 1) {
+                    setJobData(data.result);
+                } else {
+                    setJobData((prev) => [...prev, ...data.result]);
+                }
+                setCurrentPage(data.meta.currentPage);
+                setTotalPages(data.meta.totalPages);
+                setTotalItems(data.meta.totalItems);
+                console.log(data)
+            } catch (error) {
+                console.log('Error fetching companies:', error);
+            } finally {
+                setLoading(false);
+                setLoadingMore(false);
+            }
+        };
+
+        const loadMoreJobs = () => {
+            if (currentPage < totalPages && !loadingMore) {
+                fetchJobByCompany(currentPage + 1);
+            }
+        };
+
+        const renderItem = ({ item }) => {
+            return (
+                <TouchableWithoutFeedback onPress={() => navigation.navigate("JobDetail", { jobId: item._id })}>
+                    <View style={StyleShare.jobItemContainer}>
+                        <TouchableOpacity style={styles.btnSave}>
+                            <Icon name="bookmark" size={26} color={orange} />
+                        </TouchableOpacity>
+                        <Text style={StyleShare.titleText16}>{item.name}</Text>
+                        <View style={StyleShare.technologyContainer}>
+                            <Chip style={StyleShare.chip}>{item.level}</Chip>
+                            <Chip style={StyleShare.chip}>{item.city}</Chip>
+                            {item.skills.map((skill, index) => (
+                                <Chip key={index} style={StyleShare.chip}>
+                                    {skill}
+                                </Chip>
+                            ))}
+                        </View>
+                        <View style={StyleShare.flexBetween}>
+                            <View style={StyleShare.flexCenter}>
+                                <Icon name="time" size={22} color={'grey'} style={{ marginRight: 5 }} />
+                                <Text>{moment(item.endDate).format("DD/MM/YYYY")}</Text>
+                            </View>
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            );
+        };
 
         return (
             <View style={{ flex: 1 }}>
@@ -63,15 +136,22 @@ export default function CompanyDetail({ navigation, route }) {
                     <ActivityIndicator style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} size="large" color='orange' />
                 ) : (
                     <FlatList
-                        data={jobs}
+                        data={jobData}
                         renderItem={renderItem}
-                        keyExtractor={item => item.id.toString()}
+                        keyExtractor={item => item._id}
                         ListEmptyComponent={
                             <View style={{ marginTop: 50, alignItems: 'center' }}>
                                 <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
-                                <Text style={StyleShare.textMainOption}>Hiện tại chưa có tin tuyển dụng nào</Text>
+                                <Text style={StyleShare.titleText16}>Hiện tại chưa có tin tuyển dụng nào</Text>
                                 <Text style={{ padding: 20, textAlign: 'center' }}>Công ty hiện tại chưa có tin tuyển dụng nào, hãy quay lại lần sau để cập nhật</Text>
                             </View>
+                        }
+                        onEndReached={loadMoreJobs} // Gọi khi đến cuối danh sách
+                        onEndReachedThreshold={0.7} // Ngưỡng để kích hoạt loadMore
+                        ListFooterComponent={
+                            loadingMore ? (
+                                <Loading />
+                            ) : null
                         }
                         contentContainerStyle={{ paddingBottom: 40, paddingTop: 10 }}
                     />
