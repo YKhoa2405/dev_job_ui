@@ -5,6 +5,9 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import { mainColor, orange, white } from "../../assets/themes/Color";
 import UIHeader from "../../components/UIHeader";
+import { ToastMess } from "../../components/ToastMess";
+import Loading from "../../components/Loading";
+import API, { endpoints } from "../../assets/config/API";
 
 
 
@@ -14,8 +17,49 @@ export default function RegisterClient({ navigation, route }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordAg, setPasswordAg] = useState('');
-    const [avatar, setAvatar] = useState(null)
+    const [loading, setLoading] = useState(false)
 
+    const handleRegister = async () => {
+        if (!email || !password || !passwordAg) {
+            ToastMess({ type: 'error', text1: 'Vui lòng không để trống các trường.' });
+            return;
+        }
+
+        if (password !== passwordAg) {
+            ToastMess({ type: 'error', text1: 'Mật khẩu và mật khẩu xác nhận không khớp.' });
+            return;
+        }
+        setLoading(true);
+
+        const formRegister = new URLSearchParams();
+        formRegister.append('email', email);
+        formRegister.append('name', userName);
+        formRegister.append('password', password);
+        try {
+            const res = await API.post(endpoints['registerUser'], formRegister, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+            ToastMess({ type: 'success', text1: res.data.data.message });
+            navigation.navigate("RegisterSendOtp", {
+                email: email,
+                password: password,
+                name: userName,
+                role: role,
+            });
+
+        } catch (error) {
+            if (error.response && error.response.status === 400) {
+                ToastMess({ type: 'error', text1: 'Người dùng đã tồn tại' });
+            } else {
+                ToastMess({ type: 'error', text1: 'Đã xảy ra lỗi. Vui lòng thử lại.' });
+                console.log(error)
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <ScrollView style={StyleShare.container} showsVerticalScrollIndicator={false}>
@@ -32,9 +76,15 @@ export default function RegisterClient({ navigation, route }) {
                 </View>
                 <View style={styles.containerMain}>
                     <Text style={[styles.textInput, { color: orange }]}>Thông tin đăng nhập</Text>
+                    <Text style={styles.textInput}>Họ và tên</Text>
+                    <Input
+                        placeholder="Tên của HR hoặc người đăng ký tài khoản"
+                        onChangeText={setUsername}
+                        autoCapitalize="none"
+                    />
                     <Text style={styles.textInput}>Email</Text>
                     <Input
-                        placeholder="Email"
+                        placeholder="Sử dụng Email của công ty"
                         onChangeText={setEmail}
                         autoCapitalize="none"
                     />
@@ -52,7 +102,7 @@ export default function RegisterClient({ navigation, route }) {
                         onChangeText={setPasswordAg}
                         autoCapitalize="none"
                     />
-                    <Text style={[styles.textInput, { color: orange }]}>Thông tin công ty</Text>
+                    {/* <Text style={[styles.textInput, { color: orange }]}>Thông tin công ty</Text>
                     <Text style={styles.textInput}>Tên công ty</Text>
                     <Input
                         placeholder="Nhập tên công ty đăng ký kinh doanh"
@@ -82,13 +132,16 @@ export default function RegisterClient({ navigation, route }) {
                     <Input
                         placeholder="Nhập giới thiệu về công ty"
 
-                    />
+                    /> */}
                 </View>
                 <View style={styles.containerFooter}>
-                    <Button title={'Đăng ký'}
-                        backgroundColor={mainColor}
-                        textColor={white}
-                        onPress={() => handleSignUp()} />
+                    {loading ? <>
+                        <Loading /></> : <>
+                        <Button title={'Đăng ký'}
+                            backgroundColor={mainColor}
+                            textColor={white}
+                            onPress={() => handleRegister()} />
+                    </>}
                 </View>
             </View>
         </ScrollView>

@@ -128,7 +128,6 @@ export default function RegisterClient({ navigation, route }) {
                         isPassword={true}
                         onChangeText={setPassword}
                         autoCapitalize="none"
-
                     />
                     <Text style={styles.textInput}>Nhập lại mật khẩu</Text>
                     <Input

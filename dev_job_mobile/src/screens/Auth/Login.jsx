@@ -41,7 +41,7 @@ export default function Login({ navigation }) {
             };
             let data = {
                 // username: 'nhatuyendung1@gmail.com',
-                username: 'ungvien@gmail.com',
+                username: '2151050202khoa@ou.edu.vn',
                 // password: 'caichyrua11',
                 password: '123456',
             };

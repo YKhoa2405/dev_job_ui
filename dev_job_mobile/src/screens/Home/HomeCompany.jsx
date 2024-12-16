@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableWithoutFeedback, StyleSheet, Dimensions, TouchableOpacity, ScrollView } from "react-native";
 
 import { Avatar, Chip } from "react-native-paper";
-import { orange, mainColor, grey, white, textColor } from "../../assets/themes/Color";
+import { orange, mainColor, grey, white, textColor, green } from "../../assets/themes/Color";
 import Icon from "react-native-vector-icons/Ionicons"
 import StyleShare from "../../assets/themes/StyleShare";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,6 +18,8 @@ export default function HomeCompany({ navigation }) {
     useEffect(() => {
         dispatch(fetchCompanyByUser());
     }, []);
+
+    console.log(companyByUser)
 
     const manageEmployers = [
         { id: 1, icon: 'megaphone-outline', title: 'Chiến dịch tuyển dụng' },
@@ -68,7 +70,7 @@ export default function HomeCompany({ navigation }) {
 
     const handleLogout = () => {
         dispatch(logout());
-        navigation.navigate('Login')
+        navigation.navigate('AuthStack')
     };
 
     const handleManageEmployersClick = (id) => {
@@ -95,21 +97,66 @@ export default function HomeCompany({ navigation }) {
         <ScrollView style={StyleShare.container} showsVerticalScrollIndicator={false}>
             <View style={styles.containerTop}>
                 <Text style={StyleShare.titleText20}>Quản lý tuyển dụng</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <TouchableOpacity style={{ marginRight: 20 }}>
-                        <Icon name="notifications-outline" size={26} color={mainColor} />
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                        <Icon name="chatbubble-outline" size={26} color={mainColor} />
-                    </TouchableOpacity>
-                </View>
+                {companyByUser && companyByUser.isApproved && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <TouchableOpacity style={{ marginRight: 20 }}>
+                            <Icon name="notifications-outline" size={26} color={mainColor} />
+                        </TouchableOpacity>
+                        <TouchableOpacity>
+                            <Icon name="chatbubble-outline" size={26} color={mainColor} />
+                        </TouchableOpacity>
+                    </View>
+                )}
 
             </View>
+
             <View style={styles.containerMain}>
-                <Text style={[StyleShare.titleText16, { marginVertical: 10 }]}>Tiện ích</Text>
-                <UtilitiesGrid />
-                <Text style={[StyleShare.titleText16, { marginVertical: 10, marginTop: 10 }]}>Quản lý</Text>
-                <ManageEmployersGrid />
+                {companyByUser && companyByUser.isApproved ? (
+                    <>
+                        <Text style={[StyleShare.titleText16, { marginVertical: 10 }]}>Tiện ích</Text>
+                        <UtilitiesGrid />
+                        <Text style={[StyleShare.titleText16, { marginVertical: 10, marginTop: 10 }]}>Quản lý</Text>
+                        <ManageEmployersGrid />
+                    </>
+                ) : (
+                    <View>
+                        <TouchableOpacity
+                            style={styles.itemUploadCompany}
+                            onPress={() => navigation.navigate('CompanyCreate')}
+                            disabled={companyByUser != null}
+                        >
+                            <View style={StyleShare.flexBetween}>
+                                <Text style={StyleShare.titleText16}>
+                                    {companyByUser ? "Cập nhật thông tin công ty thành công" : "Cập nhật thông tin công ty"}
+                                </Text>
+                                <Icon
+                                    name={companyByUser ? "checkmark-circle-sharp" : "arrow-forward-circle"}
+                                    size={30}
+                                    color={companyByUser ? green : orange}
+                                />
+                            </View>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.itemUploadCompany}
+                            onPress={() => navigation.navigate('UpdateEmployer')}
+                        >
+                            <View style={StyleShare.flexBetween}>
+                                <Text style={StyleShare.titleText16}>
+                                    Cập nhật giấy tờ minh chứng
+                                </Text>
+                                <Icon
+                                    name={"arrow-forward-circle"}
+                                    size={30}
+                                    color={orange}
+                                />
+                            </View>
+                        </TouchableOpacity>
+
+                    </View>
+                )}
+                <Text style={[StyleShare.titleText16, { marginVertical: 20 }]}>
+                    Sau khi hoàn thành cập nhật thông tin, chúng tôi sẽ xem xét hồ hơ và xét duyệt tài khoản của bạn trong thời gian sớm nhất
+                </Text>
             </View>
 
             <View style={{ margin: 20 }}>
@@ -165,9 +212,10 @@ const styles = StyleSheet.create({
     },
     itemUploadCompany: {
         backgroundColor: white,
+        borderRadius: 10,
         padding: 20,
-        borderRadius: 20,
-        marginTop: 20
+        marginTop: 15,
+        elevation: 2
     },
     btnLogout: {
         flexDirection: 'row',

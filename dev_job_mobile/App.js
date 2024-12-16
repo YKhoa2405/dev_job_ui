@@ -44,6 +44,7 @@ import RegisterCompany from './src/screens/Auth/RegisterCompany';
 
 import ChooseRole from './src/screens/Auth/ChooseRole';
 import RegisterSendOtp from './src/screens/Auth/RegisterSendOtp';
+import CompanyCreate from './src/screens/Company/CompanyCreate';
 
 
 const Stack = createNativeStackNavigator();
@@ -71,6 +72,8 @@ export default function App() {
           <Stack.Screen name="CompanyDetail" component={CompanyDetail} />
           <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
           <Stack.Screen name="CompanyStatistical" component={CompanyStatistical} />
+          <Stack.Screen name="CompanyCreate" component={CompanyCreate} />
+
 
           <Stack.Screen name="ProfileCompany" component={ProfileCompany} />
 
