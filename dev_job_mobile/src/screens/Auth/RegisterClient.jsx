@@ -49,7 +49,6 @@ export default function RegisterClient({ navigation, route }) {
         formRegister.append('email', email);
         formRegister.append('name', userName);
         formRegister.append('password', password);
-        formRegister.append('role', '67306e25cf71af410312011a');
         // if (avatar) {
         //     const uriParts = avatar.split('.');
         //     const fileType = uriParts[uriParts.length - 1];  // Lấy phần mở rộng file
@@ -66,8 +65,14 @@ export default function RegisterClient({ navigation, route }) {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
             });
-            console.log(res.data.data.message)
             ToastMess({ type: 'success', text1: res.data.data.message });
+            navigation.navigate("RegisterSendOtp", {
+                email: email,
+                password: password,
+                name: userName,
+                role: role,
+              });
+
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 ToastMess({ type: 'error', text1: 'Người dùng đã tồn tại' });

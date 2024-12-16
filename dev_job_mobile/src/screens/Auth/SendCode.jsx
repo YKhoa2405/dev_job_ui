@@ -8,7 +8,7 @@ import { ToastMess } from "../../components/ToastMess";
 import API, { endpoints } from "../../assets/config/API";
 export default function SendCode({ navigation, route }) {
 
-    const { email } = route.params;
+    // const { email } = route.params;
     const [loading, setLoading] = useState(false);
     const [otp, setOtp] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -112,10 +112,8 @@ const styles = StyleSheet.create({
         marginTop: 15
     },
     imageSentOtp: {
-        width: 250,
-        height: 250,
-        marginTop: 20,
-        marginBottom: 10,
+        width: 300,
+        height: 300,
         resizeMode: 'center',
 
     }

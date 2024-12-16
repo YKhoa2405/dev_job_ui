@@ -8,7 +8,7 @@ import { mainColor, orange, white } from "../../assets/themes/Color";
 export default function Wellcome({ navigation }) {
     return (
         <View style={styles.container}>
-            <Image style={StyleShare.imageLogin} source={require("../../assets/images/pic_wellcome.png")} />
+            <Image style={StyleShare.imageLogin} source={require("../../assets/images/wellcome.png")} />
             <View>
                 <Text style={styles.desc}>Tìm kiếm</Text>
                 <Text style={styles.descMain}>Công Việc Mơ Ước</Text>

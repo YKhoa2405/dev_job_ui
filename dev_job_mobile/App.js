@@ -43,6 +43,7 @@ import RegisterClient from './src/screens/Auth/RegisterClient';
 import RegisterCompany from './src/screens/Auth/RegisterCompany';
 
 import ChooseRole from './src/screens/Auth/ChooseRole';
+import RegisterSendOtp from './src/screens/Auth/RegisterSendOtp';
 
 
 const Stack = createNativeStackNavigator();
@@ -149,6 +150,11 @@ function AuthStack() {
       <Stack.Screen
         name="RegisterCompany"
         component={RegisterCompany}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="RegisterSendOtp"
+        component={RegisterSendOtp}
         options={{ headerShown: false }}
       />
       <Stack.Screen

@@ -1,31 +1,41 @@
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Image, FlatList, TouchableWithoutFeedback, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Image, FlatList, TouchableWithoutFeedback, ScrollView, ActivityIndicator, ImageBackground } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import { bgButton2, mainColor, white, orange } from "../../assets/themes/Color";
 import { Avatar } from "react-native-paper";
 import Icon from 'react-native-vector-icons/Ionicons'
-import { useSelector } from 'react-redux';
 
+export default function HomeClient({ navigation }) {
 
-export default function HomeClient({navigation}) {
-    
-    return(
-        <View style={StyleShare.container}>
-            <View style={[StyleShare.flexBetween, { marginHorizontal: 20, marginTop: 30 }]}>
-                <View>
-                    <Text style={StyleShare.titleText16}>Xin chào,</Text>
+    return (
+        <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10 }}>
+            <ImageBackground
+                source={require("../../assets/images/background.png")}
+                style={styles.background}
+            >
+                <View style={{ flex: 1, marginHorizontal: 20 }}>
+                    {/* Phần chào và avatar */}
+                    <View style={[StyleShare.flexBetween, { marginTop: 40 }]}>
+                        <View>
+                            <Text style={[StyleShare.titleText16, { color: white }]}>Xin chào, Nguyen y Khoa</Text>
+                        </View>
+                        <Avatar.Image size={40} style={{ backgroundColor: 'white' }} />
+                    </View>
+
+                    {/* Nút tìm kiếm và bản đồ */}
+                    <View style={{ marginTop:20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <TouchableOpacity onPress={() => navigation.navigate('JobSearch')} style={StyleShare.searchHome}>
+                            <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
+                            <Text>Tìm kiếm việc làm</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.searchMap} onPress={() => navigation.navigate('JobNearBy')}>
+                            <Icon name="map" size={20} color={white} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <Avatar.Image  size={36} style={{ backgroundColor: 'white' }} />
-            </View>
-            <View style={{ marginHorizontal: 20, marginVertical: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <TouchableOpacity onPress={() => navigation.navigate('JobSearch')} style={StyleShare.searchHome}>
-                    <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
-                    <Text>Tìm kiếm việc làm</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.searchMap} onPress={() => navigation.navigate('JobNearBy')}>
-                    <Icon name="map" size={20} color={orange} />
-                </TouchableOpacity>
-            </View>
-            <ScrollView style={styles.headerMain} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
+            </ImageBackground>
+
+            {/* Danh sách các gợi ý và việc làm hấp dẫn */}
+            <View style={{padding:20}}>
                 <View>
                     <View style={StyleShare.flexBetween}>
                         <Text style={StyleShare.titleText20}>Gợi ý việc làm</Text>
@@ -33,7 +43,7 @@ export default function HomeClient({navigation}) {
                             <Text style={StyleShare.lineText}>Xem tất cả</Text>
                         </TouchableOpacity>
                     </View>
-
+                    
                 </View>
                 <View style={{ marginTop: 40 }}>
                     <View style={StyleShare.flexBetween}>
@@ -42,55 +52,29 @@ export default function HomeClient({navigation}) {
                             <Text style={StyleShare.lineText}>Xem tất cả</Text>
                         </TouchableOpacity>
                     </View>
-
                 </View>
-            </ScrollView>
-        </View>
+            </View>
+            
+        </ScrollView>
     )
 }
 
 const styles = StyleSheet.create({
+    scrollContainer: {
+        flex: 1,
+        backgroundColor: 'white', // Màu nền mặc định bên ngoài
+    },
 
-    headerMain: {
-        padding: 20,
-    },
-    jobItemContainer: {
-        backgroundColor: white,
-        borderRadius: 20,
-        padding: 20,
-        marginTop: 10
-    },
-    containerAvatarJob: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: bgButton2,
-        alignItems: 'center',
+    background: {
+        flex: 1,
+        resizeMode: 'cover',
         justifyContent: 'center',
-        marginRight: 15
+        height:190
     },
-    avatarJob: {
-        width: 30,
-        height: 30
-    },
-    btnSave: {
-        position: 'absolute',
-        top: 20,
-        right: 20,
-        opacity: 0.8,
-        zIndex: 999
-    },
-    infoJobContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        marginTop: 10
-    },
-
     searchMap: {
         padding: 12,
         borderRadius: 10,
-        backgroundColor: 'white',
+        backgroundColor: orange,
         elevation: 2
-    }
-
-})
+    },
+});

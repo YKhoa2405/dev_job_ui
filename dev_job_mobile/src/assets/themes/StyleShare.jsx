@@ -53,7 +53,7 @@ const StyleShare = StyleSheet.create({
     },
     imageLogin: {
         width: 300,
-        height: 300,
+        height: 400,
 
         resizeMode: 'center'
     },

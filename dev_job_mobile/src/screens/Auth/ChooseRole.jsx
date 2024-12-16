@@ -27,7 +27,7 @@ export default function ChooseRole({ navigation }) {
                 </View>
                 <View style={styles.optionChoose}>
                     <Image source={require("../../assets/images/businessman.png")} style={styles.imageChoose} />
-                    <TouchableOpacity style={styles.btnChoose} onPress={() => navigation.navigate('RegisterClient',{role:'ung vien'})}>
+                    <TouchableOpacity style={styles.btnChoose} onPress={() => navigation.navigate('RegisterClient',{role:'NORMAL_USER'})}>
                         <Text style={{ color: white, fontWeight: '500' }}>Ứng viên tìm việc</Text>
                     </TouchableOpacity>
                 </View>
