@@ -21,6 +21,9 @@ export const endpoints = {
     'skills': '/skills',
     'skillsDetail': (skillId) => `/skills/${skillId}`,
 
+    // subscribers
+    'subscribers': '/subscribers',
+    'subscribersDetail': (subId) => `/subscribers/${subId}`,
 
     //services
     'services': '/services',
@@ -30,7 +33,7 @@ export const endpoints = {
     'paymentByCompany': (companyId) => `/payments/${companyId}`,
 
     // order
-    'order':'/orders',
+    'order': '/orders',
     'orderByCompany': (companyId) => `/orders/${companyId}`,
 
 

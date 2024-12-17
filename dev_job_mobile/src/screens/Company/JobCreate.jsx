@@ -24,7 +24,7 @@ export default function JobCreate({ navigation, route }) {
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
     const [skills, setSkills] = useState([]);
-    const [open, setOpen] = useState(false); // Trạng thái mở/đóng Dropdown
+    const [open, setOpen] = useState(false);
 
     const [selectedProvinceId, setSelectedProvinceId] = useState('');
     const [selectedDistrictId, setSelectedDistrictId] = useState('');

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableWithoutFeedback, TouchableOpacity, FlatList, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Dimensions, Image, TouchableWithoutFeedback, TouchableOpacity, FlatList, ActivityIndicator, Alert, ImageBackground } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import { bgButton2, grey, mainColor, white, orange } from "../../assets/themes/Color";
 import { Avatar } from "react-native-paper";
@@ -212,6 +212,21 @@ export default function Profile({ navigation }) {
                                     <Text style={{ fontWeight: '500', marginLeft: 15 }}>Hướng dẫn viết CV</Text>
                                 </View>
                                 <Icon name="chevron-forward-outline" size={24} color={mainColor} />
+                            </View>
+                        </TouchableWithoutFeedback>
+
+                    </View>
+                    <View style={styles.manageJob}>
+                        <Text style={[StyleShare.titleText16, { marginVertical: 10 }]}>Cài đặt và cấu hình</Text>
+                        <TouchableWithoutFeedback onPress={() => navigation.navigate('Subscribers')}>
+                            <View style={styles.manageJobItem}>
+                                <View style={StyleShare.flexBetween}>
+                                    <View style={StyleShare.flexCenter}>
+                                        <Icon name="mail" size={24} color={orange} style={{ marginRight: 15 }} />
+                                        <Text style={{ fontWeight: '500' }}>Thông báo việc làm qua Email</Text>
+                                    </View>
+                                    <Icon name="chevron-forward-outline" size={24} color={mainColor} />
+                                </View>
                             </View>
                         </TouchableWithoutFeedback>
                     </View>
