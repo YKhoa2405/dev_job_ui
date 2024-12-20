@@ -73,10 +73,10 @@ export default function JobNearBy({ navigation }) {
     }
 
     const renderItem = ({ item }) => (
-        <TouchableWithoutFeedback key={item.id} onPress={() => { navigation.navigate('JobDetail', { jobId: item._id }) }}>
+        <TouchableWithoutFeedback key={item._id} onPress={() => { navigation.navigate('JobDetail', { jobId: item._id }) }}>
             <View style={styles.jobItemContainer}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Avatar.Image source={{ uri: item.companyId.avatar }} size={35} style={{ backgroundColor: 'white', marginRight: 5 }} />
+                    <Avatar.Image source={{ uri: item.companyId.avatar }} size={50} style={{ backgroundColor: 'white', marginRight: 5 }} />
                     <View>
                         <Text style={StyleShare.titleText16}>{item.name}</Text>
                         <Text style={{ marginTop: 5 }}>{item.companyId.name} </Text>
@@ -213,6 +213,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 20,
         marginTop: 10,
-        borderRadius: 10
+        borderRadius: 10,
+        elevation:2
     }
 })

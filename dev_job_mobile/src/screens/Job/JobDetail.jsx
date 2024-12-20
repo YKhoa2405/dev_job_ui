@@ -9,6 +9,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchJobDetail } from "../../redux/slice/jobSlice";
 import { useEffect } from "react";
 import Loading from "../../components/Loading";
+import { authApi, endpoints } from "../../assets/config/API";
+import { ToastMess } from "../../components/ToastMess";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function JobDetail({ route, navigation }) {
     const { jobId } = route.params
@@ -26,28 +29,45 @@ export default function JobDetail({ route, navigation }) {
             id: '1',
             icon: 'briefcase',
             title: 'Loại hình công việc',
-            info: jobDetail?.jobType,
+            info: jobDetail?.jobType || "N/A",
         },
         {
             id: '4',
             icon: 'checkmark-circle-sharp',
             title: 'Level',
-            info: jobDetail?.level,
+            info: jobDetail?.level || "N/A",
         },
         {
             id: '2',
             icon: 'people-circle-outline',
             title: 'Số lượng',
-            info: jobDetail?.quantity,
+            info: jobDetail?.quantity || "N/A",
         },
         {
             id: '3',
             icon: 'calendar',
             title: 'Ngày hết hạn',
-            info: moment(jobDetail?.endDate).format('DD/MM/YYYY')
-            ,
+            info: jobDetail?.endDate ? moment(jobDetail.endDate).format('DD/MM/YYYY') : "N/A",
         },
     ];
+
+    const handleNavigateToCompany = () => {
+        if (jobDetail?.companyId?._id) {
+            navigation.navigate('CompanyDetail', { _id: jobDetail.companyId._id });
+        }
+    };
+
+    const handleSavedJob = async () => {
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+            // API gọi để xóa công việc đã lưu
+            await authApi(token).post(endpoints['saveJob'],{jobId});
+        } catch (error) {
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
+
+            console.log(error);
+        }
+    };
 
 
     return (
@@ -61,21 +81,25 @@ export default function JobDetail({ route, navigation }) {
                         handleLeftIcon={() => { navigation.goBack() }} />
 
                     <View style={styles.containerTop}>
-                        <TouchableOpacity style={StyleShare.containerAvatar} onPress={() => navigation.navigate('CompanyDetail', { _id: jobDetail.companyId._id })}>
-                            <Avatar.Image source={{ uri: jobDetail.companyId?.avatar }} size={60} style={{ backgroundColor: 'white' }} />
+                        <TouchableOpacity style={StyleShare.containerAvatar} onPress={handleNavigateToCompany}>
+                            <Avatar.Image
+                                source={{ uri: jobDetail?.companyId?.avatar || "https://via.placeholder.com/60" }}
+                                size={60}
+                                style={{ backgroundColor: 'white' }}
+                            />
                         </TouchableOpacity>
-                        <Text style={StyleShare.titleText16}>{jobDetail?.name}</Text>
-                        <Text>{jobDetail.companyId.name}</Text>
+                        <Text style={StyleShare.titleText16}>{jobDetail?.name || "N/A"}</Text>
+                        <Text>{jobDetail?.companyId?.name || "N/A"}</Text>
                         <View style={styles.descOption}>
                             <View style={styles.descDetail}>
                                 <Icon name="cash" size={30} color={mainColor} />
                                 <Text style={styles.textDesc}>Mức lương</Text>
-                                <Text style={StyleShare.titleText16}>{jobDetail?.salary}</Text>
+                                <Text style={StyleShare.titleText16}>{jobDetail?.salary || "N/A"}</Text>
                             </View>
                             <View style={styles.descDetail}>
                                 <Icon name="location-sharp" size={30} color={mainColor} />
                                 <Text style={styles.textDesc}>Địa điểm</Text>
-                                <Text style={StyleShare.titleText16}>{jobDetail?.city}</Text>
+                                <Text style={StyleShare.titleText16}>{jobDetail?.city || "N/A"}</Text>
                             </View>
                         </View>
                     </View>
@@ -91,36 +115,33 @@ export default function JobDetail({ route, navigation }) {
                                     </View>
                                 </View>
                             ))}
-                            <View style={styles.infoContainer}>
-                                <Icon name={'podium'} size={26} color={mainColor} />
-                                <View style={styles.infoDesc}>
-                                    <Text style={{ color: textColor }}>Công nghệ</Text>
-                                    {jobDetail.skills.map((item, index) => (
-                                        <Text key={index} style={{ fontWeight: '500', fontSize: 16, marginTop: 3 }}>{item}</Text>
-                                    ))}
+                            {jobDetail?.skills && jobDetail.skills.length > 0 && (
+                                <View style={styles.infoContainer}>
+                                    <Icon name={'podium'} size={26} color={mainColor} />
+                                    <View style={styles.infoDesc}>
+                                        <Text style={{ color: textColor }}>Công nghệ</Text>
+                                        {jobDetail.skills.map((item, index) => (
+                                            <Text key={index} style={{ fontWeight: '500', fontSize: 16, marginTop: 3 }}>{item}</Text>
+                                        ))}
+                                    </View>
                                 </View>
-                            </View>
+                            )}
                         </View>
                         <View style={{ marginBottom: 20 }}>
                             <Text style={StyleShare.titleText20}>Mô tả công việc</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.description}</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail?.description || "N/A"}</Text>
                         </View>
                         <View style={{ marginBottom: 20 }}>
                             <Text style={StyleShare.titleText20}>Yêu cầu ứng viên</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.requirement}</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail?.requirement || "N/A"}</Text>
                         </View>
                         <View style={{ marginBottom: 20 }}>
                             <Text style={StyleShare.titleText20}>Ưu tiên</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.prioritize}</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail?.prioritize || "N/A"}</Text>
                         </View>
                         <View style={{ marginBottom: 20 }}>
                             <Text style={StyleShare.titleText20}>Địa chỉ làm việc</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.location}</Text>
-                        </View>
-                        <View style={{ marginBottom: 20 }}>
-                            <TouchableOpacity style={StyleShare.buttonDetailApply} onPress={() => handleLocationPress()}>
-                                <Text style={{ color: textColor, marginTop: 5 }}><Text style={{ fontWeight: '500', color: mainColor }}>Xem địa chỉ trên Map</Text></Text>
-                            </TouchableOpacity>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail?.location || "N/A"}</Text>
                         </View>
                     </View>
                 </ScrollView>
@@ -142,7 +163,7 @@ export default function JobDetail({ route, navigation }) {
 
                             jobTitle: jobDetail.name,
                             location: jobDetail.location,
-                            salary:jobDetail.salary
+                            salary: jobDetail.salary
                         });
                     }}>
                         <Text style={styles.buttonText}>Ứng tuyển ngay</Text>

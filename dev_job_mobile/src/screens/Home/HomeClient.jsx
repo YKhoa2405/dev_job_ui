@@ -23,7 +23,7 @@ export default function HomeClient({ navigation }) {
 
                     {/* Nút tìm kiếm và bản đồ */}
                     <View style={{ marginTop:20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <TouchableOpacity onPress={() => navigation.navigate('JobSearch')} style={StyleShare.searchHome}>
+                        <TouchableOpacity onPress={() => navigation.navigate('JobSearchResult')} style={StyleShare.searchHome}>
                             <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
                             <Text>Tìm kiếm việc làm</Text>
                         </TouchableOpacity>

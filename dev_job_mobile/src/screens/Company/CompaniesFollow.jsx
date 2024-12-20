@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList } from "react-native";
+import { StyleSheet, View, Text, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, TextInput } from "react-native";
 import UIHeader from "../../components/UIHeader";
 import StyleShare from "../../assets/themes/StyleShare";
 import { bgButton2, mainColor, white, orange } from "../../assets/themes/Color";
@@ -7,26 +7,77 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import { Avatar, Chip } from "react-native-paper";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { authApi, endpoints } from "../../assets/config/API";
+import Loading from "../../components/Loading";
 
 
 export default function CompaniesFollow({ navigation }) {
+    const [companies, setCompanies] = useState([])
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const [searchKeywork, setSearchKeywork] = useState('')
 
+    const [loading, setLoading] = useState(false)
+    const [loadingMore, setLoadingMore] = useState(false);
+
+    useEffect(() => {
+        fetchListFollow();
+    }, [])
+
+    const fetchListFollow = async (currentPage = 1, limit = 10) => {
+        if (currentPage === 1) setLoading(true);
+        else setLoadingMore(true);
+        // const searchQuery = searchKeywork ? `/${searchKeywork}/i` : '';
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+            const res = await authApi(token).get(endpoints['follows'], {
+                params: {
+                    page: currentPage,
+                    limit: limit,
+                },
+            });
+            const data = res.data.data;
+            if (currentPage === 1) {
+                setCompanies(data.result);
+            } else {
+                setCompanies((prev) => [...prev, ...data.result]);
+            }
+            setCurrentPage(data.meta.currentPage);
+            setTotalPages(data.meta.totalPages);
+            setTotalItems(data.meta.totalItems);
+            console.log(data)
+        } catch (error) {
+            console.log('Error fetching companies:', error);
+        } finally {
+            setLoading(false);
+            setLoadingMore(false);
+        }
+    };
+
+    const loadMoreJobs = () => {
+        if (currentPage < totalPages && !loadingMore) {
+            fetchJobByCompany(currentPage + 1);
+        }
+    };
 
     const renderItem = ({ item }) => {
         return (
-            <TouchableWithoutFeedback>
-                <View style={styles.followContainer}>
+            <TouchableWithoutFeedback key={item._id} onPress={() => { navigation.navigate('CompanyDetail', { _id: item.companyId._id }) }}>
+                <View style={StyleShare.jobItemContainer}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Avatar.Image size={36} style={{ backgroundColor: 'white', marginRight: 5 }} />
-                        <View style={{ flex: 1 }}>
-                            <Text style={StyleShare.titleText16}>Tên công ty</Text>
+                        <Avatar.Image source={{ uri: item.companyId.avatar || 'https://example.com/default-avatar.png' }} size={50} style={{ backgroundColor: 'white', marginRight: 5 }} />
+                        <View>
+                            <Text style={StyleShare.titleText16}>{item.companyId.name}</Text>
+                            <Text style={{ marginTop: 5 }}>{item.companyId.slogan}</Text>
                         </View>
                     </View>
                     <View style={[StyleShare.flexBetween, { marginVertical: 10 }]}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Icon name="business-outline" size={18} />
-                            <Text style={{ fontWeight: '500', marginHorizontal: 5 }}>5</Text>
-                            <Text>công việc</Text>
+                            <Text style={{ fontWeight: '500', marginHorizontal: 5 }}>{item.companyId.size}</Text>
+                            <Text>nhân viên</Text>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Icon name="person-outline" size={18} />
@@ -45,38 +96,55 @@ export default function CompaniesFollow({ navigation }) {
     return (
         <View style={StyleShare.container}>
             <UIHeader leftIcon={"arrow-back"}
-                title={'Công ty đã theo dõi'}
+                title={'Công ty đang theo dõi'}
                 handleLeftIcon={() => { navigation.goBack() }} />
-            <View style={{ marginHorizontal: 20, marginTop: 5 }}>
-                <Text style={StyleShare.titleText16}>20 công ty</Text>
+            <View style={{ paddingHorizontal: 20, marginBottom: 5 }}>
+                <View style={StyleShare.searchDetail}>
+                    <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
+                    <TextInput
+                        style={StyleShare.searchInput}
+                        placeholder="Nhập tên công ty..."
+                        value={searchKeywork}
+                        onChangeText={(text) => setSearchKeywork(text)}
+                    // onSubmitEditing={() => {
+                    //     fetchListCompany(1, 10, searchKeywork)
+                    // }}
+                    />
+                </View>
+                <Text style={StyleShare.titleText16}>{totalItems} công ty</Text>
             </View>
-            <FlatList
-                // data={jobs}
-                renderItem={renderItem}
-                // keyExtractor={item => item.job.id.toString()}
-                ListEmptyComponent={
-                    <View style={{ marginTop: 50, alignItems: 'center' }}>
-                        <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
-                        <Text style={StyleShare.titleText20}>Bạn chưa theo dõi công ty</Text>
-                        <Text style={{ padding: 20, textAlign: 'center' }}>Bạn chưa theo dõi bất kỳ công ty nào, hãy theo dõi công ty để nhận được thông báo việc làm mới nhất</Text>
-                    </View>
-                }
-                contentContainerStyle={{ paddingBottom: 40 }}
-            />
+            {loading ? (
+                <Loading />
+            ) : (
+                <FlatList
+                    data={companies}
+                    keyExtractor={(item) => item._id}
+                    renderItem={renderItem}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 15 }}
+                    ListEmptyComponent={
+                        <View style={{ marginTop: 50, alignItems: 'center' }}>
+                            <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
+                            <Text style={StyleShare.titleText20}>Bạn chưa theo dõi công ty</Text>
+                            <Text style={{ padding: 20, textAlign: 'center' }}>Bạn chưa theo dõi bất kỳ công ty nào, hãy theo dõi công ty để nhận được thông báo việc làm mới nhất</Text>
+                        </View>
+                    }
+                    onEndReached={loadMoreJobs} // Gọi khi đến cuối danh sách
+                    onEndReachedThreshold={0.7} // Ngưỡng để kích hoạt loadMore
+                    ListFooterComponent={
+                        loadingMore ? (
+                            <Loading />
+                        ) : null
+                    }
+                />
+            )}
 
         </View>
     )
 }
 
 const styles = StyleSheet.create({
-    followContainer: {
-        backgroundColor: white,
-        borderRadius: 10,
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        marginTop: 10,
-        marginHorizontal: 20
-    },
+
     buttonUnfollow: {
         alignItems: 'center',
         backgroundColor: mainColor,

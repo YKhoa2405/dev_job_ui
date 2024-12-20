@@ -164,8 +164,10 @@ export default function Subscribers({ navigation }) {
                 animationIn="slideInUp"
                 animationOut="slideOutDown"
                 backdropTransitionInTiming={500}
-                backdropTransitionOutTiming={500}>
-                <View style={{ paddingHorizontal: 20, borderRadius: 10, backgroundColor: grey }}>
+                backdropTransitionOutTiming={500}
+                style={StyleShare.modalStyle}>
+
+                <View style={StyleShare.modalContent}>
                     <View style={[StyleShare.flexBetween, { marginVertical: 15 }]}>
                         <Text style={StyleShare.titleText20}>Thêm mới thông báo</Text>
                         <TouchableOpacity onPress={() => setModalVisible(false)} >
@@ -221,12 +223,10 @@ export default function Subscribers({ navigation }) {
                             }}
                         />
                     </View>
-                    <View style={{ marginTop: 40 }}></View>
+                    <View style={{ marginTop: 20 }}></View>
                     <Button title={'Đăng ký'} backgroundColor={mainColor} textColor={white} onPress={() => handleCreateSubscriber()} />
-                    {/* {loading ? (
-                        <ActivityIndicator color={orange} size={'large'} />
-                    ) : (
-                    )} */}
+
+
                 </View>
             </Modal>
             <UIHeader

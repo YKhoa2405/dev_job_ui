@@ -230,7 +230,7 @@ export default function JobByCompany({ navigation, route }) {
                     ListEmptyComponent={
                         <View style={{ marginTop: 50, alignItems: 'center' }}>
                             <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
-                            <Text style={StyleShare.titleText20}>Bạn chưa ứng tuyển việc làm </Text>
+                            <Text style={StyleShare.titleText20}>Bạn chưa ứng tuyển việc làm nào</Text>
                             <Text style={{ padding: 20, textAlign: 'center' }}>Bạn chưa có bất kỳ đơn ứng tuyển nào, hãy ứng tuyển để nhận đươc việc làm mong muốn</Text>
                         </View>
                     }

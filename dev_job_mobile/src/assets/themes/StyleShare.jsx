@@ -94,7 +94,7 @@ const StyleShare = StyleSheet.create({
         alignSelf: 'flex-start',
         backgroundColor: bgNotifi,
         marginRight: 10,
-        marginTop:10
+        marginTop: 10
     },
     // Search
     searchHome: {
@@ -103,7 +103,7 @@ const StyleShare = StyleSheet.create({
         width: '85%',
         marginRight: 10,
         borderRadius: 10,
-         padding: 12,
+        padding: 12,
         alignItems: 'center',
         elevation: 2
     },
@@ -146,7 +146,7 @@ const StyleShare = StyleSheet.create({
         paddingVertical: 10,
         borderRadius: 10,
         marginTop: 10,
-        elevation:2
+        elevation: 2
     },
     // style item job
     jobItemContainer: {
@@ -156,13 +156,13 @@ const StyleShare = StyleSheet.create({
         backgroundColor: white,
         marginTop: 15,
         marginHorizontal: 20,
-        elevation:2
+        elevation: 2
     },
 
     // drop down
     dropdownButtonStyle: {
         width: 175,
-        height:35,
+        height: 35,
         backgroundColor: white,
         borderRadius: 10,
         flexDirection: 'row',
@@ -192,6 +192,17 @@ const StyleShare = StyleSheet.create({
         flex: 1,
         fontSize: 16,
         fontWeight: '500',
+    },
+    modalContent: {
+        backgroundColor: grey,
+        padding: 20,
+        borderTopLeftRadius: 10,   // Bo góc phía trên
+        borderTopRightRadius: 10,  // Bo góc phía trên
+        minHeight: '50%',          // Chiều cao modal (nửa màn hình)
+    },
+    modalStyle: {
+        justifyContent: 'flex-end', // Hiển thị modal ở cuối màn hình
+        margin: 0,                 // Xóa khoảng cách mặc định
     },
 })
 
