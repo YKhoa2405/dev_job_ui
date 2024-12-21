@@ -35,7 +35,7 @@ export default function Profile({ navigation }) {
     const manageJob = [
         { id: 1, icon: 'bookmark', title: 'Việc làm đã lưu', },
         { id: 2, icon: 'briefcase', title: 'Việc làm đã ứng tuyển', },
-        { id: 3, icon: 'business', title: 'Công ty đã theo dõi', },
+        { id: 3, icon: 'business', title: 'Công ty đang theo dõi', },
     ]
 
     const handleManageJobClick = (id) => {

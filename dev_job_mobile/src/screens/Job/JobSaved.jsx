@@ -54,7 +54,6 @@ export default function JobSaved({ navigation }) {
             // Cập nhật lại danh sách công việc đã lưu
             setJobs(prevJobs => prevJobs.filter(job => job._id !== saveJobId));
             setTotalItems(prevTotalItems => prevTotalItems - 1);
-            ToastMess({ type: 'success', text1: 'Bỏ lưu việc làm thành công.' });
 
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });

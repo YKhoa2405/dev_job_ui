@@ -10,30 +10,68 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
 import Loading from "../../components/Loading";
 import moment from "moment";
+import axios from "axios";
+import { ToastMess } from "../../components/ToastMess";
 
 
 export default function CompanyDetail({ navigation, route }) {
     const { _id } = route.params;
+    console.log(_id);
     const [loading, setLoading] = useState(true);
     const [companyDetail, setCompanyDetail] = useState('');
+    const [saved, setSaved] = useState(false);
 
     const Tab = createMaterialTopTabNavigator();
 
     useEffect(() => {
         fetchCompanyDetail();
-    }, []);
+        checkFollowStatus();
+    }, [_id]);
+
+
+    const checkFollowStatus = async () => {
+        setLoading(true);
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+            const res = await authApi(token).get(endpoints['followSaved'](_id));
+            console.log(res.data);
+            setSaved(res.data.data.saved);
+        } catch (error) {
+
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleFollowToggle = async () => {
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+            if (saved) {
+                // Nếu đang theo dõi, gọi API hủy theo dõi
+                await authApi(token).delete(endpoints['followDetail'](_id));
+            } else {
+                // Nếu chưa theo dõi, gọi API theo dõi
+                await authApi(token).post(endpoints['follows'], { companyId: _id });
+            }
+
+            setSaved(!saved);
+        } catch (err) {
+            console.error("Error toggling follow status:", err);
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
+
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchCompanyDetail = async () => {
-        setLoading(true);
+
         try {
             const token = AsyncStorage.getItem("access_token");
             const res = await authApi(token).get(endpoints['companiesDetail'](_id));
             setCompanyDetail(res.data.data);
-            console.log(res.data.data)
         } catch (error) {
             console.log('Error fetching company detail:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -87,7 +125,6 @@ export default function CompanyDetail({ navigation, route }) {
                 setCurrentPage(data.meta.currentPage);
                 setTotalPages(data.meta.totalPages);
                 setTotalItems(data.meta.totalItems);
-                console.log(data)
             } catch (error) {
                 console.log('Error fetching companies:', error);
             } finally {
@@ -177,7 +214,7 @@ export default function CompanyDetail({ navigation, route }) {
                     <View style={[StyleShare.flexBetween, { marginTop: 10 }]}>
                         <View style={[StyleShare.flexCenter, { flex: 1 }]}>
                             <Icon name="people-outline" size={18} />
-                            <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{companyDetail.size} người theo dõi</Text>
+                            <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{companyDetail.followers} người theo dõi</Text>
                         </View>
                         <View style={[StyleShare.flexCenter, { flex: 1 }]}>
                             <Icon name="business-outline" size={18} />
@@ -187,10 +224,15 @@ export default function CompanyDetail({ navigation, route }) {
                 </View>
                 <View style={styles.containerMain}>
                     <View style={[StyleShare.flexCenter, { marginHorizontal: 20 }]}>
-                        <TouchableOpacity onPress={() => handleFollow()} style={{ marginRight: 20 }}>
-                            <View style={[StyleShare.buttonDetailApply, { backgroundColor: white }]}>
-                                <Icon name="add-circle-outline" size={22} />
-                                <Text style={{ marginLeft: 5 }}>Theo dõi công ty</Text>
+                        <TouchableOpacity style={{ marginRight: 20 }} onPress={() => handleFollowToggle()}>
+                            <View style={[
+                                StyleShare.buttonDetailApply,
+                                { backgroundColor: saved ? orange : '#FFF' }
+                            ]}>
+                                <Icon name={saved ? "checkmark-circle-outline" : "add-circle-outline"} style={{ color: saved ? '#FFF' : '#000' }} size={22} />
+                                <Text style={{ marginLeft: 5, color: saved ? '#FFF' : '#000' }}>
+                                    {saved ? "Đang theo dõi" : "Theo dõi công ty"}
+                                </Text>
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity

@@ -44,6 +44,10 @@ export const endpoints = {
 
     // follow
     'follows': '/follows',
+    'followDetail': (companyId) => `/follows/${companyId}`,
+    'followSaved': (companyId) => `/follows/${companyId}/isSaved`,
+
+
 
     // jobs
     'jobs': '/jobs',

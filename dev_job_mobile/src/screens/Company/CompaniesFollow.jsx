@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, TextInput } from "react-native";
+import { StyleSheet, View, Text, TouchableWithoutFeedback, Image, TouchableOpacity, FlatList, Alert } from "react-native";
 import UIHeader from "../../components/UIHeader";
 import StyleShare from "../../assets/themes/StyleShare";
 import { bgButton2, mainColor, white, orange } from "../../assets/themes/Color";
@@ -17,7 +17,6 @@ export default function CompaniesFollow({ navigation }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
-    const [searchKeywork, setSearchKeywork] = useState('')
 
     const [loading, setLoading] = useState(false)
     const [loadingMore, setLoadingMore] = useState(false);
@@ -29,7 +28,6 @@ export default function CompaniesFollow({ navigation }) {
     const fetchListFollow = async (currentPage = 1, limit = 10) => {
         if (currentPage === 1) setLoading(true);
         else setLoadingMore(true);
-        // const searchQuery = searchKeywork ? `/${searchKeywork}/i` : '';
         try {
             const token = await AsyncStorage.getItem("access_token");
             const res = await authApi(token).get(endpoints['follows'], {
@@ -56,6 +54,39 @@ export default function CompaniesFollow({ navigation }) {
         }
     };
 
+    const handleUnFollow = async (companyId) => {
+        Alert.alert(
+            'Bỏ theo dõi',
+            'Khi bỏ theo dõi bạn sẽ không nhận được thông tin tuyển dụng của công ty này nữa?',
+            [
+                {
+                    text: 'Hủy',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Đồng ý',
+                    onPress: async () => {
+                        try {
+                            const token = await AsyncStorage.getItem("access_token");
+                            const res = await authApi(token).delete(endpoints['followDetail'](companyId));
+                            console.log(res.data)
+                            if (res.data.statusCode === 200) {
+                                setCompanies(prevJobs => prevJobs.filter(c => c.companyId._id !== companyId));
+                                setTotalItems(prevTotalItems => prevTotalItems - 1);
+                            }
+
+                        } catch (error) {
+                            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
+                            console.log(error);
+                        }
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
+
+    };
+
     const loadMoreJobs = () => {
         if (currentPage < totalPages && !loadingMore) {
             fetchJobByCompany(currentPage + 1);
@@ -76,16 +107,15 @@ export default function CompaniesFollow({ navigation }) {
                     <View style={[StyleShare.flexBetween, { marginVertical: 10 }]}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Icon name="business-outline" size={18} />
-                            <Text style={{ fontWeight: '500', marginHorizontal: 5 }}>{item.companyId.size}</Text>
-                            <Text>nhân viên</Text>
+                            <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{item.companyId.size} người theo dõi</Text>
+
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Icon name="person-outline" size={18} />
-                            <Text style={{ fontWeight: '500', marginHorizontal: 5 }}>10</Text>
-                            <Text>người theo dõi</Text>
+                            <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{item.companyId.followers} người theo dõi</Text>
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.buttonUnfollow}>
+                    <TouchableOpacity style={styles.buttonUnfollow} onPress={() => handleUnFollow(item.companyId._id)}>
                         <Text style={{ color: white, fontWeight: 500 }}>Đang theo dõi</Text>
                     </TouchableOpacity>
                 </View>
@@ -99,18 +129,6 @@ export default function CompaniesFollow({ navigation }) {
                 title={'Công ty đang theo dõi'}
                 handleLeftIcon={() => { navigation.goBack() }} />
             <View style={{ paddingHorizontal: 20, marginBottom: 5 }}>
-                <View style={StyleShare.searchDetail}>
-                    <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
-                    <TextInput
-                        style={StyleShare.searchInput}
-                        placeholder="Nhập tên công ty..."
-                        value={searchKeywork}
-                        onChangeText={(text) => setSearchKeywork(text)}
-                    // onSubmitEditing={() => {
-                    //     fetchListCompany(1, 10, searchKeywork)
-                    // }}
-                    />
-                </View>
                 <Text style={StyleShare.titleText16}>{totalItems} công ty</Text>
             </View>
             {loading ? (
