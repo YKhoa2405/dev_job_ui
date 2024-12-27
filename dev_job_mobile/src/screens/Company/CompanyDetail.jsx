@@ -12,14 +12,15 @@ import Loading from "../../components/Loading";
 import moment from "moment";
 import axios from "axios";
 import { ToastMess } from "../../components/ToastMess";
+import { useSelector } from "react-redux";
 
 
 export default function CompanyDetail({ navigation, route }) {
     const { _id } = route.params;
-    console.log(_id);
     const [loading, setLoading] = useState(true);
     const [companyDetail, setCompanyDetail] = useState('');
     const [saved, setSaved] = useState(false);
+    const user = useSelector((state) => state.user.user);
 
     const Tab = createMaterialTopTabNavigator();
 
@@ -236,12 +237,14 @@ export default function CompanyDetail({ navigation, route }) {
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity
-                        // onPress={() => navigation.navigate("ChatDetail", {
-                        //     userInfo: {
-                        //         id: String(employer.id),
-                        //     }
-                        // })}
-                        >
+                            onPress={() => navigation.navigate("ChatDetail", {
+                                userReceiver: {
+                                    id: _id,
+                                    avatar: companyDetail?.avatar,
+                                    name: companyDetail?.name,
+                                    email: companyDetail?.email,
+                                }, currentUserId: user._id
+                            })}>
                             <View style={[StyleShare.buttonDetailApply, { backgroundColor: white }]}>
                                 <Icon name="chatbubble-outline" size={22} />
                                 <Text style={{ marginLeft: 5 }}>Nhắn tin</Text>

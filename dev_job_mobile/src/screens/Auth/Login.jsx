@@ -5,9 +5,14 @@ import StyleShare from "../../assets/themes/StyleShare";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import API, { endpoints } from "../../assets/config/API";
+import { ToastMess } from "../../components/ToastMess";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from "../../redux/slice/userSlice";
+import { storeDb } from "../../assets/config/Firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+
+
 
 
 export default function Login({ navigation }) {
@@ -22,11 +27,43 @@ export default function Login({ navigation }) {
             const role = user.role?.name;
             if (role === 'NORMAL_USER') {
                 navigation.navigate('MainTab');
+                saveUserToFirestore(user._id, user.email, user.name, user.avatar);
             } else if (role === 'EMPLOYER_USER') {
                 navigation.navigate('HomeCompany');
             }
         }
     }, [user]);
+
+    const saveUserToFirestore = async (id, email, name, avatar) => {
+
+        try {
+            const userDoc = doc(storeDb, "users", id.toString());
+            const docSnap = await getDoc(userDoc);
+
+            if (!docSnap.exists()) {
+                // Lưu thông tin người dùng mới
+                await setDoc(userDoc, {
+                    id: id.toString(),
+                    email: email || '',
+                    name: name || '',
+                    role: "NORMAL_USER",
+                    avatar: avatar || '',
+                });
+            } else {
+                // Cập nhật thông tin người dùng
+                await setDoc(userDoc, {
+                    id: id.toString(),
+                    email: email || '',
+                    name: name || '',
+                    role: "NORMAL_USER",
+                    avatar: avatar || '',
+                }, { merge: true });
+            }
+            console.log("User saved successfully!");
+        } catch (error) {
+            console.error('Error saving user:', error);
+        }
+    }
 
     const handleLogin = async () => {
         // if (!email || !password) {
@@ -40,20 +77,22 @@ export default function Login({ navigation }) {
                 'Content-Type': 'application/x-www-form-urlencoded' // Change Content-Type
             };
             let data = {
-                username: 'ungvien@gmail.com',
-                // username: '2151050202khoa@ou.edu.vn',
-                // password: 'caichyrua11',
                 password: '123456',
+                username: 'ungvien@gmail.com',
+                // username: 'nhatuyendung1@gmail.com',
+                // password: 'caichyrua11',
             };
             let res = await API.post(endpoints['login'], data, { headers: header });
-            const { access_token, ...userInfo } = res.data.data;
+            const { access_token, ...user } = res.data.data;
             await AsyncStorage.setItem("access_token", access_token)
 
             dispatch(
                 loginSuccess({
-                    user: userInfo,
+                    user: user,
                 })
             )
+
+
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 ToastMess({ type: 'error', text1: 'Email hoặc mật khẩu không chính xác' })
@@ -109,9 +148,9 @@ export default function Login({ navigation }) {
                 )}
 
                 <View style={StyleShare.lineContainer}>
-                    <View style={[StyleShare.line,{backgroundColor:white}]}></View>
+                    <View style={[StyleShare.line, { backgroundColor: white }]}></View>
                     <Text style={StyleShare.lineText}>hoặc đăng nhập bằng</Text>
-                    <View style={[StyleShare.line,{backgroundColor:white}]}></View>
+                    <View style={[StyleShare.line, { backgroundColor: white }]}></View>
                 </View>
                 <View style={StyleShare.flexCenter}>
                     <TouchableOpacity style={styles.optionLoginContainer} onPress={() => handleLoginGoogle()}>

@@ -81,6 +81,7 @@ export default function App() {
 
 
 
+
           <Stack.Screen name="ResumeApply" component={ResumeApply} />
           <Stack.Screen name="ResumeByJob" component={ResumeByJob} />
           <Stack.Screen name="ResumeByCompany" component={ResumeByCompany} />
@@ -89,6 +90,8 @@ export default function App() {
 
 
           <Stack.Screen name="ChatDetail" component={ChatDetail} />
+          <Stack.Screen name="Chat" component={Chat} />
+
           <Stack.Screen name="Services" component={Services} />
           <Stack.Screen name="ServicesByCompany" component={ServicesByCompany} />
           <Stack.Screen name="PaymentScreen" component={PaymentScreen} />
@@ -115,9 +118,7 @@ function MainTab() {
             else if (route.name === 'Companies') {
               iconName = focused ? 'business' : 'business-outline';
             }
-            else if (route.name === 'Chat') {
-              iconName = focused ? 'chatbubble-ellipses-sharp' : 'chatbubble-outline';
-            }
+
             else if (route.name === 'Profile') {
               iconName = focused ? 'person-circle' : 'person-circle-outline';
             }
@@ -133,7 +134,6 @@ function MainTab() {
       >
         <Tab.Screen name="HomeClient" component={HomeClient} />
         <Tab.Screen name="Companies" component={Companies} />
-        <Tab.Screen name="Chat" component={Chat} />
         <Tab.Screen name="Profile" component={Profile} />
       </Tab.Navigator>
     </KeyboardAvoidingView>

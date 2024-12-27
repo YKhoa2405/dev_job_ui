@@ -8,18 +8,60 @@ import StyleShare from "../../assets/themes/StyleShare";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slice/userSlice";
 import { fetchCompanyByUser } from "../../redux/slice/companySlice";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { storeDb } from "../../assets/config/Firebase";
+
+
 export default function HomeCompany({ navigation }) {
 
     const dispatch = useDispatch()
-    const user = useSelector((state) => state.user.user)
 
     const { companyByUser, loading } = useSelector((state) => state.company);
-
     useEffect(() => {
         dispatch(fetchCompanyByUser());
+        if (companyByUser) {
+            // Save to Firestore if _id exists
+            saveUserToFirestore(
+                companyByUser._id,
+                companyByUser.createBy.email,
+                companyByUser.name,
+                companyByUser.avatar
+            );
+        }
     }, []);
 
-    console.log(companyByUser)
+
+
+    const saveUserToFirestore = async (id, email, name, avatar) => {
+        try {
+            const userDoc = doc(storeDb, "users", id.toString());
+            const docSnap = await getDoc(userDoc);
+
+            if (!docSnap.exists()) {
+                // Lưu thông tin người dùng mới
+                await setDoc(userDoc, {
+                    id: id.toString(),
+                    email: email || '',
+                    name: name || '',
+                    role: "EMPLOYER_USER",
+                    avatar: avatar || '',
+                });
+            } else {
+                // Cập nhật thông tin người dùng
+                await setDoc(userDoc, {
+                    id: id.toString(),
+                    email: email || '',
+                    name: name || '',
+                    role: "EMPLOYER_USER",
+                    avatar: avatar || '',
+                }, { merge: true });
+            }
+            console.log("Empalouer saved successfully!");
+        } catch (error) {
+            console.error('Error saving user:', error);
+        }
+    }
+
 
     const manageEmployers = [
         { id: 1, icon: 'megaphone-outline', title: 'Chiến dịch tuyển dụng' },
@@ -102,7 +144,7 @@ export default function HomeCompany({ navigation }) {
                         <TouchableOpacity style={{ marginRight: 20 }}>
                             <Icon name="notifications-outline" size={26} color={mainColor} />
                         </TouchableOpacity>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate('Chat',{currentUserId: companyByUser._id})}>
                             <Icon name="chatbubble-outline" size={26} color={mainColor} />
                         </TouchableOpacity>
                     </View>

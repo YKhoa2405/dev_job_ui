@@ -1,4 +1,4 @@
-import { View, StyleSheet, Dimensions, Text, FlatList, TouchableWithoutFeedback, ActivityIndicator } from "react-native";
+import { View, StyleSheet, Dimensions, Text, FlatList, TouchableWithoutFeedback, ActivityIndicator, TouchableOpacity } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import UIHeader from "../../components/UIHeader";
 import MapView, { Marker, Polyline, Circle, PROVIDER_GOOGLE } from "react-native-maps";
@@ -11,6 +11,10 @@ import axios from "axios";
 import Loading from "../../components/Loading";
 import { endpoints } from "../../assets/config/API";
 import { ToastMess } from "../../components/ToastMess";
+import Modal from "react-native-modal";
+import Icon from "react-native-vector-icons/Ionicons"
+import Dropdown from "../../components/Dropdown";
+import Button from "../../components/Button";
 
 export default function JobNearBy({ navigation }) {
     const [latitude, setLatitude] = useState(0)
@@ -18,6 +22,42 @@ export default function JobNearBy({ navigation }) {
     const [distance, setDistance] = useState(5);
     const [loading, setLoading] = useState(false)
     const [jobs, setJobs] = useState([])
+    const [isModalVisible, setModalVisible] = useState(false);
+
+    const [level, setLevel] = useState('')
+    const [salary, setSalary] = useState('')
+    const [jobType, setJobType] = useState('')
+
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
+
+    const levelData = [
+        { title: 'Intern' },
+        { title: 'Fresher' },
+        { title: 'Junior' },
+        { title: 'Middle' },
+        { title: 'Senior' },
+        { title: 'Trưởng nhóm' },
+        { title: 'Trưởng phòng' },
+        { title: 'Director' },
+    ]
+
+    const salaryData = [
+        { title: 'Dưới 5 triệu' },
+        { title: '10 - 15 triệu' },
+        { title: '15 - 20 triệu' },
+        { title: '20 - 25 triệu' },
+        { title: '30 - 50 triệu' },
+        { title: 'Trên 50 triệu' },
+        { title: 'Thỏa thuận' }
+    ]
+
+    const jobTypeData = [
+        { title: 'Office' },
+        { title: 'Remote' },
+        { title: 'Hybrid' },
+    ]
 
     useEffect(() => {
         (async () => {
@@ -72,6 +112,25 @@ export default function JobNearBy({ navigation }) {
         }
     }
 
+    const applyFilters = () => {
+        let jobsfilter = [...jobs];
+
+        if (salary) {
+            jobsfilter = jobsfilter.filter((job) => job.salary.includes(salary));
+        }
+
+        if (level) {
+            jobsfilter = jobsfilter.filter((job) => job.level === level);
+        }
+
+        if (jobType) {
+            jobsfilter = jobsfilter.filter((job) => job.jobType === jobType);
+        }
+
+        setJobs(jobsfilter);
+        setModalVisible(false);
+    };
+
     const renderItem = ({ item }) => (
         <TouchableWithoutFeedback key={item._id} onPress={() => { navigation.navigate('JobDetail', { jobId: item._id }) }}>
             <View style={styles.jobItemContainer}>
@@ -84,6 +143,7 @@ export default function JobNearBy({ navigation }) {
                 </View>
                 <View style={StyleShare.technologyContainer}>
                     <Chip style={StyleShare.chip}>{item.salary}</Chip>
+                    <Chip style={StyleShare.chip}>{item.level}</Chip>
                     <Chip style={{
                         alignSelf: 'flex-start',
                         backgroundColor: orange,
@@ -100,10 +160,76 @@ export default function JobNearBy({ navigation }) {
         <View style={StyleShare.container}>
             <UIHeader
                 leftIcon={"arrow-back"}
-                rightIcon={"ellipsis-horizontal"}
+                rightIcon={"options"}
                 title={'Việc làm gần bạn'}
                 handleLeftIcon={() => navigation.goBack()}
+                handleRightIcon={() => setModalVisible(true)}
             />
+            <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}
+                animationIn="slideInUp"
+                animationOut="slideOutDown"
+                backdropTransitionInTiming={500}
+                backdropTransitionOutTiming={500}
+                style={StyleShare.modalStyle}>
+                <View style={StyleShare.modalContent}>
+                    <View style={[StyleShare.flexBetween, { marginVertical: 15 }]}>
+                        <Text style={StyleShare.titleText20}>Bộ lọc việc làm</Text>
+                        <TouchableOpacity onPress={() => setModalVisible(false)} >
+                            <Icon name="close" size={26} color={'red'} />
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={StyleShare.titleText16}>Level</Text>
+                    <Dropdown
+                        data={levelData}
+                        onSelect={(item) => {
+                            setLevel(item.title)
+                        }}
+                        placeholder="Chọn Level"
+                        buttonStyle={{
+                            marginTop: 10,
+                            width: '100%',
+                            height: 50,
+                            marginBottom: 20
+                        }}
+                    />
+
+                    <Text style={StyleShare.titleText16}>Mức lương</Text>
+                    <Dropdown
+                        data={salaryData}
+                        onSelect={(item) => {
+                            setSalary(item.title)
+                        }}
+                        placeholder="Chọn mức lương"
+                        buttonStyle={{
+                            marginTop: 10,
+                            width: '100%',
+                            height: 50,
+                            marginBottom: 20
+                        }}
+                    />
+                    <Text style={StyleShare.titleText16}>Loại hình</Text>
+                    <Dropdown
+                        data={jobTypeData}
+                        onSelect={(item) => {
+                            setJobType(item.title)
+                        }}
+                        placeholder="Chọn loại hình"
+                        buttonStyle={{
+                            marginTop: 10,
+                            width: '100%',
+                            height: 50,
+                            marginBottom: 20
+                        }}
+                    />
+
+                    <Button
+                        title={'Áp dụng'}
+                        backgroundColor={mainColor}
+                        textColor={white}
+                        onPress={() => applyFilters()}
+                    />
+                </View>
+            </Modal>
             <View style={styles.sliderContainer}>
                 <Text style={{ color: mainColor, fontWeight: '500', backgroundColor: 'white' }}>Phạm vi: {distance} km</Text>
                 <Slider
@@ -118,48 +244,52 @@ export default function JobNearBy({ navigation }) {
                     thumbTintColor={mainColor}
                 />
             </View>
-            <MapView
-                provider={PROVIDER_GOOGLE}
-                style={styles.map}
-                initialRegion={{
-                    latitude: latitude,
-                    longitude: longitude,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                }}
-            >
-                <Marker
-                    coordinate={{
+            {latitude && longitude ? (
+                <MapView
+                    provider={PROVIDER_GOOGLE}
+                    style={styles.map}
+                    initialRegion={{
                         latitude: latitude,
                         longitude: longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
                     }}
-                    title="Vị trí của bạn"
-                    description="vị trí hiện tại của bạn"
-                />
-                {jobs.map((item) => (
+                >
                     <Marker
-                        key={item._id}
                         coordinate={{
-                            latitude: item.latitude,
-                            longitude: item.longitude,
+                            latitude: latitude,
+                            longitude: longitude,
                         }}
-                        icon={require("../../assets/images/marker_job.png")}
-                        title={item.title}
-                        description={item.companyId.name}
+                        title="Vị trí của bạn"
+                        description="vị trí hiện tại của bạn"
                     />
-                ))}
-                {latitude !== null && longitude !== null && (
-                    <>
+                    {jobs.map((item) => (
+                        <Marker
+                            key={item._id}
+                            coordinate={{
+                                latitude: item.latitude,
+                                longitude: item.longitude,
+                            }}
+                            icon={require("../../assets/images/marker_job.png")}
+                            title={item.name}
+                            description={item.companyId.name}
+                        />
+                    ))}
+                    {latitude !== null && longitude !== null && (
                         <Circle
                             center={{ latitude: latitude, longitude: longitude }}
                             radius={distance * 1000} // Radius in meters
                             strokeColor="rgba(255, 0, 0, 0.5)" // Màu viền vòng tròn
                             fillColor="rgba(255, 0, 0, 0.1)" // Màu nền vòng tròn
                         />
-                    </>
-                )}
+                    )}
+                </MapView>
+            ) : (
+                <View style={styles.containerListJob}>
+                    <Loading />
+                </View>
+            )}
 
-            </MapView>
             {loading ? <>
                 <View style={styles.containerListJob}>
                     <Loading />
@@ -188,7 +318,7 @@ const styles = StyleSheet.create({
         flex: 1
     },
     containerListJob: {
-        height: 150,
+        height: 160,
         backgroundColor: grey,
         borderTopWidth: 1,
         borderTopColor: '#ddd',
@@ -212,8 +342,8 @@ const styles = StyleSheet.create({
         marginRight: 10,
         paddingVertical: 10,
         paddingHorizontal: 20,
-        marginTop: 10,
+        marginVertical: 5,
         borderRadius: 10,
-        elevation:2
+        elevation: 2
     }
 })
