@@ -9,7 +9,7 @@ import { ToastMess } from "../../components/ToastMess";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from "../../redux/slice/userSlice";
-import { storeDb } from "../../assets/config/Firebase";
+import { storeDb } from "../../assets/config/Key";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
 

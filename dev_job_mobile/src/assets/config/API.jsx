@@ -16,6 +16,7 @@ export const endpoints = {
     'sendCode': '/users/sendCode',
     'verify': '/users/verify',
     'registerUser': '/users/register',
+    'uploadChat': '/files/uploadChat',
 
     // skills
     'skills': '/skills',

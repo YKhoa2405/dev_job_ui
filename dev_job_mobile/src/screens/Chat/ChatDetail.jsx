@@ -6,16 +6,18 @@ import { GiftedChat, Send } from "react-native-gifted-chat";
 import StyleShare from "../../assets/themes/StyleShare";
 import { colorChat, grey, mainColor, white } from "../../assets/themes/Color";
 import { addDoc, collection, doc, getDoc, onSnapshot, orderBy, query, serverTimestamp, setDoc } from "firebase/firestore";
-import { storeDb } from "../../assets/config/Firebase";
+import { storeDb } from "../../assets/config/Key";
 import * as DocumentPicker from 'expo-document-picker';
 import { ToastMess } from "../../components/ToastMess";
+
+import axios from "axios";
+import { endpoints } from "../../assets/config/API";
 
 
 export default function ChatDetail({ route, navigation }) {
     // id người nhận tin nhắn
     const { userReceiver, currentUserId } = route.params;
     const [messages, setMessages] = useState([])
-
 
     function generateChatId(userId1, userId2) {
         return [userId1, userId2].sort().join('_');
@@ -25,42 +27,54 @@ export default function ChatDetail({ route, navigation }) {
         const result = await DocumentPicker.getDocumentAsync({
             type: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
         });
+        const formData = new FormData();
+        const selectedFile = result.assets[0]; // Lưu file vào biến
+        console.log('selectedFile', selectedFile)
 
-        if (!result.canceled) {
+        if (selectedFile && selectedFile.uri) {
+            formData.append('file', {
+                uri: selectedFile.uri, // Đảm bảo URI hợp lệ (sử dụng 'file://' nếu là React Native)
+                type: selectedFile.mimeType || 'application/octet-stream', // Đảm bảo loại tệp hợp lệ
+                name: selectedFile.fileName || selectedFile.name, // Tên tệp hợp lệ
+            });
+
+
             try {
-                const selectedFile = result.assets[0]; // Lưu file vào biến
-                const fileURL = selectedFile.uri; // Lấy URL file
-                const fileData = {
-                    url: fileURL,
-                    name: selectedFile.name,
-                    size: selectedFile.size
-                };
-                await sendMessage(userReceiver.id, "Đã gửi một file đính kèm", fileData);
-                setMessages((previousMessages) => GiftedChat.append(previousMessages, [{
-                    _id: Math.random().toString(), // Tạo ID ngẫu nhiên
-                    text: "Đã gửi một file đính kèm ",
-                    createdAt: new Date(),
-                    user: {
-                        _id: currentUserId,
+                const response = await axios.post('http://192.168.1.120:8000/files/uploadChat', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data', // Đảm bảo Content-Type đúng
                     },
-                    file: fileData
-                }]));
+                });
 
+                if (response.status === 201) {
+                    const fileUrl = response.data.data.url; // Lấy đường dẫn trả về từ phản hồi API
+                    console.log('fileUrl', fileUrl)
+                    await sendMessage(userReceiver.id, "Đã gửi một file đính kèm", fileUrl);
+                    setMessages((previousMessages) => GiftedChat.append(previousMessages, [{
+                        _id: Math.random().toString(), // Tạo ID ngẫu nhiên
+                        text: "Đã gửi một file đính kèm ",
+                        createdAt: new Date(),
+                        user: {
+                            _id: currentUserId,
+                        },
+                        file: fileUrl // Gửi file đính kèm
+                    }]));
+                }
             } catch (error) {
-                ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
-                console.log(error)
+                console.error('Có lỗi xảy ra:', error);
             }
         } else {
-            ToastMess({ type: 'error', text1: 'Chỉ hỗ trợ định dạng pdf, docx' })
+            console.log('Không có tệp nào được chọn');
         }
     };
+
 
     async function sendMessage(receiverId, text, file) {
         const chatId = generateChatId(currentUserId, receiverId)
         const message = {
             senderId: currentUserId,
             text: text || "",
-            file: file ? { url: file.url, name: file.name, size: file.size } : null,
+            file: file || null,
             timestamp: serverTimestamp()
         };
         try {
@@ -150,7 +164,12 @@ export default function ChatDetail({ route, navigation }) {
                 user={{
                     _id: currentUserId,
                 }}
-                renderAvatar={(props) => <Avatar.Image {...props} source={{ uri: userReceiver.avatar }} size={32} />}
+
+                renderAvatar={(props) => (
+                    userReceiver && userReceiver.avatar  (
+                        <Avatar.Image {...props} source={{ uri: userReceiver.avatar }} size={32} />
+                    ) 
+                )}
 
                 renderSend={props => {
                     return (
@@ -181,21 +200,19 @@ export default function ChatDetail({ route, navigation }) {
                                     maxWidth: '80%',
                                 }}
                             >
-                                {/* Hiển thị nội dung tin nhắn */}
-                                {currentMessage.text ? (
-                                    <Text style={{ color: currentMessage.user._id === currentUserId ? white : 'black' }}>
-                                        {currentMessage.text}
-                                    </Text>
-                                ) : null}
-
-                                {/* Hiển thị file đính kèm nếu có */}
                                 {currentMessage.file ? (
-                                    <TouchableOpacity onPress={() => Linking.openURL(currentMessage.file.url)}>
-                                        <Text style={{ color: mainColor, marginTop: 5 }}>
-                                            {currentMessage.file.name || "File đính kèm"}
-                                        </Text>
+                                    <TouchableOpacity onPress={() => Linking.openURL(currentMessage.file)} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                        <Icon name="document" color={currentMessage.user._id === currentUserId ? 'white' : 'black'} size={24} />
+                                        <View>
+                                            <Text style={{ fontWeight: 'bold', color: currentMessage.user._id === currentUserId ? 'white' : 'black', marginLeft: 5 }}>{currentMessage.file}</Text>
+                                        </View>
+
+
                                     </TouchableOpacity>
-                                ) : null}
+                                ) : (
+
+                                    <Text style={{ fontSize: 16, color: currentMessage.user._id === currentUserId ? 'white' : 'black', }}>{currentMessage.text} </Text>
+                                )}
 
                                 {/* Hiển thị thời gian */}
                                 <Text style={{ color: 'grey', fontSize: 10, textAlign: 'right', marginTop: 5, }}>

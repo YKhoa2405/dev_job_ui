@@ -10,7 +10,7 @@ import Icon from "react-native-vector-icons/Ionicons"
 import { useState, useEffect } from "react";
 import StyleShare from "../../assets/themes/StyleShare";
 import { onSnapshot, collection, getDoc, doc } from "firebase/firestore";
-import { storeDb } from "../../assets/config/Firebase";
+import { storeDb } from "../../assets/config/Key";
 
 export default function Chat({ navigation, route }) {
     const { currentUserId } = route.params;

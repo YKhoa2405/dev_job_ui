@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slice/userSlice";
 import { fetchCompanyByUser } from "../../redux/slice/companySlice";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { storeDb } from "../../assets/config/Firebase";
+import { storeDb } from "../../assets/config/Key";
 
 
 export default function HomeCompany({ navigation }) {
