@@ -24,6 +24,7 @@ export default function ResumeApply({ navigation, route }) {
     const [name, setName] = useState(user.name)
     const [email, setEmail] = useState(user.email)
     const [phone, setPhone] = useState('')
+    const [selectCvUrl, setSelectCvUrl] = useState('');
 
     const { cvData, status } = useSelector((state) => state.cv);
     useEffect(() => {
@@ -31,7 +32,7 @@ export default function ResumeApply({ navigation, route }) {
             dispatch(fetchListCvByUser(user?._id));
         }
     }, [dispatch]);
-    console.log(cvData)
+
     const handleUploadCV = async () => {
         setLoadingUpload(true)
         try {
@@ -58,24 +59,27 @@ export default function ResumeApply({ navigation, route }) {
                 });
 
                 dispatch(fetchListCvByUser(user?._id));
-                ToastMess({ type: 'success', text1: 'Tải lên thành công' });
-            } else {
-                ToastMess({ type: 'error', text1: 'Chỉ hỗ trợ định dạng pdf, docx' });
             }
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
+
         } finally { setLoadingUpload(false) }
     };
 
     const handleApplyJob = async () => {
-        setLoading(true)
+        if (!companyId || !jobId || !name || !phone || !email || !selectCvUrl) {
+            ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
+            return;
+        }
+
         const formData = new FormData();
         formData.append('companyId', companyId);
         formData.append('jobId', jobId);
         formData.append('name', name);
         formData.append('phone', phone);
         formData.append('email', email);
-
+        formData.append('cv', selectCvUrl);
+        setLoading(true)
         try {
             const token = await AsyncStorage.getItem('access_token');
             await authApi(token).post(endpoints['resumeApply'], formData, {
@@ -86,7 +90,8 @@ export default function ResumeApply({ navigation, route }) {
             ToastMess({ type: 'success', text1: 'Ứng tuyển thành công' });
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
-        } finally{
+            console.log(error)
+        } finally {
             setLoading(false)
         }
     }
@@ -132,10 +137,18 @@ export default function ResumeApply({ navigation, route }) {
                     ) : cvData && cvData.length > 0 ? (
                         <>
                             {cvData.map((cv) => (
-                                <TouchableOpacity style={styles.cvContainer} key={cv.id}>
+                                <TouchableOpacity style={styles.cvContainer} key={cv._id} onPress={() => setSelectCvUrl(cv.url)}>
                                     <View style={StyleShare.flexBetween}>
-                                        <Text style={StyleShare.titleText16}>{cv.name}</Text>
-                                        <Icon name="radio-button-off" size={20} color={'grey'} />
+                                        <Text style={StyleShare.titleText16}>
+                                            {cv.name.length > 32
+                                                ? cv.name.slice(0, 32) + "..."
+                                                : cv.name}
+                                        </Text>
+                                        <Icon name={
+                                            selectCvUrl === cv.url
+                                                ? 'radio-button-on'
+                                                : 'radio-button-off'
+                                        } size={20} color={orange} />
                                     </View>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
                                         <Icon name="time-outline" size={18} />
@@ -229,9 +242,8 @@ const styles = StyleSheet.create({
         backgroundColor: white
     },
     cvContainer: {
-        borderRadius: 8,
-        borderColor: bgButton2,
-        borderWidth: 2,
+        borderRadius: 10,
+        backgroundColor:'#f0eef8',
         marginTop: 10,
         padding: 10
     },
@@ -248,10 +260,6 @@ const styles = StyleSheet.create({
         paddingVertical: 10
     },
 
-    fileImage: {
-        width: 50,
-        height: 50,
-    },
     inputUploadCV: {
         borderWidth: 1,
         borderColor: bgButton2,

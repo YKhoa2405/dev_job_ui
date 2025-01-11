@@ -61,7 +61,7 @@ export default function JobDetail({ route, navigation }) {
         try {
             const token = await AsyncStorage.getItem("access_token");
             // API gọi để xóa công việc đã lưu
-            await authApi(token).post(endpoints['saveJob'],{jobId});
+            await authApi(token).post(endpoints['saveJob'], { jobId });
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
 
@@ -88,8 +88,9 @@ export default function JobDetail({ route, navigation }) {
                                 style={{ backgroundColor: 'white' }}
                             />
                         </TouchableOpacity>
-                        <Text style={StyleShare.titleText16}>{jobDetail?.name || "N/A"}</Text>
-                        <Text>{jobDetail?.companyId?.name || "N/A"}</Text>
+                            <Text style={StyleShare.titleText16}>{jobDetail?.name || "N/A"}</Text>
+                            <Text>{jobDetail?.companyId?.name || "N/A"}</Text>
+
                         <View style={styles.descOption}>
                             <View style={styles.descDetail}>
                                 <Icon name="cash" size={30} color={mainColor} />
@@ -192,7 +193,7 @@ const styles = StyleSheet.create({
         marginTop: 30,
         paddingTop: 45,
         paddingHorizontal: 20,
-        flexShrink: 1
+        flexShrink: 1,
     }
     , descOption: {
         flexDirection: 'row',

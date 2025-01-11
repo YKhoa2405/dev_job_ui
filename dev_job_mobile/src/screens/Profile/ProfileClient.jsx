@@ -166,30 +166,30 @@ export default function Profile({ navigation }) {
                         {cvData && cvData.length > 0 ? (
                             <>
                                 {cvData.map((cv) => (
-                                    <View key={cv._id} style={styles.cvContainer}>
+                                    <TouchableOpacity key={cv._id} style={styles.cvContainer} onPress={() => navigation.navigate('CvView', { cvUrl: cv.url })}>
                                         <View style={StyleShare.flexBetween}>
-                                            <Text style={StyleShare.titleText16}>{cv.name}</Text>
-                                            <TouchableOpacity onPress={() => handleDeleteCvByUser(cv._id)}>
-                                                <Icon name="trash-outline" size={20} color={'red'} />
+                                            <Text style={StyleShare.titleText16}>
+                                                {cv.name.length > 32
+                                                    ? cv.name.slice(0, 32) + "..."
+                                                    : cv.name}
+                                            </Text>
+                                            <TouchableOpacity onPress={() => handleDeleteCvByUser(cv._id)} style={{zIndex: 999}}>
+                                                <Icon name="trash-outline" size={22} color={'red'} />
                                             </TouchableOpacity>
                                         </View>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
                                             <Icon name="time-outline" size={18} />
                                             <Text style={{ marginHorizontal: 5 }}>{moment(cv.createdAt).format('DD/MM/YYYY')}</Text>
                                         </View>
-                                        <TouchableOpacity style={styles.previewCV} onPress={() => navigation.navigate('CvView', { cvUrl: cv.url })}>
-                                            <Text style={StyleShare.titleText16}>Xem CV</Text>
-                                        </TouchableOpacity>
-                                    </View>
+
+                                    </TouchableOpacity>
                                 ))}
                             </>
                         ) : <></>}
 
-
                         {loading ? <>
                             <ActivityIndicator color={orange} size={'large'} />
                         </> : <>
-
                             <Button
                                 title={'Tải lên CV mới'}
                                 backgroundColor={mainColor}
@@ -314,11 +314,10 @@ const styles = StyleSheet.create({
     },
 
     cvContainer: {
-        borderRadius: 8,
-        borderColor: bgButton2,
-        borderWidth: 2,
-        marginBottom: 10,
-        padding: 10
+        borderRadius: 10,
+        marginBottom: 15,
+        padding: 10,
+        backgroundColor: '#f0eef8',
     },
     previewCV: {
         marginTop: 10,
