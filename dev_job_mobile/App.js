@@ -46,6 +46,7 @@ import ChooseRole from './src/screens/Auth/ChooseRole';
 import RegisterSendOtp from './src/screens/Auth/RegisterSendOtp';
 import CompanyCreate from './src/screens/Company/CompanyCreate';
 import Subscribers from './src/screens/Profile/Subscribers';
+import ResumeTools from './src/screens/Resume/ResumeTools';
 
 
 const Stack = createNativeStackNavigator();
@@ -118,6 +119,9 @@ function MainTab() {
             else if (route.name === 'Companies') {
               iconName = focused ? 'business' : 'business-outline';
             }
+            else if (route.name === 'ResumeTools') {
+              iconName = focused ? 'document' : 'document-outline';
+            }
 
             else if (route.name === 'Profile') {
               iconName = focused ? 'person-circle' : 'person-circle-outline';
@@ -134,7 +138,9 @@ function MainTab() {
       >
         <Tab.Screen name="HomeClient" component={HomeClient} />
         <Tab.Screen name="Companies" component={Companies} />
+        <Tab.Screen name="ResumeTools" component={ResumeTools} />
         <Tab.Screen name="Profile" component={Profile} />
+
       </Tab.Navigator>
     </KeyboardAvoidingView>
 
