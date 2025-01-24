@@ -120,7 +120,6 @@ export default function Login({ navigation }) {
                     placeholder="Nhập Email"
                     onChangeText={setEmail}
                     autoCapitalize="none"
-
                 />
                 <Text style={styles.textInput}>Mật khẩu</Text>
                 <Input

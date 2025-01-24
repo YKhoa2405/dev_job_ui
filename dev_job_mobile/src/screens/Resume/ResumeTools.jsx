@@ -108,6 +108,7 @@ export default function ResumeTools({ navigation }) {
                         title={'Tạo mới CV'}
                         backgroundColor={mainColor}
                         textColor={white}
+                        onPress={()=>navigation.navigate('ResumeCreate')}
                     />
                 </View>
 

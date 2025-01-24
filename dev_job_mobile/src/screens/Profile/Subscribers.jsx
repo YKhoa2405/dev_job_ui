@@ -234,7 +234,7 @@ export default function Subscribers({ navigation }) {
                 rightIcon={'add-circle-outline'}
                 title={'Thông báo việc làm qua Email'}
                 handleLeftIcon={() => { navigation.goBack() }}
-                handleRightIcon={() => { setModalVisible(true); }}
+                handleRightIcon={() => { setModalVisible(true) }}
             />
             <View style={{ marginHorizontal: 20, marginTop: 5 }}>
                 <AlertBanner message={"Bạn chỉ được tạo tối đa 3 thông báo việc làm."} type={'info'} />

@@ -204,6 +204,13 @@ const StyleShare = StyleSheet.create({
         justifyContent: 'flex-end', // Hiển thị modal ở cuối màn hình
         margin: 0,                 // Xóa khoảng cách mặc định
     },
+
+    manageJob: {
+        backgroundColor: white,
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        marginBottom: 15
+    },
 })
 
 export default StyleShare

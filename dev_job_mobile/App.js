@@ -24,7 +24,6 @@ import CompaniesFollow from './src/screens/Company/CompaniesFollow';
 import JobSaved from './src/screens/Job/JobSaved';
 import JobApplied from './src/screens/Job/JobApplied';
 import JobSuggestions from './src/screens/Job/JobSuggestions';
-import ResumeApply from './src/screens/Resume/ResumeApply';
 import Toast from 'react-native-toast-message';
 import SendCode from './src/screens/Auth/SendCode';
 import ChatDetail from './src/screens/Chat/ChatDetail';
@@ -34,10 +33,7 @@ import JobByCompany from './src/screens/Company/JobByCompany';
 import Services from './src/screens/Service/Services';
 import ServicesByCompany from './src/screens/Service/ServicesByCompany';
 import ProfileCompany from './src/screens/Profile/ProfileCompany';
-import ResumeByJob from './src/screens/Resume/ResumeByJob';
 import CompanyStatistical from './src/screens/Company/CompanyStatistical';
-import ResumeByCompany from './src/screens/Resume/ResumeByCompany';
-import ResumeView from './src/screens/Resume/ResumeView';
 import PaymentScreen from './src/screens/Service/PaymentScreen';
 import RegisterClient from './src/screens/Auth/RegisterClient';
 import RegisterCompany from './src/screens/Auth/RegisterCompany';
@@ -46,7 +42,18 @@ import ChooseRole from './src/screens/Auth/ChooseRole';
 import RegisterSendOtp from './src/screens/Auth/RegisterSendOtp';
 import CompanyCreate from './src/screens/Company/CompanyCreate';
 import Subscribers from './src/screens/Profile/Subscribers';
+
+import ResumeApply from './src/screens/Resume/ResumeApply';
 import ResumeTools from './src/screens/Resume/ResumeTools';
+import ResumeCreate from './src/screens/Resume/ResumeCreate';
+import ResumeByCompany from './src/screens/Resume/ResumeByCompany';
+import ResumeView from './src/screens/Resume/ResumeView';
+import ResumeByJob from './src/screens/Resume/ResumeByJob';
+import ResumeInput from './src/screens/Resume/ResumeInput';
+import ResumeExperience from './src/screens/Resume/ResumeExperience';
+import ResumeProject from './src/screens/Resume/ResumeProject';
+import ResumeTemlates from './src/screens/Resume/ResumeTemlates';
+
 
 
 const Stack = createNativeStackNavigator();
@@ -71,22 +78,25 @@ export default function App() {
           <Stack.Screen name="JobSaved" component={JobSaved} />
           <Stack.Screen name="JobApplied" component={JobApplied} />
           <Stack.Screen name="JobSuggestions" component={JobSuggestions} />
+
           <Stack.Screen name="CompanyDetail" component={CompanyDetail} />
           <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
           <Stack.Screen name="CompanyStatistical" component={CompanyStatistical} />
           <Stack.Screen name="CompanyCreate" component={CompanyCreate} />
 
-
           <Stack.Screen name="ProfileCompany" component={ProfileCompany} />
           <Stack.Screen name="Subscribers" component={Subscribers} />
-
-
-
 
           <Stack.Screen name="ResumeApply" component={ResumeApply} />
           <Stack.Screen name="ResumeByJob" component={ResumeByJob} />
           <Stack.Screen name="ResumeByCompany" component={ResumeByCompany} />
           <Stack.Screen name="ResumeView" component={ResumeView} />
+          <Stack.Screen name="ResumeCreate" component={ResumeCreate} />
+          <Stack.Screen name="ResumeInput" component={ResumeInput} />
+          <Stack.Screen name="ResumeExperience" component={ResumeExperience} />
+          <Stack.Screen name="ResumeProject" component={ResumeProject} />
+          <Stack.Screen name="ResumeTemlates" component={ResumeTemlates} />
+
 
 
 
@@ -96,7 +106,6 @@ export default function App() {
           <Stack.Screen name="Services" component={Services} />
           <Stack.Screen name="ServicesByCompany" component={ServicesByCompany} />
           <Stack.Screen name="PaymentScreen" component={PaymentScreen} />
-
         </Stack.Navigator>
         <Toast />
       </NavigationContainer>

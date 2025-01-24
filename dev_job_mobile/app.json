@@ -4,7 +4,7 @@
     "slug": "dev_job_mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/division.png",
+    "icon": "",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
