@@ -52,7 +52,7 @@ import ResumeByJob from './src/screens/Resume/ResumeByJob';
 import ResumeInput from './src/screens/Resume/ResumeInput';
 import ResumeExperience from './src/screens/Resume/ResumeExperience';
 import ResumeProject from './src/screens/Resume/ResumeProject';
-import ResumeTemlates from './src/screens/Resume/ResumeTemlates';
+import ResumeTemplates from './src/screens/Resume/ResumeTemplates';
 
 
 
@@ -95,7 +95,7 @@ export default function App() {
           <Stack.Screen name="ResumeInput" component={ResumeInput} />
           <Stack.Screen name="ResumeExperience" component={ResumeExperience} />
           <Stack.Screen name="ResumeProject" component={ResumeProject} />
-          <Stack.Screen name="ResumeTemlates" component={ResumeTemlates} />
+          <Stack.Screen name="ResumeTemplates" component={ResumeTemplates} />
 
 
 

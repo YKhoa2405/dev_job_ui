@@ -8,10 +8,9 @@ import { List, Divider } from 'react-native-paper';
 
 
 export default function ResumeCreate({ navigation }) {
-    const [expanded, setExpanded] = useState(false); // Trạng thái để kiểm tra accordion có mở hay không
+    const [expanded, setExpanded] = useState(true); // Trạng thái để kiểm tra accordion có mở hay không
     const handlePress = () => setExpanded(!expanded);
 
-    const [loading, setLoading] = useState(true);
     const [resumeName, setResumeName] = useState('');
 
     const sections = [
@@ -32,7 +31,7 @@ export default function ResumeCreate({ navigation }) {
                 <View style={{ marginHorizontal: 20 }}>
                     <Text style={StyleShare.titleText16}>Tên CV</Text>
                     <TextInput
-                        placeholder="Tiêu đề tin tuyển dụng..."
+                        placeholder="Nhập tên CV..."
                         onChangeText={setResumeName}
                         value={resumeName}
                         style={styles.introduceInput}

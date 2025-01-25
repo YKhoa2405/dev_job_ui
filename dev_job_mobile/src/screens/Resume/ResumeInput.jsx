@@ -15,12 +15,12 @@ import DropDownPicker from 'react-native-dropdown-picker';
 export default function ResumeInput({ route, navigation }) {
     const [open, setOpen] = useState(false);
 
-    const [name, setName] = useState('');
+    const [fullName, setFullName] = useState('');
     const [position, setPosition] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [gender, setGender] = useState('');
-    const [dob, setDob] = useState('');
+    const [dateOfBirth, setDateOfBirth] = useState('');
     const [selectedProvinceId, setSelectedProvinceId] = useState('');
     const [selectedDistrictId, setSelectedDistrictId] = useState('');
     const [selectedWardId, setSelectedWardId] = useState('');
@@ -134,6 +134,16 @@ export default function ResumeInput({ route, navigation }) {
         );
     };
 
+    const handleSubmit = () => {
+        const resumeData = {
+            fullName,
+            email
+
+        };
+        // Chuyển đến trang ResumeTemplates và truyền thông tin resumeData
+        navigation.navigate('ResumeTemplates', { ResumeData: resumeData });
+    };
+
     return (
         <View style={StyleShare.container}>
             <Modal isVisible={isModalSkill} onBackdropPress={() => setModalSkill(!isModalSkill)}
@@ -214,7 +224,6 @@ export default function ResumeInput({ route, navigation }) {
 
                     <Text style={styles.textInput}>Tên trường <Text style={{ color: 'red' }}>*</Text></Text>
                     <TextInput
-                        placeholder=""
                         // onChangeText={setEmail}
                         // value={email}
                         style={styles.introduceInput}
@@ -242,7 +251,6 @@ export default function ResumeInput({ route, navigation }) {
 
                     <Text style={styles.textInput}>Chuyên ngành <Text style={{ color: 'red' }}>*</Text></Text>
                     <TextInput
-                        placeholder=""
                         // onChangeText={setEmail}
                         // value={email}
                         style={styles.introduceInput}
@@ -250,7 +258,6 @@ export default function ResumeInput({ route, navigation }) {
 
                     <Text style={styles.textInput}>Mô tả </Text>
                     <TextInput
-                        placeholder="Nhập mô tả ..."
                         style={[styles.introduceInput, { height: 120, textAlignVertical: 'top' }]}
                         multiline
                         numberOfLines={8}
@@ -271,15 +278,13 @@ export default function ResumeInput({ route, navigation }) {
                         <Text style={styles.textInput}>Họ và tên <Text style={{ color: 'red' }}>*</Text></Text>
                         <TextInput
                             style={styles.introduceInput}
-                            placeholder="Họ và tên"
-                            value={name}
-                            onChangeText={setName}
+                            value={fullName}
+                            onChangeText={setFullName}
                         />
 
                         <Text style={styles.textInput}>Vị trí ứng tuyển <Text style={{ color: 'red' }}>*</Text></Text>
                         <TextInput
                             style={styles.introduceInput}
-                            placeholder="Vị trí ứng tuyển"
                             value={position}
                             onChangeText={setPosition}
                         />
@@ -287,7 +292,6 @@ export default function ResumeInput({ route, navigation }) {
                         <Text style={styles.textInput}>Email <Text style={{ color: 'red' }}>*</Text></Text>
                         <TextInput
                             style={styles.introduceInput}
-                            placeholder="Email"
                             keyboardType="email-address"
                             autoCapitalize="none"
                             value={email}
@@ -297,7 +301,6 @@ export default function ResumeInput({ route, navigation }) {
                         <Text style={styles.textInput}>Số điện thoại <Text style={{ color: 'red' }}>*</Text></Text>
                         <TextInput
                             style={styles.introduceInput}
-                            placeholder="Số điện thoại"
                             keyboardType="phone-pad"
                             value={phone}
                             onChangeText={setPhone}
@@ -319,9 +322,10 @@ export default function ResumeInput({ route, navigation }) {
                         <Text style={styles.textInput}>Ngày sinh <Text style={{ color: 'red' }}>*</Text></Text>
                         <TextInput
                             style={styles.introduceInput}
-                            placeholder="Ngày sinh (dd/mm/yyyy)"
+                            placeholder="DD/MM/YYYY"
                             keyboardType="numeric"
-                            onChangeText={setDob}
+                            onChangeText={setDateOfBirth}
+                            value={dateOfBirth}
                         />
 
                         <Text style={styles.textInput}>Địa chỉ <Text style={{ color: 'red' }}>*</Text></Text>
@@ -379,7 +383,6 @@ export default function ResumeInput({ route, navigation }) {
                         <Text style={styles.textInput}>Github </Text>
                         <TextInput
                             style={styles.introduceInput}
-                            placeholder="Link Github"
                             keyboardType="url"  // Nhập URL
                             autoCapitalize="none"
                             value={githubLink}
@@ -429,7 +432,7 @@ export default function ResumeInput({ route, navigation }) {
                     </TouchableOpacity>
                 </View>
             </ScrollView>
-            <TouchableOpacity style={[StyleShare.flexCenter, { backgroundColor: mainColor, padding: 15, marginBottom: 10, marginHorizontal: 20, borderRadius:10 }]} onPress={() => navigation.navigate('ResumeTemlates')}>
+            <TouchableOpacity style={[StyleShare.flexCenter, { backgroundColor: mainColor, padding: 15, marginBottom: 10, marginHorizontal: 20, borderRadius: 10 }]} onPress={() => handleSubmit()}>
                 <Text style={[StyleShare.titleText16, { color: 'white' }]}>Xem trước CV</Text>
             </TouchableOpacity>
         </View>

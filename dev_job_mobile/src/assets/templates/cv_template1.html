@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV - Nguyen Y Khoa</title>
+    <title>CV - {{resumeName}}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -35,8 +35,8 @@
             margin-bottom: 10px;
         }
         ul {
-            list-style-type: none;
-            padding: 0;
+            list-style-type: disc;
+            padding-left: 20px; /* Thêm khoảng cách từ lề trái cho danh sách có dấu chấm đầu dòng */
         }
         ul li {
             margin-bottom: 10px;
@@ -45,23 +45,41 @@
 </head>
 <body>
     <div class="header">
-        <h1>NGUYEN Y KHOA</h1>
-        <p>Mobile Developer</p>
+        <h1>{{fullName}}</h1>
+        <p>{{position}}</p>
     </div>
     <div class="contact-info">
-        <p>May 24, 2003 | 0866695643 | <a href="mailto:nykhoa2405@gmail.com">nykhoa2405@gmail.com</a></p>
-        <p>Thu Duc, HCM City | <a href="https://github.com/YKhoa2405">github.com/YKhoa2405</a></p>
+        <p>{{dateOfBirth}} | {{phone}} | <a href="mailto:{{email}}">{{email}}</a></p>
+        <p>{{location}} | <a href="{{githubLink}}">{{githubLink}}</a></p>
     </div>
 
     <div class="section">
         <div class="section-title">EDUCATION</div>
-        <p>Final year student at Ho Chi Minh City Open University (Sep 2021 - Present)</p>
+        <p><strong>{{ University Name }} ({{ Start Date }} - {{ End Date }})</strong></p>
         <ul>
             <li>Completed coursework in Mobile Programming, Modern Programming Technologies, Database Management, Data Structures.</li>
-            <li>GPA: 3.19</li>
+            <li>GPA: {{ GPA }}</li>
             <li>Led team projects and often appointed as team leader.</li>
         </ul>
     </div>
+
+    <div class="section">
+        <div class="section-title">WORK EXPERIENCE</div>
+        
+        <div>
+            <p><strong>{{ Company Name }} ({{ Start Date }} - {{ End Date }})</strong></p>
+            <p><strong>{{ Job Title Experience}}</strong></p>
+            <ul>
+                <li>Developed and optimized mobile applications using React Native, integrating Firebase for data management.</li>
+                <li>Assisted in UI/UX design using Figma, ensuring smooth user experience on both iOS and Android platforms.</li>
+                <li>Contributed to building APIs using Django Rest Framework for authentication and user management.</li>
+                <li>Collaborated with the QA team to test and fix bugs during the development process.</li>
+                <li>Utilized Git for version control and effective teamwork.</li>
+            </ul>
+        </div>
+
+    </div>
+    
 
     <div class="section">
         <div class="section-title">PROJECTS</div>
