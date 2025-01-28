@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TextInput, Text, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TextInput, Text, TouchableOpacity, Alert } from 'react-native';
 import StyleShare from '../../assets/themes/StyleShare';
 import UIHeader from '../../components/UIHeader';
 import { grey, mainColor, orange, white } from '../../assets/themes/Color';
@@ -11,62 +11,58 @@ import Button from '../../components/Button';
 import { ToastMess } from '../../components/ToastMess';
 import API, { endpoints } from '../../assets/config/API';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { useDispatch } from 'react-redux';
+import { addEducation, addPersonalInfo, addSkill, deleteEducation } from '../../redux/slice/resumeSlice';
 
 export default function ResumeInput({ route, navigation }) {
+    const dispatch = useDispatch();
     const [open, setOpen] = useState(false);
-
-    const [fullName, setFullName] = useState('');
-    const [position, setPosition] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [gender, setGender] = useState('');
-    const [dateOfBirth, setDateOfBirth] = useState('');
-    const [selectedProvinceId, setSelectedProvinceId] = useState('');
-    const [selectedDistrictId, setSelectedDistrictId] = useState('');
-    const [selectedWardId, setSelectedWardId] = useState('');
-    const [githubLink, setGithubLink] = useState('');
 
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
+    const [personalInfo, setPersonalInfo] = useState({
+        fullName: '',
+        position: '',
+        email: '',
+        phone: '',
+        gender: '',
+        dateOfBirth: '',
+        address: {
+            province: '',
+            district: '',
+            ward: '',
+        },
+        githubLink: '',
+    });
 
-    const [skills, setSkills] = useState([]); // hứng danh sách kỹ năng từ apiapi
-    const [groupSkill, setGroupSkill] = useState('');
-    const [skillList, setSkillList] = useState([]);
-    const [skillValue, setSkillValue] = useState([]);
+
+
+    const [skills, setSkills] = useState([]); // hứng danh sách kỹ năng từ api\
+    const [newGroup, setNewGroup] = useState('');
+    const [selectedSkills, setSelectedSkills] = useState([]);
+    const [skillInfo, setSkillInfo] = useState([]);
+
+    const [educationInfo, setEducationInfo] = useState([]);
+    const [education, setEducation] = useState({
+        id: new Date().getTime(),
+        schoolName: '',
+        startDate: '',
+        endDate: '',
+        major: '',
+        description: '',
+    });
 
 
     const [isModalSkill, setModalSkill] = useState(false);
     const [isModalEducation, setModalEducation] = useState(false);
 
 
-
-    const scrollTo = route.params?.scrollTo;
-    const sectionRefs = {
-        personalInfo: useRef(null),
-        education: useRef(null),
-        experience: useRef(null),
-        skills: useRef(null),
-        projects: useRef(null),
-    };
-    const scrollViewRef = useRef(null);
-
     const GenderData = [
         { title: 'Nam ' },
         { title: 'Nữ ' },
         { title: 'Khác' },
     ]
-
-    useEffect(() => {
-        if (scrollTo && sectionRefs[scrollTo]) {
-            sectionRefs[scrollTo].current.measureLayout(
-                scrollViewRef.current,
-                (x, y) => {
-                    scrollViewRef.current.scrollTo({ x: 0, y, animated: true });
-                }
-            );
-        }
-    }, [scrollTo]);
 
     useEffect(() => {
         fetchProvinces();
@@ -82,7 +78,7 @@ export default function ResumeInput({ route, navigation }) {
         const response = await axios.get(`https://esgoo.net/api-tinhthanh/2/${provinceId}.htm`);
         if (response.data.error === 0) {
             setDistricts(response.data.data || []);
-            setSelectedDistrictId(''); // Reset district and ward selections
+            // setSelectedDistrictId(''); // Reset district and ward selections
             setWards([]);
         }
     };
@@ -112,37 +108,115 @@ export default function ResumeInput({ route, navigation }) {
         }
     };
 
+    // skillInfo: [{ groupSkill: 'FE', skillList: ['ReactJS', 'VueJS'] }]
     const handleSaveSkill = () => {
-        if (groupSkill.trim() && skillList.length) {
-            const newSkillGroup = {
-                group: groupSkill,
-                skills: skillList
-            };
-            setSkillValue(prevSkills => [...prevSkills, newSkillGroup]);
-            setGroupSkill('');
-            setSkillList([]);
+        if (newGroup && selectedSkills.length > 0) {
+            setSkillInfo(prevSkillInfo => [
+                ...prevSkillInfo,
+                { groupSkill: newGroup, skillList: selectedSkills },
+            ]);
             setModalSkill(false);
-
+            setNewGroup('');
+            setSelectedSkills([]);
+            console.log(skillInfo)
         } else {
-            alert('Vui lòng nhập đầy đủ thông tin.');
+            Alert.alert('Thông báo', 'Vui lòng nhập đầy đủ thông tin.');
         }
     };
 
-    const handleDeleteSkill = (indexToRemove) => {
-        setSkillValue(prevSkills =>
-            prevSkills.filter((_, index) => index !== indexToRemove)
+    const handleDeleteSkill = (groupIndex) => {
+        setSkillInfo(prevSkillInfo =>
+            prevSkillInfo.filter((_, idx) => idx !== groupIndex)
         );
+        
     };
+
+    // personalInfo
+    const handlePersonalChange = (field, value) => {
+        setPersonalInfo(prevState => ({
+            ...prevState,
+            [field]: value
+        }));
+    };
+
+    const handleAddressChange = (field, value) => {
+        setPersonalInfo(prevState => ({
+            ...prevState,
+            address: {
+                ...prevState.address,
+                [field]: value
+            }
+        }));
+    };
+
+
+    // educationInfo
+    const handleSaveEducation = () => {
+        if (!education.schoolName || !education.startDate || !education.endDate || !education.major) {
+            Alert.alert('Thông báo', 'Vui lòng nhập đầy đủ thông tin.');
+            return;
+        }
+        setEducationInfo(prevList => [
+            ...prevList,
+            education,
+        ]);
+
+        setModalEducation(false);
+        setEducation({
+            id: '',
+            schoolName: '',
+            startDate: '',
+            endDate: '',
+            major: '',
+            description: '',
+        });
+    };
+
+    const handleEducationChange = (field, value) => {
+        setEducation(prevEducation => ({
+            ...prevEducation,
+            [field]: value,
+        }));
+    };
+
+    const handleDeleteEducation = (id) => {
+        setEducationInfo(prevList => prevList.filter(education => education.id !== id));
+        dispatch(deleteEducation({ id }));
+    };
+
 
     const handleSubmit = () => {
-        const resumeData = {
-            fullName,
-            email
+        if (
+            !personalInfo.fullName.trim() ||
+            !personalInfo.email.trim() ||
+            !personalInfo.phone.trim() ||
+            !personalInfo.dateOfBirth.trim() ||
+            !personalInfo.dateOfBirth.trim() ||
+            !personalInfo.position.trim() ||
+            !personalInfo.gender.trim()
+        ) {
+            ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
+            return;
+        }
 
-        };
-        // Chuyển đến trang ResumeTemplates và truyền thông tin resumeData
-        navigation.navigate('ResumeTemplates', { ResumeData: resumeData });
+        if (educationInfo.length === 0) {
+            ToastMess({ type: 'error', text1: 'Vui lòng thêm ít nhất một học vấn.' });
+            return;
+        }
+
+        if (skillInfo.length === 0) {
+            ToastMess({ type: 'error', text1: 'Vui lòng thêm ít nhất một kĩ nắng.' });
+            return;
+        }
+
+
+        dispatch(addEducation(educationInfo));
+        dispatch(addPersonalInfo(personalInfo));
+        dispatch(addSkill(skillInfo));
+
+        navigation.navigate('ResumeExperience');
     };
+
 
     return (
         <View style={StyleShare.container}>
@@ -164,9 +238,9 @@ export default function ResumeInput({ route, navigation }) {
                     <Text style={styles.textInput}>Nhóm kỹ năng <Text style={{ color: 'red' }}>*</Text></Text>
                     <TextInput
                         placeholder="FE, BE, QA, BA, PM, HR, ..."
-                        value={groupSkill}
-                        onChangeText={setGroupSkill}
                         style={styles.introduceInput}
+                        value={newGroup}
+                        onChangeText={setNewGroup}
                     />
 
                     <Text style={styles.textInput}>Danh sách kỹ năng <Text style={{ color: 'red' }}>*</Text></Text>
@@ -174,8 +248,6 @@ export default function ResumeInput({ route, navigation }) {
                         open={open} // Trạng thái mở/đóng
                         items={skills} // Dữ liệu hiển thị
                         setOpen={setOpen} // Hàm thay đổi trạng thái mở/đóng
-                        value={skillList} // Giá trị được chọn
-                        setValue={setSkillList} // Hàm thay đổi giá trị được chọn
                         setItems={setSkills} // Hàm cập nhật dữ liệu nguồn
                         multiple={true} // Cho phép chọn nhiều giá trị
                         min={0} // Số lượng chọn tối thiểu
@@ -200,6 +272,8 @@ export default function ResumeInput({ route, navigation }) {
                         textStyle={{
                             fontWeight: '500'
                         }}
+                        value={selectedSkills} // Giá trị được chọn
+                        setValue={setSelectedSkills}
                     />
 
                     <View style={{ marginTop: 20 }}></View>
@@ -207,86 +281,97 @@ export default function ResumeInput({ route, navigation }) {
 
                 </View>
             </Modal>
-            <Modal isVisible={isModalEducation} onBackdropPress={() => setModalEducation(!isModalEducation)}
+            <Modal
+                isVisible={isModalEducation}
+                onBackdropPress={() => setModalEducation(!isModalEducation)}
                 animationIn="slideInUp"
                 animationOut="slideOutDown"
                 backdropTransitionInTiming={500}
                 backdropTransitionOutTiming={500}
-                style={StyleShare.modalStyle}>
-
+                style={StyleShare.modalStyle}
+            >
                 <View style={StyleShare.modalContent}>
                     <View style={[StyleShare.flexBetween, { marginVertical: 15 }]}>
                         <Text style={StyleShare.titleText20}>Thêm mới trình độ học vấn</Text>
-                        <TouchableOpacity onPress={() => setModalEducation(false)} >
+                        <TouchableOpacity onPress={() => setModalEducation(false)}>
                             <Icon name="close" size={26} color={'red'} />
                         </TouchableOpacity>
                     </View>
 
+                    {/* Tên trường */}
                     <Text style={styles.textInput}>Tên trường <Text style={{ color: 'red' }}>*</Text></Text>
                     <TextInput
-                        // onChangeText={setEmail}
-                        // value={email}
+                        value={education.schoolName}
+                        onChangeText={(value) => handleEducationChange('schoolName', value)}
                         style={styles.introduceInput}
                     />
+
+                    {/* Ngày bắt đầu và ngày kết thúc */}
                     <View style={StyleShare.flexBetween}>
                         <View style={{ width: '48%' }}>
                             <Text style={styles.textInput}>Ngày bắt đầu <Text style={{ color: 'red' }}>*</Text></Text>
                             <TextInput
-                                placeholder="DD/MM/YYYY"
-                                // onChangeText={setName}
-                                // value={name}
+                                value={education.startDate}
+                                onChangeText={(value) => handleEducationChange('startDate', value)}
+                                placeholder="dd/mm/yyyy"
                                 style={styles.introduceInput}
                             />
                         </View>
                         <View style={{ width: '48%' }}>
                             <Text style={styles.textInput}>Ngày kết thúc <Text style={{ color: 'red' }}>*</Text></Text>
                             <TextInput
-                                placeholder="DD/MM/YYYY"
-                                // onChangeText={setName}
-                                // value={name}
+                                value={education.endDate}
+                                onChangeText={(value) => handleEducationChange('endDate', value)}
+                                placeholder="dd/mm/yyyy"
                                 style={styles.introduceInput}
                             />
                         </View>
                     </View>
 
+                    {/* Chuyên ngành */}
                     <Text style={styles.textInput}>Chuyên ngành <Text style={{ color: 'red' }}>*</Text></Text>
                     <TextInput
-                        // onChangeText={setEmail}
-                        // value={email}
+                        value={education.major}
+                        onChangeText={(value) => handleEducationChange('major', value)}
                         style={styles.introduceInput}
                     />
 
+                    {/* Mô tả */}
                     <Text style={styles.textInput}>Mô tả </Text>
                     <TextInput
+                        value={education.description}
+                        onChangeText={(value) => handleEducationChange('description', value)}
                         style={[styles.introduceInput, { height: 120, textAlignVertical: 'top' }]}
                         multiline
                         numberOfLines={8}
                     />
 
+                    {/* Nút lưu */}
                     <View style={{ marginTop: 20 }}></View>
-                    <Button title={'Lưu'} backgroundColor={mainColor} textColor={white} />
+                    <Button title={'Lưu'} backgroundColor={mainColor} textColor={white} onPress={handleSaveEducation} />
                 </View>
             </Modal>
+
             <UIHeader
                 leftIcon={"arrow-back"}
                 title={'Thông tin chung'}
                 handleLeftIcon={() => { navigation.goBack() }} />
-            <ScrollView showsVerticalScrollIndicator={false} ref={scrollViewRef}>
-                <View ref={sectionRefs.personalInfo} style={StyleShare.manageJob}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={StyleShare.manageJob}>
                     <Text style={StyleShare.titleText16}>Thông tin cá nhân:</Text>
                     <View style={{ marginTop: 10 }}>
                         <Text style={styles.textInput}>Họ và tên <Text style={{ color: 'red' }}>*</Text></Text>
                         <TextInput
                             style={styles.introduceInput}
-                            value={fullName}
-                            onChangeText={setFullName}
+                            value={personalInfo.fullName}
+                            onChangeText={(text) => handlePersonalChange('fullName', text)}
                         />
 
                         <Text style={styles.textInput}>Vị trí ứng tuyển <Text style={{ color: 'red' }}>*</Text></Text>
                         <TextInput
                             style={styles.introduceInput}
-                            value={position}
-                            onChangeText={setPosition}
+                            value={personalInfo.position}
+                            onChangeText={(text) => handlePersonalChange('position', text)}
                         />
 
                         <Text style={styles.textInput}>Email <Text style={{ color: 'red' }}>*</Text></Text>
@@ -294,47 +379,46 @@ export default function ResumeInput({ route, navigation }) {
                             style={styles.introduceInput}
                             keyboardType="email-address"
                             autoCapitalize="none"
-                            value={email}
-                            onChangeText={setEmail}
+                            value={personalInfo.email}
+                            onChangeText={(text) => handlePersonalChange('email', text)}
                         />
 
                         <Text style={styles.textInput}>Số điện thoại <Text style={{ color: 'red' }}>*</Text></Text>
                         <TextInput
                             style={styles.introduceInput}
                             keyboardType="phone-pad"
-                            value={phone}
-                            onChangeText={setPhone}
+                            value={personalInfo.phone}
+                            onChangeText={(text) => handlePersonalChange('phone', text)}
                         />
 
                         <Text style={styles.textInput}>Giới tính</Text>
                         <Dropdown
                             data={GenderData}
-                            onSelect={(item) => setGender(item.title)}
+                            onSelect={(item) => handlePersonalChange('gender', item.title)}
                             placeholder="Chọn giới tính"
                             buttonStyle={{
                                 height: 50,
                                 borderWidth: 2,
                                 borderColor: grey,
-                                with: '100%',
+                                width: '100%',
                             }}
                         />
 
                         <Text style={styles.textInput}>Ngày sinh <Text style={{ color: 'red' }}>*</Text></Text>
                         <TextInput
                             style={styles.introduceInput}
-                            placeholder="DD/MM/YYYY"
-                            keyboardType="numeric"
-                            onChangeText={setDateOfBirth}
-                            value={dateOfBirth}
+                            placeholder="dd/mm/yyyy"
+                            value={personalInfo.dateOfBirth}
+                            onChangeText={(text) => handlePersonalChange('dateOfBirth', text)}
                         />
 
                         <Text style={styles.textInput}>Địa chỉ <Text style={{ color: 'red' }}>*</Text></Text>
                         <Dropdown
                             data={provinces.map(province => ({ title: province.full_name, id: province.id }))}
                             onSelect={(item) => {
-                                setSelectedProvinceId(item.id);
-                                setSelectedDistrictId('');
-                                setSelectedWardId('');
+                                handleAddressChange('province', item.title);
+                                handleAddressChange('district', '');
+                                handleAddressChange('ward', '');
                                 fetchDistricts(item.id);
                             }}
                             placeholder="Chọn tỉnh/thành phố"
@@ -349,12 +433,12 @@ export default function ResumeInput({ route, navigation }) {
                         <Dropdown
                             data={districts.map(district => ({ title: district.full_name, id: district.id }))}
                             onSelect={(item) => {
-                                setSelectedDistrictId(item.id);
-                                setSelectedWardId('');
+                                handleAddressChange('district', item.title);
+                                handleAddressChange('ward', '');
                                 fetchWards(item.id);
                             }}
                             placeholder="Chọn quận/huyện"
-                            disabled={!selectedProvinceId}
+                            disabled={!personalInfo.address.province}
                             buttonStyle={{
                                 width: '100%',
                                 height: 50,
@@ -367,10 +451,10 @@ export default function ResumeInput({ route, navigation }) {
                         <Dropdown
                             data={wards.map(ward => ({ title: ward.full_name, id: ward.id }))}
                             onSelect={(item) => {
-                                setSelectedWardId(item.id);
+                                handleAddressChange('ward', item.title);
                             }}
                             placeholder="Chọn phường/xã"
-                            disabled={!selectedDistrictId}
+                            disabled={!personalInfo.address.district}
                             buttonStyle={{
                                 width: '100%',
                                 height: 50,
@@ -383,37 +467,51 @@ export default function ResumeInput({ route, navigation }) {
                         <Text style={styles.textInput}>Github </Text>
                         <TextInput
                             style={styles.introduceInput}
-                            keyboardType="url"  // Nhập URL
+                            keyboardType="url"
                             autoCapitalize="none"
-                            value={githubLink}
-                            onChangeText={setGithubLink}
+                            value={personalInfo.githubLink}
+                            onChangeText={(text) => handlePersonalChange('githubLink', text)}
                         />
                     </View>
-
                 </View>
 
-                <View ref={sectionRefs.education} style={StyleShare.manageJob}>
+
+                <View style={StyleShare.manageJob}>
                     <Text style={StyleShare.titleText16}>Học vấn <Text style={{ color: 'red' }}>*</Text></Text>
+                    {educationInfo.map((item) => (
+                        <View
+                            key={item.id}
+                            style={[StyleShare.flexBetween, { marginBottom: 5 }]}>
+                            <Text style={{ flex: 1, fontWeight: '500' }}>{item.schoolName}</Text>
+
+                            <TouchableOpacity onPress={() => handleDeleteEducation(item.id)}>
+                                <Icon name="trash-outline" size={20} color="red" />
+                            </TouchableOpacity>
+                        </View>
+                    ))}
                     <TouchableOpacity style={styles.inputAddNew} onPress={() => { setModalEducation(true) }}>
                         <Text style={{ fontWeight: 'bold', color: orange }}>Thêm mới</Text>
                     </TouchableOpacity>
                 </View>
 
-                <View ref={sectionRefs.experience} style={StyleShare.manageJob}>
-                    <Text style={StyleShare.titleText16}>Kinh nghiệm làm việc</Text>
-                    <TouchableOpacity style={styles.inputAddNew} onPress={() => navigation.navigate('ResumeExperience')}>
-                        <Text style={{ fontWeight: 'bold', color: orange }}>Thêm mới</Text>
-                    </TouchableOpacity>
-                </View>
 
-                <View ref={sectionRefs.skills} style={StyleShare.manageJob}>
+
+                <View style={StyleShare.manageJob}>
                     <Text style={StyleShare.titleText16}>Kỹ năng <Text style={{ color: 'red' }}>*</Text></Text>
                     <View style={{ marginTop: 10 }}>
-                        {skillValue.map((item, index) => (
+                        {skillInfo.map((item, index) => (
                             <View
                                 key={index}
                                 style={[StyleShare.flexBetween, { marginBottom: 5 }]}>
-                                <Text style={{ flex: 1 }}>{item.group}: {item.skills.join(', ')}</Text>
+                                <Text style={{ flex: 1 }}>
+                                    {item.groupSkill}:{' '}
+                                    {item.skillList.map((skill, idx) => (
+                                        <Text key={idx}>
+                                            {skill}{idx < item.skillList.length - 1 ? ', ' : ''}
+                                        </Text>
+                                    ))}
+                                </Text>
+
                                 <TouchableOpacity onPress={() => handleDeleteSkill(index)}>
                                     <Icon name="trash-outline" size={20} color="red" />
                                 </TouchableOpacity>
@@ -425,15 +523,9 @@ export default function ResumeInput({ route, navigation }) {
                     </TouchableOpacity>
                 </View>
 
-                <View ref={sectionRefs.projects} style={StyleShare.manageJob}>
-                    <Text style={StyleShare.titleText16}>Dự án</Text>
-                    <TouchableOpacity style={styles.inputAddNew} onPress={() => navigation.navigate('ResumeProject')}>
-                        <Text style={{ fontWeight: 'bold', color: orange }}>Thêm mới</Text>
-                    </TouchableOpacity>
-                </View>
             </ScrollView>
             <TouchableOpacity style={[StyleShare.flexCenter, { backgroundColor: mainColor, padding: 15, marginBottom: 10, marginHorizontal: 20, borderRadius: 10 }]} onPress={() => handleSubmit()}>
-                <Text style={[StyleShare.titleText16, { color: 'white' }]}>Xem trước CV</Text>
+                <Text style={[StyleShare.titleText16, { color: 'white' }]}>Tiếp tục</Text>
             </TouchableOpacity>
         </View>
     );

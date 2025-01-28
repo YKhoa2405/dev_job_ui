@@ -9,10 +9,12 @@ import UIHeader from '../../components/UIHeader';
 import { mainColor, orange, white } from '../../assets/themes/Color';
 import { ToastMess } from '../../components/ToastMess';
 import StyleShare from '../../assets/themes/StyleShare';
+import { useSelector } from 'react-redux';
 
-export default function ResumeTemplates({ route, navigation }) {
-    const { ResumeData } = route.params;
+export default function ResumeTemplates({ navigation }) {
+    const { personalInfo, experiences, projects, educations, skills } = useSelector((state) => state.resume);
     const [htmlContent, setHtmlContent] = useState('');
+
 
     const templates = [
         { id: '1', name: 'Mẫu 1', source: require('../../assets/templates/cv_template1.html') },
@@ -24,23 +26,75 @@ export default function ResumeTemplates({ route, navigation }) {
             const asset = Asset.fromModule(templateAsset);
             await asset.downloadAsync();
             const fileUri = asset.localUri || asset.uri;
-            let content = await FileSystem.readAsStringAsync(fileUri, { encoding: 'utf8' });
 
-            // Chèn dữ liệu người dùng
+            // Read template file
+            let content = await FileSystem.readAsStringAsync(fileUri, { encoding: 'utf8' });
+            console.log(educations)
+            // Prepare Resume Data
+            const ResumeData = {
+                fullName: personalInfo?.fullName || '',
+                position: personalInfo?.position || '',
+                dateOfBirth: personalInfo?.dateOfBirth || '',
+                phone: personalInfo?.phone || '',
+                email: personalInfo?.email || '',
+                githubLink: personalInfo?.githubLink || '',
+                location: `${personalInfo?.address?.ward || ''}, ${personalInfo?.address?.district || ''}, ${personalInfo?.address?.province || ''}`,
+                educations: educations
+                    .map(
+                        (edu) => `
+                        <p><strong>${edu.schoolName} (${edu.startDate} - ${edu.endDate})</strong></p>
+                        <p>${edu.major}</p>
+                                                <p>${edu.description}</p>
+                    `
+                    )
+                    .join(''),
+                experiences: experiences
+                    .map(
+                        (exp) => `
+                        <p><strong>${exp.company} (${exp.startDate} - ${exp.endDate})</strong></p>
+                        <p><strong>${exp.position}</strong></p>
+                        <p>${exp.description}</p>
+                    `
+                    )
+                    .join(''),
+                projects: projects
+                    .map(
+                        (proj) => `
+                        <li><strong>${proj.name}</strong> (${proj.startDate} - ${proj.endDate}) - 
+                        <a href="${proj.github}" class="project-link">${proj.github}</a></li>
+                    `
+                    )
+                    .join(''),
+                skills: skills
+                    .map(
+                        (skill) => `
+                        <li>${skill.groupSkill}: ${skill.skillList}</li>
+                    `
+                    )
+                    .join('')
+            };;
+
+            console.log(educations)
+            // Replace placeholders
             Object.keys(ResumeData).forEach((key) => {
                 content = content.replace(new RegExp(`{{${key}}}`, 'g'), ResumeData[key] || '');
             });
 
             setHtmlContent(content);
         } catch (error) {
-            console.error('Lỗi khi tải template:', error);
+            console.error('Error loading template:', error);
             ToastMess({ type: 'error', text1: 'Không thể tải mẫu CV.' });
         }
     };
 
+
+
     useEffect(() => {
-        loadTemplate(templates[0].source);
-    }, []);
+        if (personalInfo && experiences && projects && educations && skills) {
+            loadTemplate(templates[0].source);
+        }
+    }, [personalInfo, experiences, projects, educations, skills]);
+
 
     const handleCreatePDF = async () => {
         try {
@@ -55,7 +109,7 @@ export default function ResumeTemplates({ route, navigation }) {
         <View style={StyleShare.container}>
             <UIHeader leftIcon="arrow-back" title="Xem trước CV" handleLeftIcon={navigation.goBack} />
             <FlatList
-            style={{ marginHorizontal: 10 }}
+                style={{ marginHorizontal: 10 }}
                 horizontal
                 data={templates}
                 keyExtractor={(item) => item.id}

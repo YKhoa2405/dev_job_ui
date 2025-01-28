@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV - {{resumeName}}</title>
+    <title>CV</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,10 +36,17 @@
         }
         ul {
             list-style-type: disc;
-            padding-left: 20px; /* Thêm khoảng cách từ lề trái cho danh sách có dấu chấm đầu dòng */
+            padding-left: 20px;
         }
         ul li {
             margin-bottom: 10px;
+        }
+        .project-link {
+            color: #2c3e50;
+            text-decoration: none;
+        }
+        .project-link:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -48,6 +55,7 @@
         <h1>{{fullName}}</h1>
         <p>{{position}}</p>
     </div>
+
     <div class="contact-info">
         <p>{{dateOfBirth}} | {{phone}} | <a href="mailto:{{email}}">{{email}}</a></p>
         <p>{{location}} | <a href="{{githubLink}}">{{githubLink}}</a></p>
@@ -55,48 +63,25 @@
 
     <div class="section">
         <div class="section-title">EDUCATION</div>
-        <p><strong>{{ University Name }} ({{ Start Date }} - {{ End Date }})</strong></p>
-        <ul>
-            <li>Completed coursework in Mobile Programming, Modern Programming Technologies, Database Management, Data Structures.</li>
-            <li>GPA: {{ GPA }}</li>
-            <li>Led team projects and often appointed as team leader.</li>
-        </ul>
+        {{educations}}
     </div>
 
     <div class="section">
         <div class="section-title">WORK EXPERIENCE</div>
-        
-        <div>
-            <p><strong>{{ Company Name }} ({{ Start Date }} - {{ End Date }})</strong></p>
-            <p><strong>{{ Job Title Experience}}</strong></p>
-            <ul>
-                <li>Developed and optimized mobile applications using React Native, integrating Firebase for data management.</li>
-                <li>Assisted in UI/UX design using Figma, ensuring smooth user experience on both iOS and Android platforms.</li>
-                <li>Contributed to building APIs using Django Rest Framework for authentication and user management.</li>
-                <li>Collaborated with the QA team to test and fix bugs during the development process.</li>
-                <li>Utilized Git for version control and effective teamwork.</li>
-            </ul>
-        </div>
-
+        {{experiences}}
     </div>
-    
 
     <div class="section">
         <div class="section-title">PROJECTS</div>
         <ul>
-            <li><strong>HeyJob App</strong> (Sep 2024 – Oct 2024) - <a href="https://github.com/YKhoa2405/HeyJobUI.git">GitHub Link</a></li>
-            <li><strong>Chat App</strong> (Aug 2024 – Sep 2024) - <a href="https://github.com/YKhoa2405/ChatApp.git">GitHub Link</a></li>
-            <li><strong>Share The Journey</strong> (Apr 2024 – Jun 2024) - <a href="https://github.com/YKhoa2405/JourneyManageApp.git">GitHub Link</a></li>
+            {{projects}}
         </ul>
     </div>
 
     <div class="section">
         <div class="section-title">SKILLS</div>
         <ul>
-            <li>Programming languages: JavaScript, Python</li>
-            <li>Frameworks: React Native, Django, Flask</li>
-            <li>Databases: MySQL</li>
-            <li>Tools: Git, Firebase, Figma</li>
+            {{skills}}
         </ul>
     </div>
 </body>

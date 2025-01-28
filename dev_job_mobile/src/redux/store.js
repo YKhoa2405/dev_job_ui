@@ -4,6 +4,7 @@ import companySlice from './slice/companySlice'
 import cvSLice from './slice/cvSLice'
 import jobSlice from './slice/jobSlice'
 import saveJobSlice from './slice/saveJobSlice'
+import resumeSlice from './slice/resumeSlice'
 
 
 
@@ -15,5 +16,7 @@ export const store = configureStore({
         cv: cvSLice,
         job: jobSlice,
         saveJob: saveJobSlice,
+        resume: resumeSlice,
+
     },
 })
