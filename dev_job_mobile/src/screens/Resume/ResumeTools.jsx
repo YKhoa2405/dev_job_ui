@@ -139,7 +139,7 @@ export default function ResumeTools({ navigation }) {
                         {cvData && cvData.length > 0 ? (
                             <>
                                 {cvData.map((cv) => (
-                                    <TouchableOpacity key={cv._id} style={styles.cvContainer} onPress={() => navigation.navigate('CvView', { cvUrl: cv.url })}>
+                                    <TouchableOpacity key={cv._id} style={styles.cvContainer} onPress={() => navigation.navigate('ResumeClientView', { pdfUri: cv.url })}>
                                         <View style={StyleShare.flexBetween}>
                                             <Text style={StyleShare.titleText16}>
                                                 {cv.name.length > 32

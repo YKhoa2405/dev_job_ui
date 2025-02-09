@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { Asset } from 'expo-asset';
 import UIHeader from '../../components/UIHeader';
 import { mainColor, orange, white } from '../../assets/themes/Color';
 import { ToastMess } from '../../components/ToastMess';
 import StyleShare from '../../assets/themes/StyleShare';
 import { useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { authApi, endpoints } from '../../assets/config/API';
 
 export default function ResumeTemplates({ navigation }) {
     const { personalInfo, experiences, projects, educations, skills } = useSelector((state) => state.resume);
     const [htmlContent, setHtmlContent] = useState('');
-
+    const [loading, setLoading] = useState(false);
 
     const templates = [
         { id: '1', name: 'Mẫu 1', source: require('../../assets/templates/cv_template1.html') },
@@ -26,10 +28,8 @@ export default function ResumeTemplates({ navigation }) {
             const asset = Asset.fromModule(templateAsset);
             await asset.downloadAsync();
             const fileUri = asset.localUri || asset.uri;
-
             // Read template file
             let content = await FileSystem.readAsStringAsync(fileUri, { encoding: 'utf8' });
-            console.log(educations)
             // Prepare Resume Data
             const ResumeData = {
                 fullName: personalInfo?.fullName || '',
@@ -37,52 +37,61 @@ export default function ResumeTemplates({ navigation }) {
                 dateOfBirth: personalInfo?.dateOfBirth || '',
                 phone: personalInfo?.phone || '',
                 email: personalInfo?.email || '',
+                gender: personalInfo?.gender || '',
                 githubLink: personalInfo?.githubLink || '',
                 location: `${personalInfo?.address?.ward || ''}, ${personalInfo?.address?.district || ''}, ${personalInfo?.address?.province || ''}`,
-                educations: educations
+                educations: (Array.isArray(educations[0]) ? educations[0] : educations)
                     .map(
                         (edu) => `
-                        <p><strong>${edu.schoolName} (${edu.startDate} - ${edu.endDate})</strong></p>
-                        <p>${edu.major}</p>
-                                                <p>${edu.description}</p>
+                        <p style="display: flex; justify-content: space-between;">
+                            <strong>${edu.schoolName}</strong>
+                            <strong>(${edu.startDate} - ${edu.endDate})</strong>
+                        </p>
+                        <p>Major: ${edu.major}</p>
+                        <p>${edu.description}</p>
                     `
                     )
                     .join(''),
-                experiences: experiences
+                experiences: (Array.isArray(experiences[0]) ? experiences[0] : experiences)
                     .map(
-                        (exp) => `
-                        <p><strong>${exp.company} (${exp.startDate} - ${exp.endDate})</strong></p>
-                        <p><strong>${exp.position}</strong></p>
-                        <p>${exp.description}</p>
+                        (ex) => `
+                        <p style="display: flex; justify-content: space-between;">
+                            <strong>${ex.company}</strong>
+                            <strong>(${ex.startDate} - ${ex.endDate})</strong>
+                        </p>
+                        <p>Position: ${ex.position}</p>
+                        <p>${ex.description}</p>
                     `
                     )
                     .join(''),
-                projects: projects
+
+                projects: (Array.isArray(projects[0]) ? projects[0] : projects)
                     .map(
-                        (proj) => `
-                        <li><strong>${proj.name}</strong> (${proj.startDate} - ${proj.endDate}) - 
-                        <a href="${proj.github}" class="project-link">${proj.github}</a></li>
+                        (pr) => `
+                        <p style="display: flex; justify-content: space-between;">
+                            <strong>${pr.name} (<a>${pr.github}</a>)</strong>
+                            <strong>(${pr.startDate} - ${pr.endDate})</strong>
+                        </p>
+                        <p>${pr.description}</p>
                     `
                     )
                     .join(''),
-                skills: skills
+
+                skills: (Array.isArray(skills[0]) ? skills[0] : skills)
                     .map(
                         (skill) => `
-                        <li>${skill.groupSkill}: ${skill.skillList}</li>
+                        <li><strong>${skill.groupSkill || ''}</strong>: ${Array.isArray(skill.skillList) ? skill.skillList.join(', ') : skill.skillList || ''}</li>
                     `
                     )
                     .join('')
             };;
 
-            console.log(educations)
-            // Replace placeholders
             Object.keys(ResumeData).forEach((key) => {
                 content = content.replace(new RegExp(`{{${key}}}`, 'g'), ResumeData[key] || '');
             });
 
             setHtmlContent(content);
         } catch (error) {
-            console.error('Error loading template:', error);
             ToastMess({ type: 'error', text1: 'Không thể tải mẫu CV.' });
         }
     };
@@ -96,18 +105,68 @@ export default function ResumeTemplates({ navigation }) {
     }, [personalInfo, experiences, projects, educations, skills]);
 
 
+
+
     const handleCreatePDF = async () => {
         try {
+            setLoading(true);
+            const fileName = `CV_${personalInfo?.nameCV || 'Unknown'}.pdf`.replace(/\s+/g, '_');
+            const fileUri = `${FileSystem.cacheDirectory}${fileName}`;
+
+            // Tạo file PDF
             const { uri } = await Print.printToFileAsync({ html: htmlContent });
-            await Sharing.shareAsync(uri, { mimeType: 'application/pdf' });
+
+            // Di chuyển file vào cache để có đường dẫn rõ ràng
+            await FileSystem.moveAsync({
+                from: uri,
+                to: fileUri,
+            });
+
+            // Kiểm tra xem có hỗ trợ chia sẻ file không
+            // if (await Sharing.isAvailableAsync()) {
+            //     await Sharing.shareAsync(fileUri, { mimeType: 'application/pdf' });
+            // } else {
+            //     alert('Thiết bị không hỗ trợ chia sẻ file.');
+            // }
+
+            await handleUploadCV(fileUri, fileName);
+
         } catch (error) {
-            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra khi tạo PDF.' });
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
+            console.log(error);
+        } finally {
+            setLoading(false);
         }
     };
 
+
+    const handleUploadCV = async (fileUri, fileName) => {
+        try {
+            const formData = new FormData();
+            formData.append('name', fileName);
+            formData.append('url', {
+                uri: fileUri,
+                name: fileName,
+                type: 'application/pdf',
+            });
+
+            const token = await AsyncStorage.getItem('access_token');
+            await authApi(token).post(endpoints['uploadCV'], formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+
+            ToastMess({ type: 'success', text1: 'Tải lên thành công!' });
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+
+
     return (
         <View style={StyleShare.container}>
-            <UIHeader leftIcon="arrow-back" title="Xem trước CV" handleLeftIcon={navigation.goBack} />
+            <UIHeader leftIcon="arrow-back" title="Chọn mẫu CV" handleLeftIcon={navigation.goBack} />
             <FlatList
                 style={{ marginHorizontal: 10 }}
                 horizontal
@@ -122,9 +181,14 @@ export default function ResumeTemplates({ navigation }) {
             <View style={styles.cvContainer}>
                 <WebView originWhitelist={['*']} source={{ html: htmlContent }} style={styles.webview} />
             </View>
-            <TouchableOpacity style={[StyleShare.flexCenter, { backgroundColor: mainColor, padding: 15, marginBottom: 10, marginHorizontal: 20, borderRadius: 10 }]} onPress={() => handleCreatePDF()}>
-                <Text style={[StyleShare.titleText16, { color: 'white' }]}>Tải xuống/View PDF</Text>
-            </TouchableOpacity>
+            {loading ? <ActivityIndicator size="large" color={orange} /> :
+                <TouchableOpacity style={[StyleShare.flexCenter, { backgroundColor: mainColor, padding: 15, marginBottom: 10, marginHorizontal: 20, borderRadius: 10 }]} onPress={() => handleCreatePDF()}>
+                    <Text style={[StyleShare.titleText16, { color: 'white' }]}>Chia sẻ CV / Tải lên CV</Text>
+                </TouchableOpacity>
+            }
+            {/* <TouchableOpacity style={[StyleShare.flexCenter, { backgroundColor: mainColor, padding: 15, marginBottom: 10, marginHorizontal: 20, borderRadius: 10 }]} onPress={() => handleUploadCV()}>
+                <Text style={[StyleShare.titleText16, { color: 'white' }]}>Tải lên CV</Text>
+            </TouchableOpacity> */}
         </View>
     );
 }

@@ -103,8 +103,22 @@ export default function ResumeExperience({ navigation }) {
                             multiline
                             numberOfLines={8}
                             value={exp.description}
-                            onChangeText={(text) => handleInputChange(index, 'description', text)}
+                            onChangeText={(text) => {
+                                if (text.trim() === "") {
+                                    handleInputChange(index, 'description', "");
+                                    return;
+                                }
+                                let formattedText = text
+                                    .split('\n')
+                                    .map(line => line.startsWith('- ') ? line : `- ${line}`)
+                                    .join('\n');
+
+                                handleInputChange(index, 'description', formattedText);
+                            }}
                         />
+
+
+
                     </View>
                 ))}
                 <TouchableOpacity style={[StyleShare.flexCenter, styles.saveButton, { backgroundColor: orange }]} onPress={handleAddExperience}>

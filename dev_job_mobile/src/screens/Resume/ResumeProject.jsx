@@ -30,12 +30,12 @@ export default function ResumeProject({ navigation }) {
     };
 
     const handleSave = () => {
-        for (const project of projects) {
-            if (!project.name || !project.description || !project.startDate || !project.endDate || !project.github) {
-                ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
-                return;
-            }
-        }
+        // for (const project of projects) {
+        //     if (!project.name || !project.description || !project.startDate || !project.endDate || !project.github) {
+        //         ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
+        //         return;
+        //     }
+        // }
 
         dispatch(addProject(projects));
         navigation.navigate('ResumeTemplates');
@@ -98,13 +98,27 @@ export default function ResumeProject({ navigation }) {
                         />
 
                         <Text style={styles.textInput}>Mô tả chi tiết <Text style={{ color: 'red' }}>*</Text></Text>
+
                         <TextInput
                             style={[styles.introduceInput, { height: 120, textAlignVertical: 'top' }]}
                             value={project.description}
                             multiline
                             numberOfLines={8}
-                            onChangeText={(text) => handleInputChange(index, 'description', text)}
+                            onChangeText={(text) => {
+                                if (text.trim() === "") {
+                                    handleInputChange(index, 'description', "");
+                                    return;
+                                }
+
+                                let formattedText = text
+                                    .split('\n')
+                                    .map(line => line.startsWith('- ') ? line : `- ${line}`)
+                                    .join('\n');
+
+                                handleInputChange(index, 'description', formattedText);
+                            }}
                         />
+
                     </View>
                 ))}
 

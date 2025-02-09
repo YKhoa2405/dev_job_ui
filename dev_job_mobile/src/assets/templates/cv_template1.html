@@ -53,11 +53,11 @@
 <body>
     <div class="header">
         <h1>{{fullName}}</h1>
-        <p>{{position}}</p>
+        <h3>{{position}}</h3>
     </div>
 
     <div class="contact-info">
-        <p>{{dateOfBirth}} | {{phone}} | <a href="mailto:{{email}}">{{email}}</a></p>
+        <p>{{dateOfBirth}} | {{phone}} | {{gender}} <a href="mailto:{{email}}">{{email}}</a></p>
         <p>{{location}} | <a href="{{githubLink}}">{{githubLink}}</a></p>
     </div>
 
@@ -73,9 +73,8 @@
 
     <div class="section">
         <div class="section-title">PROJECTS</div>
-        <ul>
-            {{projects}}
-        </ul>
+        {{projects}}
+
     </div>
 
     <div class="section">

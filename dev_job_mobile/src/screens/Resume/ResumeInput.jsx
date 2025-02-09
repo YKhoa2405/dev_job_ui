@@ -22,6 +22,7 @@ export default function ResumeInput({ route, navigation }) {
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
     const [personalInfo, setPersonalInfo] = useState({
+        nameCV: '',
         fullName: '',
         position: '',
         email: '',
@@ -128,7 +129,7 @@ export default function ResumeInput({ route, navigation }) {
         setSkillInfo(prevSkillInfo =>
             prevSkillInfo.filter((_, idx) => idx !== groupIndex)
         );
-        
+
     };
 
     // personalInfo
@@ -187,10 +188,10 @@ export default function ResumeInput({ route, navigation }) {
 
     const handleSubmit = () => {
         if (
+            !personalInfo.nameCV.trim() ||
             !personalInfo.fullName.trim() ||
             !personalInfo.email.trim() ||
             !personalInfo.phone.trim() ||
-            !personalInfo.dateOfBirth.trim() ||
             !personalInfo.dateOfBirth.trim() ||
             !personalInfo.position.trim() ||
             !personalInfo.gender.trim()
@@ -337,14 +338,28 @@ export default function ResumeInput({ route, navigation }) {
                     />
 
                     {/* Mô tả */}
-                    <Text style={styles.textInput}>Mô tả </Text>
+                    <Text style={styles.textInput}>Mô tả</Text>
+
                     <TextInput
                         value={education.description}
-                        onChangeText={(value) => handleEducationChange('description', value)}
+                        onChangeText={(text) => {
+                            if (text.trim() === "") {
+                                handleEducationChange('description', ""); // Không thêm "- " nếu người dùng xóa hết
+                                return;
+                            }
+
+                            let formattedText = text
+                                .split('\n') // Chia từng dòng
+                                .map(line => line.startsWith('- ') ? line : `- ${line}`) // Thêm "- " nếu thiếu
+                                .join('\n');
+
+                            handleEducationChange('description', formattedText);
+                        }}
                         style={[styles.introduceInput, { height: 120, textAlignVertical: 'top' }]}
                         multiline
                         numberOfLines={8}
                     />
+
 
                     {/* Nút lưu */}
                     <View style={{ marginTop: 20 }}></View>
@@ -357,6 +372,15 @@ export default function ResumeInput({ route, navigation }) {
                 title={'Thông tin chung'}
                 handleLeftIcon={() => { navigation.goBack() }} />
             <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={StyleShare.manageJob}>
+                    <Text style={styles.textInput}>Tên CV <Text style={{ color: 'red' }}>*</Text></Text>
+                    <TextInput
+                        style={styles.introduceInput}
+                        value={personalInfo.nameCV}
+                        onChangeText={(text) => handlePersonalChange('nameCV', text)}
+                        placeholder="Nhập tên CV, chỉ gồm chữ, số, _"
+                    />
+                </View>
                 <View style={StyleShare.manageJob}>
                     <Text style={StyleShare.titleText16}>Thông tin cá nhân:</Text>
                     <View style={{ marginTop: 10 }}>
@@ -391,6 +415,26 @@ export default function ResumeInput({ route, navigation }) {
                             onChangeText={(text) => handlePersonalChange('phone', text)}
                         />
 
+
+
+                        <Text style={styles.textInput}>Ngày sinh <Text style={{ color: 'red' }}>*</Text></Text>
+                        <TextInput
+                            style={styles.introduceInput}
+                            placeholder="dd/mm/yyyy"
+                            value={personalInfo.dateOfBirth}
+                            onChangeText={(text) => handlePersonalChange('dateOfBirth', text)}
+                        />
+
+                        <Text style={styles.textInput}>Github </Text>
+                        <TextInput
+                            style={styles.introduceInput}
+                            keyboardType="url"
+                            autoCapitalize="none"
+                            value={personalInfo.githubLink}
+                            onChangeText={(text) => handlePersonalChange('githubLink', text)}
+                            placeholder='https://github.com/YKhoa2405'
+                        />
+
                         <Text style={styles.textInput}>Giới tính</Text>
                         <Dropdown
                             data={GenderData}
@@ -402,14 +446,6 @@ export default function ResumeInput({ route, navigation }) {
                                 borderColor: grey,
                                 width: '100%',
                             }}
-                        />
-
-                        <Text style={styles.textInput}>Ngày sinh <Text style={{ color: 'red' }}>*</Text></Text>
-                        <TextInput
-                            style={styles.introduceInput}
-                            placeholder="dd/mm/yyyy"
-                            value={personalInfo.dateOfBirth}
-                            onChangeText={(text) => handlePersonalChange('dateOfBirth', text)}
                         />
 
                         <Text style={styles.textInput}>Địa chỉ <Text style={{ color: 'red' }}>*</Text></Text>
@@ -464,14 +500,7 @@ export default function ResumeInput({ route, navigation }) {
                             }}
                         />
 
-                        <Text style={styles.textInput}>Github </Text>
-                        <TextInput
-                            style={styles.introduceInput}
-                            keyboardType="url"
-                            autoCapitalize="none"
-                            value={personalInfo.githubLink}
-                            onChangeText={(text) => handlePersonalChange('githubLink', text)}
-                        />
+
                     </View>
                 </View>
 
