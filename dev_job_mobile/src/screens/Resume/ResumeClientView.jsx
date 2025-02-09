@@ -14,10 +14,9 @@ const ResumeClientView = ({ route, navigation }) => {
 
     const handleDownloadFile = async () => {
         try {
-            const fileName = pdfUri.split('/').pop(); // Lấy tên file từ đường dẫn
+            const fileName = pdfUri.split('/').pop();
             const fileUri = `${FileSystem.documentDirectory}${fileName}`;
 
-            // Tải file về bộ nhớ cục bộ
             const { uri } = await FileSystem.downloadAsync(pdfUri, fileUri);
 
             ToastMess({ type: 'success', text1: 'Tải xuống thành công.' });

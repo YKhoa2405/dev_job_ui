@@ -128,7 +128,7 @@ export default function ResumeProject({ navigation }) {
             </ScrollView>
 
             <TouchableOpacity style={[StyleShare.flexCenter, styles.saveButton]} onPress={handleSave}>
-                <Text style={[StyleShare.titleText16, { color: white }]}>Lưu</Text>
+                <Text style={[StyleShare.titleText16, { color: white }]}>Tiếp tục</Text>
             </TouchableOpacity>
         </View>
     );
