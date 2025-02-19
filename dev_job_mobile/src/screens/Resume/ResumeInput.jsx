@@ -13,9 +13,11 @@ import API, { endpoints } from '../../assets/config/API';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useDispatch } from 'react-redux';
 import { addEducation, addPersonalInfo, addSkill, deleteEducation } from '../../redux/slice/resumeSlice';
+import { geminiService } from '../../assets/config/GeminiService';
 
 export default function ResumeInput({ route, navigation }) {
     const dispatch = useDispatch();
+    const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
 
     const [provinces, setProvinces] = useState([]);
@@ -37,8 +39,6 @@ export default function ResumeInput({ route, navigation }) {
         githubLink: '',
     });
 
-
-
     const [skills, setSkills] = useState([]); // hứng danh sách kỹ năng từ api\
     const [newGroup, setNewGroup] = useState('');
     const [selectedSkills, setSelectedSkills] = useState([]);
@@ -57,7 +57,6 @@ export default function ResumeInput({ route, navigation }) {
 
     const [isModalSkill, setModalSkill] = useState(false);
     const [isModalEducation, setModalEducation] = useState(false);
-
 
     const GenderData = [
         { title: 'Nam ' },
@@ -180,6 +179,28 @@ export default function ResumeInput({ route, navigation }) {
         }));
     };
 
+    const handleGenerateExample = async () => {
+        setLoading(true);
+        try {
+            const school = education.schoolName.trim();
+            const major = education.major.trim();
+
+            if (!school || !major) {
+                Alert.alert('Thông báo', 'Vui lòng nhập đầy đủ thông tin.');
+                return;
+            }
+
+            const prompt = `Viết mô tả học vấn cho sinh viên ngành ${major} tại ${school}, ngắn gọn, sử dụng gạch đầu dòng. Bỏ tiêu đề, chỉ liệt kê nội dung.`;
+
+            const response = await geminiService(prompt);
+
+            handleEducationChange('description', response);
+        } catch { } finally {
+            setLoading(false);
+        }
+
+    };
+
     const handleDeleteEducation = (id) => {
         setEducationInfo(prevList => prevList.filter(education => education.id !== id));
         dispatch(deleteEducation({ id }));
@@ -187,28 +208,28 @@ export default function ResumeInput({ route, navigation }) {
 
 
     const handleSubmit = () => {
-        if (
-            !personalInfo.nameCV.trim() ||
-            !personalInfo.fullName.trim() ||
-            !personalInfo.email.trim() ||
-            !personalInfo.phone.trim() ||
-            !personalInfo.dateOfBirth.trim() ||
-            !personalInfo.position.trim() ||
-            !personalInfo.gender.trim()
-        ) {
-            ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
-            return;
-        }
+        // if (
+        //     !personalInfo.nameCV.trim() ||
+        //     !personalInfo.fullName.trim() ||
+        //     !personalInfo.email.trim() ||
+        //     !personalInfo.phone.trim() ||
+        //     !personalInfo.dateOfBirth.trim() ||
+        //     !personalInfo.position.trim() ||
+        //     !personalInfo.gender.trim()
+        // ) {
+        //     ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
+        //     return;
+        // }
 
-        if (educationInfo.length === 0) {
-            ToastMess({ type: 'error', text1: 'Vui lòng thêm ít nhất một học vấn.' });
-            return;
-        }
+        // if (educationInfo.length === 0) {
+        //     ToastMess({ type: 'error', text1: 'Vui lòng thêm ít nhất một học vấn.' });
+        //     return;
+        // }
 
-        if (skillInfo.length === 0) {
-            ToastMess({ type: 'error', text1: 'Vui lòng thêm ít nhất một kĩ nắng.' });
-            return;
-        }
+        // if (skillInfo.length === 0) {
+        //     ToastMess({ type: 'error', text1: 'Vui lòng thêm ít nhất một kĩ nắng.' });
+        //     return;
+        // }
 
 
         dispatch(addEducation(educationInfo));
@@ -338,7 +359,16 @@ export default function ResumeInput({ route, navigation }) {
                     />
 
                     {/* Mô tả */}
-                    <Text style={styles.textInput}>Mô tả</Text>
+                    <View style={StyleShare.flexBetween}>
+                        <Text style={styles.textInput}>Mô tả</Text>
+                        {loading ? (
+                            <Text style={{ color: 'grey', fontWeight: 'bold' }}>Đang tải...</Text>
+                        ) : (
+                            <TouchableOpacity onPress={() => handleGenerateExample()}>
+                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Ví dụ</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
 
                     <TextInput
                         value={education.description}
@@ -347,17 +377,11 @@ export default function ResumeInput({ route, navigation }) {
                                 handleEducationChange('description', ""); // Không thêm "- " nếu người dùng xóa hết
                                 return;
                             }
-
-                            let formattedText = text
-                                .split('\n') // Chia từng dòng
-                                .map(line => line.startsWith('- ') ? line : `- ${line}`) // Thêm "- " nếu thiếu
-                                .join('\n');
-
-                            handleEducationChange('description', formattedText);
+                            handleEducationChange('description', text);
                         }}
-                        style={[styles.introduceInput, { height: 120, textAlignVertical: 'top' }]}
+                        style={[styles.introduceInput, { height: 200, textAlignVertical: 'top' }]}
                         multiline
-                        numberOfLines={8}
+                        numberOfLines={12}
                     />
 
 
@@ -395,6 +419,7 @@ export default function ResumeInput({ route, navigation }) {
                         <TextInput
                             style={styles.introduceInput}
                             value={personalInfo.position}
+                            placeholder='Frontend Developer, Backend Developer, ...'
                             onChangeText={(text) => handlePersonalChange('position', text)}
                         />
 

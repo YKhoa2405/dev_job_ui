@@ -8,18 +8,18 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { useDispatch } from 'react-redux';
 import { addExperience } from '../../redux/slice/resumeSlice';
 import { ToastMess } from '../../components/ToastMess';
+import { geminiService } from '../../assets/config/GeminiService';
 
 
 export default function ResumeExperience({ navigation }) {
+    const [loading, setLoading] = useState(false);
     const [experiences, setExperiences] = useState([
         { id: new Date().getTime(), company: '', position: '', description: '', startDate: '', endDate: '' }
     ]);
 
     const dispatch = useDispatch();
 
-
     const handleAddExperience = () => {
-
         setExperiences([
             ...experiences,
             { id: new Date().getTime(), company: '', position: '', description: '', startDate: '', endDate: '' }
@@ -36,6 +36,28 @@ export default function ResumeExperience({ navigation }) {
         setExperiences(updated);
     };
 
+    const handleGenerateExample = async (index) => {
+        setLoading(true);
+        try {
+
+            const position = experiences[index].position.trim();
+            const company = experiences[index].company.trim();
+
+            if (!position || !company) {
+                ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin!' });
+                return;
+            }
+
+            const prompt = `Viết mô tả công việc cho vị trí ${position} tại ${company}, ngắn gọn, sử dụng gạch đầu dòng, bỏ các tiêu đề.`;
+            const response = await geminiService(prompt);
+
+            handleInputChange(index, 'description', response);
+        } finally {
+            setLoading(false);
+        }
+
+    };
+
     const handleSave = () => {
         for (const exp of experiences) {
             if (!exp.company || !exp.position || !exp.startDate || !exp.endDate) {
@@ -43,7 +65,6 @@ export default function ResumeExperience({ navigation }) {
                 return;
             }
         }
-
         dispatch(addExperience(experiences));
         navigation.navigate('ResumeProject')
     };
@@ -97,11 +118,20 @@ export default function ResumeExperience({ navigation }) {
                             value={exp.position}
                             onChangeText={(text) => handleInputChange(index, 'position', text)}
                         />
-                        <Text style={styles.textInput}>Mô tả chi tiết cho chức vụ này</Text>
+                        <View style={StyleShare.flexBetween}>
+                            <Text style={styles.textInput}>Mô tả chi tiết cho chức vụ này</Text>
+                            {loading ? (
+                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Đang tải...</Text>
+                            ) : (
+                                <TouchableOpacity onPress={() => handleGenerateExample(index)}>
+                                    <Text style={{ color: 'grey', fontWeight: 'bold' }}>Ví dụ</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
                         <TextInput
-                            style={[styles.introduceInput, { height: 120, textAlignVertical: 'top' }]}
+                            style={[styles.introduceInput, { height: 200, textAlignVertical: 'top' }]}
                             multiline
-                            numberOfLines={8}
+                            numberOfLines={12}
                             value={exp.description}
                             onChangeText={(text) => {
                                 if (text.trim() === "") {

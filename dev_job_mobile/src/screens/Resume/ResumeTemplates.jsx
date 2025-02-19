@@ -48,7 +48,12 @@ export default function ResumeTemplates({ navigation }) {
                             <strong>(${edu.startDate} - ${edu.endDate})</strong>
                         </p>
                         <p>Major: ${edu.major}</p>
-                        <p>${edu.description}</p>
+                        <p>
+                            ${ex.description
+                                .split('\n') // Tách từng dòng
+                                .map((line) => `${line.trim()}`) // Thêm dấu '-' đầu dòng
+                                .join('<br>')} 
+                        </p>
                     `
                     )
                     .join(''),
@@ -60,7 +65,12 @@ export default function ResumeTemplates({ navigation }) {
                             <strong>(${ex.startDate} - ${ex.endDate})</strong>
                         </p>
                         <p>Position: ${ex.position}</p>
-                        <p>${ex.description}</p>
+                        <p>
+                            ${ex.description
+                                .split('\n') // Tách từng dòng
+                                .map((line) => `${line.trim()}`) // Thêm dấu '-' đầu dòng
+                                .join('<br>')} 
+                        </p>
                     `
                     )
                     .join(''),
@@ -72,7 +82,12 @@ export default function ResumeTemplates({ navigation }) {
                             <strong>${pr.name} (<a>${pr.github}</a>)</strong>
                             <strong>(${pr.startDate} - ${pr.endDate})</strong>
                         </p>
-                        <p>${pr.description}</p>
+                        <p>
+                            ${pr.description
+                                .split('\n') // Tách từng dòng
+                                .map((line) => `${line.trim()}`) // Thêm dấu '-' đầu dòng
+                                .join('<br>')} 
+                        </p>
                     `
                     )
                     .join(''),
@@ -122,14 +137,8 @@ export default function ResumeTemplates({ navigation }) {
                 to: fileUri,
             });
 
-            // Kiểm tra xem có hỗ trợ chia sẻ file không
-            // if (await Sharing.isAvailableAsync()) {
-            //     await Sharing.shareAsync(fileUri, { mimeType: 'application/pdf' });
-            // } else {
-            //     alert('Thiết bị không hỗ trợ chia sẻ file.');
-            // }
-
             await handleUploadCV(fileUri, fileName);
+            navigation.navigate('ResumeTool');
 
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
@@ -183,7 +192,7 @@ export default function ResumeTemplates({ navigation }) {
             </View>
             {loading ? <ActivityIndicator size="large" color={orange} /> :
                 <TouchableOpacity style={[StyleShare.flexCenter, { backgroundColor: mainColor, padding: 15, marginBottom: 10, marginHorizontal: 20, borderRadius: 10 }]} onPress={() => handleCreatePDF()}>
-                    <Text style={[StyleShare.titleText16, { color: 'white' }]}>Chia sẻ CV / Tải lên CV</Text>
+                    <Text style={[StyleShare.titleText16, { color: 'white' }]}>Hoàn thành</Text>
                 </TouchableOpacity>
             }
             {/* <TouchableOpacity style={[StyleShare.flexCenter, { backgroundColor: mainColor, padding: 15, marginBottom: 10, marginHorizontal: 20, borderRadius: 10 }]} onPress={() => handleUploadCV()}>

@@ -8,6 +8,9 @@ export const azuze_map_primary_key_api = "FaqJhLIckgPjz6XjhcxZfxsRukcyNyZhHJzRZ8
 export const clinet_id_google = "239735618406-cm48vh19b18p843uju9anq2jtsnha7ek.apps.googleusercontent.com"
 
 
+export const api_key_gemini = "AIzaSyCJbQIrPPeWjdEXlNAZITcUfyWlWAOvp90";
+
+
 // Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDFRUrMi8QbQmzrUOEHCmbVwyqKVpveuV8",

@@ -8,8 +8,10 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { useDispatch } from 'react-redux';
 import { addProject } from '../../redux/slice/resumeSlice';
 import { ToastMess } from '../../components/ToastMess';
+import { geminiService } from '../../assets/config/GeminiService';
 
 export default function ResumeProject({ navigation }) {
+    const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
     const [projects, setProjects] = useState([
         { id: new Date().getTime(), name: '', startDate: '', endDate: '', github: '', description: '' }
@@ -29,18 +31,39 @@ export default function ResumeProject({ navigation }) {
         setProjects(updatedProjects);
     };
 
+    const handleGenerateExample = async (index) => {
+        setLoading(true);
+        try {
+
+            const name = projects[index].name.trim();
+            if (!name) {
+                ToastMess({ type: 'error', text1: 'Vui lòng nhập tên dự án!' });
+                return;
+            }
+
+            const prompt = `Viết mô tả chi tiết cho dự án ${name}, ngắn gọn, sử dụng gạch đầu dòng, bỏ các tiêu đề.`;
+            const response = await geminiService(prompt);
+
+            handleInputChange(index, 'description', response);
+        } catch (error) {
+
+        } finally {
+            setLoading(false);
+        }
+
+    };
+
     const handleSave = () => {
-        // for (const project of projects) {
-        //     if (!project.name || !project.description || !project.startDate || !project.endDate || !project.github) {
-        //         ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
-        //         return;
-        //     }
-        // }
+        for (const project of projects) {
+            if (!project.name || !project.description || !project.startDate || !project.endDate || !project.github) {
+                ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
+                return;
+            }
+        }
 
         dispatch(addProject(projects));
         navigation.navigate('ResumeTemplates');
     };
-
 
     return (
         <View style={StyleShare.container}>
@@ -97,13 +120,21 @@ export default function ResumeProject({ navigation }) {
                             onChangeText={(text) => handleInputChange(index, 'github', text)}
                         />
 
-                        <Text style={styles.textInput}>Mô tả chi tiết <Text style={{ color: 'red' }}>*</Text></Text>
-
+                        <View style={StyleShare.flexBetween}>
+                            <Text style={styles.textInput}>Mô tả ngắn gọn về dự án <Text style={{ color: 'red' }}>*</Text></Text>
+                            {loading ? (
+                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Đang tải...</Text>
+                            ) : (
+                                <TouchableOpacity onPress={() => handleGenerateExample(index)}>
+                                    <Text style={{ color: 'grey', fontWeight: 'bold' }}>Ví dụ</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
                         <TextInput
-                            style={[styles.introduceInput, { height: 120, textAlignVertical: 'top' }]}
+                            style={[styles.introduceInput, { height: 200, textAlignVertical: 'top' }]}
                             value={project.description}
                             multiline
-                            numberOfLines={8}
+                            numberOfLines={12}
                             onChangeText={(text) => {
                                 if (text.trim() === "") {
                                     handleInputChange(index, 'description', "");
