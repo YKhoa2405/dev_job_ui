@@ -53,6 +53,7 @@ import ResumeExperience from './src/screens/Resume/ResumeExperience';
 import ResumeProject from './src/screens/Resume/ResumeProject';
 import ResumeTemplates from './src/screens/Resume/ResumeTemplates';
 import ResumeClientView from './src/screens/Resume/ResumeClientView';
+import ChatBot from './src/screens/Chat/ChatBot';
 
 
 
@@ -103,6 +104,8 @@ export default function App() {
 
           <Stack.Screen name="ChatDetail" component={ChatDetail} />
           <Stack.Screen name="Chat" component={Chat} />
+          <Stack.Screen name="ChatBot" component={ChatBot} />
+
 
           <Stack.Screen name="Services" component={Services} />
           <Stack.Screen name="ServicesByCompany" component={ServicesByCompany} />

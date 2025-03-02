@@ -9,6 +9,8 @@ const HOST = 'http://192.168.1.120:8000';
 
 
 export const endpoints = {
+    // 
+    'scanCV': 'http://192.168.1.120:8001/api/extract-text',
     // auths
     'login': '/auth/login',
     'loginGoogle': '/auth/google/',
@@ -87,6 +89,7 @@ export const endpoints = {
 
     // cv
     'uploadCV': '/cv/upload',
+    'cvDetail': (cvId) => `/cv/${cvId}`,
     'cvByUser': (userId) => `/cv/${userId}`
 
 };

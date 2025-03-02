@@ -17,7 +17,7 @@ export default function Chat({ navigation, route }) {
     const [searchKeywork, setSearchKeywork] = useState('')
     const [loading, setLoading] = useState(true)
     const [chatRooms, setChatRooms] = useState([]);
-    
+
     async function getListUserReceiver(userId) {
         const userDoc = await getDoc(doc(storeDb, 'users', userId));
         return userDoc.exists() ? userDoc.data() : null;
@@ -87,7 +87,6 @@ export default function Chat({ navigation, route }) {
 
                         </View>
                         <Text style={{ marginTop: 5 }} ellipsizeMode="tail" numberOfLines={1}>{isSender ? `Bạn: ${item.lastMessage.text}` : item.lastMessage.text}</Text>
-
                     </View>
                 </View>
             </TouchableWithoutFeedback >
@@ -111,8 +110,8 @@ export default function Chat({ navigation, route }) {
                         onSubmitEditing={() => navigation.navigate('JobSearch', { query: searchContent })}
                     />
                 </View>
-
             </View>
+
             <View>
                 {loading ? (
                     <ActivityIndicator color={orange} size={'large'} />
@@ -131,6 +130,9 @@ export default function Chat({ navigation, route }) {
                     />
                 )}
             </View>
+            <TouchableOpacity style={styles.chatBotContainer} onPress={() => navigation.navigate('ChatBot', { userId: currentUserId })}>
+                <Avatar.Image source={require('../../assets/images/happy.png')} size={60} style={{ marginEnd: 15 }} />
+            </TouchableOpacity>
         </View>
     );
 }
@@ -160,5 +162,10 @@ const styles = StyleSheet.create({
     },
     icSearchChat: {
         marginRight: 5
+    },
+    chatBotContainer: {
+        position: 'absolute',
+        bottom: 30,
+        right: 10,
     }
 });

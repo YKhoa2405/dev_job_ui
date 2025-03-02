@@ -78,7 +78,7 @@ export default function Login({ navigation }) {
             };
             let data = {
                 password: '123456',
-                username: 'ungvien@gmail.com',
+                username: 'ungvien2@gmail.com',
                 // username: 'nhatuyendung1@gmail.com',
                 // password: 'caichyrua11',
             };

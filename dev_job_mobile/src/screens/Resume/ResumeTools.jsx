@@ -13,8 +13,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { ToastMess } from "../../components/ToastMess";
 import * as DocumentPicker from 'expo-document-picker';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { authApi, endpoints } from "../../assets/config/API";
+import API, { authApi, endpoints } from "../../assets/config/API";
 import { fetchListCvByUser } from "../../redux/slice/cvSLice";
+import axios from "axios";
 
 export default function ResumeTools({ navigation }) {
     const dispatch = useDispatch()
@@ -71,16 +72,21 @@ export default function ResumeTools({ navigation }) {
                 });
 
                 const token = await AsyncStorage.getItem('access_token');
-                await authApi(token).post(endpoints['uploadCV'], formData, {
+                const res = await authApi(token).post(endpoints['uploadCV'], formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
 
                 dispatch(fetchListCvByUser(user?._id));
+                if (res.data.data.url) {
+                    await handScanCV(res.data.data.url, res.data.data._id);
+                }
+
             } else {
                 ToastMess({ type: 'error', text1: 'Chỉ hỗ trợ định dạng pdf, docx' });
             }
+
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
             console.log(error);
@@ -88,6 +94,27 @@ export default function ResumeTools({ navigation }) {
             setLoading(false);
         }
     };
+
+    const handScanCV = async (pdfUrl, cvId) => {
+        try {
+            const res = await API.post(endpoints['scanCV'],
+                { pdf_url: pdfUrl },  // Gửi dữ liệu vào body JSON
+                { headers: { 'Content-Type': 'application/json' } }  // Định dạng JSON
+            );
+            const processed = res.data.processed_text;
+            if (processed) {
+                const token = await AsyncStorage.getItem('access_token');
+                await authApi(token).patch(endpoints['cvDetail'](cvId), {
+                    processedText: processed,
+                });
+            }
+        } catch (error) {
+            console.log('Error:', error.response?.data || error.message);
+        }
+    };
+
+
+
 
     return (
         <View style={{ flex: 1 }}>
@@ -108,7 +135,7 @@ export default function ResumeTools({ navigation }) {
                         title={'Tạo mới CV'}
                         backgroundColor={mainColor}
                         textColor={white}
-                        onPress={()=>navigation.navigate('ResumeInput')}
+                        onPress={() => navigation.navigate('ResumeInput')}
                     />
                 </View>
 
