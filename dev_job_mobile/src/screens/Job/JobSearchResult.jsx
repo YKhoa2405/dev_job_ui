@@ -13,14 +13,13 @@ import UIHeader from "../../components/UIHeader";
 import Modal from "react-native-modal";
 import axios from "axios";
 import Button from "../../components/Button";
-import { useDispatch, useSelector } from "react-redux";
 
 export default function JobSearchResult({ navigation, route }) {
 
     const { searchKeywork } = route.params;
-    const [level, setLevel] = useState('')
-    const [salary, setSalary] = useState('')
-    const [jobType, setJobType] = useState('')
+    const [level, setLevel] = useState(null)
+    const [salary, setSalary] = useState(null)
+    const [jobType, setJobType] = useState(null)
     const [selectedProvinceId, setSelectedProvinceId] = useState('');
     const [provinces, setProvinces] = useState([]);
 
@@ -84,15 +83,15 @@ export default function JobSearchResult({ navigation, route }) {
         const searchQuery = searchKeywork ? `/${searchKeywork}/i` : '';
         try {
             const token = await AsyncStorage.getItem("access_token");
-            const res = await authApi(token).get(endpoints['jobsByClient'], {
+            const res = await authApi(token).get(endpoints['jobsSearchKey'], {
                 params: {
                     page: currentPage,
                     limit: limit,
-                    // name: searchQuery,
-                    // level: level,
-                    // salary: salary,
-                    // jobType: jobType,
-                    // city: selectedProvinceId,
+                    skills: searchQuery,
+                    level: level,
+                    salary: salary,
+                    jobType: jobType,
+                    city: selectedProvinceId,
                 },
             });
             const data = res.data.data;
@@ -139,7 +138,7 @@ export default function JobSearchResult({ navigation, route }) {
                 </View>
                 <View style={StyleShare.technologyContainer}>
                     <Chip style={StyleShare.chip}>{item.city}</Chip>
-                    <Chip style={StyleShare.chip}>{item.level}</Chip>
+                    <Chip style={StyleShare.chip}>{item.jobType}</Chip>
                     {item.skills.map((s, index) => (
                         <Chip key={index} style={StyleShare.chip}>
                             {s}
@@ -271,8 +270,8 @@ export default function JobSearchResult({ navigation, route }) {
                                 <Text style={{ padding: 20, textAlign: 'center' }}>Bạn hãy thử thay đổi từ khóa hoặc loại bỏ bớt tiêu chí lọc và thử lại </Text>
                             </View>
                         }
-                        onEndReached={loadMoreJobs} // Gọi khi đến cuối danh sách
-                        onEndReachedThreshold={0.7} // Ngưỡng để kích hoạt loadMore
+                        onEndReached={loadMoreJobs}
+                        onEndReachedThreshold={0.7}
                         ListFooterComponent={
                             loadingMore ? (
                                 <Loading />

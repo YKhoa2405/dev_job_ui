@@ -61,7 +61,6 @@ export default function JobSearch({ navigation }) {
             const response = await API.get(endpoints['suggestions'], {
                 params: { query }
             });
-            console.log(response.data.data);
             setSuggestions(
                 response.data.data.map((suggestion) => ({ text: suggestion }))
             );
@@ -109,6 +108,11 @@ export default function JobSearch({ navigation }) {
                     onChangeText={setQuery}
                     placeholder="Nhập từ khóa để tìm kiếm ..."
                     onFocus={() => setShowSuggestions(true)}
+                    onSubmitEditing={() => {
+                        setShowSuggestions(false);
+                        navigation.navigate('JobSearchResult', { searchKeywork: query });
+                    }}
+                    autoFocus={true}
                 />
             </View>
 
