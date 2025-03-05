@@ -17,7 +17,6 @@ export default function ChatBot({ navigation, route }) {
 
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [loadingMain, setLoadingMain] = useState(false);
 
 
     // Lấy lịch sử chat từ Firebase
@@ -44,7 +43,7 @@ export default function ChatBot({ navigation, route }) {
         };
 
         const unsubscribe = fetchMessages();
-        return () => unsubscribe(); // Hủy lắng nghe khi rời khỏi màn hình
+        return () => unsubscribe();
     }, [userId]);
 
     // Hiển thị loading khi bot trả lời

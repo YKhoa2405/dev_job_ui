@@ -63,7 +63,6 @@ export default function JobApplied({ navigation }) {
         return (
             <TouchableWithoutFeedback>
                 <View style={StyleShare.jobItemContainer}>
-                    {/* Phần thông tin công ty */}
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Avatar.Image
                             size={36}

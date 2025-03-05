@@ -11,6 +11,7 @@ const HOST = 'http://192.168.1.120:8000';
 export const endpoints = {
     // 
     'scanCV': 'http://192.168.1.120:8001/api/extract-text',
+    'recommend': 'http://192.168.1.120:8001/api/recommend',
     // auths
     'login': '/auth/login',
     'loginGoogle': '/auth/google/',
@@ -31,6 +32,10 @@ export const endpoints = {
     // subscribers
     'subscribers': '/subscribers',
     'subscribersDetail': (subId) => `/subscribers/${subId}`,
+
+    // suggestions
+    'suggestions': '/suggestions',
+    'popularSuggestions': '/suggestions/popular',
 
     //services
     'services': '/services',
@@ -54,12 +59,9 @@ export const endpoints = {
     'followDetail': (companyId) => `/follows/${companyId}`,
     'followSaved': (companyId) => `/follows/${companyId}/isSaved`,
 
-
-
     // jobs
     'jobs': '/jobs',
-    'jobsByClient': '/jobs/client',
-
+    'jobsSearchKey': '/jobs/searchkey',
     'jobsNearBy': (latitude, longitude, distance) => `http://192.168.1.120:8000/jobs/nearby?latitude=${latitude}&longitude=${longitude}&radius=${distance}`,
     'jobsByCompany': (companyId) => `/jobs/${companyId}/jobs`,
     'jobDetail': (jobId) => `/jobs/${jobId}`,

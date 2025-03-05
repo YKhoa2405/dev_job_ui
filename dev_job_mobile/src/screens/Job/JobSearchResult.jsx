@@ -17,8 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 export default function JobSearchResult({ navigation, route }) {
 
-    // const { searchKeywork } = route.params;
-    const searchKeywork = 'Công ty';
+    const { searchKeywork } = route.params;
     const [level, setLevel] = useState('')
     const [salary, setSalary] = useState('')
     const [jobType, setJobType] = useState('')
@@ -132,7 +131,7 @@ export default function JobSearchResult({ navigation, route }) {
         <TouchableWithoutFeedback key={item._id} onPress={() => { navigation.navigate('JobDetail', { jobId: item._id }) }}>
             <View style={StyleShare.jobItemContainer}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Avatar.Image source={{ uri: item.companyId.avatar || 'https://example.com/default-avatar.png' }} size={50} style={{ backgroundColor: 'white', marginRight:5 }} />
+                    <Avatar.Image source={{ uri: item.companyId.avatar || 'https://example.com/default-avatar.png' }} size={50} style={{ backgroundColor: 'white', marginRight: 5 }} />
                     <View>
                         <Text style={StyleShare.titleText16}>{item.name}</Text>
                         <Text style={{ marginTop: 5 }}>{item.companyId.name}</Text>
@@ -158,8 +157,6 @@ export default function JobSearchResult({ navigation, route }) {
             </View>
         </TouchableWithoutFeedback>
     );
-
-
 
 
     return (
@@ -245,13 +242,13 @@ export default function JobSearchResult({ navigation, route }) {
             </Modal>
             <UIHeader
                 leftIcon={"arrow-back"}
-                handleLeftIcon={() => { navigation.goBack() }} />
+                handleLeftIcon={() => { navigation.navigate('JobSearch') }} />
             <View style={{ flex: 1 }}>
                 <View style={{ marginHorizontal: 20 }}>
                     <View style={[StyleShare.flexBetween, { marginBottom: 10 }]}>
                         <TouchableOpacity onPress={() => navigation.navigate('JobSearch')} style={StyleShare.searchHome}>
                             <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
-                            <Text>Search</Text>
+                            <Text>{searchKeywork}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.searchMap} onPress={() => setModalVisible(true)}>
                             <Icon name="options" size={20} color={white} />
