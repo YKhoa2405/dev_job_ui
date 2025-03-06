@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { api_key_gemini } from './Key';
 
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${api_key_gemini}`;
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${api_key_gemini}`;
 
 
 export const geminiService = async (prompt) => {

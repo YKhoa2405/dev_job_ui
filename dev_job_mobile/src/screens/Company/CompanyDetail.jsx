@@ -57,7 +57,6 @@ export default function CompanyDetail({ navigation, route }) {
 
             setSaved(!saved);
         } catch (err) {
-            console.error("Error toggling follow status:", err);
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
 
         } finally {

@@ -20,7 +20,6 @@ export default function ResumeByJob({ navigation, route }) {
     const dispatch = useDispatch()
     const jobDetail = useSelector((state) => state.job.jobDetail);
     const status = useSelector((state) => state.job.status);
-    console.log(jobId)
     useEffect(() => {
         if (jobId) {
             dispatch(fetchJobDetail(jobId));
@@ -146,7 +145,6 @@ export default function ResumeByJob({ navigation, route }) {
                 setCurrentPage(data.meta.currentPage);
                 setTotalPages(data.meta.totalPages);
                 setTotalItems(data.meta.totalItems);
-                console.log(data)
             } catch (error) {
                 console.log('Error fetching companies:', error);
             } finally {

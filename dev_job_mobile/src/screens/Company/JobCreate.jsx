@@ -12,14 +12,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import MultiSelect from 'react-native-multiple-select';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { ToastMess } from "../../components/ToastMess";
+import { geminiService } from '../../assets/config/GeminiService';
 
 
 
 export default function JobCreate({ navigation, route }) {
-    const {companyId}= route.params
+    const { companyId } = route.params
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [selectedDateType, setSelectedDateType] = useState(null);
     const [loading, setLoading] = useState(false)
+    const [loadingE, setLoadingE] = useState(false)
+    const [loadingR, setLoadingR] = useState(false)
+
+
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
@@ -256,6 +261,60 @@ export default function JobCreate({ navigation, route }) {
             setLoading(false)
         }
     };
+
+    const handleGenerateDescription = async () => {
+        setLoadingE(true);
+        try {
+            if (!name || !level || !jobType) {
+                ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
+                return;
+            }
+
+            const salaryInfo = salary ? `Mức lương: ${salary}` : 'Mức lương: Thỏa thuận';
+
+            const prompt = `
+            Viết mô tả công việc ngắn gọn cho vị trí ${name} 
+            cấp độ ${level}, loại hình ${jobType}.
+            ${salaryInfo}.
+            Số lượng tuyển dụng: ${quantity} người.
+            ${selectedSkills.length > 0 ? `Yêu cầu kỹ năng: ${selectedSkills.join(', ')}.` : ''}
+            Mô tả ngắn gọn, sử dụng gạch đầu dòng (-). Bỏ tiêu đề, chỉ liệt kê nội dung.
+            Tập trung vào mô tả trách nhiệm, yêu cầu công việc và lợi ích.
+          `;
+
+            const response = await geminiService(prompt);
+            setDescription(response);
+            console.log(response);
+        } catch (error) {
+            console.error('Lỗi khi tạo mô tả công việc:', error);
+        } finally {
+            setLoadingE(false);
+        }
+    };
+
+    const handleGenerateRequirements = async () => {
+        setLoadingR(true); // Giả định bạn có state loadingR để quản lý trạng thái tải
+        try {
+            const prompt = `
+                Viết yêu cầu ứng viên ngắn gọn cho vị trí ${name || 'công việc này'} 
+                cấp độ ${level}, loại hình ${jobType} tại ${city || 'công ty'}.
+                ${selectedSkills.length > 0 ? `Kỹ năng cần có: ${selectedSkills.join(', ')}.` : ''}
+                Mô tả ngắn gọn, sử dụng gạch đầu dòng (-). Bỏ tiêu đề, chỉ liệt kê nội dung.
+                Tập trung vào các yêu cầu:
+                - Trình độ học vấn
+                - Kinh nghiệm làm việc
+                - Kỹ năng chuyên môn
+                - Kỹ năng mềm
+                - Các phẩm chất cá nhân phù hợp với vị trí
+              `;
+            const response = await geminiService(prompt);
+            setRequirement(response);
+        } catch (error) {
+            console.log("Lỗi khi tạo yêu cầu ứng viên:", error.response?.data || error.message);
+        } finally {
+            setLoadingR(false);
+        }
+    };
     return (
         <View style={StyleShare.container}>
             <UIHeader leftIcon={"arrow-back"}
@@ -452,23 +511,43 @@ export default function JobCreate({ navigation, route }) {
                         />
                     </View>
 
-                    <Text style={styles.textInput}>Mô tả công việc</Text>
+                    <View style={StyleShare.flexBetween}>
+                        <Text style={styles.textInput}>Mô tả</Text>
+                        {loadingE ? (
+                            <Text style={{ color: 'grey', fontWeight: 'bold' }}>Đang tải...</Text>
+                        ) : (
+                            <TouchableOpacity onPress={() => handleGenerateDescription()}>
+                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Ví dụ</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                     <TextInput
                         style={styles.introduceInput}
                         placeholder="Mô tả về công việc ..."
                         onChangeText={setDescription}
                         multiline={true}
-                        numberOfLines={7}
+                        numberOfLines={10}
+                        value={description}
                         textAlignVertical="top"
                     />
-                    <Text style={styles.textInput}>Yêu cầu ứng viên</Text>
+                    <View style={StyleShare.flexBetween}>
+                        <Text style={styles.textInput}>Yêu cầu ứng viên</Text>
+                        {loadingR ? (
+                            <Text style={{ color: 'grey', fontWeight: 'bold' }}>Đang tải...</Text>
+                        ) : (
+                            <TouchableOpacity onPress={() => handleGenerateRequirements()}>
+                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Ví dụ</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                     <TextInput
                         style={styles.introduceInput}
                         placeholder="Yêu cầu công việc dành cho ứng viên ..."
                         onChangeText={setRequirement}
                         multiline={true}
-                        numberOfLines={7}
+                        numberOfLines={15}
                         textAlignVertical="top"
+                        value={requirement}
                     />
                     <Text style={styles.textInput}>Ưu tiên</Text>
                     <TextInput
@@ -476,7 +555,7 @@ export default function JobCreate({ navigation, route }) {
                         placeholder="Ưu tiên tuyển dụng ..."
                         onChangeText={setPrioritize}
                         multiline={true}
-                        numberOfLines={7}
+                        numberOfLines={15}
                         textAlignVertical="top"
                     />
                     <View style={{ marginTop: 20 }}></View>
@@ -501,7 +580,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: mainColor,
         marginTop: 20,
-        marginBottom: 5
+        marginBottom: 10
     },
 
     introduceInput: {

@@ -11,11 +11,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ToastMess } from "../../components/ToastMess";
 import * as ImagePicker from 'expo-image-picker';
 import { Avatar } from "react-native-paper";
+import { geminiService } from "../../assets/config/GeminiService";
 
 
 
 export default function CompanyCreate({ navigation }) {
     const [loading, setLoading] = useState(false)
+    const [loadingR, setLoadingR] = useState(false)
+
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
@@ -192,12 +195,35 @@ export default function CompanyCreate({ navigation }) {
 
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
-            console.log(error.response ? error.response.data : error.message); 
+            console.log(error.response ? error.response.data : error.message);
         }
         finally {
             setLoading(false)
         }
     };
+
+
+    const handleGenerateAbout = async () => {
+        setLoadingR(true);
+        try {
+            if (!name || !website) {
+                ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
+                return;
+            }
+            const prompt = `Tạo một mô tả ngắn gọn, chuyên nghiệp 
+                về công ty ${name}, lĩnh vực hoạt động ${field}, quy mô ${size}, và điểm nổi bật, hiển thị thành một đoạn văn bản.
+            `;
+            const response = await geminiService(prompt);
+            setAbout(response);
+        } catch (error) {
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
+            console.log("Lỗi:", error);
+        } finally {
+            setLoadingR(false);
+        }
+    };
+
+
 
 
     return (
@@ -316,14 +342,24 @@ export default function CompanyCreate({ navigation }) {
                         style={styles.introduceInput}
                     />
 
-                    <Text style={styles.textInput}>Giới thiệu</Text>
+                    <View style={StyleShare.flexBetween}>
+                        <Text style={styles.textInput}>Giới thiệu</Text>
+                        {loadingR ? (
+                            <Text style={{ color: 'grey', fontWeight: 'bold' }}>Đang tải...</Text>
+                        ) : (
+                            <TouchableOpacity onPress={() => handleGenerateAbout()}>
+                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Ví dụ</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                     <TextInput
                         style={styles.introduceInput}
                         placeholder="Giới thiệu về công ty"
                         onChangeText={setAbout}
                         multiline={true}
-                        numberOfLines={7}
+                        numberOfLines={15}
                         textAlignVertical="top"
+                        value={about}
                     />
                     <View style={{ marginTop: 20 }}></View>
                     {loading ? (
