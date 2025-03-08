@@ -54,6 +54,8 @@ import ResumeProject from './src/screens/Resume/ResumeProject';
 import ResumeTemplates from './src/screens/Resume/ResumeTemplates';
 import ResumeClientView from './src/screens/Resume/ResumeClientView';
 import ChatBot from './src/screens/Chat/ChatBot';
+import CandidatesCreate from './src/screens/Profile/CandidatesCreate';
+import CandidateSearch from './src/screens/Company/CandidateSearch';
 
 
 
@@ -98,6 +100,9 @@ export default function App() {
           <Stack.Screen name="ResumeExperience" component={ResumeExperience} />
           <Stack.Screen name="ResumeProject" component={ResumeProject} />
           <Stack.Screen name="ResumeTemplates" component={ResumeTemplates} />
+
+          <Stack.Screen name="CandidatesCreate" component={CandidatesCreate} />
+          <Stack.Screen name="CandidateSearch" component={CandidateSearch} />
 
 
 

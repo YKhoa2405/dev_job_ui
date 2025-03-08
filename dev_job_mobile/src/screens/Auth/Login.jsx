@@ -78,8 +78,8 @@ export default function Login({ navigation }) {
             };
             let data = {
                 password: '123456',
-                // username: 'ungvien2@gmail.com',
-                username: '2151050202khoa@ou.edu.vn',
+                // username: 'nykhoa2405@gmail.com', // ung vien
+                username: '2151050202khoa@ou.edu.vn', //nha tuyen dung
                 // password: 'caichyrua11',
             };
             let res = await API.post(endpoints['login'], data, { headers: header });

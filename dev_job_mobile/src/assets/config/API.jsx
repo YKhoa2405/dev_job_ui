@@ -54,6 +54,11 @@ export const endpoints = {
     'companyByUser': '/companies/user',
     'companiesDetail': (companyId) => `/companies/${companyId}`,
 
+    //candidates
+
+    'candidates': '/candidates',
+    'candidateDetail': (candidateId) => `/candidates/${candidateId}`,
+
     // follow
     'follows': '/follows',
     'followDetail': (companyId) => `/follows/${companyId}`,

@@ -72,15 +72,21 @@ export default function Profile({ navigation }) {
         <View style={StyleShare.container}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 30 }}>
                 <View style={styles.containerTop}>
+                    <View style={StyleShare.flexBetween}>
+
                     <Avatar.Image
-                        source={{ uri: user?.avatar }}
+                        source={{ uri: user?.avatar || 'https://via.placeholder.com/60' }} // Placeholder nếu không có avatar
                         size={60}
                         style={{ marginLeft: 40, marginRight: 20, backgroundColor: white }}
                     />
                     <View>
-                        <Text style={StyleShare.titleText16}>{user?.name}</Text>
-                        <Text >{user?.email}</Text>
+                        <Text style={StyleShare.titleText16}>{user?.name || 'Không có tên'}</Text>
+                        <Text>{user?.email || 'Không có email'}</Text>
                     </View>
+                    </View>
+                    <TouchableOpacity  style={{marginRight: 20}} onPress={() => navigation.navigate('CandidatesCreate', { user })}>
+                        <Icon name="pencil" size={24} color="grey" />
+                    </TouchableOpacity>
                 </View>
                 <View style={styles.containerMain}>
                     <View style={styles.manageJob}>
@@ -150,7 +156,7 @@ const styles = StyleSheet.create({
         marginTop: 30,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-start',
+        justifyContent: 'space-between',
         paddingVertical: 20,
         borderRadius: 10
     },

@@ -66,6 +66,7 @@ export default function HomeCompany({ navigation }) {
     const manageEmployers = [
         { id: 1, icon: 'megaphone-outline', title: 'Chiến dịch tuyển dụng' },
         { id: 2, icon: 'reader-outline', title: 'Quản lý tuyển dụng' },
+        { id: 3, icon: 'people-outline', title: 'Tìm kiếm ứng viên' },
         { id: 4, icon: 'podium-outline', title: 'Thống kê tuyển dụng' },
         { id: 5, icon: 'file-tray-stacked-outline', title: 'Dịch vụ của bạn' },
         { id: 6, icon: 'calendar-number-outline', title: 'Quản lý lịch trình' },
@@ -123,6 +124,9 @@ export default function HomeCompany({ navigation }) {
             case 2:
                 navigation.navigate('ResumeByCompany', { companyId: companyByUser._id })
                 break;
+            case 3:
+                navigation.navigate('CandidateSearch', { companyId: companyByUser._id })
+                break;
             case 4:
                 navigation.navigate('CompanyStatistical')
                 break;
@@ -144,7 +148,7 @@ export default function HomeCompany({ navigation }) {
                         <TouchableOpacity style={{ marginRight: 20 }}>
                             <Icon name="notifications-outline" size={26} color={mainColor} />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => navigation.navigate('Chat',{currentUserId: companyByUser._id})}>
+                        <TouchableOpacity onPress={() => navigation.navigate('Chat', { currentUserId: companyByUser._id })}>
                             <Icon name="chatbubble-outline" size={26} color={mainColor} />
                         </TouchableOpacity>
                     </View>

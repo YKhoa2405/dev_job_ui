@@ -1,19 +1,21 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
-import Icon from 'react-native-vector-icons/Ionicons'; // Đảm bảo bạn sử dụng đúng thư viện Icon
+import Icon from 'react-native-vector-icons/Ionicons'; // Đảm bảo đã cài react-native-vector-icons
 import StyleShare from '../assets/themes/StyleShare';
 
 const Dropdown = ({
-    data,
-    placeholder = 'Select your mood',
-    onSelect,
-    buttonStyle, // Add buttonStyle prop
+    data = [],                // Dữ liệu dropdown (mảng các object {title, id})
+    placeholder = 'Select an option', // Placeholder mặc định
+    onSelect,                // Callback khi chọn một mục
+    buttonStyle,             // Style tùy chỉnh cho nút
+    defaultValue = '',       // Giá trị mặc định (chuỗi title hoặc id)
 }) => {
     return (
         <SelectDropdown
             data={data}
-            onSelect={onSelect}
+            onSelect={(selectedItem, index) => onSelect(selectedItem, index)} // Truyền cả item và index
+            defaultValue={data.find(item => item.title === defaultValue) || null} // Tìm item khớp với defaultValue
             renderButton={(selectedItem, isOpened) => {
                 return (
                     <View style={[StyleShare.dropdownButtonStyle, buttonStyle]}>
@@ -45,6 +47,4 @@ const Dropdown = ({
     );
 };
 
-
 export default Dropdown;
-;
