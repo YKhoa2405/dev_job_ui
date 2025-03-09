@@ -132,7 +132,7 @@ export default function CandidateSearch({ navigation, route }) {
 
 
     const renderItem = ({ item }) => (
-        <TouchableWithoutFeedback key={item._id} onPress={() => { navigation.navigate('JobDetail', { jobId: item._id }) }}>
+        <TouchableWithoutFeedback key={item._id} onPress={() => { navigation.navigate('CandidatesProfile', { userId: item.userId }) }}>
             <View style={StyleShare.jobItemContainer}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Avatar.Image source={{ uri: item.avatar || 'https://via.placeholder.com/60' }} size={50} style={{ backgroundColor: 'white', marginRight: 5 }} />

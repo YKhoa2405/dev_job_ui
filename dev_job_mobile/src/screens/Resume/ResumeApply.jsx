@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Image, TextInput, ScrollView, StyleSheet, ActivityIndicator } from "react-native"
 import StyleShare from "../../assets/themes/StyleShare"
 import UIHeader from "../../components/UIHeader"
-import { bgButton2, grey, mainColor, white, orange } from "../../assets/themes/Color"
+import { bgButton2, grey, mainColor, white, orange, textColor } from "../../assets/themes/Color"
 import Icon from 'react-native-vector-icons/Ionicons'
 import { useDispatch, useSelector } from "react-redux"
 import { fetchListCvByUser } from "../../redux/slice/cvSLice"
@@ -139,21 +139,16 @@ export default function ResumeApply({ navigation, route }) {
                             {cvData.map((cv) => (
                                 <TouchableOpacity style={styles.cvContainer} key={cv._id} onPress={() => setSelectCvUrl(cv.url)}>
                                     <View style={StyleShare.flexBetween}>
-                                        <Text style={StyleShare.titleText16}>
-                                            {cv.name.length > 32
-                                                ? cv.name.slice(0, 32) + "..."
-                                                : cv.name}
-                                        </Text>
+                                        <Text style={{ color: textColor, fontWeight: '500' }}>{cv.name}</Text>
                                         <Icon name={
                                             selectCvUrl === cv.url
                                                 ? 'radio-button-on'
                                                 : 'radio-button-off'
                                         } size={20} color={orange} />
                                     </View>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-                                        <Icon name="time-outline" size={18} />
-                                        <Text style={{ marginHorizontal: 5 }}>{moment(cv.createdAt).format('DD/MM/YYYY')}</Text>
-                                    </View>
+                                    <Text style={{ color: 'grey', fontSize: 12 }}>
+                                        Tạo: {moment(cv.createdAt).format("DD/MM/YYYY")}
+                                    </Text>
                                 </TouchableOpacity>
                             ))}
                         </>
@@ -242,11 +237,15 @@ const styles = StyleSheet.create({
         backgroundColor: white
     },
     cvContainer: {
-        borderRadius: 10,
-        backgroundColor:'#f0eef8',
-        marginTop: 10,
-        padding: 10
+        borderRadius: 8,
+        marginVertical: 5,
+        backgroundColor: white,
+        marginVertical: 5,
+        padding: 10,
+        borderColor: bgButton2,
+        borderWidth: 1,
     },
+    
     selectCvContainer: {
         marginTop: 20,
         backgroundColor: white,

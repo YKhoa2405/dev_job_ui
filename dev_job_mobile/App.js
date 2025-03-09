@@ -56,6 +56,7 @@ import ResumeClientView from './src/screens/Resume/ResumeClientView';
 import ChatBot from './src/screens/Chat/ChatBot';
 import CandidatesCreate from './src/screens/Profile/CandidatesCreate';
 import CandidateSearch from './src/screens/Company/CandidateSearch';
+import CandidatesProfile from './src/screens/Profile/CandidatesProfile';
 
 
 
@@ -103,6 +104,8 @@ export default function App() {
 
           <Stack.Screen name="CandidatesCreate" component={CandidatesCreate} />
           <Stack.Screen name="CandidateSearch" component={CandidateSearch} />
+          <Stack.Screen name="CandidatesProfile" component={CandidatesProfile} />
+
 
 
 

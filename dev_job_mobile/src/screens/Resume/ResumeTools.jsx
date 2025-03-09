@@ -2,7 +2,7 @@
 import { View, Text, FlatList, Image, TouchableWithoutFeedback, ActivityIndicator, TouchableOpacity, TextInput, Alert } from "react-native";
 import UIHeader from "../../components/UIHeader";
 import { StyleSheet } from "react-native";
-import { mainColor, orange, white } from "../../assets/themes/Color";
+import { bgButton2, mainColor, orange, textColor, white } from "../../assets/themes/Color";
 import { Avatar } from "react-native-paper";
 import moment from "moment";
 import Icon from "react-native-vector-icons/Ionicons"
@@ -165,23 +165,22 @@ export default function ResumeTools({ navigation }) {
                     <View style={{ marginTop: 15 }}>
                         {cvData && cvData.length > 0 ? (
                             <>
-                                {cvData.map((cv) => (
-                                    <TouchableOpacity key={cv._id} style={styles.cvContainer} onPress={() => navigation.navigate('ResumeClientView', { pdfUri: cv.url })}>
-                                        <View style={StyleShare.flexBetween}>
-                                            <Text style={StyleShare.titleText16}>
-                                                {cv.name.length > 32
-                                                    ? cv.name.slice(0, 32) + "..."
-                                                    : cv.name}
+                                {cvData.map((item) => (
+                                    <TouchableOpacity
+                                        style={styles.cvItem}
+                                        onPress={() => navigation.navigate('ResumeClientView', { pdfUri: item.url })}
+                                        key={item._id}
+                                    >
+                                        <Icon name="document-outline" size={20} color={mainColor} />
+                                        <View style={{ marginLeft: 10, flex: 1 }}>
+                                            <Text style={{ color: textColor, fontWeight: '500' }}>{item.name}</Text>
+                                            <Text style={{ color: 'grey', fontSize: 12 }}>
+                                                Tạo: {moment(item.createdAt).format("DD/MM/YYYY")}
                                             </Text>
-                                            <TouchableOpacity onPress={() => handleDeleteCvByUser(cv._id)} style={{ zIndex: 999 }}>
-                                                <Icon name="trash-outline" size={22} color={'red'} />
-                                            </TouchableOpacity>
                                         </View>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-                                            <Icon name="time-outline" size={18} />
-                                            <Text style={{ marginHorizontal: 5 }}>{moment(cv.createdAt).format('DD/MM/YYYY')}</Text>
-                                        </View>
-
+                                        {item.isPimary && (
+                                            <Text style={{ color: orange, fontSize: 12, fontWeight: 'bold' }}>Chính</Text>
+                                        )}
                                     </TouchableOpacity>
                                 ))}
                             </>
@@ -202,11 +201,14 @@ const styles = StyleSheet.create({
         elevation: 3,
         marginBottom: 20
     },
-    cvContainer: {
-        borderRadius: 5,
-        marginBottom: 15,
-        padding: 10,
+    cvItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: white,
-        elevation: 2
+        padding: 10,
+        borderRadius: 8,
+        marginVertical: 5,
+        borderWidth: 1,
+        borderColor: bgButton2,
     },
 });
