@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, TouchableWithoutFeedback, Image, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, TouchableWithoutFeedback, Image, ActivityIndicator, SafeAreaViewBase } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons"
 import { mainColor, bgButton2, grey, orange, white } from "../../assets/themes/Color";
 import { Searchbar, Chip, Avatar } from "react-native-paper";
@@ -88,6 +88,7 @@ export default function CandidateSearch({ navigation, route }) {
         else setLoadingMore(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
+
             const res = await authApi(token).get(endpoints['candidates'], {
                 params: {
                     page: currentPage,
@@ -233,7 +234,7 @@ export default function CandidateSearch({ navigation, route }) {
                     <Dropdown
                         data={availabilityData}
                         onSelect={(item) => {
-                            setSelectedProvinceId(item.title);
+                            setAvailability(item.title);
                         }}
                         placeholder="Chọn trạng thái"
                         buttonStyle={{

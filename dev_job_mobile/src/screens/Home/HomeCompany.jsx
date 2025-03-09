@@ -56,9 +56,8 @@ export default function HomeCompany({ navigation }) {
                     avatar: avatar || '',
                 }, { merge: true });
             }
-            console.log("Empalouer saved successfully!");
         } catch (error) {
-            console.error('Error saving user:', error);
+            console.log('Error saving user:', error);
         }
     }
 
@@ -198,11 +197,11 @@ export default function HomeCompany({ navigation }) {
                             </View>
                         </TouchableOpacity>
 
+                        <Text style={[StyleShare.titleText16, { marginVertical: 20 }]}>
+                            Sau khi hoàn thành cập nhật thông tin, chúng tôi sẽ xem xét hồ hơ và xét duyệt tài khoản của bạn trong thời gian sớm nhất
+                        </Text>
                     </View>
                 )}
-                <Text style={[StyleShare.titleText16, { marginVertical: 20 }]}>
-                    Sau khi hoàn thành cập nhật thông tin, chúng tôi sẽ xem xét hồ hơ và xét duyệt tài khoản của bạn trong thời gian sớm nhất
-                </Text>
             </View>
 
             <View style={{ margin: 20 }}>

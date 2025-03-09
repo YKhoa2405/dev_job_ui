@@ -153,7 +153,6 @@ const StyleShare = StyleSheet.create({
         backgroundColor: white,
         borderRadius: 10,
         padding: 20,
-        backgroundColor: white,
         marginTop: 15,
         marginHorizontal: 20,
         elevation: 2

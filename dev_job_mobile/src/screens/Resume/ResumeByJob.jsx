@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Image, TextInput, ScrollView, StyleSheet, ActivityIndicator, FlatList } from "react-native"
 import StyleShare from "../../assets/themes/StyleShare"
 import UIHeader from "../../components/UIHeader"
-import { grey, mainColor, white, orange, textColor, green } from "../../assets/themes/Color"
+import { grey, mainColor, white, orange, textColor, green, bgButton2 } from "../../assets/themes/Color"
 import Icon from 'react-native-vector-icons/Ionicons'
 import { useDispatch, useSelector } from "react-redux"
 import moment from "moment"
@@ -13,95 +13,207 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
 import { fetchJobDetail } from "../../redux/slice/jobSlice"
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import Button from "../../components/Button"
+import { Avatar, Chip } from "react-native-paper"
+import Modal from "react-native-modal"
 
 export default function ResumeByJob({ navigation, route }) {
     const { jobId } = route.params;
     const Tab = createMaterialTopTabNavigator();
-    const dispatch = useDispatch()
-    const jobDetail = useSelector((state) => state.job.jobDetail);
-    const status = useSelector((state) => state.job.status);
-    useEffect(() => {
-        if (jobId) {
-            dispatch(fetchJobDetail(jobId));
-        }
-    }, [dispatch, jobId]);
 
-    const ProfileTab1 = () => (
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 10, flex: 1 }}>
-            {status === 'loading' ? <Loading /> : jobDetail ? (
-                <View>
-                    <Text style={StyleShare.titleText20}>{jobDetail?.name}</Text>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20, alignItems: 'center' }}>
-                        <View style={{ flex: 1 }}>
-                            <Text style={StyleShare.titleText16}>Loại hình công việc</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.jobType}</Text>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={StyleShare.titleText16}>Level</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.level}</Text>
-                        </View>
-                    </View>
+    const ProfileTab1 = () => {
+        const [modalVisible, setModalVisible] = useState(false);
+        const [loading, setLoading] = useState(false);
+        const [candidates, setCandidates] = useState([]);
+        const dispatch = useDispatch()
+        const jobDetail = useSelector((state) => state.job.jobDetail);
+        const status = useSelector((state) => state.job.status);
+        useEffect(() => {
+            if (jobId) {
+                dispatch(fetchJobDetail(jobId));
+            }
+        }, [dispatch, jobId]);
 
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
-                        <View style={{ flex: 1 }}>
-                            <Text style={StyleShare.titleText16}>Mức lương</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.salary}</Text>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={StyleShare.titleText16}>Số lượng tuyển</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.quantity}</Text>
-                        </View>
-                    </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
-                        <View style={{ flex: 1 }}>
-                            <Text style={StyleShare.titleText16}>Ngày hết hạn</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{moment(jobDetail?.endDate).format('DD/MM/YYYY')}</Text>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={StyleShare.titleText16}>Kĩ năng</Text>
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 5 }}>
-                                {jobDetail.skills.map((item, index) => (
-                                    <Text
-                                        key={index}
-                                        style={{
-                                            fontWeight: '500',
-                                            color: textColor
-                                        }}>
-                                        {item}{index < jobDetail.skills.length - 1 ? ', ' : ''}
-                                    </Text>
-                                ))}
-                            </View>
-                        </View>
-                    </View>
+        const fetchMatchingCandidates = async () => {
+            setLoading(true);
+            try {
+                const token = await AsyncStorage.getItem("access_token");
+                const params = {
+                    location: jobDetail.city || null,
+                    // skills: jobDetail.skills?.length > 0 ? jobDetail.skills.join(',') : null,
+                    // level: jobDetail.level || null,
+                    // salary: jobDetail.salary || null,
+                    // jobType: jobDetail.jobType || null,
+                };
+                const res = await authApi(token).get(endpoints['candidates'], { params });
+                setCandidates(res.data.data.result || []);
+            } catch (error) {
+                console.log('Error fetching candidates:', error);
+                ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
+            } finally {
+                setLoading(false);
+            }
+        };
 
-                    <View style={{ marginBottom: 10 }}>
-                        <Text style={StyleShare.titleText16}>Mô tả công việc</Text>
-                        <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.description}</Text>
+        const renderCandidateItem = ({ item }) => (
+            <TouchableWithoutFeedback key={item._id} onPress={() => { navigation.navigate('CandidatesProfile', { userId: item.userId }) }}>
+                <View style={{
+                    backgroundColor: white,
+                    borderRadius: 10,
+                    padding: 20,
+                    marginBottom: 10,
+                    elevation: 2
+                }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Avatar.Image
+                            source={{ uri: item.avatar || 'https://via.placeholder.com/60' }}
+                            size={50}
+                            style={{ backgroundColor: 'white', marginRight: 5 }}
+                        />
+                        <View>
+                            <Text style={StyleShare.titleText16}>{item.fullName || 'Chưa cập nhật họ tên'}</Text>
+                            <Text style={{ marginTop: 5 }}>{item.email || 'Chưa cập nhật email'}</Text>
+                        </View>
                     </View>
-                    <View style={{ marginBottom: 10 }}>
-                        <Text style={StyleShare.titleText16}>Yêu cầu ứng viên</Text>
-                        <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.requirement}</Text>
-                    </View>
-                    <View style={{ marginBottom: 10 }}>
-                        <Text style={StyleShare.titleText16}>Ưu tiên</Text>
-                        <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.prioritize}</Text>
-                    </View>
-                    <View style={{ marginBottom: 10 }}>
-                        <Text style={StyleShare.titleText16}>Địa chỉ làm việc</Text>
-                        <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.location}</Text>
-                    </View>
-                    <View style={{ marginBottom: 10 }}>
-                        <Text style={StyleShare.titleText16}>Trạng thái</Text>
-                        {jobDetail.isActive ? <Text style={[StyleShare.titleText16, { color: green, marginTop: 5 }]}>Đang hoạt động</Text>
-                            : <Text style={[StyleShare.titleText16, { color: 'red', marginTop: 5 }]}>Hết hạn</Text>}
+                    <View style={StyleShare.technologyContainer}>
+                        <Chip style={StyleShare.chip}>{item.jobType || 'Chưa cập nhật loại công việc'}</Chip>
+                        <Chip style={StyleShare.chip}>{item.location || 'Chưa cập nhật địa điểm'}</Chip>
+                        {Array.isArray(item.skills) && item.skills.length > 0 ?
+                            item.skills.map((s, index) => (
+                                <Chip key={index} style={StyleShare.chip}>
+                                    {s}
+                                </Chip>
+                            )) :
+                            <Chip style={StyleShare.chip}>Chưa cập nhật kỹ năng</Chip>
+                        }
                     </View>
                 </View>
-            ) : (
-                <Text style={{ textAlign: 'center' }}>Không có dữ liệu</Text>
-            )}
+            </TouchableWithoutFeedback>
+        );
 
-        </ScrollView>
-    );
+        return (
+            <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 10 }}>
+                {status === 'loading' ? <Loading /> : jobDetail ? (
+                    <View>
+                        <Text style={StyleShare.titleText20}>{jobDetail?.name}</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 20, alignItems: 'center' }}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={StyleShare.titleText16}>Loại hình công việc</Text>
+                                <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.jobType}</Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={StyleShare.titleText16}>Level</Text>
+                                <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.level}</Text>
+                            </View>
+                        </View>
+
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={StyleShare.titleText16}>Mức lương</Text>
+                                <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.salary}</Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={StyleShare.titleText16}>Số lượng tuyển</Text>
+                                <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.quantity}</Text>
+                            </View>
+                        </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={StyleShare.titleText16}>Ngày hết hạn</Text>
+                                <Text style={{ color: textColor, marginTop: 5 }}>{moment(jobDetail?.endDate).format('DD/MM/YYYY')}</Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={StyleShare.titleText16}>Kĩ năng</Text>
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 5 }}>
+                                    {jobDetail.skills.map((item, index) => (
+                                        <Text
+                                            key={index}
+                                            style={{
+                                                fontWeight: '500',
+                                                color: textColor
+                                            }}>
+                                            {item}{index < jobDetail.skills.length - 1 ? ', ' : ''}
+                                        </Text>
+                                    ))}
+                                </View>
+                            </View>
+                        </View>
+
+                        <View style={{ marginBottom: 10 }}>
+                            <Text style={StyleShare.titleText16}>Mô tả công việc</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.description}</Text>
+                        </View>
+                        <View style={{ marginBottom: 10 }}>
+                            <Text style={StyleShare.titleText16}>Yêu cầu ứng viên</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.requirement}</Text>
+                        </View>
+                        <View style={{ marginBottom: 10 }}>
+                            <Text style={StyleShare.titleText16}>Ưu tiên</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.prioritize}</Text>
+                        </View>
+                        <View style={{ marginBottom: 10 }}>
+                            <Text style={StyleShare.titleText16}>Địa chỉ làm việc</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.location}</Text>
+                        </View>
+                        <View style={{ marginBottom: 10 }}>
+                            <Text style={StyleShare.titleText16}>Trạng thái</Text>
+                            {jobDetail.isActive ? <Text style={[StyleShare.titleText16, { color: green, marginTop: 5 }]}>Đang hoạt động</Text>
+                                : <Text style={[StyleShare.titleText16, { color: 'red', marginTop: 5 }]}>Hết hạn</Text>}
+                        </View>
+                        <View style={{ marginTop: 20 }}>
+                            {loading ? (
+                                <ActivityIndicator color={orange} size={'large'} />
+                            ) : (
+                                <Button
+                                    title={'Tìm ứng viên phù hợp'}
+                                    backgroundColor={mainColor}
+                                    textColor={white}
+                                    onPress={() => {
+                                        fetchMatchingCandidates().then(() => setModalVisible(true));
+                                    }}
+                                />
+                            )}
+
+                            <Modal
+                                isVisible={modalVisible}
+                                onBackdropPress={() => setModalVisible(false)}
+                                animationIn="slideInUp"
+                                animationOut="slideOutDown"
+                                backdropTransitionInTiming={500}
+                                backdropTransitionOutTiming={500}
+                                style={StyleShare.modalStyle}
+                            >
+                                <View style={StyleShare.modalContent}>
+                                    <View style={[StyleShare.flexBetween, { marginVertical: 15 }]}>
+                                        <Text style={StyleShare.titleText20}>Ứng viên phù hợp</Text>
+                                        <TouchableOpacity onPress={() => setModalVisible(false)}>
+                                            <Icon name="close" size={26} color={'red'} />
+                                        </TouchableOpacity>
+                                    </View>
+                                    {candidates.length > 0 ? (
+                                        <FlatList
+                                            data={candidates}
+                                            renderItem={renderCandidateItem}
+                                            keyExtractor={(item) => item._id}
+                                            showsVerticalScrollIndicator={false}
+                                        />
+                                    ) : (
+                                        <Text style={{ textAlign: 'center', color: mainColor }}>
+                                            Không tìm thấy ứng viên phù hợp
+                                        </Text>
+                                    )}
+                                </View>
+                            </Modal>
+                        </View>
+                    </View>
+                ) : (
+                    <Text style={{ textAlign: 'center' }}>Không có dữ liệu</Text>
+                )}
+
+
+            </ScrollView>
+        )
+    }
 
     const ProfileTab2 = () => {
         const [resumeData, setResumeData] = useState([]);

@@ -5,12 +5,14 @@ import UIHeader from "../../components/UIHeader";
 import { Avatar, Chip } from "react-native-paper";
 import Icon from 'react-native-vector-icons/Ionicons'
 import Dropdown from "../../components/Dropdown";
-import { green, mainColor, orange } from "../../assets/themes/Color";
+import { bgButton2, green, mainColor, orange, white } from "../../assets/themes/Color";
 import moment from "moment";
 import Loading from "../../components/Loading";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
 import { ToastMess } from "../../components/ToastMess";
+import Modal from "react-native-modal";
+import Button from "../../components/Button";
 
 
 
@@ -21,20 +23,57 @@ export default function JobByCompany({ navigation, route }) {
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
 
+    const [level, setLevel] = useState(null)
+    const [salary, setSalary] = useState(null)
+    const [jobType, setJobType] = useState(null)
+    const [active, setActive] = useState(null);
+
     const [loading, setLoading] = useState(false)
     const [loadingMore, setLoadingMore] = useState(false);
     const [searchKeywork, setSearchKeywork] = useState('')
-    const [selectedStatus, setSelectedStatus] = useState(null);
+    const [isModalVisible, setModalVisible] = useState(false);
+
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
+
     const activeData = [
         { title: 'Tất cả', value: null },
         { title: 'Hoạt động', value: true },
         { title: 'Dừng hoạt động', value: false },
     ];
 
+    const levelData = [
+        { title: 'Intern' },
+        { title: 'Fresher' },
+        { title: 'Junior' },
+        { title: 'Middle' },
+        { title: 'Senior' },
+        { title: 'Trưởng nhóm' },
+        { title: 'Trưởng phòng' },
+        { title: 'Director' },
+    ]
+
+    const salaryData = [
+        { title: 'Dưới 5 triệu' },
+        { title: '10 - 15 triệu' },
+        { title: '15 - 20 triệu' },
+        { title: '20 - 25 triệu' },
+        { title: '30 - 50 triệu' },
+        { title: 'Trên 50 triệu' },
+        { title: 'Thỏa thuận' }
+    ]
+
+    const jobTypeData = [
+        { title: 'Office' },
+        { title: 'Remote' },
+        { title: 'Hybrid' },
+    ]
+
 
     useEffect(() => {
-        fetchJobByCompany(1);
-    }, [selectedStatus]);
+        fetchJobByCompany();
+    }, []);
 
     const fetchJobByCompany = async (currentPage = 1, limit = 10) => {
         if (currentPage === 1) setLoading(true);
@@ -47,7 +86,10 @@ export default function JobByCompany({ navigation, route }) {
                     page: currentPage,
                     limit: limit,
                     name: searchQuery,
-                    isActive: selectedStatus
+                    isActive: active,
+                    level: level,
+                    salary: salary,
+                    jobType: jobType,
                 },
             });
             const data = res.data.data;
@@ -135,6 +177,23 @@ export default function JobByCompany({ navigation, route }) {
         }
     };
 
+    const applyFilters = () => {
+        // Gọi API với các tham số đã chọn
+        fetchJobByCompany(1, 10);
+        // Đóng modal
+        setModalVisible(false);
+    };
+
+    const resetFilters = () => {
+        setLevel(null);
+        setSalary(null);
+        setJobType(null);
+        setActive(null);
+        fetchJobByCompany(1, 10); // Luôn gọi API để làm mới danh sách
+
+        // Đóng modal
+        setModalVisible(false);
+    };
 
 
     const renderItem = ({ item }) => {
@@ -185,9 +244,100 @@ export default function JobByCompany({ navigation, route }) {
 
     return (
         <View style={StyleShare.container}>
+            <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}
+                animationIn="slideInUp"
+                animationOut="slideOutDown"
+                backdropTransitionInTiming={500}
+                backdropTransitionOutTiming={500}
+                style={StyleShare.modalStyle}>
+                <View style={StyleShare.modalContent}>
+                    <View style={[StyleShare.flexBetween, { marginVertical: 15 }]}>
+                        <Text style={StyleShare.titleText20}>Bộ lọc tuyển dụng</Text>
+                        <TouchableOpacity onPress={() => setModalVisible(false)} >
+                            <Icon name="close" size={26} color={'red'} />
+                        </TouchableOpacity>
+                    </View>
+
+                    <Text style={StyleShare.titleText16}>Trạng thái</Text>
+                    <Dropdown
+                        data={activeData}
+                        onSelect={(item) => {
+                            setActive(item.value);
+                        }}
+                        placeholder="Chọn trạng thái"
+                        buttonStyle={{
+                            marginTop: 10,
+                            width: '100%',
+                            height: 50,
+                            marginBottom: 20
+                        }}
+                    />
+
+                    <Text style={StyleShare.titleText16}>Level</Text>
+                    <Dropdown
+                        data={levelData}
+                        onSelect={(item) => {
+                            setLevel(item.title)
+                        }}
+                        placeholder="Chọn Level"
+                        buttonStyle={{
+                            marginTop: 10,
+                            width: '100%',
+                            height: 50,
+                            marginBottom: 20
+                        }}
+                    />
+
+                    <Text style={StyleShare.titleText16}>Mức lương</Text>
+                    <Dropdown
+                        data={salaryData}
+                        onSelect={(item) => {
+                            setSalary(item.title)
+                        }}
+                        placeholder="Chọn mức lương"
+                        buttonStyle={{
+                            marginTop: 10,
+                            width: '100%',
+                            height: 50,
+                            marginBottom: 20
+                        }}
+                    />
+
+                    <Text style={StyleShare.titleText16}>Loại hình</Text>
+                    <Dropdown
+                        data={jobTypeData}
+                        onSelect={(item) => {
+                            setJobType(item.title)
+                        }}
+                        placeholder="Chọn loại hình"
+                        buttonStyle={{
+                            marginTop: 10,
+                            width: '100%',
+                            height: 50,
+                            marginBottom: 20
+                        }}
+                    />
+
+
+                    <Button
+                        title={'Áp dụng'}
+                        backgroundColor={mainColor}
+                        textColor={white}
+                        onPress={applyFilters}
+                    />
+                    {/* <Button
+                        title={'Đặt lại'}
+                        backgroundColor={bgButton2}
+                        textColor={'black'}
+                        onPress={resetFilters}
+                    /> */}
+                </View>
+            </Modal>
             <UIHeader
                 leftIcon={"arrow-back"}
                 title={'Chiến dịch tuyển dụng'}
+                rightIcon={"options"}
+                handleRightIcon={() => setModalVisible(true)}
                 handleLeftIcon={() => { navigation.goBack() }} />
             <View style={{ paddingHorizontal: 20, marginBottom: 5 }}>
                 <View style={StyleShare.searchDetail}>
@@ -202,18 +352,6 @@ export default function JobByCompany({ navigation, route }) {
                         }}
                     />
                 </View>
-                <Dropdown
-                    data={activeData}
-                    onSelect={(item) => {
-                        setSelectedStatus(item.value); // Lưu giá trị true/false
-                    }}
-                    value={
-                        selectedStatus !== null
-                            ? activeData.find((item) => item.value === selectedStatus)?.title
-                            : null
-                    }
-                    placeholder="Chọn trạng thái"
-                />
                 <View style={{ marginTop: 10 }}>
                     <Text style={StyleShare.titleText16}>{totalItems} việc làm</Text>
                 </View>
