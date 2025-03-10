@@ -137,18 +137,19 @@ export default function ResumeApply({ navigation, route }) {
                     ) : cvData && cvData.length > 0 ? (
                         <>
                             {cvData.map((cv) => (
-                                <TouchableOpacity style={styles.cvContainer} key={cv._id} onPress={() => setSelectCvUrl(cv.url)}>
+                                <TouchableOpacity style={[
+                                    styles.cvContainer,
+                                    selectCvUrl === cv.url && styles.selectedCv // Thêm hiệu ứng chọn
+                                ]} key={cv._id} onPress={() => setSelectCvUrl(cv.url)}>
+                                    <Text style={{ color: textColor, fontWeight: '500' }}>{cv.name}</Text>
                                     <View style={StyleShare.flexBetween}>
-                                        <Text style={{ color: textColor, fontWeight: '500' }}>{cv.name}</Text>
-                                        <Icon name={
-                                            selectCvUrl === cv.url
-                                                ? 'radio-button-on'
-                                                : 'radio-button-off'
-                                        } size={20} color={orange} />
+                                        <Text style={{ color: textColor, fontSize: 12 }}>
+                                            Tạo: {moment(cv.createdAt).format("DD/MM/YYYY")}
+                                        </Text>
+                                        {cv.isPrimary && (
+                                            <Icon name={"star"} size={20} color={orange} />
+                                        )}
                                     </View>
-                                    <Text style={{ color: 'grey', fontSize: 12 }}>
-                                        Tạo: {moment(cv.createdAt).format("DD/MM/YYYY")}
-                                    </Text>
                                 </TouchableOpacity>
                             ))}
                         </>
@@ -245,12 +246,17 @@ const styles = StyleSheet.create({
         borderColor: bgButton2,
         borderWidth: 1,
     },
-    
+
     selectCvContainer: {
         marginTop: 20,
         backgroundColor: white,
         paddingHorizontal: 20,
-        paddingVertical: 10
+        paddingVertical: 10,
+        borderColor: orange,
+    },
+    selectedCv: {
+        backgroundColor: '#FFF8E1', // Nhấn mạnh CV được chọn
+        borderColor: orange
     },
     uploadBoxCV: {
         marginVertical: 20,

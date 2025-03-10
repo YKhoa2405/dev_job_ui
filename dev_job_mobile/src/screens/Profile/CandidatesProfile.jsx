@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Linking, FlatList } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import { mainColor, bgButton2, grey, orange, textColor, white } from "../../assets/themes/Color";
@@ -10,42 +10,21 @@ import moment from "moment";
 import { authApi, endpoints } from "../../assets/config/API";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ToastMess } from "../../components/ToastMess";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchListCvByUser } from "../../redux/slice/cvSLice";
 
 export default function CandidatesProfile({ navigation, route }) {
+    const dispatch = useDispatch()
     const [loading, setLoading] = useState(false);
     const [candidate, setCandidate] = useState(null);
     const userId = route.params?.userId;
 
-    // Dữ liệu CV mẫu từ bạn cung cấp (thay bằng dữ liệu thực tế từ API nếu cần)
-    const cvData = [
-        {
-            "__v": 0,
-            "_id": "67cc645accf6839aa30a5875",
-            "createdAt": "2025-03-08T15:38:02.413Z",
-            "deletedAt": null,
-            "isDeleted": false,
-            "isPimary": false,
-            "name": "1739115114538_CV_Nguyen_y_khoa.pdf",
-            "updatedAt": "2025-03-08T15:38:02.413Z",
-            "url": "https://bucket-searchjob.s3.amazonaws.com/1741448280891_1739115114538_CV_Nguyen_y_khoa.pdf",
-            "userIdId": "67cc4c6e25c2f36f76249451"
-        },
-        {
-            "__v": 0,
-            "_id": "67cc6496ccf6839aa30a587d",
-            "createdAt": "2025-03-08T15:39:02.729Z",
-            "deletedAt": null,
-            "isDeleted": false,
-            "isPimary": false,
-            "name": "2024 - TB Nop BC TTTN K12425.pdf",
-            "updatedAt": "2025-03-08T15:39:02.729Z",
-            "url": "https://bucket-searchjob.s3.ap-southeast-2.amazonaws.com/1741448341548_2024%20-%20TB%20Nop%20BC%20TTTN%20K12425.pdf",
-            "userIdId": "67cc4c6e25c2f36f76249451"
-        }
-    ];
+    const { cvData, status } = useSelector((state) => state.cv);
+    const primaryCvList = useMemo(() => cvData.filter((cv) => cv.isPrimary), [cvData]);
 
     useEffect(() => {
         fetchCandidateDetail();
+        dispatch(fetchListCvByUser(userId))
     }, []);
 
     const fetchCandidateDetail = async () => {
@@ -179,7 +158,7 @@ export default function CandidatesProfile({ navigation, route }) {
                             <Text style={[StyleShare.titleText16, { marginTop: 15 }]}>CV ứng viên</Text>
                             {cvData.length > 0 ? (
                                 <FlatList
-                                    data={cvData}
+                                    data={primaryCvList}
                                     renderItem={renderCVItem}
                                     keyExtractor={(item) => item._id}
                                     scrollEnabled={false}

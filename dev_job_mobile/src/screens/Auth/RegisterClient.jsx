@@ -75,10 +75,10 @@ export default function RegisterClient({ navigation, route }) {
 
         } catch (error) {
             if (error.response && error.response.status === 400) {
-                ToastMess({ type: 'error', text1: 'Người dùng đã tồn tại' });
+                ToastMess({ type: 'error', text1: error.response.data.message });
                 console.log(error.response.data)
             } else {
-                ToastMess({ type: 'error', text1: 'Đã xảy ra lỗi. Vui lòng thử lại.' });
+                ToastMess({ type: 'error', text1: 'Có lỗi xảy ra. Vui lòng thử lại.' });
                 console.log(error)
             }
         } finally {

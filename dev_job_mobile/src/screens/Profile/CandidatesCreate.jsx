@@ -20,7 +20,6 @@ export default function CandidatesCreate({ navigation, route }) {
     const [open, setOpen] = useState(false);
 
     const [selectedProvinceId, setSelectedProvinceId] = useState('');
-    console.log('Selected province:', selectedProvinceId);
     const [fullName, setFullName] = useState(user?.name || '');
     const [avatar, setAvatar] = useState('');
     const [phone, setPhone] = useState('');
@@ -93,7 +92,6 @@ export default function CandidatesCreate({ navigation, route }) {
                 title: province.full_name, // Hiển thị tên tỉnh/thành phố
             }));
             setProvinces(provinceList);
-            console.log('Provinces:', provinceList);
         } catch (error) {
             console.log('Error fetching provinces:', error);
         }
@@ -108,9 +106,7 @@ export default function CandidatesCreate({ navigation, route }) {
             const token = await AsyncStorage.getItem("access_token");
             const res = await authApi(token).get(endpoints['candidateDetail'](user._id));
             const candidate = res.data.data;
-            console.log('Candidate data:', candidate);
 
-            // Điền dữ liệu từ API vào state
             setFullName(candidate.fullName || user.name || '');
             setPhone(candidate.phone || '');
             setEmail(candidate.email || user.email || '');
@@ -122,7 +118,6 @@ export default function CandidatesCreate({ navigation, route }) {
             setAvailability(candidate.availability || '');
         } catch (error) {
             console.log('Error fetching candidate detail:', error.response?.data || error.message);
-            ToastMess({ type: 'error', text1: 'Không thể tải thông tin ứng viên.' });
         } finally {
             setLoading(false);
         }
@@ -140,12 +135,11 @@ export default function CandidatesCreate({ navigation, route }) {
             jobType: jobType || undefined,
             availability: availability || undefined,
         };
-        console.log('Candidate data:', candidateData);
 
         setLoading(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
-            await authApi(token).patch(
+            const res = await authApi(token).patch(
                 endpoints['candidateDetail'](user._id),
                 candidateData,
                 {
@@ -153,9 +147,11 @@ export default function CandidatesCreate({ navigation, route }) {
                 }
             );
             ToastMess({ type: 'success', text1: 'Cập nhật ứng viên thành công.' });
-            navigation.goBack();
+            if (res.data.statusCode === 200) {
+                navigation.goBack();
+            }
         } catch (error) {
-            ToastMess({ type: 'error', text1: 'Cập nhật thất bại.', text2: error.message });
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
             console.log('Error updating candidate:', error.response?.data || error.message);
         } finally {
             setLoading(false);

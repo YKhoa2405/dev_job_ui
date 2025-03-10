@@ -289,12 +289,3 @@ export default function CandidateSearch({ navigation, route }) {
         </View>
     )
 }
-
-const styles = StyleSheet.create({
-    searchMap: {
-        padding: 12,
-        borderRadius: 10,
-        backgroundColor: orange,
-        elevation: 2
-    },
-})
