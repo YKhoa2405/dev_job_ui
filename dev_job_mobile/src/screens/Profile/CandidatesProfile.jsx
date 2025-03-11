@@ -20,7 +20,8 @@ export default function CandidatesProfile({ navigation, route }) {
     const userId = route.params?.userId;
 
     const { cvData, status } = useSelector((state) => state.cv);
-    const primaryCvList = useMemo(() => cvData.filter((cv) => cv.isPrimary), [cvData]);
+    
+    const primaryCvList = useMemo(() => cvData?.filter((cv) => cv.isPrimary) || [], [cvData]);
 
     useEffect(() => {
         fetchCandidateDetail();
@@ -121,15 +122,15 @@ export default function CandidatesProfile({ navigation, route }) {
                             {candidate?.email && (
                                 <TouchableOpacity onPress={handleOpenEmail}>
                                     <View style={[StyleShare.buttonDetailApply, { backgroundColor: white, marginRight: 10 }]}>
-                                        <Icon name="mail-outline" size={22} />
+                                        <Icon name="mail-outline" size={20} />
                                         <Text style={{ marginLeft: 5 }}>Gửi email</Text>
                                     </View>
                                 </TouchableOpacity>
                             )}
-                            <TouchableOpacity onPress={handleChatPress}>
+                            <TouchableOpacity onPress={handleOpenPhone}>
                                 <View style={[StyleShare.buttonDetailApply, { backgroundColor: white, marginLeft: 10 }]}>
-                                    <Icon name="chatbubble-outline" size={22} />
-                                    <Text style={{ marginLeft: 5 }}>Nhắn tin</Text>
+                                    <Icon name="call-outline" size={20} />
+                                    <Text style={{ marginLeft: 5 }}>Gọi điện</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -156,7 +157,7 @@ export default function CandidatesProfile({ navigation, route }) {
                             <Text style={{ color: textColor, marginTop: 5 }}>{candidate?.availability || 'Không có'}</Text>
 
                             <Text style={[StyleShare.titleText16, { marginTop: 15 }]}>CV ứng viên</Text>
-                            {cvData.length > 0 ? (
+                            {cvData?.length > 0 ? (
                                 <FlatList
                                     data={primaryCvList}
                                     renderItem={renderCVItem}

@@ -91,7 +91,6 @@ export const endpoints = {
     'resumeByUser': '/applications/byUser',
 
 
-    'resumeByCompany': (companyId) => `/applications/byCompany/${companyId}`,
     'resumeByJob': (jobId) => `/applications/byJob/${jobId}`,
 
 

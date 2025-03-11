@@ -64,7 +64,6 @@ export default function HomeCompany({ navigation }) {
 
     const manageEmployers = [
         { id: 1, icon: 'megaphone-outline', title: 'Chiến dịch tuyển dụng' },
-        { id: 2, icon: 'reader-outline', title: 'Quản lý tuyển dụng' },
         { id: 3, icon: 'people-outline', title: 'Tìm kiếm ứng viên' },
         { id: 4, icon: 'podium-outline', title: 'Thống kê tuyển dụng' },
         { id: 5, icon: 'file-tray-stacked-outline', title: 'Dịch vụ của bạn' },
@@ -84,9 +83,9 @@ export default function HomeCompany({ navigation }) {
                 <Icon name={'person-outline'} size={20} color={mainColor}></Icon>
                 <Text style={StyleShare.lineText}>Hồ sơ</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.gridItemUtili} onPress={() => navigation.navigate('Settings')}>
-                <Icon name={'settings-outline'} size={20} color={mainColor}></Icon>
-                <Text style={StyleShare.lineText}>Cài đặt</Text>
+            <TouchableOpacity style={styles.gridItemUtili} onPress={() => navigation.navigate('Chat', { currentUserId: companyByUser._id })}>
+                <Icon name={'chatbubble-outline'} size={20} color={mainColor}></Icon>
+                <Text style={StyleShare.lineText}>Tin nhắn</Text>
             </TouchableOpacity>
         </View>
     );
@@ -120,9 +119,6 @@ export default function HomeCompany({ navigation }) {
             case 1:
                 navigation.navigate('JobByCompany', { companyId: companyByUser._id })
                 break;
-            case 2:
-                navigation.navigate('ResumeByCompany', { companyId: companyByUser._id })
-                break;
             case 3:
                 navigation.navigate('CandidateSearch', { companyId: companyByUser._id })
                 break;
@@ -141,16 +137,11 @@ export default function HomeCompany({ navigation }) {
     return (
         <ScrollView style={StyleShare.container} showsVerticalScrollIndicator={false}>
             <View style={styles.containerTop}>
-                <Text style={StyleShare.titleText20}>Quản lý tuyển dụng</Text>
+                <Text style={StyleShare.titleText20}>Hệ quản trị tuyển dụng</Text>
                 {companyByUser && companyByUser.isApproved && (
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <TouchableOpacity style={{ marginRight: 20 }}>
-                            <Icon name="notifications-outline" size={26} color={mainColor} />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => navigation.navigate('Chat', { currentUserId: companyByUser._id })}>
-                            <Icon name="chatbubble-outline" size={26} color={mainColor} />
-                        </TouchableOpacity>
-                    </View>
+                    <TouchableOpacity>
+                        <Icon name="notifications-outline" size={24} color={mainColor} />
+                    </TouchableOpacity>
                 )}
 
             </View>

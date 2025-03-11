@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
 import Loading from "../../components/Loading";
 import moment from "moment";
+import { textColor } from "../../assets/themes/Color";
 
 
 export default function JobApplied({ navigation }) {
@@ -65,13 +66,13 @@ export default function JobApplied({ navigation }) {
                 <View style={StyleShare.jobItemContainer}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Avatar.Image
-                            size={36}
+                            size={50}
                             source={{ uri: item?.companyId?.avatar }}
                             style={{ backgroundColor: 'white' }}
                         />
                         <View style={{ marginLeft: 10 }}>
                             <Text style={StyleShare.titleText16}>{item?.jobId?.name}</Text>
-                            <Text style={{ marginTop: 5, color: 'gray' }}>{item?.companyId?.name}</Text>
+                            <Text style={{ marginTop: 5, color: textColor }}>{item?.companyId?.name}</Text>
                         </View>
                     </View>
 
@@ -84,8 +85,8 @@ export default function JobApplied({ navigation }) {
 
                     <View style={StyleShare.flexBetween}>
                         <View style={StyleShare.flexCenter}>
-                            <Icon name="time" size={22} color={'grey'} style={{ marginRight: 5 }} />
-                            <Text style={{ color: 'gray' }}>
+                            <Icon name="time" size={20} color={textColor} style={{ marginRight: 5 }} />
+                            <Text style={{ color: textColor }}>
                                 {moment(item.createdAt).fromNow()}
                             </Text>
                         </View>
@@ -93,20 +94,13 @@ export default function JobApplied({ navigation }) {
                             <Text style={StyleShare.titleText16}>{item.status}</Text>
                         </View>
                     </View>
-                    <View style={StyleShare.flexBetween}>
-                        <TouchableOpacity onPress={() => handleOpenCv(item.cv)}>
-                            <View style={[StyleShare.buttonDetailApply]}>
-                                <Icon name="document-outline" size={22} />
-                                <Text style={{ marginLeft: 5 }}>Xem lại CV</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity >
-                            <View style={[StyleShare.buttonDetailApply]}>
-                                <Icon name="chatbubble-outline" size={22} />
-                                <Text style={{ marginLeft: 5 }}>Gửi tin nhắn</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
+                    <TouchableOpacity onPress={() => navigation.navigate('ResumeClientView', { pdfUri: item?.url })}
+                    >
+                        <View style={[StyleShare.buttonDetailApply]} >
+                            <Icon name="document-outline" size={20} />
+                            <Text style={{ marginLeft: 5 }}>Xem lại CV</Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
             </TouchableWithoutFeedback>
         );

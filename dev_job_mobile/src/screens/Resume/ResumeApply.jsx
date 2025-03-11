@@ -80,17 +80,16 @@ export default function ResumeApply({ navigation, route }) {
         formData.append('email', email);
         formData.append('cv', selectCvUrl);
         setLoading(true)
+        console.log(formData)
         try {
             const token = await AsyncStorage.getItem('access_token');
             await authApi(token).post(endpoints['resumeApply'], formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+                headers: { 'Content-Type': 'application/json' },
             });
             ToastMess({ type: 'success', text1: 'Ứng tuyển thành công' });
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
-            console.log(error)
+            console.log(error.message)
         } finally {
             setLoading(false)
         }

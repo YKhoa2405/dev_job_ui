@@ -101,7 +101,6 @@ export default function PaymentScreen({ navigation, route }) {
             <UIHeader
                 leftIcon={"arrow-back"}
                 rightIcon={"ellipsis-horizontal"}
-                title={'Thanh toán dịch vụ'}
                 handleLeftIcon={() => { navigation.goBack(); }}
             />
             <WebView

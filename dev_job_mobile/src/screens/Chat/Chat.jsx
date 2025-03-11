@@ -51,7 +51,6 @@ export default function Chat({ navigation, route }) {
                     return null; // Nếu không phải là participant, trả về null
                 }
             }));
-            console.log(rooms)
 
             // Lọc ra các phòng chat hợp lệ (không null)
             const filteredRooms = rooms.filter(room => room !== null);

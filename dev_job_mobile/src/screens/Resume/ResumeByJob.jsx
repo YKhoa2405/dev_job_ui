@@ -16,6 +16,8 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import Button from "../../components/Button"
 import { Avatar, Chip } from "react-native-paper"
 import Modal from "react-native-modal"
+import { Linking } from "react-native"
+import { fetchCompanyByUser } from "../../redux/slice/companySlice"
 
 export default function ResumeByJob({ navigation, route }) {
     const { jobId } = route.params;
@@ -165,7 +167,7 @@ export default function ResumeByJob({ navigation, route }) {
                                 <ActivityIndicator color={orange} size={'large'} />
                             ) : (
                                 <Button
-                                    title={'Tìm ứng viên phù hợp'}
+                                    title={'Tìm nhanh ứng viên phù hợp'}
                                     backgroundColor={mainColor}
                                     textColor={white}
                                     onPress={() => {
@@ -216,10 +218,13 @@ export default function ResumeByJob({ navigation, route }) {
     }
 
     const ProfileTab2 = () => {
+        const dispatch = useDispatch()
+        const { companyByUser } = useSelector((state) => state.company);
         const [resumeData, setResumeData] = useState([]);
         const [currentPage, setCurrentPage] = useState(1);
         const [totalPages, setTotalPages] = useState(1);
         const [totalItems, setTotalItems] = useState(0);
+        const [searchKeywork, setSearchKeywork] = useState('');
 
         const [loading, setLoading] = useState(false)
         const [loadingMore, setLoadingMore] = useState(false);
@@ -236,16 +241,23 @@ export default function ResumeByJob({ navigation, route }) {
             fetchResumeByJob(1);
         }, [selectedStatus]);
 
-        const fetchResumeByJob = async (currentPage = 1, limit = 10) => {
+        useEffect(() => {
+            dispatch(fetchCompanyByUser());
+        }, [])
+
+        const fetchResumeByJob = async (currentPage = 1, limit = 10, keywork = '') => {
             if (currentPage === 1) setLoading(true);
             else setLoadingMore(true);
             try {
+                const searchKeywork = keywork ? `/${keywork}/i` : '';
+
                 const token = await AsyncStorage.getItem("access_token");
                 const res = await authApi(token).get(endpoints['resumeByJob'](jobId), {
                     params: {
                         page: currentPage,
                         limit: limit,
-                        status: selectedStatus
+                        status: selectedStatus,
+                        name: searchKeywork
                     },
                 });
                 const data = res.data.data;
@@ -273,51 +285,88 @@ export default function ResumeByJob({ navigation, route }) {
 
         const renderItem = ({ item }) => {
             return (
-                <View style={StyleShare.jobItemContainer}>
-                    <View style={{ marginVertical: 10 }}>
-                        <Text style={{ color: mainColor, marginBottom: 5, fontWeight: '500' }}>{item.name} - {item.phone}</Text>
-                        <TouchableOpacity>
-                            <Text style={{ color: orange, textDecorationLine: 'underline', fontWeight: '500' }} >{item.email}</Text>
-                        </TouchableOpacity>
-                    </View>
+                <TouchableWithoutFeedback onPress={() => navigation.navigate("ResumeView", { resumeDetail: item })}>
+                    <View style={StyleShare.jobItemContainer}>
+                        <View style={{ marginVertical: 10 }}>
+                            <Text style={{ color: mainColor, marginBottom: 5, fontWeight: '500' }}>{item.name} - {item.phone}</Text>
+                            <Text style={{ color: mainColor, fontWeight: '500' }} >{item.email}</Text>
+                        </View>
 
-                    <View style={StyleShare.flexBetween}>
                         <View style={StyleShare.flexBetween}>
-                            <View style={StyleShare.flexCenter}>
-                                <Icon name="time" size={22} color={'grey'} style={{ marginRight: 5 }} />
-                                <Text>{moment(item.createdAt).format("DD/MM/YYYY")}</Text>
+                            <View style={StyleShare.flexBetween}>
+                                <View style={StyleShare.flexCenter}>
+                                    <Icon name="time" size={20} color={textColor} style={{ marginRight: 5 }} />
+                                    <Text>{moment(item.createdAt).format("DD/MM/YYYY")}</Text>
+                                </View>
+                            </View>
+                            <View>
+                                <Text
+                                    style={[StyleShare.titleText16,
+                                    {
+                                        color:
+                                            item.status === 'Chờ xử lý' ? mainColor
+                                                : item.status === 'Đã xem' ? 'blue'
+                                                    : item.status === 'Chấp nhận' ? 'green'
+                                                        : item.status === 'Từ chối' ? 'red'
+                                                            : grey
+                                    }]}>{item.status}
+                                </Text>
                             </View>
                         </View>
-                        <View>
-                            <Text
-                                style={[StyleShare.titleText16,
-                                {
-                                    color:
-                                        item.status === 'Chờ xử lý' ? mainColor
-                                            : item.status === 'Đã xem' ? 'blue'
-                                                : item.status === 'Chấp nhận' ? 'green'
-                                                    : item.status === 'Từ chối' ? 'red'
-                                                        : grey
-                                }]}>{item.status}
-                            </Text>
+                        <View style={[StyleShare.flexBetween, { zIndex: 9999 }]}>
+                            <TouchableOpacity onPress={() => navigation.navigate("ChatDetail", {
+                                userReceiver: {
+                                    id: item?._id,
+                                    avatar: item?.avatar,
+                                    name: item?.name,
+                                    email: item?.email,
+                                }, currentUserId: companyByUser._id
+                            })}>
+                                <View style={[StyleShare.buttonDetailApply]}>
+                                    <Text>Nhắn tin</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => handleOpenPhone(item.phone)}>
+                                <View style={[StyleShare.buttonDetailApply]}>
+                                    <Text>Gọi điện</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => handleOpenEmail(item.email)}>
+                                <View style={[StyleShare.buttonDetailApply]}>
+                                    <Text>Gửi Mail</Text>
+                                </View>
+                            </TouchableOpacity>
                         </View>
                     </View>
-
-                    <TouchableOpacity onPress={() => navigation.navigate("ResumeView", { resumeDetail: item })}>
-                        <View style={[StyleShare.buttonDetailApply, { marginTop: 10 }]}>
-                            <Icon name="document-outline" size={22} />
-                            <Text style={{ marginLeft: 5 }}>Xem hồ sơ ứng viên</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
+                </TouchableWithoutFeedback>
 
             );
+        };
+
+        const handleOpenEmail = (email) => {
+            if (email) Linking.openURL(`mailto:${email}`);
+        };
+
+        const handleOpenPhone = (phone) => {
+            if (phone) Linking.openURL(`tel:${phone}`);
         };
 
         return (
             <View style={{ flex: 1 }}>
                 <View style={{ paddingHorizontal: 20, marginBottom: 5 }}>
                     <View style={{ marginTop: 10 }}>
+                        <View style={StyleShare.searchDetail}>
+                            <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
+                            <TextInput
+                                style={StyleShare.searchInput}
+                                placeholder="Nhập tên ứng viên..."
+                                value={searchKeywork}
+                                onChangeText={(text) => setSearchKeywork(text)}
+                                onSubmitEditing={() => {
+                                    fetchResumeByJob(1, 10, searchKeywork)
+                                }}
+                            />
+                        </View>
                         <Dropdown
                             data={activeData}
                             onSelect={(item) => {

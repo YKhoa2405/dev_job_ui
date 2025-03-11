@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableWithoutFeedback, StyleSheet, ActivityIndicator, FlatList, Image, TextInput, TouchableOpacity } from "react-native";
 import UIHeader from "../../components/UIHeader";
 import StyleShare from "../../assets/themes/StyleShare";
-import { grey, mainColor, orange, white, green } from "../../assets/themes/Color";
+import { grey, mainColor, orange, white, green, textColor } from "../../assets/themes/Color";
 import { authApi, endpoints } from "../../assets/config/API";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loading from "../../components/Loading";
@@ -47,7 +47,7 @@ export default function ServicesByCompany({ navigation, route }) {
                     <Text style={[StyleShare.titleText20, { marginVertical: 5, color: orange }]}>{formatVND(item.amount / 100)}</Text>
 
                     <View style={StyleShare.flexBetween}>
-                        <Text style={{ fontWeight: '500', color: 'grey' }}>Ngày hết hạn: <Text style={{ color: orange, fontWeight: '500' }}>{moment(item.endDate, "YYYYMMDDHHmmss").format("DD-MM-YYYY")}</Text></Text>
+                        <Text style={{ fontWeight: '500', color: textColor }}>Ngày hết hạn: <Text>{moment(item.endDate, "YYYYMMDDHHmmss").format("DD-MM-YYYY")}</Text></Text>
                         <View>
                             {item.isActive ? <Text style={[StyleShare.titleText16, { color: green }]}>Đang hoạt động</Text>
                                 : <Text style={[StyleShare.titleText16, { color: 'red' }]}>Hết hạn</Text>}
@@ -76,10 +76,10 @@ export default function ServicesByCompany({ navigation, route }) {
                     <View style={{ marginTop: 10, marginHorizontal: 20 }}>
                     </View>
                     <View style={StyleShare.jobItemContainer}>
-                        <Text style={{ fontWeight: '500', color: 'grey' }}>Tổng chi: <Text style={{ color: green }}>
+                        <Text style={{ fontWeight: '500', color: textColor }}>Tổng chi: <Text style={{ color: green }}>
                             {formatVND(meta.totalAmount / 100)}
                         </Text></Text>
-                        <Text style={{ fontWeight: '500', color: 'grey' }}>Dịch vụ áp dụng: <Text style={{ color: green }}>
+                        <Text style={{ fontWeight: '500', color: textColor }}>Dịch vụ áp dụng: <Text style={{ color: green }}>
                             {meta.totalItems}
                         </Text></Text>
 
@@ -122,11 +122,10 @@ export default function ServicesByCompany({ navigation, route }) {
                 <TouchableWithoutFeedback>
                     <View style={StyleShare.jobItemContainer}>
                         <View style={StyleShare.flexBetween}>
-                            <Text style={{ fontWeight: '500', color: 'grey', fontSize: 14 }}>{moment(item.vnp_PayDate, "YYYYMMDDHHmmss").format("DD-MM-YYYY HH:mm")}</Text>
+                            <Text style={{ fontWeight: '500', color: textColor }}>{moment(item.vnp_PayDate, "YYYYMMDDHHmmss").format("DD-MM-YYYY HH:mm")}</Text>
                             <Text
                                 style={{
                                     fontWeight: '500',
-                                    fontSize: 14,
                                     color: item.vnp_TransactionStatus === 'Success' ? green : '#dc3545' // màu xanh cho thành công, đỏ cho thất bại
                                 }}
                             >
@@ -135,8 +134,8 @@ export default function ServicesByCompany({ navigation, route }) {
                         </View>
                         <View style={{ marginTop: 10 }}>
                             <Text style={StyleShare.titleText16}>{(item.vnp_OrderInfo).replace(/\+/g, ' ')}</Text>
-                            <Text style={{ fontWeight: '500', color: 'grey', marginVertical:5 }}>Mã giao dịch:{item.vnp_TransactionNo}</Text>
-                            <Text style={{ fontWeight: '500', color: 'grey' }}>Số tiền:
+                            <Text style={{ fontWeight: '500', color: textColor, marginVertical: 5 }}>Mã giao dịch: {item.vnp_TransactionNo}</Text>
+                            <Text style={{ fontWeight: '500', color: textColor }}>Số tiền: 
                                 <Text style={{ color: green }}>
                                     {formatVND(item.vnp_Amount / 100)}
                                 </Text>

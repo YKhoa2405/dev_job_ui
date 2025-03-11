@@ -45,7 +45,6 @@ import Subscribers from './src/screens/Profile/Subscribers';
 
 import ResumeApply from './src/screens/Resume/ResumeApply';
 import ResumeTools from './src/screens/Resume/ResumeTools';
-import ResumeByCompany from './src/screens/Resume/ResumeByCompany';
 import ResumeView from './src/screens/Resume/ResumeView';
 import ResumeByJob from './src/screens/Resume/ResumeByJob';
 import ResumeInput from './src/screens/Resume/ResumeInput';
@@ -93,7 +92,6 @@ export default function App() {
 
           <Stack.Screen name="ResumeApply" component={ResumeApply} />
           <Stack.Screen name="ResumeByJob" component={ResumeByJob} />
-          <Stack.Screen name="ResumeByCompany" component={ResumeByCompany} />
           <Stack.Screen name="ResumeView" component={ResumeView} />
           <Stack.Screen name="ResumeClientView" component={ResumeClientView} />
 

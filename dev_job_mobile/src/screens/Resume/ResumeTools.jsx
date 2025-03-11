@@ -188,7 +188,7 @@ export default function ResumeTools({ navigation }) {
                     <TouchableOpacity
                         style={styles.optionItem}
                         onPress={() => handleSetPrimary(selectedCv._id)}
-                        disabled={selectedCv?.isPrimary} // Không cho click nếu đã là CV chính
+                        disabled={selectedCv?.isPrimary}
                     >
                         <Icon name={selectedCv?.isPrimary ? "star" : "star-outline"} size={20} color={orange} />
                         <Text

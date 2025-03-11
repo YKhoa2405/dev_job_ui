@@ -73,7 +73,7 @@ export default function HomeClient({ navigation }) {
                     {/* Phần chào và avatar */}
                     <View style={[StyleShare.flexBetween, { marginTop: 40 }]}>
                         <View>
-                            <Text style={[StyleShare.titleText16, { color: white, fontStyle:'italic' }]}>Tìm kiếm việc làm ngay thôi!</Text>
+                            <Text style={[StyleShare.titleText16, { color: white, fontStyle:'italic' }]}>Chào bạn trở lại !</Text>
                         </View>
                         <View style={StyleShare.flexCenter}>
                             <TouchableOpacity onPress={() => navigation.navigate('Chat', { currentUserId: currentUser._id })}>

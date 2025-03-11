@@ -101,7 +101,6 @@ export default function JobByCompany({ navigation, route }) {
             setCurrentPage(data.meta.currentPage);
             setTotalPages(data.meta.totalPages);
             setTotalItems(data.meta.totalItems);
-            console.log(data)
         } catch (error) {
             console.log('Error fetching companies:', error);
         } finally {
