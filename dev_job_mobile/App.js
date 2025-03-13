@@ -56,6 +56,9 @@ import ChatBot from './src/screens/Chat/ChatBot';
 import CandidatesCreate from './src/screens/Profile/CandidatesCreate';
 import CandidateSearch from './src/screens/Company/CandidateSearch';
 import CandidatesProfile from './src/screens/Profile/CandidatesProfile';
+import PrepareScreen from './src/screens/Interview/PrepareScreen';
+import InterviewScreen from './src/screens/Interview/InterviewScreen';
+import ResultScreen from './src/screens/Interview/ResultScreen';
 
 
 
@@ -103,6 +106,13 @@ export default function App() {
           <Stack.Screen name="CandidatesCreate" component={CandidatesCreate} />
           <Stack.Screen name="CandidateSearch" component={CandidateSearch} />
           <Stack.Screen name="CandidatesProfile" component={CandidatesProfile} />
+
+          <Stack.Screen name="PrepareScreen" component={PrepareScreen} />
+          <Stack.Screen name="InterviewScreen" component={InterviewScreen} />
+          <Stack.Screen name="ResultScreen" component={ResultScreen} />
+
+
+
 
 
 

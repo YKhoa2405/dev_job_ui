@@ -345,7 +345,6 @@ const styles = StyleSheet.create({
     optionText: {
         marginLeft: 15,
         color: textColor,
-
     },
     disabledText: {
         color: textColor,

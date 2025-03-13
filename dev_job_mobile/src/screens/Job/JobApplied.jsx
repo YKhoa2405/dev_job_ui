@@ -16,15 +16,12 @@ export default function JobApplied({ navigation }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
-
     const [loading, setLoading] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
-
 
     useEffect(() => {
         fetchListResume();
     }, []);
-    console.log(jobs)
 
     const fetchListResume = async (currentPage = 1, limit = 10) => {
         if (currentPage === 1) setLoading(true);
@@ -94,13 +91,23 @@ export default function JobApplied({ navigation }) {
                             <Text style={StyleShare.titleText16}>{item.status}</Text>
                         </View>
                     </View>
-                    <TouchableOpacity onPress={() => navigation.navigate('ResumeClientView', { pdfUri: item?.url })}
-                    >
-                        <View style={[StyleShare.buttonDetailApply]} >
-                            <Icon name="document-outline" size={20} />
-                            <Text style={{ marginLeft: 5 }}>Xem lại CV</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <View style={StyleShare.flexBetween}>
+                        <TouchableOpacity onPress={() => navigation.navigate('ResumeClientView', { pdfUri: item?.url })}
+                        >
+                            <View style={[StyleShare.buttonDetailApply]} >
+                                <Icon name="document-outline" size={20} />
+                                <Text style={{ marginLeft: 5 }}>Xem lại CV</Text>
+                            </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => navigation.navigate('PrepareScreen', { job: item })}
+                        >
+                            <View style={[StyleShare.buttonDetailApply]} >
+                                <Icon name="trophy-outline" size={20} />
+                                <Text style={{ marginLeft: 5 }}>Luyện phỏng vấn</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </TouchableWithoutFeedback>
         );

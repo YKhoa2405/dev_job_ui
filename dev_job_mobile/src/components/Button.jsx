@@ -16,7 +16,7 @@ const Button = ({ title, onPress, disable, backgroundColor, textColor, borderCol
 
 const styles = StyleSheet.create({
   button: {
-    padding: 16,
+    padding: 15,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,

@@ -14,6 +14,7 @@ import Modal from "react-native-modal";
 import axios from "axios";
 import Button from "../../components/Button";
 
+
 export default function JobSearchResult({ navigation, route }) {
 
     const { searchKeywork } = route.params;
