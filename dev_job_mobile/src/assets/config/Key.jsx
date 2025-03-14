@@ -9,6 +9,8 @@ export const clinet_id_google = "239735618406-cm48vh19b18p843uju9anq2jtsnha7ek.a
 
 
 export const api_key_gemini = "AIzaSyCJbQIrPPeWjdEXlNAZITcUfyWlWAOvp90";
+export const api_key_speech = "AIzaSyCJbQIrPPeWjdEXlNAZIT1ahvACXLLoMmE3Umxiq9wDfneS93QCnObP09K3ebGh7wk3IjpH5QJQQJ99BCAC3pKaRXJ3w3AAAYACOGkqDOcUfyWlWAOvp90";
+
 
 
 // Firebase

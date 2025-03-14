@@ -7,18 +7,17 @@ import StyleShare from '../../assets/themes/StyleShare';
 import Button from '../../components/Button';
 
 export default function ResultScreen({ route, navigation }) {
-    const { totalScore, details } = route.params;
+    const { totalScore, details, job } = route.params;
 
     const handleRetry = () => {
-        navigation.navigate('PrepareScreen', { job: route.params.job }); 
+        navigation.navigate('PrepareScreen', { job: job });
+        // navigation.navigate('JobApplied')
     };
 
     return (
         <View style={{ flex: 1 }}>
             <UIHeader
-                leftIcon={"arrow-back"}
                 title={'Kết quả phỏng vấn'}
-                handleLeftIcon={() => navigation.goBack()}
             />
             <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
                 {/* Điểm tổng */}
@@ -36,13 +35,13 @@ export default function ResultScreen({ route, navigation }) {
                 ))}
 
                 {/* Nút Thử lại */}
-                <View style={{marginHorizontal:20, marginTop:30}}>
+                <View style={{ marginHorizontal: 20, marginTop: 30 }}>
 
-                <Button
-                    title={'Thử lại'}
-                    onPress={handleRetry}
-                    backgroundColor={mainColor}
-                    textColor={white} />
+                    <Button
+                        title={'Thử lại'}
+                        onPress={handleRetry}
+                        backgroundColor={mainColor}
+                        textColor={white} />
                 </View>
             </ScrollView>
         </View>

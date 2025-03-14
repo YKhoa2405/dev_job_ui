@@ -97,7 +97,8 @@ export const endpoints = {
     // cv
     'uploadCV': '/cv/upload',
     'cvDetail': (cvId) => `/cv/${cvId}`,
-    'cvByUser': (userId) => `/cv/${userId}`
+    'cvByUser': (userId) => `/cv/${userId}`,
+
 
 };
 

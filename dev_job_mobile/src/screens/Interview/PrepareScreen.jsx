@@ -89,7 +89,7 @@ export default function PrepareScreen({ route, navigation }) {
                     backdropTransitionInTiming={500}
                     backdropTransitionOutTiming={500}
                     style={StyleShare.modalStyle}>
-                    <View style={StyleShare.modalContent}>
+                    <View style={styles.modalContent}>
                         <View style={[StyleShare.flexBetween, { marginVertical: 15 }]}>
                             <Text style={StyleShare.titleText20}>Chọn hình thức trả lời</Text>
                             <TouchableOpacity onPress={() => setModalVisible(false)} >
@@ -167,8 +167,8 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     startButton: {
-        margin:20,
-        padding:16,
+        margin: 20,
+        padding: 16,
         backgroundColor: mainColor,
         borderRadius: 10,
         alignItems: 'center',
@@ -186,6 +186,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 15,
         borderBottomWidth: 1,
-        borderBottomColor: white,
+        borderBottomColor: grey,
+    },
+    modalContent: {
+        backgroundColor: white,
+        padding: 20,
+        borderTopLeftRadius: 10,   // Bo góc phía trên
+        borderTopRightRadius: 10,  // Bo góc phía trên
     },
 });

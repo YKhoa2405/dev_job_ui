@@ -5,32 +5,33 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { grey, mainColor, orange, textColor, white } from '../../assets/themes/Color';
 import { geminiService } from '../../assets/config/GeminiService';
 import StyleShare from '../../assets/themes/StyleShare';
-import Voice from '@react-native-voice/voice';
 import { ToastMess } from '../../components/ToastMess';
+import { Audio } from 'expo-av';
+import axios from 'axios';
 
 export default function InterviewScreen({ route, navigation }) {
-    const { job, mode } = route.params; // job là application từ PrepareScreen
+    const { job, mode } = route.params;
     const jobDetails = job.jobId;
-    console.log(jobDetails);
     const [questions, setQuestions] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answers, setAnswers] = useState([]);
     const [currentAnswer, setCurrentAnswer] = useState('');
     const [loading, setLoading] = useState(true);
-    const [isListening, setIsListening] = useState(false);
+    const [recording, setRecording] = useState(null);
+    const [isTranscribing, setIsTranscribing] = useState(false);
 
     useEffect(() => {
         const generateQuestions = async () => {
             setLoading(true);
             try {
                 const prompt = `
-                    Tạo 3 câu hỏi phỏng vấn IT cho công việc:
-                    - Tên: "${jobDetails.name}"
-                    - Cấp độ: "${jobDetails.level}"
-                    - Kỹ năng: "${jobDetails.skills?.join(', ') || 'Không xác định'}"
-                    - Yêu cầu kỹ năng: "${jobDetails.requirements?.join(', ') || 'Không xác định'}"
-                    Trả về JSON: ["câu hỏi 1", "câu hỏi 2", "câu hỏi 3"]
-                `;
+          Tạo 3 câu hỏi phỏng vấn IT cho công việc:
+          - Tên: "${jobDetails.name}"
+          - Cấp độ: "${jobDetails.level}"
+          - Kỹ năng: "${jobDetails.skills?.join(', ') || 'Không xác định'}"
+          - Yêu cầu kỹ năng: "${jobDetails.requirements?.join(', ') || 'Không xác định'}"
+          Trả về JSON: ["câu hỏi 1", "câu hỏi 2", "câu hỏi 3"]
+        `;
                 const result = await geminiService(prompt);
 
                 if (result && result !== "Không có phản hồi từ AI.") {
@@ -51,36 +52,95 @@ export default function InterviewScreen({ route, navigation }) {
     }, []);
 
     useEffect(() => {
-        Voice.onSpeechStart = () => setIsListening(true);
-        Voice.onSpeechEnd = () => setIsListening(false);
-        Voice.onSpeechResults = (event) => {
-            if (event.value && event.value.length > 0) {
-                setCurrentAnswer(event.value[0]); // Lấy câu trả lời đầu tiên
-            }
-        };
-        Voice.onSpeechError = (error) => {
-            console.error("Lỗi Voice:", error);
-            setIsListening(false);
-            Alert.alert("Lỗi", "Không thể nhận diện giọng nói. Vui lòng thử lại.");
-        };
+        console.log('Current Answer đã cập nhật:', currentAnswer);
+    }, [currentAnswer]);
 
-        return () => {
-            Voice.destroy().then(Voice.removeAllListeners);
-        };
-    }, []);
-
-    const handleVoice = async () => {
+    async function startRecording() {
         try {
-            if (isListening) {
-                await Voice.stop();
-            } else {
-                await Voice.start('vi-VN'); // Nhận diện tiếng Việt
+            const { granted } = await Audio.requestPermissionsAsync();
+            if (!granted) {
+                ToastMess({ type: 'error', text1: 'Vui lòng cung cấp quyền cho phép ghi âm.' });
+                return;
             }
-        } catch (error) {
-            console.error('Lỗi nhận diện giọng nói:', error);
-            Alert.alert("Lỗi", "Không thể kích hoạt nhận diện giọng nói.");
+
+            await Audio.setAudioModeAsync({
+                allowsRecordingIOS: true,
+                playsInSilentModeIOS: true,
+            });
+
+            const recordingOptions = {
+                android: {
+                    extension: '.wav',
+                    outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_WAV,
+                    audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_PCM_16BIT,
+                    sampleRate: 16000,
+                    numberOfChannels: 1,
+                    bitRate: 128000,
+                },
+                ios: {
+                    extension: '.wav',
+                    audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
+                    sampleRate: 16000,
+                    numberOfChannels: 1,
+                    bitRate: 128000,
+                    linearPCMBitDepth: 16,
+                    linearPCMIsBigEndian: false,
+                    linearPCMIsFloat: false,
+                },
+            };
+
+            const { recording } = await Audio.Recording.createAsync(recordingOptions);
+            setRecording(recording);
+            console.log('Đã bắt đầu ghi âm');
+        } catch (err) {
+            console.log('Lỗi khi ghi âm:', err);
         }
-    };
+    }
+
+    async function stopRecording() {
+        try {
+            if (!recording) return;
+
+            setRecording(null);
+            setIsTranscribing(true);
+            await recording.stopAndUnloadAsync();
+            const uri = recording.getURI();
+            console.log('File âm thanh:', uri);
+
+            await transcribeAudio(uri);
+        } catch (err) {
+            console.log('Lỗi khi dừng ghi âm:', err);
+        } finally {
+            setIsTranscribing(false);
+        }
+    }
+
+    async function transcribeAudio(uri) {
+        try {
+            const apiKey = "7O0jO8IPE1zsouf38SHnwocbq6MrrOIgvCo3mfeSVf7yPsldL4ubJQQJ99BCAC3pKaRXJ3w3AAAYACOGLxpU";
+            const endpoint = `https://eastasia.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=vi-VN`;
+
+            const response = await fetch(uri);
+            const audioBlob = await response.blob();
+
+            const result = await axios({
+                method: 'POST',
+                url: endpoint,
+                headers: {
+                    'Ocp-Apim-Subscription-Key': apiKey,
+                    'Content-Type': 'audio/wav; codecs=audio/pcm; samplerate=16000',
+                },
+                data: audioBlob,
+            });
+
+            const data = result.data;
+            console.log('Kết quả từ Azure:', result);
+            setCurrentAnswer(data.DisplayText || 'Không có nội dung nhận diện');
+        } catch (err) {
+            console.log(err)
+            setCurrentAnswer('Có lỗi xảy ra');
+        }
+    }
 
     const nextQuestion = () => {
         setAnswers([...answers, currentAnswer]);
@@ -96,22 +156,22 @@ export default function InterviewScreen({ route, navigation }) {
         setLoading(true);
         try {
             const prompt = `
-                Bạn là chuyên gia phỏng vấn IT. Công việc: "${jobDetails.name}", Cấp độ: "${jobDetails.level}", Kỹ năng: "${jobDetails.skills?.join(', ') || 'Không xác định'}".
-                Đánh giá các câu trả lời sau:
-                ${questions.map((q, i) => `Câu hỏi ${i + 1}: "${q}"\nCâu trả lời: "${answers[i] || currentAnswer}"`).join('\n')}
-                Hãy:
-                1. Chấm điểm từng câu từ 0-10.
-                2. Đưa ra feedback cụ thể.
-                3. Tính điểm trung bình tổng.
-                Trả về JSON: { "totalScore": number, "details": [{ "score": number, "feedback": string }, ...] }
-            `;
+        Bạn là chuyên gia phỏng vấn IT. Công việc: "${jobDetails.name}", Cấp độ: "${jobDetails.level}", Kỹ năng: "${jobDetails.skills?.join(', ') || 'Không xác định'}".
+        Đánh giá các câu trả lời sau:
+        ${questions.map((q, i) => `Câu hỏi ${i + 1}: "${q}"\nCâu trả lời: "${answers[i] || currentAnswer}"`).join('\n')}
+        Hãy:
+        1. Chấm điểm từng câu từ 0-10.
+        2. Đưa ra feedback cụ thể.
+        3. Tính điểm trung bình tổng.
+        Trả về JSON: { "totalScore": number, "details": [{ "score": number, "feedback": string }, ...] }
+      `;
             const result = await geminiService(prompt);
 
             if (result && result !== "Không có phản hồi từ AI.") {
                 const cleanResult = result.replace(/```json|```/g, "").trim();
                 const evaluation = JSON.parse(cleanResult);
                 if (evaluation && typeof evaluation.totalScore === "number" && Array.isArray(evaluation.details)) {
-                    navigation.navigate('ResultScreen', { totalScore: evaluation.totalScore, details: evaluation.details });
+                    navigation.navigate('ResultScreen', { totalScore: evaluation.totalScore, details: evaluation.details,job:job });
                 }
             }
         } catch (error) {
@@ -127,10 +187,7 @@ export default function InterviewScreen({ route, navigation }) {
 
     return (
         <View style={styles.container}>
-            <UIHeader
-                leftIcon={"arrow-back"}
-                handleLeftIcon={() => navigation.goBack()}
-            />
+            <UIHeader leftIcon={'arrow-back'} handleLeftIcon={() => navigation.goBack()} />
             {loading ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={orange} />
@@ -152,17 +209,18 @@ export default function InterviewScreen({ route, navigation }) {
                     ) : (
                         <View style={styles.voiceContainer}>
                             <Text style={styles.voiceStatus}>
-                                {isListening ? "Đang nghe..." : "Nhấn mic để nói"}
+                                {recording ? 'Đang nghe...' : isTranscribing ? 'Đang xử lý...' : 'Nhấn mic để nói'}
                             </Text>
                             <TouchableOpacity
-                                onPress={handleVoice}
+                                onPress={recording ? stopRecording : startRecording}
                                 style={[
                                     styles.voiceButton,
-                                    { backgroundColor: isListening ? orange : mainColor },
+                                    { backgroundColor: recording ? orange : mainColor },
                                 ]}
+                                disabled={isTranscribing}
                             >
-                                <Icon name={isListening ? "stop" : "mic-outline"} size={24} color={white} />
-                                <Text style={styles.voiceButtonText}>{isListening ? "Dừng" : "Nói"}</Text>
+                                <Icon name={recording ? 'stop' : 'mic-outline'} size={24} color={white} />
+                                <Text style={styles.voiceButtonText}>{recording ? 'Dừng' : 'Nói'}</Text>
                             </TouchableOpacity>
                             {currentAnswer ? (
                                 <Text style={styles.voiceResult}>Kết quả: {currentAnswer}</Text>
@@ -191,7 +249,6 @@ export default function InterviewScreen({ route, navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f0f4f8',
     },
     content: {
         flex: 1,
@@ -202,7 +259,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f0f4f8',
     },
     loadingText: {
         marginTop: 10,
@@ -261,11 +317,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 30,
         borderRadius: 10,
         alignItems: 'center',
-        marginBottom: 20
+        marginBottom: 20,
     },
     nextButtonDisabled: {
         backgroundColor: 'grey',
-        marginBottom: 20
+        marginBottom: 20,
     },
     nextButtonText: {
         fontSize: 18,
