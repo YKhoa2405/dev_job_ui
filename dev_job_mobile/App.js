@@ -59,6 +59,7 @@ import CandidatesProfile from './src/screens/Profile/CandidatesProfile';
 import PrepareScreen from './src/screens/Interview/PrepareScreen';
 import InterviewScreen from './src/screens/Interview/InterviewScreen';
 import ResultScreen from './src/screens/Interview/ResultScreen';
+import CongratsScreen from './src/screens/Congrats/CongratsScreen';
 
 
 
@@ -97,6 +98,8 @@ export default function App() {
           <Stack.Screen name="ResumeByJob" component={ResumeByJob} />
           <Stack.Screen name="ResumeView" component={ResumeView} />
           <Stack.Screen name="ResumeClientView" component={ResumeClientView} />
+          <Stack.Screen name="CongratsScreen" component={CongratsScreen} />
+
 
           <Stack.Screen name="ResumeInput" component={ResumeInput} />
           <Stack.Screen name="ResumeExperience" component={ResumeExperience} />

@@ -80,13 +80,18 @@ export default function ResumeApply({ navigation, route }) {
         formData.append('email', email);
         formData.append('cv', selectCvUrl);
         setLoading(true)
-        console.log(formData)
         try {
             const token = await AsyncStorage.getItem('access_token');
-            await authApi(token).post(endpoints['resumeApply'], formData, {
+            const res = await authApi(token).post(endpoints['resumeApply'], formData, {
                 headers: { 'Content-Type': 'application/json' },
             });
-            ToastMess({ type: 'success', text1: 'Ứng tuyển thành công' });
+            console.log(res.data)
+            if (res.data.statusCode === 201) {
+                navigation.navigate('CongratsScreen', {
+                    jobTitle: jobTitle,
+                    companyName: companyName,
+                });
+            }
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
             console.log(error.message)

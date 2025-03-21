@@ -147,7 +147,7 @@ export default function JobDetail({ route, navigation }) {
                                         <View style={[StyleShare.flexCenter, { flexDirection: 'row', flexWrap: 'wrap' }]}>
                                             {jobDetail.skills.map((item, index) => (
                                                 <View key={index} style={styles.skillTag}>
-                                                    <Text style={{ fontSize: 16,}}>{item}</Text>
+                                                    <Text style={{ fontSize: 16, }}>{item}</Text>
                                                 </View>
                                             ))}
                                         </View>
@@ -186,28 +186,30 @@ export default function JobDetail({ route, navigation }) {
                         />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.buttonApply} onPress={() => {
-                        navigation.navigate('ResumeApply', {
-                            jobId: jobDetail._id,
-                            companyName: jobDetail.companyId.name,
-                            companyId: jobDetail.companyId._id,
-
-                            jobTitle: jobDetail.name,
-                            location: jobDetail.location,
-                            salary: jobDetail.salary
-                        });
-                    }}>
-                        <Text style={styles.buttonText}>Ứng tuyển ngay</Text>
+                    <TouchableOpacity
+                        style={[
+                            styles.buttonApply,
+                            { backgroundColor: jobDetail.hasApplied ? 'grey' : mainColor }
+                        ]}
+                        onPress={() => {
+                            if (!jobDetail.hasApplied) {
+                                navigation.navigate('ResumeApply', {
+                                    jobId: jobDetail._id,
+                                    companyName: jobDetail.companyId.name,
+                                    companyId: jobDetail.companyId._id,
+                                    jobTitle: jobDetail.name,
+                                    location: jobDetail.location,
+                                    salary: jobDetail.salary
+                                });
+                            }
+                        }}
+                        disabled={jobDetail.hasApplied}
+                    >
+                        <Text style={styles.buttonText}>
+                            {jobDetail.hasApplied ? 'Bạn đã ứng tuyển' : 'Ứng tuyển ngay'}
+                        </Text>
                     </TouchableOpacity>
-                    {/* {jobDetail.is_applied = true ? (
-                ) : (
-                    <TouchableOpacity style={styles.buttonApply} onPress={() => navigation.navigate('ProfileEmployer', { employerId: jobDetail.employer.id })}>
-                        <Text style={styles.buttonText}>Hồ sơ công ty</Text>
-                    </TouchableOpacity>
-                )} */}
-
                 </View>
-
             </>}
         </View>
     )
@@ -270,7 +272,7 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         paddingHorizontal: 10,
         borderRadius: 10,
-        margin: 5, 
+        margin: 5,
         borderWidth: 1,
         borderColor: 'grey',
     },
