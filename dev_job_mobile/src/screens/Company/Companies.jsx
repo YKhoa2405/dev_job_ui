@@ -77,13 +77,12 @@ export default function Companies({ navigation }) {
                 <View style={styles.itemContainer}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Avatar.Image source={{ uri: item.avatar }} size={50} style={{ backgroundColor: 'white', marginRight: 10 }} />
-                        <View >
-                            <Text style={StyleShare.titleText16}>{item.name}</Text>
+                        <View style={{flex:1}}>
+                            <Text style={StyleShare.titleText16} numberOfLines={2}>{item.name}</Text>
                             <Text style={{ marginTop: 5 }}>{item.field}</Text>
                         </View>
                     </View>
                     <View style={StyleShare.technologyContainer}>
-                        <Chip style={StyleShare.chip}>{item.size} nhân viên</Chip>
                         <Chip style={StyleShare.chip}>{item.city}</Chip>
 
                     </View>

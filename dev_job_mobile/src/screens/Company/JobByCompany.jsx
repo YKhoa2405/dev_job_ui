@@ -200,7 +200,10 @@ export default function JobByCompany({ navigation, route }) {
             <TouchableWithoutFeedback onPress={() => navigation.navigate('ResumeByJob', { jobId: item._id })}>
                 <View style={StyleShare.jobItemContainer}>
                     <View style={StyleShare.flexBetween}>
-                        <Text style={StyleShare.titleText16}>{item.name}</Text>
+                        <View style={{ flex: 1 }}>
+
+                            <Text style={StyleShare.titleText16} numberOfLines={2}>{item?.name}</Text>
+                        </View>
                         <View style={StyleShare.flexCenter}>
                             {item.isActive ? <TouchableOpacity style={{ zIndex: 999 }} onPress={() => handleUpdateActiveJob(item._id)}>
                                 <Icon name="notifications-circle" size={26} color={orange} />

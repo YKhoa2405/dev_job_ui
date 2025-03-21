@@ -132,9 +132,9 @@ export default function JobSearchResult({ navigation, route }) {
             <View style={StyleShare.jobItemContainer}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Avatar.Image source={{ uri: item.companyId.avatar || 'https://example.com/default-avatar.png' }} size={50} style={{ backgroundColor: 'white', marginRight: 5 }} />
-                    <View>
-                        <Text style={StyleShare.titleText16}>{item.name}</Text>
-                        <Text style={{ marginTop: 5 }}>{item.companyId.name}</Text>
+                    <View style={{ flex: 1 }}>
+                        <Text numberOfLines={2} style={StyleShare.titleText16}>{item.name}</Text>
+                        <Text numberOfLines={2} style={{ marginTop: 5 }}>{item.companyId.name}</Text>
                     </View>
                 </View>
                 <View style={StyleShare.technologyContainer}>

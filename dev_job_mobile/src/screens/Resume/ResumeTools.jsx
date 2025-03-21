@@ -62,9 +62,9 @@ export default function ResumeTools({ navigation }) {
                 });
 
                 dispatch(fetchListCvByUser(user?._id));
-                // if (res.data.data.url) {
-                //     await handScanCV(res.data.data.url, res.data.data._id);
-                // }
+                if (res.data.data.url) {
+                    await handScanCV(res.data.data.url, res.data.data._id);
+                }
 
             } else {
                 ToastMess({ type: 'error', text1: 'Chỉ hỗ trợ định dạng pdf, docx' });

@@ -3,11 +3,11 @@ import UIHeader from "../../components/UIHeader";
 import { Avatar } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
 import StyleShare from "../../assets/themes/StyleShare";
-import { mainColor, orange, textColor, white } from "../../assets/themes/Color";
+import { grey, mainColor, orange, textColor, white } from "../../assets/themes/Color";
 import moment from "moment/moment";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchJobDetail } from "../../redux/slice/jobSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Loading from "../../components/Loading";
 import { authApi, endpoints } from "../../assets/config/API";
 import { ToastMess } from "../../components/ToastMess";
@@ -18,9 +18,11 @@ export default function JobDetail({ route, navigation }) {
     const dispatch = useDispatch()
     const jobDetail = useSelector((state) => state.job.jobDetail);
     const status = useSelector((state) => state.job.status);
+    const [isSaved, setIsSaved] = useState(false);
     useEffect(() => {
         if (jobId) {
             dispatch(fetchJobDetail(jobId));
+            handleCheckSavedJob();
         }
     }, [jobId, dispatch]);
 
@@ -60,11 +62,32 @@ export default function JobDetail({ route, navigation }) {
     const handleSavedJob = async () => {
         try {
             const token = await AsyncStorage.getItem("access_token");
-            // API gọi để xóa công việc đã lưu
-            await authApi(token).post(endpoints['saveJob'], { jobId });
+            const res = await authApi(token).post(endpoints['saveJob'], { jobId });
+            setIsSaved(true);
+            ToastMess({ type: 'success', text1: 'Lưu việc làm thành công.' });
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
+        }
+    };
 
+    const handleUnsaveJob = async () => {
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+            const res = await authApi(token).delete(endpoints['saveJobDetail'](jobId));
+
+            setIsSaved(false);
+            ToastMess({ type: 'success', text1: 'Bỏ lưu việc làm thành công.' });
+        } catch (error) {
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
+        }
+    };
+
+    const handleCheckSavedJob = async () => {
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+            const res = await authApi(token).get(endpoints['checkSavedJob'](jobId));
+            setIsSaved(res.data.data.isSaved);
+        } catch (error) {
             console.log(error);
         }
     };
@@ -88,8 +111,8 @@ export default function JobDetail({ route, navigation }) {
                                 style={{ backgroundColor: 'white' }}
                             />
                         </TouchableOpacity>
-                            <Text style={StyleShare.titleText16}>{jobDetail?.name || "N/A"}</Text>
-                            <Text>{jobDetail?.companyId?.name || "N/A"}</Text>
+                        <Text style={StyleShare.titleText16}>{jobDetail?.name || "N/A"}</Text>
+                        <Text>{jobDetail?.companyId?.name || "N/A"}</Text>
 
                         <View style={styles.descOption}>
                             <View style={styles.descDetail}>
@@ -121,9 +144,14 @@ export default function JobDetail({ route, navigation }) {
                                     <Icon name={'podium'} size={26} color={mainColor} />
                                     <View style={styles.infoDesc}>
                                         <Text style={{ color: textColor }}>Công nghệ</Text>
-                                        {jobDetail.skills.map((item, index) => (
-                                            <Text key={index} style={{ fontWeight: '500', fontSize: 16, marginTop: 3 }}>{item}</Text>
-                                        ))}
+                                        <View style={[StyleShare.flexCenter, { flexDirection: 'row', flexWrap: 'wrap' }]}>
+                                            {jobDetail.skills.map((item, index) => (
+                                                <View key={index} style={styles.skillTag}>
+                                                    <Text style={{ fontSize: 16,}}>{item}</Text>
+                                                </View>
+                                            ))}
+                                        </View>
+
                                     </View>
                                 </View>
                             )}
@@ -147,15 +175,17 @@ export default function JobDetail({ route, navigation }) {
                     </View>
                 </ScrollView>
                 <View style={[StyleShare.bottomBar, StyleShare.flexCenter]}>
-                    <View style={StyleShare.buttonSave}>
-                        <Icon name="bookmarks" color={orange} size={24} />
-                    </View>
-                    {/* {jobDetail.is_saved ? (
-                ) : (
-                    <TouchableOpacity style={StyleShare.buttonSave} onPress={() => handleSaveJob(jobDetail.id)}>
-                        <Icon name="bookmarks-outline" color={orange} size={24} />
+                    <TouchableOpacity
+                        style={StyleShare.buttonSave}
+                        onPress={isSaved ? handleUnsaveJob : handleSavedJob}
+                    >
+                        <Icon
+                            name={isSaved ? "bookmarks" : "bookmarks-outline"}
+                            color={orange}
+                            size={24}
+                        />
                     </TouchableOpacity>
-                )} */}
+
                     <TouchableOpacity style={styles.buttonApply} onPress={() => {
                         navigation.navigate('ResumeApply', {
                             jobId: jobDetail._id,
@@ -233,5 +263,15 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "500",
         color: white
+    },
+
+    skillTag: {
+        backgroundColor: white,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 10,
+        margin: 5, 
+        borderWidth: 1,
+        borderColor: 'grey',
     },
 })

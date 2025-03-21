@@ -68,10 +68,10 @@ export default function Services({ navigation, route }) {
         return (
             <TouchableWithoutFeedback>
                 <View style={StyleShare.jobItemContainer}>
-                    <Text style={StyleShare.titleText20}>{item.name}</Text>
-                    <Text style={[StyleShare.titleText20, { marginVertical: 5, color: orange }]}>{formatVND(item.price)}</Text>
+                    <Text style={StyleShare.titleText20}>{item?.name}</Text>
+                    <Text style={[StyleShare.titleText20, { marginVertical: 5, color: orange }]}>{formatVND(item?.price)}</Text>
                     <Text style={StyleShare.titleText16}>{item.description}</Text>
-                    <Text style={{ fontWeight: '500',color: textColor }}>Thời hạn: <Text style={{ color: orange }}>{item.durationDays} ngày</Text></Text>
+                    <Text style={{ fontWeight: '500',color: textColor }}>Thời hạn: <Text style={{ color: orange }}>{item?.durationDays} ngày</Text></Text>
 
                     <TouchableOpacity style={styles.buttonServices} onPress={() => handlePayService(item.price, item._id, item.name)}>
                         <Text style={[StyleShare.titleText16,{color:white}]}>Mua ngay</Text>

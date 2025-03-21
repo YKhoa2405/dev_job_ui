@@ -76,7 +76,7 @@ export const endpoints = {
     'saveJob': '/save-job',
     'saveJobDetail': (id) => `/save-job/${id}`,
     'deleteAllSaveJob': '/save-job/clearAll',
-    'checkSavedJob': (jobId) => `/save-job/check/${jobId}`,
+    'checkSavedJob': (jobId) => `/save-job/check-saved/${jobId}`,
 
     // roles
     'roles': 'roles',

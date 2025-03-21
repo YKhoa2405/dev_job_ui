@@ -143,10 +143,10 @@ export default function CompanyDetail({ navigation, route }) {
             return (
                 <TouchableWithoutFeedback onPress={() => navigation.navigate("JobDetail", { jobId: item._id })}>
                     <View style={StyleShare.jobItemContainer}>
-                        <TouchableOpacity style={styles.btnSave}>
-                            <Icon name="bookmark" size={26} color={orange} />
-                        </TouchableOpacity>
-                        <Text style={StyleShare.titleText16}>{item.name}</Text>
+                        <View style={{ flex: 1 }}>
+                            <Text style={StyleShare.titleText16} numberOfLines={2}>{item?.name}</Text>
+                        </View>
+
                         <View style={StyleShare.technologyContainer}>
                             <Chip style={StyleShare.chip}>{item.level}</Chip>
                             <Chip style={StyleShare.chip}>{item.city}</Chip>

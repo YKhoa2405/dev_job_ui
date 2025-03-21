@@ -67,8 +67,9 @@ export default function JobApplied({ navigation }) {
                             source={{ uri: item?.companyId?.avatar }}
                             style={{ backgroundColor: 'white' }}
                         />
-                        <View style={{ marginLeft: 10 }}>
-                            <Text style={StyleShare.titleText16}>{item?.jobId?.name}</Text>
+                        <View style={{ marginLeft: 10, flex:1 }}>
+                            <Text numberOfLines={2} style={StyleShare.titleText16}>{item?.jobId?.name} </Text>
+                            
                             <Text style={{ marginTop: 5, color: textColor }}>{item?.companyId?.name}</Text>
                         </View>
                     </View>
