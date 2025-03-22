@@ -4,15 +4,20 @@ import StyleShare from "../../assets/themes/StyleShare";
 import UIHeader from "../../components/UIHeader";
 import { Avatar, Chip } from "react-native-paper";
 import Icon from 'react-native-vector-icons/Ionicons'
-import { mainColor } from "../../assets/themes/Color";
+import { mainColor, white } from "../../assets/themes/Color";
 import Dropdown from "../../components/Dropdown";
+import Modal from "react-native-modal";
+import Button from "../../components/Button";
 
 
 export default function JobSuggestions({ navigation, route }) {
     const { title, api } = route.params;
     const [searchKeywork, setSearchKeywork] = useState('')
-    const [level, setLevel] = useState('')
-    const [salary, setSalary] = useState('')
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [level, setLevel] = useState(null)
+    const [salary, setSalary] = useState(null)
+    const [jobType, setJobType] = useState(null)
+    const [jobs, setJobs] = useState([]);
 
     const levelData = [
         { title: 'Intern' },
@@ -35,14 +40,20 @@ export default function JobSuggestions({ navigation, route }) {
         { title: 'Thỏa thuận' }
     ]
 
+    const jobTypeData = [
+        { title: 'Office' },
+        { title: 'Remote' },
+        { title: 'Hybrid' },
+    ]
+
 
     const renderItem = (item) => {
         <TouchableWithoutFeedback>
             <View style={StyleShare.jobItemContainer}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Avatar.Image size={36} style={{ backgroundColor: 'white' }} />
-                    <View>
-                        <Text style={StyleShare.titleText16}>ten cong ty</Text>
+                    <View style={{ flex: 1 }}>
+                        <Text style={StyleShare.titleText16} numberOfLines={2}>{item?.name}</Text>
                         <Text style={{ marginTop: 5 }}>ten cong ty</Text>
                     </View>
                 </View>
@@ -64,41 +75,109 @@ export default function JobSuggestions({ navigation, route }) {
     }
 
     return (
-        <View style={[StyleShare.container]}>
-            <View style={{ marginHorizontal: 20, marginTop: 30, }}>
-                <View style={{flexDirection:'row', alignItems:'center', marginBottom:10 }}>
-                    <Icon name="arrow-back" size={26} color={mainColor} style={{marginRight:10}} onPress={() => navigation.goBack()} />
-                        <Text style={StyleShare.titleText16}>{title}</Text>
-                </View>
-                <TextInput
-                    style={StyleShare.searchDetail}
-                    // onSubmitEditing={handleSearch}
-                    value={searchKeywork}
-                    onChangeText={query => setSearchKeywork(query)}
-                    placeholder="Nhập từ khóa để tìm kiếm ..." />
-                <View style={[StyleShare.flexBetween, { }]}>
+        <View style={StyleShare.container}>
+            <Modal isVisible={isModalVisible} onBackdropPress={() => setModalVisible(false)}
+                animationIn="slideInUp"
+                animationOut="slideOutDown"
+                backdropTransitionInTiming={500}
+                backdropTransitionOutTiming={500}
+                style={StyleShare.modalStyle}>
+                <View style={StyleShare.modalContent}>
+                    <View style={[StyleShare.flexBetween, { marginVertical: 15 }]}>
+                        <Text style={StyleShare.titleText20}>Bộ lọc việc làm</Text>
+                        <TouchableOpacity onPress={() => setModalVisible(false)} >
+                            <Icon name="close" size={26} color={'red'} />
+                        </TouchableOpacity>
+                    </View>
+
+
+                    <Text style={StyleShare.titleText16}>Level</Text>
                     <Dropdown
                         data={levelData}
                         onSelect={(item) => {
                             setLevel(item.title)
                         }}
                         placeholder="Chọn Level"
+                        buttonStyle={{
+                            marginTop: 10,
+                            width: '100%',
+                            height: 50,
+                            marginBottom: 20
+                        }}
                     />
+
+                    <Text style={StyleShare.titleText16}>Loại hình</Text>
+                    <Dropdown
+                        data={jobTypeData}
+                        onSelect={(item) => {
+                            setJobType(item.title)
+                        }}
+                        placeholder="Chọn loại hình"
+                        buttonStyle={{
+                            marginTop: 10,
+                            width: '100%',
+                            height: 50,
+                            marginBottom: 20
+                        }}
+                    />
+                    <Text style={StyleShare.titleText16}>Mức lương</Text>
                     <Dropdown
                         data={salaryData}
                         onSelect={(item) => {
                             setSalary(item.title)
                         }}
                         placeholder="Chọn mức lương"
+                        buttonStyle={{
+                            marginTop: 10,
+                            width: '100%',
+                            height: 50,
+                            marginBottom: 20
+                        }}
+                    />
+
+
+
+                    <Button
+                        title={'Áp dụng'}
+                        backgroundColor={mainColor}
+                        textColor={white}
+                    // onPress={applyFilters}
+                    />
+                    {/* <Button
+                        title={'Đặt lại'}
+                        backgroundColor={bgButton2}
+                        textColor={'black'}
+                        onPress={resetFilters}
+                    /> */}
+                </View>
+            </Modal>
+            <UIHeader
+                leftIcon={"arrow-back"}
+                title={title}
+                rightIcon={"options"}
+                handleRightIcon={() => setModalVisible(true)}
+                handleLeftIcon={() => { navigation.goBack() }} />
+            <View style={{ paddingHorizontal: 20, marginBottom: 5 }}>
+                <View style={StyleShare.searchDetail}>
+                    <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
+                    <TextInput
+                        style={StyleShare.searchInput}
+                        placeholder="Tìm kiếm tin tuyển dụng..."
+                        value={searchKeywork}
+                        onChangeText={(text) => setSearchKeywork(text)}
+                    // onSubmitEditing={() => {
+                    //     fetchJobByCompany(1, 10, searchKeywork)
+                    // }}
                     />
                 </View>
-                <Text style={[StyleShare.titleText16, { marginVertical: 10 }]}>20 việc làm</Text>
-                <View style={{ marginHorizontal: 20 }}>
+                <View style={{ marginTop: 10 }}>
+                    {/* <Text style={StyleShare.titleText16}>{totalItems} việc làm</Text> */}
                 </View>
             </View>
 
+
             <FlatList
-                // data={jobs}
+                data={jobs}
                 renderItem={renderItem}
                 // keyExtractor={item => item.job.id.toString()}
                 ListEmptyComponent={

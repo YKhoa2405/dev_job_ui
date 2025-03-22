@@ -254,8 +254,14 @@ export default function JobCreate({ navigation, route }) {
             navigation.goBack()
 
         } catch (error) {
+            if (error.response?.status === 403) {
+                ToastMess({ type: 'error', text1: error.response.data.message });
+                return; // Dừng lại, không chạy `ToastMess` tiếp theo
+            }
+            
+            // Thông báo lỗi chung nếu không phải lỗi 403
             ToastMess({ type: 'error', text1: 'Thêm mới thất bại.' });
-            console.log(error)
+            console.log('Axios Error:', error);
         }
         finally {
             setLoading(false)

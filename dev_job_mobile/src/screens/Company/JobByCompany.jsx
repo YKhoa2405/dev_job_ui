@@ -33,9 +33,6 @@ export default function JobByCompany({ navigation, route }) {
     const [searchKeywork, setSearchKeywork] = useState('')
     const [isModalVisible, setModalVisible] = useState(false);
 
-    const toggleModal = () => {
-        setModalVisible(!isModalVisible);
-    };
 
     const activeData = [
         { title: 'Tất cả', value: null },
@@ -246,7 +243,7 @@ export default function JobByCompany({ navigation, route }) {
 
     return (
         <View style={StyleShare.container}>
-            <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}
+            <Modal isVisible={isModalVisible} onBackdropPress={() => setModalVisible(false)}
                 animationIn="slideInUp"
                 animationOut="slideOutDown"
                 backdropTransitionInTiming={500}

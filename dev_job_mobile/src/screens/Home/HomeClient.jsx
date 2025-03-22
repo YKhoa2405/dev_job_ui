@@ -170,9 +170,8 @@ export default function HomeClient({ navigation }) {
                         </View>
                         <View style={StyleShare.flexCenter}>
                             <TouchableOpacity onPress={() => navigation.navigate('Chat', { currentUserId: currentUser?._id })}>
-                                <Icon name='chatbubble-outline' color={white} size={24} style={{ marginRight: 10 }} />
+                                <Icon name='chatbubble' color={white} size={24} style={{ marginRight: 10 }} />
                             </TouchableOpacity>
-                            <Avatar.Image size={40} style={{ backgroundColor: 'white' }} />
                         </View>
                     </View>
                     <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -190,7 +189,7 @@ export default function HomeClient({ navigation }) {
             {/* Gợi ý việc làm */}
             <View style={{ marginTop: 20 }}>
                 <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
-                    <Text style={StyleShare.titleText20}>Việc làm tốt nhất</Text>
+                    <Text style={StyleShare.titleText20}>Gợi ý việc làm</Text>
                     <TouchableOpacity
                         onPress={() => navigation.navigate('JobSuggestions', { title: 'Gợi ý việc làm', api: 'job_recommend' })}
                     >

@@ -44,10 +44,15 @@ export default function ServicesByCompany({ navigation, route }) {
             return (
                 <View style={StyleShare.jobItemContainer}>
                     <Text style={StyleShare.titleText20}>{item.serviceId.name}</Text>
-                    <Text style={[StyleShare.titleText20, { marginVertical: 5, color: orange }]}>{formatVND(item.amount / 100)}</Text>
+                    <Text style={[StyleShare.titleText20, { marginVertical: 5, color: orange }]}>{formatVND(item.amount)}</Text>
+                    {item?.remainingUses !== null && item?.remainingUses !== undefined && (
+                        <Text style={{ color: textColor }}>
+                            Số lượt còn lại: <Text style={{ fontWeight: 'bold' }}>{item.remainingUses}</Text>
+                        </Text>
+                    )}
 
                     <View style={StyleShare.flexBetween}>
-                        <Text style={{ fontWeight: '500', color: textColor }}>Ngày hết hạn: <Text>{moment(item.endDate, "YYYYMMDDHHmmss").format("DD-MM-YYYY")}</Text></Text>
+                        <Text style={{ color: textColor }}>Ngày hết hạn: <Text style={{ fontWeight: 'bold' }}>{moment(item.endDate, "YYYYMMDDHHmmss").format("DD-MM-YYYY")}</Text></Text>
                         <View>
                             {item.isActive ? <Text style={[StyleShare.titleText16, { color: green }]}>Đang hoạt động</Text>
                                 : <Text style={[StyleShare.titleText16, { color: 'red' }]}>Hết hạn</Text>}
@@ -77,7 +82,7 @@ export default function ServicesByCompany({ navigation, route }) {
                     </View>
                     <View style={StyleShare.jobItemContainer}>
                         <Text style={{ fontWeight: '500', color: textColor }}>Tổng chi: <Text style={{ color: green }}>
-                            {formatVND(meta.totalAmount / 100)}
+                            {formatVND(meta.totalAmount)}
                         </Text></Text>
                         <Text style={{ fontWeight: '500', color: textColor }}>Dịch vụ áp dụng: <Text style={{ color: green }}>
                             {meta.totalItems}
@@ -135,9 +140,9 @@ export default function ServicesByCompany({ navigation, route }) {
                         <View style={{ marginTop: 10 }}>
                             <Text style={StyleShare.titleText16}>{(item.vnp_OrderInfo).replace(/\+/g, ' ')}</Text>
                             <Text style={{ fontWeight: '500', color: textColor, marginVertical: 5 }}>Mã giao dịch: {item.vnp_TransactionNo}</Text>
-                            <Text style={{ fontWeight: '500', color: textColor }}>Số tiền: 
+                            <Text style={{ fontWeight: '500', color: textColor }}>Số tiền:
                                 <Text style={{ color: green }}>
-                                    {formatVND(item.vnp_Amount / 100)}
+                                     {formatVND(item.vnp_Amount / 100)}
                                 </Text>
                             </Text>
                         </View>

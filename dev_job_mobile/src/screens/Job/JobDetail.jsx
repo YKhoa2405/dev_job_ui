@@ -189,24 +189,26 @@ export default function JobDetail({ route, navigation }) {
                     <TouchableOpacity
                         style={[
                             styles.buttonApply,
-                            { backgroundColor: jobDetail.hasApplied ? 'grey' : mainColor }
+                            {
+                                backgroundColor: jobDetail?.hasApplied ? 'grey' : mainColor
+                            }
                         ]}
                         onPress={() => {
-                            if (!jobDetail.hasApplied) {
+                            if (!jobDetail?.hasApplied) {
                                 navigation.navigate('ResumeApply', {
                                     jobId: jobDetail._id,
                                     companyName: jobDetail.companyId.name,
                                     companyId: jobDetail.companyId._id,
                                     jobTitle: jobDetail.name,
                                     location: jobDetail.location,
-                                    salary: jobDetail.salary
+                                    salary: jobDetail.salary,
                                 });
                             }
                         }}
-                        disabled={jobDetail.hasApplied}
+                        disabled={jobDetail?.hasApplied ?? true} // Mặc định disabled nếu hasApplied là null/undefined
                     >
                         <Text style={styles.buttonText}>
-                            {jobDetail.hasApplied ? 'Bạn đã ứng tuyển' : 'Ứng tuyển ngay'}
+                            {jobDetail?.hasApplied ? 'Bạn đã ứng tuyển' : 'Ứng tuyển ngay'}
                         </Text>
                     </TouchableOpacity>
                 </View>

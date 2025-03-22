@@ -6,7 +6,7 @@ import { Avatar, Chip } from "react-native-paper";
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
-import { orange } from "../../assets/themes/Color";
+import { orange, textColor } from "../../assets/themes/Color";
 import Loading from "../../components/Loading";
 import moment from "moment";
 import { ToastMess } from "../../components/ToastMess";
@@ -101,16 +101,19 @@ export default function JobSaved({ navigation }) {
         return (
             <TouchableWithoutFeedback>
                 <View style={StyleShare.jobItemContainer}>
-                    <TouchableOpacity style={styles.btnSave} onPress={() => handleDeleteSavedJob(item._id)}>
-                        <Icon name="bookmark" size={26} color={orange} />
-                    </TouchableOpacity>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={StyleShare.flexCenter}>
                         <Avatar.Image size={36} style={{ backgroundColor: 'white' }} />
-                        <View>
-                            <Text style={StyleShare.titleText16}>{item.jobId.name}</Text>
-                            <Text style={{ marginTop: 5 }}>{companyName || 'Tên công ty'}</Text>
+                        <View style={{ marginLeft: 10, flex: 1 }}>
+                            <Text style={StyleShare.titleText16} numberOfLines={2}>
+                                {item.jobId.name}
+                            </Text>
+                            <Text style={{ marginTop: 5, color: textColor }}>{companyName || 'Tên công ty'}</Text>
                         </View>
+                        <TouchableOpacity onPress={() => handleDeleteSavedJob(item._id)}>
+                            <Icon name="bookmark" size={26} color={orange} />
+                        </TouchableOpacity>
                     </View>
+
                     <View style={StyleShare.technologyContainer}>
                         <Chip style={StyleShare.chip}>{item.jobId.level}</Chip>
                         <Chip style={StyleShare.chip}>{item.jobId.salary}</Chip>

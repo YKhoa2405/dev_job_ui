@@ -71,7 +71,7 @@ export default function PaymentScreen({ navigation, route }) {
                     await handleCreateOrder(vnp_Amount);
                 }
             } catch (error) {
-                console.error('Payment save failed:', error);
+                console.log('Payment save failed:', error);
             } finally {
                 setIsProcessing(false); // Hoàn tất xử lý
             }
@@ -92,7 +92,7 @@ export default function PaymentScreen({ navigation, route }) {
                 },
             });
         } catch (error) {
-            console.error('Order creation failed:', error);
+            console.log('Order creation failed:', error);
         }
     };
 

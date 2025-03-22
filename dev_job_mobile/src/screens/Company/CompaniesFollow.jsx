@@ -45,7 +45,7 @@ export default function CompaniesFollow({ navigation }) {
             setCurrentPage(data.meta.currentPage);
             setTotalPages(data.meta.totalPages);
             setTotalItems(data.meta.totalItems);
-            console.log(data)
+            console.log(data.result)
         } catch (error) {
             console.log('Error fetching companies:', error);
         } finally {
