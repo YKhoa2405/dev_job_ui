@@ -24,6 +24,7 @@ import { fetchPrimaryCvByUser } from '../../redux/slice/cvSLice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ToastMess } from '../../components/ToastMess';
 import axios from 'axios';
+import Loading from '../../components/Loading';
 
 const { width } = Dimensions.get('window');
 export default function HomeClient({ navigation }) {
@@ -33,6 +34,7 @@ export default function HomeClient({ navigation }) {
     const currentUser = useSelector((state) => state.user.user);
     const [loading, setLoading] = useState(true);
     const [jobRecommendList, setJobRecommendList] = useState([]);
+    const [jobUrgentList, setJobUrgentList] = useState([]);
 
 
     // Dữ liệu mẫu (8 item cho mỗi danh sách)
@@ -47,17 +49,6 @@ export default function HomeClient({ navigation }) {
         { _id: '8', name: 'Chuyên viên Data', company: 'FPT', salary: '20-30 triệu', city: 'Hà Nội', endDate: '2025-11-01', logo: 'https://via.placeholder.com/50' },
     ];
 
-    const jobAttractive = [
-        { _id: '9', name: 'Nhân Viên Chăm Sóc Khách Hàng', company: 'Công Ty A', salary: '8-12 triệu', city: 'Hà Nội', endDate: '2025-04-01', logo: 'https://via.placeholder.com/50' },
-        { _id: '10', name: 'Chuyên Viên Marketing', company: 'Công Ty B', salary: '10-15 triệu', city: 'Hà Nội', endDate: '2025-05-01', logo: 'https://via.placeholder.com/50' },
-        { _id: '11', name: 'Leader Content Marketing', company: 'Công Ty C', salary: '12-18 triệu', city: 'Hà Nội', endDate: '2025-06-01', logo: 'https://via.placeholder.com/50' },
-        { _id: '12', name: 'Nhân Viên Kinh Doanh', company: 'Công Ty D', salary: '10-20 triệu', city: 'Hà Nội', endDate: '2025-07-01', logo: 'https://via.placeholder.com/50' },
-        { _id: '13', name: 'Chuyên Viên AI', company: 'Công Ty E', salary: '30-40 triệu', city: 'Hà Nội', endDate: '2025-08-01', logo: 'https://via.placeholder.com/50' },
-        { _id: '14', name: 'Lập trình viên Fullstack', company: 'Công Ty F', salary: '25-35 triệu', city: 'Remote', endDate: '2025-09-01', logo: 'https://via.placeholder.com/50' },
-        { _id: '15', name: 'Kỹ sư Blockchain', company: 'Công Ty G', salary: '35-45 triệu', city: 'TP.HCM', endDate: '2025-10-01', logo: 'https://via.placeholder.com/50' },
-        { _id: '16', name: 'Chuyên viên Data', company: 'Công Ty H', salary: '20-30 triệu', city: 'Hà Nội', endDate: '2025-11-01', logo: 'https://via.placeholder.com/50' },
-    ];
-
     // useEffect(() => {
     //     if (currentUser?._id) {
     //         dispatch(fetchPrimaryCvByUser(currentUser._id));
@@ -69,6 +60,30 @@ export default function HomeClient({ navigation }) {
     //         fetchRecommendedJobs(primaryCv.processedText);
     //     }
     // }, [primaryStatus, primaryCv]);
+
+    useEffect(() => {
+        fetchJobUrgent();
+    }, []);
+
+    const fetchJobUrgent = async () => {
+        setLoading(true)
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+            const res = await authApi(token).get(endpoints['jobs'], {
+                params: {
+                    page: 1,
+                    limit: 9,
+                    isUrgent: true
+                }
+            });
+            console.log(res.data.data.result)
+            setJobUrgentList(res.data.data.result || []); // Đảm bảo luôn là mảng
+        } catch (error) {
+            console.log('Lỗi khi lấy gợi ý việc làm:', error.response?.data || error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     const fetchRecommendedJobs = async (text) => {
@@ -104,7 +119,7 @@ export default function HomeClient({ navigation }) {
     };
 
     const jobRecommendPages = chunkArray(jobRecommendList, 3);
-    const jobAttractivePages = chunkArray(jobAttractive, 3);
+    const jobUgrentPages = chunkArray(jobUrgentList, 3);
 
     const renderItem = ({ item }) => (
         <TouchableWithoutFeedback onPress={() => navigation.navigate('JobDetail', { jobId: item._id })}>
@@ -112,20 +127,26 @@ export default function HomeClient({ navigation }) {
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Avatar.Image
                         size={50}
-                        source={{ uri: item?.logo }}
+                        source={{ uri: item?.companyId.logo || 'https://via.placeholder.com/60' }}
                         style={{ backgroundColor: 'white' }}
                     />
                     <View style={{ marginLeft: 10, flex: 1 }}>
                         <Text style={StyleShare.titleText16} numberOfLines={2}>
                             {item?.name}
                         </Text>
-                        <Text style={{ marginTop: 5, color: textColor }}>{item.company}</Text>
+                        <Text style={{ marginTop: 5, color: textColor }}>{item?.companyId.name}</Text>
                     </View>
                 </View>
 
                 <View style={StyleShare.technologyContainer}>
+                    <Chip style={StyleShare.chip}>{item?.level}</Chip>
                     <Chip style={StyleShare.chip}>{item?.salary}</Chip>
-                    <Chip style={StyleShare.chip}>{item?.city}</Chip>
+
+                    {item.isUrgent && (
+                        <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
+                            GẤP
+                        </Chip>
+                    )}
                 </View>
 
                 <View style={StyleShare.flexBetween}>
@@ -185,51 +206,58 @@ export default function HomeClient({ navigation }) {
                     </View>
                 </View>
             </ImageBackground>
+            {loading ? (
+                <Loading/>
+            ) : (
+                <View>
+                    {/* Gợi ý việc làm */}
+                    <View style={{ marginTop: 20 }}>
+                        <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
+                            <Text style={StyleShare.titleText20}>Việc làm Gấp</Text>
+                            <TouchableOpacity
+                                onPress={() => navigation.navigate('JobSuggestions', { title: 'Việc làm gấp', api: 'jobs' })}
+                            >
+                                <Text style={StyleShare.lineText}>Xem tất cả</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <FlatList
+                            data={jobUgrentPages}
+                            renderItem={renderPage}
+                            keyExtractor={(page, index) => `page-${index}`}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            snapToInterval={width}
+                            decelerationRate='fast'
+                            pagingEnabled
 
-            {/* Gợi ý việc làm */}
-            <View style={{ marginTop: 20 }}>
-                <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
-                    <Text style={StyleShare.titleText20}>Gợi ý việc làm</Text>
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate('JobSuggestions', { title: 'Gợi ý việc làm', api: 'job_recommend' })}
-                    >
-                        <Text style={StyleShare.lineText}>Xem tất cả</Text>
-                    </TouchableOpacity>
+                        />
+                    </View>
+
+                    {/* Việc làm hấp dẫn */}
+                    <View style={{ marginTop: 30 }}>
+                        <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
+                            <Text style={StyleShare.titleText20}>Gợi ý việc làm</Text>
+                            <TouchableOpacity
+                                onPress={() => navigation.navigate('JobSuggestions', { title: 'Gợi ý việc làm', api: 'job_recommend' })}
+                            >
+                                <Text style={StyleShare.lineText}>Xem tất cả</Text>
+                            </TouchableOpacity>
+                        </View>
+                        {/* <FlatList
+                        data={jobUgrentPages}
+                        renderItem={renderPage}
+                        keyExtractor={(page, index) => `page-${index}`}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        snapToInterval={width}
+                        decelerationRate='fast'
+                        pagingEnabled
+    
+                    /> */}
+                    </View>
                 </View>
-                <FlatList
-                    data={jobRecommendPages}
-                    renderItem={renderPage}
-                    keyExtractor={(page, index) => `page-${index}`}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    snapToInterval={width} // Cuộn từng trang hoàn chỉnh
-                    decelerationRate='fast'
-                    pagingEnabled
-                />
-            </View>
+            )}
 
-            {/* Việc làm hấp dẫn */}
-            <View style={{ marginTop: 30 }}>
-                <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
-                    <Text style={StyleShare.titleText20}>Việc làm hấp dẫn</Text>
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate('JobSuggestions', { title: 'Việc làm hấp dẫn', api: 'job_salary' })}
-                    >
-                        <Text style={StyleShare.lineText}>Xem tất cả</Text>
-                    </TouchableOpacity>
-                </View>
-                <FlatList
-                    data={jobAttractivePages}
-                    renderItem={renderPage}
-                    keyExtractor={(page, index) => `page-${index}`}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    snapToInterval={width}
-                    decelerationRate='fast'
-                    pagingEnabled
-
-                />
-            </View>
         </ScrollView>
     )
 

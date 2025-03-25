@@ -122,6 +122,11 @@ export default function JobSaved({ navigation }) {
                                 {skill}
                             </Chip>
                         ))}
+                        {item.isUrgent && (
+                            <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
+                                GẤP
+                            </Chip>
+                        )}
                     </View>
                     <View style={StyleShare.flexBetween}>
                         <View style={StyleShare.flexCenter}>

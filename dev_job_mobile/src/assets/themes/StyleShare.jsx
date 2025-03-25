@@ -210,6 +210,7 @@ const StyleShare = StyleSheet.create({
         paddingVertical: 10,
         marginBottom: 15
     },
+
 })
 
 export default StyleShare

@@ -67,9 +67,9 @@ export default function JobApplied({ navigation }) {
                             source={{ uri: item?.companyId?.avatar }}
                             style={{ backgroundColor: 'white' }}
                         />
-                        <View style={{ marginLeft: 10, flex:1 }}>
+                        <View style={{ marginLeft: 10, flex: 1 }}>
                             <Text numberOfLines={2} style={StyleShare.titleText16}>{item?.jobId?.name} </Text>
-                            
+
                             <Text style={{ marginTop: 5, color: textColor }}>{item?.companyId?.name}</Text>
                         </View>
                     </View>
@@ -77,7 +77,11 @@ export default function JobApplied({ navigation }) {
                     <View style={StyleShare.technologyContainer}>
                         <Chip style={StyleShare.chip}>{item?.jobId?.salary}</Chip>
                         <Chip style={StyleShare.chip}>{item?.jobId?.level}</Chip>
-                        <Chip style={StyleShare.chip}>{moment(item.jobId.createdAt).format('DD/MM/YYYY')}</Chip>
+                        {item.isUrgent && (
+                            <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
+                                GẤP
+                            </Chip>
+                        )}
                     </View>
 
 

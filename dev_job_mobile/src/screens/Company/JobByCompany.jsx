@@ -221,6 +221,11 @@ export default function JobByCompany({ navigation, route }) {
                                 {s}
                             </Chip>
                         ))}
+                        {item.isUrgent && (
+                            <Chip style={[StyleShare.chip,{backgroundColor:'red'}]} textStyle={{color:'white'}}>
+                                GẤP
+                            </Chip>
+                        )}
                     </View>
                     <View style={StyleShare.flexBetween}>
                         <View style={StyleShare.flexBetween}>

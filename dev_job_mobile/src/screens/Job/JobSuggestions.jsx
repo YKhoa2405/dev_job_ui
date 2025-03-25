@@ -1,23 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Image, TouchableOpacity, Text, FlatList, TouchableWithoutFeedback, TextInput } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import UIHeader from "../../components/UIHeader";
 import { Avatar, Chip } from "react-native-paper";
 import Icon from 'react-native-vector-icons/Ionicons'
-import { mainColor, white } from "../../assets/themes/Color";
+import { mainColor, white, textColor } from "../../assets/themes/Color";
 import Dropdown from "../../components/Dropdown";
 import Modal from "react-native-modal";
 import Button from "../../components/Button";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { authApi, endpoints } from "../../assets/config/API";
+import Loading from "../../components/Loading";
+import moment from 'moment';
 
 
 export default function JobSuggestions({ navigation, route }) {
     const { title, api } = route.params;
+    console.log(api)
     const [searchKeywork, setSearchKeywork] = useState('')
     const [isModalVisible, setModalVisible] = useState(false);
     const [level, setLevel] = useState(null)
     const [salary, setSalary] = useState(null)
     const [jobType, setJobType] = useState(null)
-    const [jobs, setJobs] = useState([]);
+    const [jobData, setJobData] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
+    const [limit, setLimit] = useState(10);
+
+    const [loading, setLoading] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
 
     const levelData = [
         { title: 'Intern' },
@@ -46,33 +58,97 @@ export default function JobSuggestions({ navigation, route }) {
         { title: 'Hybrid' },
     ]
 
+    useEffect(() => {
+        fetchListJob(currentPage, limit)
+    }, [api])
 
-    const renderItem = (item) => {
-        <TouchableWithoutFeedback>
-            <View style={StyleShare.jobItemContainer}>
+    const fetchListJob = async (currentPage = 1, limit = 10, name = "") => {
+        const searchQuery = name ? `/${name}/i` : '';
+        if (currentPage === 1) setLoading(true);
+        else setLoadingMore(true);
+        try {
+            const token = await AsyncStorage.getItem("access_token");
+            const res = await authApi(token).get(endpoints[api], {
+                params: {
+                    isUrgent: true,
+                    page: currentPage,
+                    limit: limit,
+                    name: searchQuery,
+                    level: level,
+                    salary: salary,
+                    jobType: jobType
+                },
+            });
+            const data = res.data.data;
+            if (currentPage === 1) {
+                setJobData(data.result);
+            } else {
+                setJobData((prev) => [...prev, ...data.result]);
+            }
+            setCurrentPage(data.meta.currentPage);
+            setTotalPages(data.meta.totalPages);
+            setTotalItems(data.meta.totalItems);
+            console.log(data.result)
+        } catch (error) {
+            console.log('Error fetching companies:', error);
+        } finally {
+            setLoading(false);
+            setLoadingMore(false);
+        }
+    };
+
+    const loadMoreJobs = () => {
+        if (currentPage < totalPages && !loadingMore) {
+            fetchJobByCompany(currentPage + 1);
+        }
+    };
+
+    const applyFilters = () => {
+        // Gọi API với các tham số đã chọn
+        fetchListJob(1, 10);
+        // Đóng modal
+        setModalVisible(false);
+    };
+
+    const renderItem = ({ item }) => (
+        <TouchableWithoutFeedback onPress={() => navigation.navigate('JobDetail', { jobId: item._id })}>
+            <View style={[StyleShare.jobItemContainer]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Avatar.Image size={36} style={{ backgroundColor: 'white' }} />
-                    <View style={{ flex: 1 }}>
-                        <Text style={StyleShare.titleText16} numberOfLines={2}>{item?.name}</Text>
-                        <Text style={{ marginTop: 5 }}>ten cong ty</Text>
+                    <Avatar.Image
+                        size={50}
+                        source={{ uri: item?.companyId.logo || 'https://via.placeholder.com/60' }}
+                        style={{ backgroundColor: 'white' }}
+                    />
+                    <View style={{ marginLeft: 10, flex: 1 }}>
+                        <Text style={StyleShare.titleText16} numberOfLines={2}>
+                            {item?.name}
+                        </Text>
+                        <Text style={{ marginTop: 5, color: textColor }}>{item?.companyId.name}</Text>
                     </View>
                 </View>
-                <View style={StyleShare.technologyContainer}>
-                    <Chip style={StyleShare.chip}>Location</Chip>
 
+                <View style={StyleShare.technologyContainer}>
+                    <Chip style={StyleShare.chip}>{item?.level}</Chip>
+                    <Chip style={StyleShare.chip}>{item?.salary}</Chip>
+
+                    {item.isUrgent && (
+                        <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
+                            GẤP
+                        </Chip>
+                    )}
                 </View>
+
                 <View style={StyleShare.flexBetween}>
                     <View style={StyleShare.flexCenter}>
-                        <Icon name="time" size={22} color={'grey'} style={{ marginRight: 5 }} />
-
-                        {/* <Text>Đã thêm: {moment(item.created_at).fromNow()}</Text> */}
-                        {/* <Text>{moment(item.expiration_date).format('DD/MM/YYYY')}</Text> */}
-                        <Text>10 ngày</Text>
+                        <Icon name="time" size={20} color={textColor} style={{ marginRight: 5 }} />
+                        <Text style={{ color: textColor }}>
+                            {moment(item.endDate).fromNow()}
+                        </Text>
                     </View>
                 </View>
             </View>
         </TouchableWithoutFeedback>
-    }
+    );
 
     return (
         <View style={StyleShare.container}>
@@ -141,7 +217,7 @@ export default function JobSuggestions({ navigation, route }) {
                         title={'Áp dụng'}
                         backgroundColor={mainColor}
                         textColor={white}
-                    // onPress={applyFilters}
+                        onPress={applyFilters}
                     />
                     {/* <Button
                         title={'Đặt lại'}
@@ -165,9 +241,9 @@ export default function JobSuggestions({ navigation, route }) {
                         placeholder="Tìm kiếm tin tuyển dụng..."
                         value={searchKeywork}
                         onChangeText={(text) => setSearchKeywork(text)}
-                    // onSubmitEditing={() => {
-                    //     fetchJobByCompany(1, 10, searchKeywork)
-                    // }}
+                        onSubmitEditing={() => {
+                            fetchListJob(1, 10, searchKeywork)
+                        }}
                     />
                 </View>
                 <View style={{ marginTop: 10 }}>
@@ -176,19 +252,33 @@ export default function JobSuggestions({ navigation, route }) {
             </View>
 
 
-            <FlatList
-                data={jobs}
-                renderItem={renderItem}
-                // keyExtractor={item => item.job.id.toString()}
-                ListEmptyComponent={
-                    <View style={{ marginTop: 50, alignItems: 'center' }}>
-                        <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
-                        <Text style={StyleShare.titleText20}>Chưa có việc làm phù hợp </Text>
-                        <Text style={{ padding: 20, textAlign: 'center' }}>Hiện tại chưa có việc làm phù hợp, hãy quay lại sau nhé</Text>
-                    </View>
-                }
-                contentContainerStyle={{ paddingBottom: 40 }}
-            />
+            <View style={{ flex: 1 }}>
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <FlatList
+                        data={jobData}
+                        keyExtractor={(item) => item._id}
+                        renderItem={renderItem}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ paddingBottom: 15 }}
+                        onEndReached={loadMoreJobs}
+                        onEndReachedThreshold={0.7}
+                        ListEmptyComponent={
+                            <View style={{ marginTop: 50, alignItems: 'center' }}>
+                                <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
+                                <Text style={StyleShare.titleText20}>Không có tin tuyển dụng nào hiển thịthị</Text>
+                                <Text style={{ padding: 20, textAlign: 'center' }}>Hiện tại chưa có tin tuyển dụng nào phù hợp, hãy quay lại sau nhé.</Text>
+                            </View>
+                        }
+                        ListFooterComponent={
+                            loadingMore ? (
+                                <Loading />
+                            ) : null
+                        }
+                    />
+                )}
+            </View>
 
         </View>
     )

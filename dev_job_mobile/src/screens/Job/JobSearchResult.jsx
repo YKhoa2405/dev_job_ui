@@ -145,12 +145,15 @@ export default function JobSearchResult({ navigation, route }) {
                             {s}
                         </Chip>
                     ))}
+                    {item.isUrgent && (
+                        <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
+                            GẤP
+                        </Chip>
+                    )}
                 </View>
                 <View style={StyleShare.flexBetween}>
                     <View style={StyleShare.flexCenter}>
                         <Icon name="time" size={22} color={'grey'} style={{ marginRight: 5 }} />
-
-                        {/* <Text>Đã thêm: {moment(item.created_at).fromNow()}</Text> */}
                         <Text>{moment(item.endDate).format('DD/MM/YYYY')}</Text>
                     </View>
                 </View>

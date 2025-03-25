@@ -9,10 +9,10 @@ import Dropdown from "../../components/Dropdown";
 import axios from "axios";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import MultiSelect from 'react-native-multiple-select';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { ToastMess } from "../../components/ToastMess";
 import { geminiService } from '../../assets/config/GeminiService';
+import { Checkbox } from 'react-native-paper';
 
 
 
@@ -51,6 +51,7 @@ export default function JobCreate({ navigation, route }) {
     const [prioritize, setPrioritize] = useState('')
     const [lon, setLon] = useState(0);
     const [lat, setLat] = useState(0);
+    const [isUrgent, setIsUrgent] = useState(false);
 
     const showDatePicker = (dateType) => {
         setSelectedDateType(dateType);  // Set the type of date (start or end) to be selected
@@ -240,6 +241,7 @@ export default function JobCreate({ navigation, route }) {
             level,
             latitude: lat,
             longitude: lon,
+            isUrgent
         };
 
         setLoading(true)
@@ -258,7 +260,7 @@ export default function JobCreate({ navigation, route }) {
                 ToastMess({ type: 'error', text1: error.response.data.message });
                 return; // Dừng lại, không chạy `ToastMess` tiếp theo
             }
-            
+
             // Thông báo lỗi chung nếu không phải lỗi 403
             ToastMess({ type: 'error', text1: 'Thêm mới thất bại.' });
             console.log('Axios Error:', error);
@@ -517,8 +519,8 @@ export default function JobCreate({ navigation, route }) {
                         />
                     </View>
 
-                    <View style={StyleShare.flexBetween}>
-                        <Text style={styles.textInput}>Mô tả</Text>
+                    <View style={[StyleShare.flexBetween, { marginTop: 20, marginBottom: 10 }]}>
+                        <Text style={{ color: mainColor, fontWeight: 'bold' }}>Mô tả</Text>
                         {loadingE ? (
                             <Text style={{ color: 'grey', fontWeight: 'bold' }}>Đang tải...</Text>
                         ) : (
@@ -536,8 +538,8 @@ export default function JobCreate({ navigation, route }) {
                         value={description}
                         textAlignVertical="top"
                     />
-                    <View style={StyleShare.flexBetween}>
-                        <Text style={styles.textInput}>Yêu cầu ứng viên</Text>
+                    <View style={[StyleShare.flexBetween, { marginTop: 20, marginBottom: 10 }]}>
+                        <Text style={{ color: mainColor, fontWeight: 'bold' }}>Yêu cầu ứng viên</Text>
                         {loadingR ? (
                             <Text style={{ color: 'grey', fontWeight: 'bold' }}>Đang tải...</Text>
                         ) : (
@@ -564,6 +566,15 @@ export default function JobCreate({ navigation, route }) {
                         numberOfLines={15}
                         textAlignVertical="top"
                     />
+                    <View style={[StyleShare.flexBetween, { marginTop: 10 }]}>
+
+                        <Text style={{ fontWeight: 'bold', color: mainColor }}>Đánh dấu tin tuyển dụng "Gấp"</Text>
+                        <Checkbox
+                            status={isUrgent ? "checked" : "unchecked"}
+                            onPress={() => setIsUrgent(!isUrgent)}
+                            color={mainColor}
+                        />
+                    </View>
                     <View style={{ marginTop: 20 }}></View>
                     {loading ? (
                         <ActivityIndicator color={orange} size={'large'} />

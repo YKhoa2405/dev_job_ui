@@ -15,6 +15,7 @@ import axios from "axios";
 import Button from "../../components/Button";
 
 export default function CandidateSearch({ navigation, route }) {
+    const { companyId } = route.params
     const [provinces, setProvinces] = useState([]);
     const [level, setLevel] = useState(null)
     const [salary, setSalary] = useState(null)
@@ -30,10 +31,6 @@ export default function CandidateSearch({ navigation, route }) {
     const [loading, setLoading] = useState(false)
     const [loadingMore, setLoadingMore] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
-
-    const toggleModal = () => {
-        setModalVisible(!isModalVisible);
-    };
 
     const levelData = [
         { title: 'Intern' },
@@ -71,7 +68,7 @@ export default function CandidateSearch({ navigation, route }) {
 
     useEffect(() => {
         fetchProvinces();
-        fetchListJob();
+        fetchListCandidate();
     }, [])
 
     const fetchProvinces = async () => {
@@ -83,14 +80,14 @@ export default function CandidateSearch({ navigation, route }) {
         }
     };
 
-    const fetchListJob = async (currentPage = 1, limit = 10) => {
+    const fetchListCandidate = async (currentPage = 1, limit = 10) => {
         if (currentPage === 1) setLoading(true);
         else setLoadingMore(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
-
             const res = await authApi(token).get(endpoints['candidates'], {
                 params: {
+                    companyId: companyId,
                     page: currentPage,
                     limit: limit,
                     level: level,
@@ -109,7 +106,7 @@ export default function CandidateSearch({ navigation, route }) {
             setCurrentPage(data.meta.currentPage);
             setTotalPages(data.meta.totalPages);
             setTotalItems(data.meta.totalItems);
-            console.log(data)
+            console.log(data.result)
         } catch (error) {
             console.log('Error fetching companies:', error);
         } finally {
@@ -126,7 +123,7 @@ export default function CandidateSearch({ navigation, route }) {
 
     const applyFilters = () => {
         // Gọi API với các tham số đã chọn
-        fetchListJob(1, 10);
+        fetchListCandidate(1, 10);
         // Đóng modal
         setModalVisible(false);
     };
@@ -158,7 +155,7 @@ export default function CandidateSearch({ navigation, route }) {
 
     return (
         <View style={StyleShare.container}>
-            <Modal isVisible={isModalVisible} onBackdropPress={toggleModal}
+            <Modal isVisible={isModalVisible} onBackdropPress={() => setModalVisible(false)}
                 animationIn="slideInUp"
                 animationOut="slideOutDown"
                 backdropTransitionInTiming={500}
@@ -272,8 +269,8 @@ export default function CandidateSearch({ navigation, route }) {
                         ListEmptyComponent={
                             <View style={{ marginTop: 50, alignItems: 'center' }}>
                                 <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
-                                <Text style={StyleShare.titleText20}>Không có kết qủa tìm kiếm</Text>
-                                <Text style={{ padding: 20, textAlign: 'center' }}>Bạn hãy thử thay đổi từ khóa hoặc loại bỏ bớt tiêu chí lọc và thử lại </Text>
+                                <Text style={StyleShare.titleText20}>Bạn chưa mua gói dịch vụ</Text>
+                                <Text style={{ padding: 20, textAlign: 'center' }}>Hãy mua gói dịch vụ để có thể xem danh sách ứng viên.</Text>
                             </View>
                         }
                         onEndReached={loadMoreJobs}
