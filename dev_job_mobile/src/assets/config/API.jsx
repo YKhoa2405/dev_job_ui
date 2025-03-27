@@ -99,6 +99,16 @@ export const endpoints = {
     'cvDetail': (cvId) => `/cv/${cvId}`,
     'cvByUser': (userId) => `/cv/${userId}`,
 
+    // statistic
+    'applicationsPerJob': '/statistics/applications-per-job',
+    'expectedSalary': '/statistics/expected-salary',
+    'applicationStatus': '/statistics/application-status',
+
+    'statistic': (type) => `/statistics/${type}`,
+
+
+
+
 
 };
 

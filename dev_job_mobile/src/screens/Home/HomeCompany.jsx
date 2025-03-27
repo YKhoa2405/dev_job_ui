@@ -67,7 +67,6 @@ export default function HomeCompany({ navigation }) {
         { id: 3, icon: 'people-outline', title: 'Tìm kiếm ứng viên' },
         { id: 4, icon: 'podium-outline', title: 'Thống kê tuyển dụng' },
         { id: 5, icon: 'file-tray-stacked-outline', title: 'Dịch vụ của bạn' },
-        { id: 6, icon: 'calendar-number-outline', title: 'Quản lý lịch trình' },
     ]
     const UtilitiesGrid = () => (
         <View style={styles.gridUtili}>
@@ -123,7 +122,7 @@ export default function HomeCompany({ navigation }) {
                 navigation.navigate('CandidateSearch', { companyId: companyByUser._id })
                 break;
             case 4:
-                navigation.navigate('CompanyStatistical')
+                navigation.navigate('CompanyStatistical', { companyId: companyByUser._id })
                 break;
             case 5:
                 navigation.navigate('ServicesByCompany', { companyId: companyByUser._id })

@@ -21,6 +21,7 @@ import { fetchCompanyByUser } from "../../redux/slice/companySlice"
 
 export default function ResumeByJob({ navigation, route }) {
     const { jobId } = route.params;
+
     const Tab = createMaterialTopTabNavigator();
 
     const ProfileTab1 = () => {
@@ -41,17 +42,18 @@ export default function ResumeByJob({ navigation, route }) {
             try {
                 const token = await AsyncStorage.getItem("access_token");
                 const params = {
+                    companyId: jobDetail.companyId._id,
                     location: jobDetail.city || null,
                     // skills: jobDetail.skills?.length > 0 ? jobDetail.skills.join(',') : null,
                     // level: jobDetail.level || null,
                     // salary: jobDetail.salary || null,
                     // jobType: jobDetail.jobType || null,
                 };
+                console.log(params)
                 const res = await authApi(token).get(endpoints['candidates'], { params });
                 setCandidates(res.data.data.result || []);
             } catch (error) {
                 console.log('Error fetching candidates:', error);
-                ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
             } finally {
                 setLoading(false);
             }
@@ -200,7 +202,7 @@ export default function ResumeByJob({ navigation, route }) {
                                             showsVerticalScrollIndicator={false}
                                         />
                                     ) : (
-                                        <Text style={{ textAlign: 'center', color: mainColor }}>
+                                        <Text style={{ color: textColor }}>
                                             Không tìm thấy ứng viên phù hợp
                                         </Text>
                                     )}

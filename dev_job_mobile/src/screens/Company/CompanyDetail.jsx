@@ -10,7 +10,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
 import Loading from "../../components/Loading";
 import moment from "moment";
-import axios from "axios";
 import { ToastMess } from "../../components/ToastMess";
 import { useSelector } from "react-redux";
 
