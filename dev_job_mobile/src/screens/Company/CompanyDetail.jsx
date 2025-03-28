@@ -63,6 +63,13 @@ export default function CompanyDetail({ navigation, route }) {
         }
     };
 
+
+    const handleOpenWebsite = (url) => {
+        // Ensure the URL has http:// or https://
+        const formattedUrl = url.startsWith("http") ? url : `https://${url}`;
+        Linking.openURL(formattedUrl)
+    };
+
     const fetchCompanyDetail = async () => {
 
         try {
@@ -172,6 +179,7 @@ export default function CompanyDetail({ navigation, route }) {
                 </TouchableWithoutFeedback>
             );
         };
+
 
 
         return (

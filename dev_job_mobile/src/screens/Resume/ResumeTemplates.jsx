@@ -6,31 +6,34 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { Asset } from 'expo-asset';
 import UIHeader from '../../components/UIHeader';
-import { mainColor, orange, white } from '../../assets/themes/Color';
+import { mainColor, orange, white, grey } from '../../assets/themes/Color';
 import { ToastMess } from '../../components/ToastMess';
 import StyleShare from '../../assets/themes/StyleShare';
 import { useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authApi, endpoints } from '../../assets/config/API';
+import Button from '../../components/Button';
 
 export default function ResumeTemplates({ navigation }) {
     const { personalInfo, experiences, projects, educations, skills } = useSelector((state) => state.resume);
     const [htmlContent, setHtmlContent] = useState('');
     const [loading, setLoading] = useState(false);
+    const [selectedTemplate, setSelectedTemplate] = useState('1'); // Theo dõi template được chọn
 
     const templates = [
         { id: '1', name: 'Mẫu 1', source: require('../../assets/templates/cv_template1.html') },
         { id: '2', name: 'Mẫu 2', source: require('../../assets/templates/cv_template2.html') },
+        { id: '3', name: 'Mẫu 3', source: require('../../assets/templates/cv_template3.html') },
+
     ];
 
-    const loadTemplate = async (templateAsset) => {
+    const loadTemplate = async (templateAsset, templateId) => {
         try {
+            setSelectedTemplate(templateId);
             const asset = Asset.fromModule(templateAsset);
             await asset.downloadAsync();
             const fileUri = asset.localUri || asset.uri;
-            // Read template file
             let content = await FileSystem.readAsStringAsync(fileUri, { encoding: 'utf8' });
-            // Prepare Resume Data
             const ResumeData = {
                 fullName: personalInfo?.fullName || '',
                 position: personalInfo?.position || '',
@@ -48,12 +51,7 @@ export default function ResumeTemplates({ navigation }) {
                             <strong>(${edu.startDate} - ${edu.endDate})</strong>
                         </p>
                         <p>Major: ${edu.major}</p>
-                        <p>
-                            ${ex.description
-                                .split('\n') // Tách từng dòng
-                                .map((line) => `${line.trim()}`) // Thêm dấu '-' đầu dòng
-                                .join('<br>')} 
-                        </p>
+                        <p>${edu.description.split('\n').map(line => line.trim()).join('<br>')}</p>
                     `
                     )
                     .join(''),
@@ -65,33 +63,21 @@ export default function ResumeTemplates({ navigation }) {
                             <strong>(${ex.startDate} - ${ex.endDate})</strong>
                         </p>
                         <p>Position: ${ex.position}</p>
-                        <p>
-                            ${ex.description
-                                .split('\n') // Tách từng dòng
-                                .map((line) => `${line.trim()}`) // Thêm dấu '-' đầu dòng
-                                .join('<br>')} 
-                        </p>
+                        <p>${ex.description.split('\n').map(line => line.trim()).join('<br>')}</p>
                     `
                     )
                     .join(''),
-
                 projects: (Array.isArray(projects[0]) ? projects[0] : projects)
                     .map(
                         (pr) => `
                         <p style="display: flex; justify-content: space-between;">
-                            <strong>${pr.name} (<a>${pr.github}</a>)</strong>
+                            <strong>${pr.name} (<a href="${pr.github}">${pr.github}</a>)</strong>
                             <strong>(${pr.startDate} - ${pr.endDate})</strong>
                         </p>
-                        <p>
-                            ${pr.description
-                                .split('\n') // Tách từng dòng
-                                .map((line) => `${line.trim()}`) // Thêm dấu '-' đầu dòng
-                                .join('<br>')} 
-                        </p>
+                        <p>${pr.description.split('\n').map(line => line.trim()).join('<br>')}</p>
                     `
                     )
                     .join(''),
-
                 skills: (Array.isArray(skills[0]) ? skills[0] : skills)
                     .map(
                         (skill) => `
@@ -99,7 +85,7 @@ export default function ResumeTemplates({ navigation }) {
                     `
                     )
                     .join('')
-            };;
+            };
 
             Object.keys(ResumeData).forEach((key) => {
                 content = content.replace(new RegExp(`{{${key}}}`, 'g'), ResumeData[key] || '');
@@ -111,43 +97,28 @@ export default function ResumeTemplates({ navigation }) {
         }
     };
 
-
-
     useEffect(() => {
         if (personalInfo && experiences && projects && educations && skills) {
-            loadTemplate(templates[0].source);
+            loadTemplate(templates[0].source, templates[0].id);
         }
     }, [personalInfo, experiences, projects, educations, skills]);
-
-
-
 
     const handleCreatePDF = async () => {
         try {
             setLoading(true);
-            const fileName = `CV_${personalInfo?.nameCV || 'Unknown'}.pdf`.replace(/\s+/g, '_');
+            const fileName = `CV_${personalInfo?.nameCV || 'Unknown'}_${Date.now()}.pdf`.replace(/\s+/g, '_');
             const fileUri = `${FileSystem.cacheDirectory}${fileName}`;
 
-            // Tạo file PDF
             const { uri } = await Print.printToFileAsync({ html: htmlContent });
-
-            // Di chuyển file vào cache để có đường dẫn rõ ràng
-            await FileSystem.moveAsync({
-                from: uri,
-                to: fileUri,
-            });
-
+            await FileSystem.moveAsync({ from: uri, to: fileUri });
             await handleUploadCV(fileUri, fileName);
-            navigation.navigate('ResumeTool');
-
+            navigation.navigate('MainTab');
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
-            console.log(error);
         } finally {
             setLoading(false);
         }
     };
-
 
     const handleUploadCV = async (fileUri, fileName) => {
         try {
@@ -161,10 +132,8 @@ export default function ResumeTemplates({ navigation }) {
 
             const token = await AsyncStorage.getItem('access_token');
             await authApi(token).post(endpoints['uploadCV'], formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            })
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
 
             ToastMess({ type: 'success', text1: 'Tải lên thành công!' });
         } catch (error) {
@@ -172,45 +141,125 @@ export default function ResumeTemplates({ navigation }) {
         }
     };
 
-
     return (
-        <View style={StyleShare.container}>
-            <UIHeader leftIcon="arrow-back" title="Chọn mẫu CV" handleLeftIcon={navigation.goBack} />
-            <FlatList
-                style={{ marginHorizontal: 10 }}
-                horizontal
-                data={templates}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.templateItem} onPress={() => loadTemplate(item.source)}>
-                        <Text>{item.name}</Text>
-                    </TouchableOpacity>
-                )}
-            />
-            <View style={styles.cvContainer}>
-                <WebView originWhitelist={['*']} source={{ html: htmlContent }} style={styles.webview} />
+        <View style={styles.container}>
+            <UIHeader leftIcon="arrow-back" title="Chọn mẫu CV" handleLeftIcon={() => navigation.goBack()} />
+            
+            {/* Template Selection */}
+            <View style={styles.templateContainer}>
+                <FlatList
+                    horizontal
+                    data={templates}
+                    keyExtractor={(item) => item.id}
+                    showsHorizontalScrollIndicator={false}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity
+                            style={[
+                                styles.templateItem,
+                                selectedTemplate === item.id && styles.templateItemSelected
+                            ]}
+                            onPress={() => loadTemplate(item.source, item.id)}
+                        >
+                            <Text style={[
+                                styles.templateText,
+                                selectedTemplate === item.id && styles.templateTextSelected
+                            ]}>
+                                {item.name}
+                            </Text>
+                        </TouchableOpacity>
+                    )}
+                />
             </View>
-            {loading ? <ActivityIndicator size="large" color={orange} /> :
-                <TouchableOpacity style={[StyleShare.flexCenter, { backgroundColor: mainColor, padding: 15, marginBottom: 10, marginHorizontal: 20, borderRadius: 10 }]} onPress={() => handleCreatePDF()}>
-                    <Text style={[StyleShare.titleText16, { color: 'white' }]}>Hoàn thành</Text>
-                </TouchableOpacity>
-            }
-            {/* <TouchableOpacity style={[StyleShare.flexCenter, { backgroundColor: mainColor, padding: 15, marginBottom: 10, marginHorizontal: 20, borderRadius: 10 }]} onPress={() => handleUploadCV()}>
-                <Text style={[StyleShare.titleText16, { color: 'white' }]}>Tải lên CV</Text>
-            </TouchableOpacity> */}
+
+            {/* CV Preview */}
+            <View style={styles.previewContainer}>
+                {htmlContent ? (
+                    <WebView
+                        originWhitelist={['*']}
+                        source={{ html: htmlContent }}
+                        style={styles.webview}
+                        scalesPageToFit={true}
+                    />
+                ) : (
+                    <View style={styles.emptyPreview}>
+                        <Text style={styles.emptyText}>Đang tải mẫu CV...</Text>
+                    </View>
+                )}
+            </View>
+
+            {/* Action Button */}
+            <View style={styles.buttonContainer}>
+                {loading ? (
+                    <ActivityIndicator size="large" color={orange} />
+                ) : (
+                    <Button
+                        title="Hoàn tính & Tài lên"
+                        onPress={handleCreatePDF}
+                        disable={loading}
+                        backgroundColor={mainColor}
+                        textColor={white}
+                        borderColor={mainColor}
+                    />
+                )}
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    cvContainer: { height: Dimensions.get('window').height * 0.82, margin: 10 },
-    webview: { flex: 1 },
+    container: {
+        flex: 1,
+    },
+    templateContainer: {
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+    },
     templateItem: {
         backgroundColor: white,
         borderRadius: 10,
+        paddingVertical: 8,
+        paddingHorizontal: 15,
         marginRight: 10,
-        padding: 5,
-        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: grey,
+    },
+    templateItemSelected: {
+        backgroundColor: mainColor,
+        borderColor: mainColor,
+    },
+    templateText: {
+        fontSize: 14,
+        color: mainColor,
+    },
+    templateTextSelected: {
+        color: white,
+        fontWeight: 'bold',
+    },
+    previewContainer: {
+        flex: 1,
+        marginHorizontal: 15,
+        marginBottom:15,
+        borderRadius: 10,
+        overflow: 'hidden',
+        elevation: 3, // Hiệu ứng bóng cho Android
+        shadowColor: '#000', // Hiệu ứng bóng cho iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    webview: {
+        flex: 1,
+    },
+    emptyPreview: {
+        flex: 1,
         justifyContent: 'center',
+        alignItems: 'center',
+    },
+    emptyText: {
+        fontSize: 16,
+        color: grey,
+    },
+    buttonContainer: {
+        paddingHorizontal: 15,
     },
 });

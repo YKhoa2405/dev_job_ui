@@ -379,9 +379,9 @@ export default function ResumeInput({ route, navigation }) {
                             }
                             handleEducationChange('description', text);
                         }}
-                        style={[styles.introduceInput, { height: 200, textAlignVertical: 'top' }]}
+                        style={[styles.introduceInput, { height: 100, textAlignVertical: 'top' }]}
                         multiline
-                        numberOfLines={12}
+                        numberOfLines={10}
                     />
 
 

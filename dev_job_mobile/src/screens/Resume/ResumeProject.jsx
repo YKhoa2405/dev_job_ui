@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TextInput, Text, TouchableOpacity } from 'react-native';
+import { Checkbox } from 'react-native-paper'; // Thêm import Checkbox
 import StyleShare from '../../assets/themes/StyleShare';
 import UIHeader from '../../components/UIHeader';
-import { grey, mainColor, orange, white } from '../../assets/themes/Color';
+import { grey, mainColor, orange, textColor, white } from '../../assets/themes/Color';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Icon from "react-native-vector-icons/Ionicons";
 import { useDispatch } from 'react-redux';
@@ -16,9 +17,10 @@ export default function ResumeProject({ navigation }) {
     const [projects, setProjects] = useState([
         { id: new Date().getTime(), name: '', startDate: '', endDate: '', github: '', description: '' }
     ]);
+    const [noProjects, setNoProjects] = useState(false); // Thêm state cho checkbox
 
     const handleAddProject = () => {
-        setProjects([...projects, { id: new Date().getTime(), name: '', startDate: null, endDate: null, github: '', description: '' }]);
+        setProjects([...projects, { id: new Date().getTime(), name: '', startDate: '', endDate: '', github: '', description: '' }]);
     };
 
     const handleDeleteProject = (id) => {
@@ -34,7 +36,6 @@ export default function ResumeProject({ navigation }) {
     const handleGenerateExample = async (index) => {
         setLoading(true);
         try {
-
             const name = projects[index].name.trim();
             if (!name) {
                 ToastMess({ type: 'error', text1: 'Vui lòng nhập tên dự án!' });
@@ -43,17 +44,21 @@ export default function ResumeProject({ navigation }) {
 
             const prompt = `Viết mô tả chi tiết cho dự án ${name}, ngắn gọn, sử dụng gạch đầu dòng, bỏ các tiêu đề.`;
             const response = await geminiService(prompt);
-
             handleInputChange(index, 'description', response);
         } catch (error) {
-
+            // Xử lý lỗi nếu cần
         } finally {
             setLoading(false);
         }
-
     };
 
     const handleSave = () => {
+        if (noProjects) {
+            dispatch(addProject([])); // Gửi mảng rỗng khi không có project
+            navigation.navigate('ResumeTemplates');
+            return;
+        }
+
         for (const project of projects) {
             if (!project.name || !project.description || !project.startDate || !project.endDate || !project.github) {
                 ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
@@ -73,12 +78,38 @@ export default function ResumeProject({ navigation }) {
                 handleLeftIcon={() => navigation.goBack()}
             />
             <ScrollView>
-                {projects.map((project, index) => (
+                {/* Thêm Checkbox cho trường hợp không có project */}
+                <View style={styles.checkboxContainer}>
+                    <Checkbox
+                        status={noProjects ? 'checked' : 'unchecked'}
+                        onPress={() => {
+                            setNoProjects(!noProjects);
+                            if (!noProjects) {
+                                setProjects([]); // Xóa tất cả projects khi chọn "không có project"
+                            } else {
+                                setProjects([{ 
+                                    id: new Date().getTime(), 
+                                    name: '', 
+                                    startDate: '', 
+                                    endDate: '', 
+                                    github: '', 
+                                    description: '' 
+                                }]);
+                            }
+                        }}
+                        color={mainColor}
+                        uncheckedColor={mainColor}
+                    />
+                    <Text style={styles.checkboxLabel}>Tôi chưa có project nào cả</Text>
+                </View>
+
+                {/* Chỉ hiển thị form khi không chọn "chưa có project" */}
+                {!noProjects && projects.map((project, index) => (
                     <View key={project.id} style={StyleShare.manageJob}>
                         <View style={StyleShare.flexBetween}>
                             <Text style={styles.textInput}>Tên dự án <Text style={{ color: 'red' }}>*</Text></Text>
                             {index > 0 && (
-                                <TouchableOpacity onPress={() => handleDeleteProject(project.id)} >
+                                <TouchableOpacity onPress={() => handleDeleteProject(project.id)}>
                                     <Icon name="close" size={22} color={'red'} />
                                 </TouchableOpacity>
                             )}
@@ -140,25 +171,30 @@ export default function ResumeProject({ navigation }) {
                                     handleInputChange(index, 'description', "");
                                     return;
                                 }
-
                                 let formattedText = text
                                     .split('\n')
                                     .map(line => line.startsWith('- ') ? line : `- ${line}`)
                                     .join('\n');
-
                                 handleInputChange(index, 'description', formattedText);
                             }}
                         />
-
                     </View>
                 ))}
 
-                <TouchableOpacity style={[StyleShare.flexCenter, styles.saveButton, { backgroundColor: orange }]} onPress={handleAddProject}>
-                    <Text style={[StyleShare.titleText16, { color: white }]}>Thêm mới dự án </Text>
-                </TouchableOpacity>
+                {!noProjects && (
+                    <TouchableOpacity 
+                        style={[StyleShare.flexCenter, styles.saveButton, { backgroundColor: orange }]} 
+                        onPress={handleAddProject}
+                    >
+                        <Text style={[StyleShare.titleText16, { color: white }]}>Thêm mới dự án</Text>
+                    </TouchableOpacity>
+                )}
             </ScrollView>
 
-            <TouchableOpacity style={[StyleShare.flexCenter, styles.saveButton]} onPress={handleSave}>
+            <TouchableOpacity 
+                style={[StyleShare.flexCenter, styles.saveButton]} 
+                onPress={handleSave}
+            >
                 <Text style={[StyleShare.titleText16, { color: white }]}>Tiếp tục</Text>
             </TouchableOpacity>
         </View>
@@ -188,5 +224,17 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
         elevation: 2
+    },
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        marginBottom: 10,
+        backgroundColor:white
+    },
+    checkboxLabel: {
+        marginLeft: 8,
+        color: textColor,
+        fontSize: 16,
     }
 });

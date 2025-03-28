@@ -49,7 +49,6 @@ export default function ResumeByJob({ navigation, route }) {
                     // salary: jobDetail.salary || null,
                     // jobType: jobDetail.jobType || null,
                 };
-                console.log(params)
                 const res = await authApi(token).get(endpoints['candidates'], { params });
                 setCandidates(res.data.data.result || []);
             } catch (error) {
@@ -381,9 +380,6 @@ export default function ResumeByJob({ navigation, route }) {
                             }
                             placeholder="Trạng thái hồ sơ"
                         />
-                        <View style={{ marginTop: 10 }}>
-                            <Text style={StyleShare.titleText16}>{totalItems} hồ sơ ứng tuyển</Text>
-                        </View>
                     </View>
                 </View>
                 {loading ? (

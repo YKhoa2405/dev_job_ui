@@ -20,7 +20,7 @@ export default function ChooseRole({ navigation }) {
             </View>
             <View style={styles.containerMain}>
                 <View style={styles.optionChoose}>
-                    <Image source={require("../../assets/images/division.png")} style={styles.imageChoose} />
+                    <Image source={require("../../assets/images/office-building.png")} style={styles.imageChoose} />
                     <TouchableOpacity style={styles.btnChoose} onPress={() => navigation.navigate('RegisterCompany',{role:'EMPLOYER_USER'})}>
                         <Text style={{ color: white, fontWeight: '500' }}>Nhà tuyển dụng</Text>
                     </TouchableOpacity>

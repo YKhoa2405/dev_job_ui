@@ -3,99 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV - Nguyen Y Khoa</title>
+    <title>{{fullName}} - CV</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Arial', sans-serif;
-            max-width: 900px;
-            margin: auto;
-            padding: 40px;
-            background: #f4f4f4;
+            font-size: 14px;
+            line-height: 1.6;
             color: #333;
-        }
-        .container {
-            background: #fff;
+            max-width: 850px;
+            margin: 30px auto;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .header {
             text-align: center;
-            background: #2c3e50;
+            background: #003366;
             color: #fff;
-            padding: 20px 0;
-            border-radius: 10px 10px 0 0;
+            padding: 25px 10px;
+            border-radius: 8px 8px 0 0;
         }
         .header h1 {
-            margin: 0;
-            font-size: 36px;
+            font-size: 26px;
+            font-weight: bold;
         }
-        .header p {
-            margin: 5px 0 0;
+        .header h2 {
+            font-size: 18px;
+            font-weight: normal;
+            margin-top: 5px;
         }
         .contact-info {
-            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            font-size: 13px;
+            color: #555;
             margin: 20px 0;
+            text-align: center;
+        }
+        .contact-info a {
+            color: #0056b3;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .contact-info a:hover {
+            text-decoration: underline;
         }
         .section {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #fff;
+            border-left: 5px solid #003366;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
         .section-title {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: bold;
-            border-left: 5px solid #2c3e50;
-            padding-left: 10px;
-            margin-bottom: 15px;
-            color: #2c3e50;
+            color: #003366;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .entry {
+            margin-bottom: 10px;
+        }
+        .entry p {
+            margin: 3px 0;
+        }
+        .entry strong {
+            font-weight: bold;
+            color: #003366;
         }
         ul {
             list-style: none;
-            padding: 0;
+            padding-left: 20px;
         }
         ul li {
-            background: #e8e8e8;
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 5px;
+            position: relative;
+            margin-bottom: 6px;
+            padding-left: 15px;
+            font-size: 14px;
+        }
+        ul li:before {
+            content: "✔";
+            position: absolute;
+            left: 0;
+            color: #003366;
+            font-weight: bold;
+        }
+        .project-link {
+            color: #0056b3;
+            text-decoration: none;
+        }
+        .project-link:hover {
+            text-decoration: underline;
+        }
+        @media print {
+            body {
+                margin: 0;
+                background: none;
+                box-shadow: none;
+                border: none;
+            }
+            .section {
+                box-shadow: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>{{fullName}}</h1>
-            <p>Mobile Developer</p>
-        </div>
-        <div class="contact-info">
-            <p>May 24, 2003 | 0866695643 | <a href="mailto:nykhoa2405@gmail.com">nykhoa2405@gmail.com</a></p>
-            <p>Thu Duc, HCM City | <a href="https://github.com/YKhoa2405">github.com/YKhoa2405</a></p>
-        </div>
+    <!-- Phần tiêu đề -->
+    <div class="header">
+        <h1>{{fullName}}</h1>
+        <h2>{{position}}</h2>
+    </div>
 
-        <div class="section">
-            <div class="section-title">EDUCATION</div>
-            <p>Ho Chi Minh City Open University (Sep 2021 - Present)</p>
-            <ul>
-                <li>GPA: 3.19</li>
-                <li>Completed courses in Mobile Programming, Data Structures.</li>
-            </ul>
-        </div>
+    <!-- Phần thông tin liên hệ -->
+    <div class="contact-info">
+        <span>📅 {{dateOfBirth}}</span> 
+        <span>📞 {{phone}}</span> 
+        <span>⚤ {{gender}}</span> 
+        <a href="mailto:{{email}}">✉️ {{email}}</a> 
+        <span>📍 {{location}}</span> 
+        <a href="{{githubLink}}" target="_blank">💻 GitHub</a>
+    </div>
 
-        <div class="section">
-            <div class="section-title">PROJECTS</div>
-            <ul>
-                <li><strong>HeyJob App</strong> - <a href="https://github.com/YKhoa2405/HeyJobUI.git">GitHub Link</a></li>
-                <li><strong>Chat App</strong> - <a href="https://github.com/YKhoa2405/ChatApp.git">GitHub Link</a></li>
-            </ul>
-        </div>
+    <!-- Phần học vấn -->
+    <div class="section">
+        <div class="section-title">Education</div>
+        <div class="entry">{{educations}}</div>
+    </div>
 
-        <div class="section">
-            <div class="section-title">SKILLS</div>
-            <ul>
-                <li>JavaScript, Python</li>
-                <li>React Native, Django</li>
-                <li>Git, Firebase, Figma</li>
-            </ul>
-        </div>
+    <!-- Phần kinh nghiệm -->
+    <div class="section">
+        <div class="section-title">Work Experience</div>
+        <div class="entry">{{experiences}}</div>
+    </div>
+
+    <!-- Phần dự án -->
+    <div class="section">
+        <div class="section-title">Projects</div>
+        <div class="entry">{{projects}}</div>
+    </div>
+
+    <!-- Phần kỹ năng -->
+    <div class="section">
+        <div class="section-title">Skills</div>
+        <ul>{{skills}}</ul>
     </div>
 </body>
 </html>

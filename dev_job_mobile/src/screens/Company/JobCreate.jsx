@@ -202,19 +202,14 @@ export default function JobCreate({ navigation, route }) {
             .join(', ');
         setLocation(detail);
         if (detail) {
-            try {
-                const { latitude, longitude } = await getCoordinatesFromAddress(detail);
-                setLon(parseFloat(longitude));
-                setLat(parseFloat(latitude));
-            } catch (error) {
-                console.log(error)
-            }
-        } else {
-            console.log('Detail is null or empty');
+            const { latitude, longitude } = await getCoordinatesFromAddress(detail);
+            setLon(parseFloat(longitude));
+            setLat(parseFloat(latitude));
         }
     };
 
     const handleCreateJob = async () => {
+        // Kiểm tra các trường bắt buộc
         if (!name || !location || !city || !salary || !level || !jobType || !quantity || !selectedSkills || !startDate || !endDate || !description || !prioritize || !requirement) {
             ToastMess({ type: 'error', text1: 'Vui lòng không để trống các trường.' });
             return;
@@ -223,7 +218,8 @@ export default function JobCreate({ navigation, route }) {
             ToastMess({ type: 'error', text1: 'Thời gian không hợp lệ.' });
             return;
         }
-
+    
+        // Tạo object jobData khớp với createJobDto ở backend
         const jobData = {
             name,
             companyId,
@@ -241,32 +237,42 @@ export default function JobCreate({ navigation, route }) {
             level,
             latitude: lat,
             longitude: lon,
-            isUrgent
+            isUrgent: isUrgent || false,
         };
-
-        setLoading(true)
+    
+        setLoading(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
-            await authApi(token).post(endpoints['jobs'], jobData, {
+            const res = await authApi(token).post(endpoints['jobs'], jobData, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
-            ToastMess({ type: 'success', text1: 'Thêm mới thành công.' });
-            navigation.goBack()
 
-        } catch (error) {
-            if (error.response?.status === 403) {
-                ToastMess({ type: 'error', text1: error.response.data.message });
-                return; // Dừng lại, không chạy `ToastMess` tiếp theo
+            console.log(res.data)
+    
+            // Chỉ hiển thị thông báo thành công nếu request thành công (status 2xx)
+            if (res.status === 201 || res.status === 200) {
+                ToastMess({ type: 'success', text1: 'Thêm việc làm thành công.' });
+                navigation.goBack();
             }
-
-            // Thông báo lỗi chung nếu không phải lỗi 403
-            ToastMess({ type: 'error', text1: 'Thêm mới thất bại.' });
-            console.log('Axios Error:', error);
-        }
-        finally {
-            setLoading(false)
+    
+        } catch (error) {
+            // Xử lý lỗi từ backend
+            if (error.response) {
+                const status = error.response.status;
+                const message = error.response.data.message || 'Có lỗi xảy ra.';
+    
+                if (status === 403) {
+                    ToastMess({ type: 'error', text1: message }); // Hiển thị thông báo từ backend
+                }
+            } else {
+                // Lỗi không liên quan đến response (mạng, timeout, v.v.)
+                ToastMess({ type: 'error', text1: 'Thêm việc làm thất bại. Vui lòng thử lại.' });
+            }
+            console.log('Error:', error.response?.data || error.message);
+        } finally {
+            setLoading(false);
         }
     };
 

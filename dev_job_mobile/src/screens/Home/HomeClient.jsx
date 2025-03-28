@@ -49,17 +49,17 @@ export default function HomeClient({ navigation }) {
         { _id: '8', name: 'Chuyên viên Data', company: 'FPT', salary: '20-30 triệu', city: 'Hà Nội', endDate: '2025-11-01', logo: 'https://via.placeholder.com/50' },
     ];
 
-    // useEffect(() => {
-    //     if (currentUser?._id) {
-    //         dispatch(fetchPrimaryCvByUser(currentUser._id));
-    //     }
-    // }, [dispatch, currentUser]);
-    // console.log(primaryStatus)
-    // useEffect(() => {
-    //     if (primaryStatus === 'succeeded' && primaryCv?.processedText) {
-    //         fetchRecommendedJobs(primaryCv.processedText);
-    //     }
-    // }, [primaryStatus, primaryCv]);
+    useEffect(() => {
+        if (currentUser?._id) {
+            dispatch(fetchPrimaryCvByUser(currentUser._id));
+        }
+    }, [dispatch, currentUser]);
+    console.log(primaryStatus)
+    useEffect(() => {
+        if (primaryStatus === 'succeeded' && primaryCv?.processedText) {
+            fetchRecommendedJobs(primaryCv.processedText);
+        }
+    }, [primaryStatus, primaryCv]);
 
     useEffect(() => {
         fetchJobUrgent();
@@ -95,7 +95,6 @@ export default function HomeClient({ navigation }) {
 
         setLoading(true);
         const payload = { text }; // Đóng gói thành { text: text }
-        console.log('Gửi dữ liệu:', payload);
         try {
             const res = await API.post(endpoints['recommend'], payload, {
                 headers: { 'Content-Type': 'application/json' },
@@ -207,7 +206,7 @@ export default function HomeClient({ navigation }) {
                 </View>
             </ImageBackground>
             {loading ? (
-                <Loading/>
+                <Loading />
             ) : (
                 <View>
                     {/* Gợi ý việc làm */}
@@ -243,17 +242,17 @@ export default function HomeClient({ navigation }) {
                                 <Text style={StyleShare.lineText}>Xem tất cả</Text>
                             </TouchableOpacity>
                         </View>
-                        {/* <FlatList
-                        data={jobUgrentPages}
-                        renderItem={renderPage}
-                        keyExtractor={(page, index) => `page-${index}`}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        snapToInterval={width}
-                        decelerationRate='fast'
-                        pagingEnabled
-    
-                    /> */}
+                        <FlatList
+                            data={jobUgrentPages}
+                            renderItem={renderPage}
+                            keyExtractor={(page, index) => `page-${index}`}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            snapToInterval={width}
+                            decelerationRate='fast'
+                            pagingEnabled
+
+                        />
                     </View>
                 </View>
             )}

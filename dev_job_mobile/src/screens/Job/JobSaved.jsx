@@ -99,10 +99,10 @@ export default function JobSaved({ navigation }) {
             : item.jobId.companyId?.name;
 
         return (
-            <TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate('JobDetail', { jobId: item.jobId._id })}>
                 <View style={StyleShare.jobItemContainer}>
                     <View style={StyleShare.flexCenter}>
-                        <Avatar.Image size={36} style={{ backgroundColor: 'white' }} />
+                        <Avatar.Image size={50} style={{ backgroundColor: 'white' }} source={{ uri: item.jobId.companyId.avatar || 'https://via.placeholder.com/60' }} />
                         <View style={{ marginLeft: 10, flex: 1 }}>
                             <Text style={StyleShare.titleText16} numberOfLines={2}>
                                 {item.jobId.name}
@@ -115,11 +115,11 @@ export default function JobSaved({ navigation }) {
                     </View>
 
                     <View style={StyleShare.technologyContainer}>
-                        <Chip style={StyleShare.chip}>{item.jobId.level}</Chip>
-                        <Chip style={StyleShare.chip}>{item.jobId.salary}</Chip>
+                        <Chip style={StyleShare.chip}>{item.jobId.level|| 'level'}</Chip>
+                        <Chip style={StyleShare.chip}>{item.jobId.salary|| 'salary'}</Chip>
                         {item.jobId.skills.map((skill, index) => (
                             <Chip key={index} style={StyleShare.chip}>
-                                {skill}
+                                {skill || 'skill'}
                             </Chip>
                         ))}
                         {item.isUrgent && (
