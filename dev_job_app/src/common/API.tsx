@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const HOST = 'http://localhost:3000';
+const HOST = 'http://192.168.1.120:8000';
+
 
 export const endpoints = {
     // auths
@@ -13,6 +14,10 @@ export const endpoints = {
     'sendCode': '/users/sendCode',
     'verify': '/users/verify',
     'registerUser': '/users/register',
+
+    // candidates
+    'candidates': '/candidates',
+    'candidatesDetail': (candidateId: string) => `/candidates/${candidateId}`,
 
     // skills
     'skills': '/skills',

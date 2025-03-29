@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import SidebarLinkGroup from './SidebarLinkGroup';
 import Logo from '../../images/logo/logo.svg';
-import { BriefcaseBusiness, Building2, Code, FileUser, Key, LayoutDashboard, RollerCoaster, ShoppingCart, User2Icon } from 'lucide-react';
+import { BriefcaseBusiness, Building2, Code, FileUser, Key, LayoutDashboard, RollerCoaster, ShoppingCart, User2Icon, UsersRound } from 'lucide-react';
 
 
 interface SidebarProps {
@@ -116,7 +115,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   to="admin/users"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('users') && 'bg-graydark dark:bg-meta-4'}`}>
                   <User2Icon width={20} />
-                  Người dùng
+                  Người dùng hệ thống
+                </NavLink>
+              </li>
+
+              <li>
+                <NavLink
+                  to="admin/candidates"
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('candidates') && 'bg-graydark dark:bg-meta-4'}`}>
+                  <UsersRound width={20} />
+                  Ứng viên tìm việc
                 </NavLink>
               </li>
 

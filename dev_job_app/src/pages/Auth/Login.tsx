@@ -18,8 +18,9 @@ const Login: React.FC = () => {
         username: email,
         password: password
       });
-      console.log(response.data)
+      console.log("API trả về:", response);
       localStorage.setItem("access_token", response.data.data.access_token);
+      console.log(response.data.data.access_token)
       navigate("/admin/users");
     } catch (error) {
       toast.error('Thông tin Email hoạt mật khẩu không chính xác!', {
@@ -45,7 +46,7 @@ const Login: React.FC = () => {
             </Link>
 
             <p className="2xl:px-20">
-              Hệ thống tuyển dụng và tìm kiếm việc làm nhanh chóng và hiệu quả
+              Hệ thống tuyển dụng và tìm kiếm việc làm nhanh chóng, hiệu quả
             </p>
 
             <span className="mt-15 inline-block">

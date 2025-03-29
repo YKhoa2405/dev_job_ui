@@ -196,9 +196,10 @@ const Companies = () => {
                 >
                   <div className="col-span-3 flex items-center">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                      <div className="h-12.5 w-15 rounded-md">
-                        <img src={item.avatar} alt="Logo" />
+                      <div className="w-12 h-12 rounded-full overflow-hidden">
+                        <img src={item.avatar} alt="Avatar" className="w-full h-full object-cover" />
                       </div>
+
                       <p className="text-sm text-blue-600 ">{item.name}</p>
                     </div>
                   </div>

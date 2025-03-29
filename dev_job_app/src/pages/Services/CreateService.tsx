@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import API, { authApi, endpoints } from '../../common/API';
+import { authApi, endpoints } from '../../common/API';
 import { toast } from 'react-toastify';
 
 
@@ -11,6 +11,10 @@ const CreateService = () => {
     const [description, setDescription] = useState('')
     const [price, setPrice] = useState<number>()
     const [durationDays, setDurationDays] = useState<number>()
+    const [usageLimit, setUsageLimit] = useState<number>()
+    const [code, setCode] = useState<string>()
+
+
 
 
     const handleCreateService = async (e: { preventDefault: () => void; }) => {
@@ -30,7 +34,7 @@ const CreateService = () => {
             return;
         }
         const serviceData = {
-            name, price, description, durationDays, isActive: true
+            name, price, description, durationDays, isActive: true, usageLimit, code
         }
         try {
             const token: any = localStorage.getItem("access_token");
@@ -122,6 +126,37 @@ const CreateService = () => {
                                         value={durationDays}
                                         onChange={(e) => setDurationDays(Number(e.target.value))}
                                         placeholder="Nhập thời hạn hiệu lực (ngày) ..."
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex space-x-4 mb-4.5">
+                                {/* Giá dịch vụ */}
+                                <div className="flex-[2]">
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Số lần sử dụng ( nếu có)
+                                    </label>
+                                    <input
+                                        type="number" // Chỉ nhận số
+                                        min="0" // Ngăn giá trị âm
+                                        value={usageLimit}
+                                        onChange={(e) => setUsageLimit(Number(e.target.value))}
+                                        placeholder="Số lần sử dụng (lần) ..."
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                    />
+                                </div>
+
+                                {/* Thời hạn hiệu lực */}
+                                <div className="flex-[2]">
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Mã dịch vụ <span className="text-meta-1">*</span>
+                                    </label>
+                                    <input
+                                        type="text" // Đổi thành text để hỗ trợ viết hoa
+                                        value={code}
+                                        onChange={(e) => setCode(e.target.value.toUpperCase())} // Tự động viết hoa
+                                        placeholder="Nhập mã dịch vụ, mã này sẽ gắn liền với dịch vụ ..."
                                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                     />
                                 </div>

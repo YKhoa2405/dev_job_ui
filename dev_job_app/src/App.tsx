@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
-import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
 import DefaultLayout from './layout/DefaultLayout';
 
@@ -23,6 +22,8 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import EditCompanies from './pages/Companies/EditCompanies';
 import EditJobs from './pages/Jobs/EditJobs';
 import CompanyDetail from './pages/Companies/CompanyDetail';
+import Candidates from './pages/Candidates/Candidats';
+import CandidatesDetail from './pages/Candidates/CandidatesDetail';
 
 
 
@@ -75,6 +76,17 @@ function App() {
             <PageTitle title="Người dùng" />
             <Users /></>} />
 
+        {/* Candidates */}
+        <Route
+          path="/admin/candidates"
+          element={<>
+            <PageTitle title="Ứng viên tìm việc" />
+            <Candidates /></>} />
+        <Route
+          path="/admin/candidates/:id/detail"
+          element={<>
+            <PageTitle title="Chi tiết ứng viên" />
+            <CandidatesDetail /></>} />
         {/* Companies */}
         <Route
           path="/admin/companies"

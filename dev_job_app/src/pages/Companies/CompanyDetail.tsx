@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { authApi, endpoints } from '../../common/API';
 import moment from 'moment';
 import "moment/locale/vi";
@@ -60,6 +60,7 @@ const CompanyDetail = () => {
                 },
             });
             const data = res.data.data;
+            console.log(data)
             setJobData(data.result); // Update company data
             setCurrentPage(data.meta.currentPage); // Update the current page from API response
             setTotalPages(data.meta.totalPages); // Update the total pages from API response
@@ -159,8 +160,9 @@ const CompanyDetail = () => {
                                     <img
                                         src={companyDetail?.avatar}
                                         alt="Logo"
-                                        className="h-15.5 w-20 rounded-md"
+                                        className="h-20 w-20 rounded-full object-cover"
                                     />
+
                                 </div>
                                 <div className="col-span-1">
                                     <label className="mb-2.5 block text-black dark:text-white">Trạng thái</label>
@@ -206,7 +208,7 @@ const CompanyDetail = () => {
                                 <p className="font-medium">Trạng thái</p>
                             </div>
                             <div className="col-span-1 hidden sm:flex items-center">
-                                <p className="font-medium">Số lượng</p>
+                                <p className="font-medium">Số lượng tuyển</p>
                             </div>
                             <div className="col-span-2 hidden sm:flex items-center">
                                 <p className="font-medium">Ngày tạo</p>

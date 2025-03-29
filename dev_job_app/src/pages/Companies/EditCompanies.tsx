@@ -179,7 +179,8 @@ const EditCompanies = () => {
                                     <img
                                         src={companyDetail?.avatar}
                                         alt="Uploaded"
-                                        className="h-15.5 w-20 rounded-md"
+                                        className="h-20 w-20 rounded-full object-cover"
+
                                     />
                                 </div>
                                 <div className="col-span-1">

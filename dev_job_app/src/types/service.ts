@@ -6,7 +6,10 @@ export type IServiceDetail = {
     durationDays: number;           // Thời gian dịch vụ có hiệu lực (tính bằng ngày)
     createdAt: Date;                // Thời gian tạo dịch vụ
     updatedAt: Date;                // Thời gian cập nhật dịch vụ
-    isActive:boolean
+    isActive:boolean;
+    usageLimit: number;
+    code: string
+    orderCount:number
 }
 
 
@@ -16,5 +19,7 @@ export type IServiceList = {
     price: number;                  // Giá dịch vụ
     durationDays: number;           // Thời gian dịch vụ có hiệu lực (tính bằng ngày)
     createdAt: string;                // Thời gian tạo dịch vụ
-    isActive:boolean
+    isActive:boolean;
+    code:boolean
+
 }
