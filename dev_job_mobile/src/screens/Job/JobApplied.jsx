@@ -124,7 +124,7 @@ export default function JobApplied({ navigation }) {
             <UIHeader
                 leftIcon={"arrow-back"}
                 title={'Việc làm đã ứng tuyển'}
-                handleLeftIcon={() => { navigation.goBack() }} />
+                handleLeftIcon={() => { navigation.navigate("MainTab",{"screen":"Profile"}) }} />
             {loading ? (
                 <Loading />
             ) : (

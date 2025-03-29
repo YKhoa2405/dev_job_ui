@@ -93,8 +93,7 @@ export default function JobSearch({ navigation }) {
         <View style={styles.container}>
             <View style={[StyleShare.flexBetween, { marginTop: 30, marginBottom: 10 }]}>
                 <TouchableOpacity
-                    onPress={() => navigation.navigate('MainTab')}
-                >
+                    onPress={() => navigation.navigate('MainTab', { screen: 'HomeClient' })}>
                     <Icon
                         name="arrow-back"
                         size={26}

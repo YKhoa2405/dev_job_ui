@@ -222,7 +222,7 @@ export default function JobByCompany({ navigation, route }) {
                             </Chip>
                         ))}
                         {item.isUrgent && (
-                            <Chip style={[StyleShare.chip,{backgroundColor:'red'}]} textStyle={{color:'white'}}>
+                            <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
                                 GẤP
                             </Chip>
                         )}
@@ -369,6 +369,9 @@ export default function JobByCompany({ navigation, route }) {
                     renderItem={renderItem}
                     showsVerticalScrollIndicator={false}
                     contentContainerStyle={{ paddingBottom: 15 }}
+                    initialNumToRender={10}
+                    maxToRenderPerBatch={10}
+                    windowSize={5}
                     ListEmptyComponent={
                         <View style={{ marginTop: 50, alignItems: 'center' }}>
                             <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />

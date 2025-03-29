@@ -112,7 +112,7 @@ export default function ResumeTemplates({ navigation }) {
             const { uri } = await Print.printToFileAsync({ html: htmlContent });
             await FileSystem.moveAsync({ from: uri, to: fileUri });
             await handleUploadCV(fileUri, fileName);
-            navigation.navigate('MainTab');
+            navigation.navigate('MainTab', { screen: 'ResumeTools' });
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
         } finally {

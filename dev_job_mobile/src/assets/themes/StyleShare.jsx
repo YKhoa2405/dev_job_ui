@@ -93,7 +93,7 @@ const StyleShare = StyleSheet.create({
     chip: {
         alignSelf: 'flex-start',
         backgroundColor: bgNotifi,
-        marginRight: 10,
+        marginRight: 5,
         marginTop: 10
     },
     // Search
@@ -151,11 +151,17 @@ const StyleShare = StyleSheet.create({
     // style item job
     jobItemContainer: {
         backgroundColor: white,
-        borderRadius: 10,
+        borderRadius: 15, // Tăng bo góc cho mềm mại hơn
         padding: 20,
-        marginTop: 15,
-        marginHorizontal: 20,
-        elevation: 2
+        marginTop: 20, // Tăng khoảng cách dọc giữa các item
+        marginHorizontal: 15, // Giảm margin ngang để tận dụng không gian
+        elevation: 4, // Tăng độ bóng cho Android để nổi bật hơn
+        shadowColor: '#000', // Thêm bóng cho iOS
+        shadowOffset: { width: 0, height: 2 }, // Điều chỉnh vị trí bóng
+        shadowOpacity: 0.1, // Độ trong suốt của bóng
+        shadowRadius: 6, // Độ lan của bóng
+        borderWidth: 1, // Thêm viền nhẹ
+        borderColor: '#f0f0f0', // Màu viền nhạt
     },
 
     // drop down
@@ -210,6 +216,12 @@ const StyleShare = StyleSheet.create({
         paddingVertical: 10,
         marginBottom: 15
     },
+
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+      },
 
 })
 

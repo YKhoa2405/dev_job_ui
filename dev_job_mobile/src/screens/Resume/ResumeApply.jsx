@@ -85,7 +85,6 @@ export default function ResumeApply({ navigation, route }) {
             const res = await authApi(token).post(endpoints['resumeApply'], formData, {
                 headers: { 'Content-Type': 'application/json' },
             });
-            console.log(res.data)
             if (res.data.statusCode === 201) {
                 navigation.navigate('CongratsScreen', {
                     jobTitle: jobTitle,

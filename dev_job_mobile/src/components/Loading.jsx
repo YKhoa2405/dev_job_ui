@@ -1,10 +1,13 @@
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, View } from "react-native";
+import StyleShare from "../assets/themes/StyleShare";
 
 const Loading = () => {
     return (
-        <ActivityIndicator style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} size='large' color='orange' />
+        <View style={StyleShare.loadingContainer}>
+            <ActivityIndicator size='large' color='orange' />
+        </View>
 
     );
-  };
-  
-  export default Loading;
+};
+
+export default Loading;

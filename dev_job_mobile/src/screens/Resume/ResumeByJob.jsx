@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Image, TextInput, ScrollView, StyleSheet, ActivityIndicator, FlatList } from "react-native"
+import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Image, TextInput, ScrollView, FlatList } from "react-native"
 import StyleShare from "../../assets/themes/StyleShare"
 import UIHeader from "../../components/UIHeader"
 import { grey, mainColor, white, orange, textColor, green, bgButton2 } from "../../assets/themes/Color"
@@ -165,7 +165,7 @@ export default function ResumeByJob({ navigation, route }) {
                         </View>
                         <View style={{ marginTop: 20 }}>
                             {loading ? (
-                                <ActivityIndicator color={orange} size={'large'} />
+                                <Loading />
                             ) : (
                                 <Button
                                     title={'Tìm nhanh ứng viên phù hợp'}

@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, Dimensions, View, Text, ScrollView, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import UIHeader from '../../components/UIHeader';
 import StyleShare from '../../assets/themes/StyleShare';
 import Dropdown from '../../components/Dropdown';
-import moment from "moment/moment";
-import { grey, mainColor, orange, white } from '../../assets/themes/Color';
+import moment from 'moment';
+import { grey, mainColor, orange, textColor, white } from '../../assets/themes/Color';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authApi, endpoints } from '../../assets/config/API';
 import { ToastMess } from '../../components/ToastMess';
-
+import Loading from '../../components/Loading';
 
 export default function ResumeView({ route, navigation }) {
-    const [loading, setLoading] = useState(true);
-    const { resumeDetail, onUpdate  } = route.params;
+    const { resumeDetail } = route.params;
     const [selectedStatus, setSelectedStatus] = useState(resumeDetail.status);
+    const [isWebViewLoading, setIsWebViewLoading] = useState(true);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const googleDocsUrl = `https://docs.google.com/gview?embedded=true&url=${resumeDetail.cv}`;
+
     const activeData = [
         { title: 'Chờ xử lý', value: 'Chờ xử lý' },
         { title: 'Đã xem', value: 'Đã xem' },
@@ -24,92 +26,147 @@ export default function ResumeView({ route, navigation }) {
         { title: 'Từ chối', value: 'Từ chối' },
     ];
 
+    const handleStatusChange = useCallback(
+        async (item) => {
+            if (item.value === selectedStatus) return;
+
+            Alert.alert(
+                'Cập nhật hồ sơ',
+                'Xác nhận thay đổi trạng thái của hồ sơ ứng tuyển này?',
+                [
+                    { text: 'Hủy', style: 'cancel' },
+                    {
+                        text: 'Đồng ý',
+                        onPress: async () => {
+                            try {
+                                setIsUpdating(true);
+                                const token = await AsyncStorage.getItem('access_token');
+                                await authApi(token).patch(endpoints['resumeDetail'](resumeDetail._id), {
+                                    status: item.value,
+                                });
+                                setSelectedStatus(item.value);
+                                ToastMess({ type: 'success', text1: 'Cập nhật thành công' });
+                            } catch (error) {
+                                ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
+                                console.error('Update status error:', error);
+                            } finally {
+                                setIsUpdating(false);
+                            }
+                        },
+                    },
+                ],
+                { cancelable: true }
+            );
+        },
+        [selectedStatus, resumeDetail._id]
+    );
+
     return (
         <View style={StyleShare.container}>
             <UIHeader
-                leftIcon={"arrow-back"}
-                title={''}
-                handleLeftIcon={() => { navigation.goBack() }} />
-            <ScrollView>
-                <View style={{ paddingHorizontal: 20 }}>
+                leftIcon={'arrow-back'}
+                title={resumeDetail.name || 'Hồ sơ ứng viên'}
+                // handleLeftIcon={() => navigation.navigate('ResumeByJob', { jobId: resumeDetail.jobId })}
+                handleLeftIcon={() => navigation.goBack()}
+
+            />
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                <View style={StyleShare.jobItemContainer}>
                     <View style={StyleShare.flexBetween}>
                         <Text style={StyleShare.titleText20}>Thông tin ứng viên</Text>
                         <Dropdown
                             data={activeData}
-                            onSelect={async (item) => {
-                                if (item.value === selectedStatus) return; // Không gọi API nếu trạng thái không đổi
-
-                                Alert.alert(
-                                    'Cập nhật hồ sơ',
-                                    'Xác nhận thay đổi trạng thái của hồ sơ ứng tuyển này?',
-                                    [
-                                        { text: 'Hủy', style: 'cancel' },
-                                        {
-                                            text: 'Đồng ý',
-                                            onPress: async () => {
-                                                try {
-                                                    setLoading(true);
-                                                    const token = await AsyncStorage.getItem('access_token');
-                                                    await authApi(token).patch(endpoints['resumeDetail'](resumeDetail._id), {
-                                                        status: item.value,
-                                                    });
-
-                                                    setSelectedStatus(item.value); // Cập nhật trạng thái cục bộ
-                                                    ToastMess({ type: 'success', text1: 'Cập nhật thành công' });
-                                                } catch (error) {
-                                                    ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
-                                                    console.error(error);
-                                                } finally {
-                                                    setLoading(false);
-                                                }
-                                            },
-                                        },
-                                    ],
-                                    { cancelable: true }
-                                );
-                            }}
+                            onSelect={handleStatusChange}
                             value={selectedStatus}
                             placeholder={resumeDetail.status}
+                            buttonStyle={styles.dropdownButton}
+                            disabled={isUpdating}
                         />
-
                     </View>
 
-                    <View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontWeight: '500', opacity: 0.7, marginRight: 10 }}>Họ và tên : </Text>
+                    <View style={styles.infoRow}>
+                        <Text style={styles.label}>Họ và tên:</Text>
                         <Text style={StyleShare.titleText16}>{resumeDetail.name}</Text>
                     </View>
-                    <View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontWeight: '500', opacity: 0.7, marginRight: 10 }}>Email : </Text>
+                    <View style={styles.infoRow}>
+                        <Text style={styles.label}>Email:</Text>
                         <Text style={StyleShare.titleText16}>{resumeDetail.email}</Text>
                     </View>
-                    <View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontWeight: '500', opacity: 0.7, marginRight: 10 }}>Số điện thoại : </Text>
+                    <View style={styles.infoRow}>
+                        <Text style={styles.label}>Số điện thoại:</Text>
                         <Text style={StyleShare.titleText16}>{resumeDetail.phone}</Text>
                     </View>
-                    <View style={{ marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontWeight: '500', opacity: 0.7, marginRight: 10 }}>Ngày ứng tuyển : </Text>
+                    <View style={styles.infoRow}>
+                        <Text style={styles.label}>Ngày ứng tuyển:</Text>
                         <Text style={StyleShare.titleText16}>{moment(resumeDetail.createdAt).format('DD/MM/YYYY')}</Text>
                     </View>
-
-                    <Text style={[StyleShare.titleText20, { marginBottom: 10, marginTop: 20 }]}>CV ứng viên</Text>
                 </View>
-                <WebView
-                    source={{ uri: googleDocsUrl }}
-                    style={styles.webview}
-                    javaScriptEnabled={true}
-                    domStorageEnabled={true}
-                    scalesPageToFit={true}
-                />
+
+                <View style={styles.cvContainer}>
+                    <Text style={StyleShare.titleText20}>CV ứng viên</Text>
+                    {isWebViewLoading && (
+                        <View style={styles.loadingOverlay}>
+                            <Loading />
+                        </View>
+                    )}
+                    <WebView
+                        source={{ uri: googleDocsUrl }}
+                        style={styles.webview}
+                        javaScriptEnabled={true}
+                        domStorageEnabled={true}
+                        scalesPageToFit={true}
+                        onLoad={() => setIsWebViewLoading(false)}
+                        onError={(syntheticEvent) => {
+                            setIsWebViewLoading(false);
+                            ToastMess({ type: 'error', text1: 'Không thể tải CV, vui lòng thử lại' });
+                        }}
+                    />
+                </View>
             </ScrollView>
         </View>
     );
-};
+}
 
 const styles = StyleSheet.create({
-    webview: {
-        flex: 1,
-        width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height,
-    }
-});
+    scrollContent: {
+        paddingBottom: 20,
+    },
+    dropdownButton: {
+        width: 120,
+        height: 40,
+        backgroundColor: grey,
+        borderRadius: 8,
+        justifyContent: 'center',
+    },
+    loadingSpinner: {
+        marginRight: 10,
+    },
+    infoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 5,
+    },
+    label: {
+        fontWeight: '500',
+        color: textColor,
+        width: 120,
+    },
 
+    cvContainer: {
+        marginTop: 20,
+        marginHorizontal: 20,
+    },
+    webview: {
+        width: Dimensions.get('window').width - 40,
+        height: Dimensions.get('window').height * 0.6, // 60% of screen height
+        borderRadius: 10,
+        overflow: 'hidden',
+    },
+    loadingOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        borderRadius: 10,
+    },
+});

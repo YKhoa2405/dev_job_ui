@@ -243,10 +243,8 @@ export default function JobSearchResult({ navigation, route }) {
                     />
                 </View>
             </Modal>
-            <UIHeader
-                leftIcon={"arrow-back"}
-                handleLeftIcon={() => { navigation.navigate('JobSearch') }} />
-            <View style={{ flex: 1 }}>
+
+            <View style={{ flex: 1,paddingTop:30 }}>
                 <View style={{ marginHorizontal: 20 }}>
                     <View style={[StyleShare.flexBetween, { marginBottom: 10 }]}>
                         <TouchableOpacity onPress={() => navigation.navigate('JobSearch')} style={StyleShare.searchHome}>

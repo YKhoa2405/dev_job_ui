@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TouchableWithoutFeedback, StyleSheet, ActivityIndicator, FlatList, Image, TextInput, TouchableOpacity } from "react-native";
+import React, { useEffect, useState, useCallback, memo } from "react";
+import { View, Text, TouchableWithoutFeedback, StyleSheet, FlatList, Image, TextInput, TouchableOpacity } from "react-native";
 import UIHeader from "../../components/UIHeader";
 import StyleShare from "../../assets/themes/StyleShare";
 import { grey, mainColor, orange, white, green, textColor } from "../../assets/themes/Color";
@@ -8,186 +8,195 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loading from "../../components/Loading";
 import moment from "moment";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import Icon from 'react-native-vector-icons/Ionicons'
+import Icon from 'react-native-vector-icons/Ionicons';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
+const formatVND = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+    }).format(amount);
+};
 
+// Memoized Components
+const ServiceItem = memo(({ item, navigation, companyId }) => (
+
+    <View style={StyleShare.jobItemContainer}>
+        <Text style={StyleShare.titleText20}>{item.serviceId.name}</Text>
+        <Text style={[StyleShare.titleText20, { marginVertical: 5, color: orange }]}>
+            {formatVND(item.amount)}
+        </Text>
+        {item?.remainingUses != null && (
+            <Text style={{ color: textColor }}>
+                Số lượt còn lại: <Text style={{ fontWeight: 'bold' }}>{item.remainingUses}</Text>
+            </Text>
+        )}
+        <View style={StyleShare.flexBetween}>
+            <Text style={{ color: textColor }}>
+                Ngày hết hạn: <Text style={{ fontWeight: 'bold' }}>
+                    {moment(item.endDate, "YYYYMMDDHHmmss").format("DD-MM-YYYY")}
+                </Text>
+            </Text>
+            <Text style={[StyleShare.titleText16, { color: item.isActive ? green : 'red' }]}>
+                {item.isActive ? 'Đang hoạt động' : 'Hết hạn'}
+            </Text>
+        </View>
+        {!item.isActive && (
+            <TouchableOpacity
+                style={StyleShare.buttonDetailApply}
+                onPress={() => navigation.navigate('Services', { companyId })}
+            >
+                <Text style={{ fontWeight: '500' }}>Gia hạn dịch vụ</Text>
+            </TouchableOpacity>
+        )}
+    </View>
+));
+
+const PaymentItem = memo(({ item }) => (
+    <TouchableWithoutFeedback>
+        <View style={StyleShare.jobItemContainer}>
+            <View style={StyleShare.flexBetween}>
+                <Text style={{ fontWeight: '500', color: textColor }}>
+                    {moment(item.vnp_PayDate, "YYYYMMDDHHmmss").format("DD-MM-YYYY HH:mm")}
+                </Text>
+                <Text style={{ fontWeight: '500', color: item.vnp_TransactionStatus === 'Success' ? green : '#dc3545' }}>
+                    {item.vnp_TransactionStatus === 'Success' ? 'Thành công' : 'Thất bại'}
+                </Text>
+            </View>
+            <View style={{ marginTop: 10 }}>
+                <Text style={StyleShare.titleText16}>{(item.vnp_OrderInfo).replace(/\+/g, ' ')}</Text>
+                <Text style={{ fontWeight: '500', color: textColor, marginVertical: 5 }}>
+                    Mã giao dịch: {item.vnp_TransactionNo}
+                </Text>
+                <Text style={{ fontWeight: '500', color: textColor }}>
+                    Số tiền: <Text style={{ color: green }}>{formatVND(item.vnp_Amount / 100)}</Text>
+                </Text>
+            </View>
+        </View>
+    </TouchableWithoutFeedback>
+));
 
 export default function ServicesByCompany({ navigation, route }) {
     const Tab = createMaterialTopTabNavigator();
-    const { companyId } = route.params
+    const { companyId } = route.params;
 
     const Tab1 = () => {
         const [loading, setLoading] = useState(false);
         const [services, setServices] = useState([]);
-        const [meta, setMeta] = useState('');
+        const [meta, setMeta] = useState({});
 
-        useEffect(() => {
-            fetchServicesByCompany()
-        }, [companyId])
-
-        const fetchServicesByCompany = async () => {
-            setLoading(true)
+        const fetchServicesByCompany = useCallback(async () => {
+            setLoading(true);
             try {
                 const token = await AsyncStorage.getItem("access_token");
                 const res = await authApi(token).get(endpoints['orderByCompany'](companyId));
-                console.log('order', res.data.data.result)
-                setServices(res.data.data.result);
-                setMeta(res.data.data.meta);
+                setServices(res.data.data.result || []);
+                setMeta(res.data.data.meta || {});
             } catch (error) {
-                console.error(error);
+                console.error('Fetch services error:', error);
             } finally {
                 setLoading(false);
             }
-        };
+        }, [companyId]);
 
-        const renderItem = ({ item }) => {
-            return (
-                <View style={StyleShare.jobItemContainer}>
-                    <Text style={StyleShare.titleText20}>{item.serviceId.name}</Text>
-                    <Text style={[StyleShare.titleText20, { marginVertical: 5, color: orange }]}>{formatVND(item.amount)}</Text>
-                    {item?.remainingUses !== null && item?.remainingUses !== undefined && (
-                        <Text style={{ color: textColor }}>
-                            Số lượt còn lại: <Text style={{ fontWeight: 'bold' }}>{item.remainingUses}</Text>
-                        </Text>
-                    )}
-
-                    <View style={StyleShare.flexBetween}>
-                        <Text style={{ color: textColor }}>Ngày hết hạn: <Text style={{ fontWeight: 'bold' }}>{moment(item.endDate, "YYYYMMDDHHmmss").format("DD-MM-YYYY")}</Text></Text>
-                        <View>
-                            {item.isActive ? <Text style={[StyleShare.titleText16, { color: green }]}>Đang hoạt động</Text>
-                                : <Text style={[StyleShare.titleText16, { color: 'red' }]}>Hết hạn</Text>}
-                        </View>
-                    </View>
-                    <View>
-                        {item.isActive === true ? null : (
-                            <TouchableOpacity
-                                style={StyleShare.buttonDetailApply}
-                                onPress={() => navigation.navigate('Services', { companyId: companyId })}
-                            >
-                                <Text style={{ fontWeight: '500' }}>Gia hạn dịch vụ</Text>
-                            </TouchableOpacity>
-                        )}
-                    </View>
-                </View>
-            );
-        };
-
+        useEffect(() => {
+            fetchServicesByCompany();
+        }, [fetchServicesByCompany]);
 
         return (
             <View style={{ flex: 1 }}>
-                {loading ? <>
-                    <Loading />
-                </> : <>
-                    <View style={{ marginTop: 10, marginHorizontal: 20 }}>
-                    </View>
-                    <View style={StyleShare.jobItemContainer}>
-                        <Text style={{ fontWeight: '500', color: textColor }}>Tổng chi: <Text style={{ color: green }}>
-                            {formatVND(meta.totalAmount)}
-                        </Text></Text>
-                        <Text style={{ fontWeight: '500', color: textColor }}>Dịch vụ áp dụng: <Text style={{ color: green }}>
-                            {meta.totalItems}
-                        </Text></Text>
-
-                    </View>
-                    <FlatList
-                        data={services}
-                        renderItem={renderItem}
-                        keyExtractor={(item) => item._id}
-                        ListEmptyComponent={
-                            <View style={{ marginTop: 50, alignItems: 'center' }}>
-                                <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
-                                <Text style={StyleShare.titleText20}>Bạn chưa mua bất kỳ dịch vụ nào</Text>
-                                <Text style={{ padding: 20, textAlign: 'center' }}>Bạn chưa có bất kỳ dịch vụ  nào, hãy mua dịch vụ để tăng hiệu quả cho quá trình tuyển dụng</Text>
-                            </View>
-                        }
-                    />
-                </>}
+                {loading ? <Loading /> : (
+                    <>
+                        <View style={{ marginTop: 10, marginHorizontal: 20 }} />
+                        <View style={StyleShare.jobItemContainer}>
+                            <Text style={{ fontWeight: '500', color: textColor }}>
+                                Tổng chi: <Text style={{ color: green }}>{formatVND(meta.totalAmount || 0)}</Text>
+                            </Text>
+                            <Text style={{ fontWeight: '500', color: textColor }}>
+                                Dịch vụ áp dụng: <Text style={{ color: green }}>{meta.totalItems || 0}</Text>
+                            </Text>
+                        </View>
+                        <FlatList
+                            data={services}
+                            renderItem={({ item }) => <ServiceItem item={item} navigation={navigation} companyId={companyId} />}
+                            keyExtractor={(item) => item._id}
+                            initialNumToRender={10}
+                            maxToRenderPerBatch={10}
+                            windowSize={5}
+                            ListEmptyComponent={
+                                <View style={{ marginTop: 50, alignItems: 'center' }}>
+                                    <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
+                                    <Text style={StyleShare.titleText20}>Bạn chưa mua bất kỳ dịch vụ nào</Text>
+                                    <Text style={{ padding: 20, textAlign: 'center' }}>
+                                        Bạn chưa có bất kỳ dịch vụ nào, hãy mua dịch vụ để tăng hiệu quả cho quá trình tuyển dụng
+                                    </Text>
+                                </View>
+                            }
+                        />
+                    </>
+                )}
             </View>
         );
-
     };
-
 
     const Tab2 = () => {
         const [paymentData, setPaymentData] = useState([]);
         const [currentPage, setCurrentPage] = useState(1);
         const [totalPages, setTotalPages] = useState(1);
-        const [totalItems, setTotalItems] = useState(0);
-
-        const [loading, setLoading] = useState(false)
+        const [loading, setLoading] = useState(false);
         const [loadingMore, setLoadingMore] = useState(false);
-        const [searchKeywork, setSearchKeywork] = useState('')
+        const [searchKeyword, setSearchKeyword] = useState('');
 
-        useEffect(() => {
-            fetchListPayment(1);
-        }, []);
+        const fetchListPayment = useCallback(async (page = 1, limit = 10) => {
+            const isFirstPage = page === 1;
+            isFirstPage ? setLoading(true) : setLoadingMore(true);
 
-        const renderItem = ({ item }) => {
-            return (
-                <TouchableWithoutFeedback>
-                    <View style={StyleShare.jobItemContainer}>
-                        <View style={StyleShare.flexBetween}>
-                            <Text style={{ fontWeight: '500', color: textColor }}>{moment(item.vnp_PayDate, "YYYYMMDDHHmmss").format("DD-MM-YYYY HH:mm")}</Text>
-                            <Text
-                                style={{
-                                    fontWeight: '500',
-                                    color: item.vnp_TransactionStatus === 'Success' ? green : '#dc3545' // màu xanh cho thành công, đỏ cho thất bại
-                                }}
-                            >
-                                {item.vnp_TransactionStatus === 'Success' ? 'Thành công' : 'Thất bại'}
-                            </Text>
-                        </View>
-                        <View style={{ marginTop: 10 }}>
-                            <Text style={StyleShare.titleText16}>{(item.vnp_OrderInfo).replace(/\+/g, ' ')}</Text>
-                            <Text style={{ fontWeight: '500', color: textColor, marginVertical: 5 }}>Mã giao dịch: {item.vnp_TransactionNo}</Text>
-                            <Text style={{ fontWeight: '500', color: textColor }}>Số tiền:
-                                <Text style={{ color: green }}>
-                                     {formatVND(item.vnp_Amount / 100)}
-                                </Text>
-                            </Text>
-                        </View>
-                    </View>
-                </TouchableWithoutFeedback>
-            );
-        };
-
-        const fetchListPayment = async (currentPage = 1, limit = 10) => {
-            if (currentPage === 1) setLoading(true);
-            else setLoadingMore(true);
-            const searchQuery = searchKeywork ? `/${searchKeywork}/i` : '';
             try {
                 const token = await AsyncStorage.getItem("access_token");
+                const searchQuery = searchKeyword ? `/${searchKeyword}/i` : '';
                 const res = await authApi(token).get(endpoints['paymentByCompany'](companyId), {
-                    params: {
-                        page: currentPage,
-                        limit: limit,
-                        vnp_TransactionNo: searchKeywork,
-                    },
+                    params: { page, limit, vnp_TransactionNo: searchQuery },
                 });
+
                 const data = res.data.data;
-                if (currentPage === 1) {
-                    setPaymentData(data.result);
-                } else {
-                    setPaymentData((prev) => [...prev, ...data.result]);
-                }
+                setPaymentData(prev => isFirstPage ? data.result : [...prev, ...data.result]);
                 setCurrentPage(data.meta.currentPage);
                 setTotalPages(data.meta.totalPages);
-                setTotalItems(data.meta.totalItems);
             } catch (error) {
-                console.log('Error fetching companies:', error);
+                console.error('Fetch payments error:', error);
             } finally {
                 setLoading(false);
                 setLoadingMore(false);
             }
-        };
+        }, [companyId, searchKeyword]);
 
-        const loadingMorePayment = () => {
+        useEffect(() => {
+            fetchListPayment(1);
+        }, [fetchListPayment]);
+
+        const loadMorePayment = useCallback(() => {
             if (currentPage < totalPages && !loadingMore) {
                 fetchListPayment(currentPage + 1);
             }
+        }, [currentPage, totalPages, loadingMore, fetchListPayment]);
+
+        const exportToCSV = async () => {
+            try {
+                const csvContent = [
+                    'Ngày giao dịch,Trạng thái,Thông tin,Mã giao dịch,Số tiền',
+                    ...paymentData.map(item =>
+                        `${moment(item.vnp_PayDate, "YYYYMMDDHHmmss").format("DD-MM-YYYY HH:mm")},${item.vnp_TransactionStatus === 'Success' ? 'Thành công' : 'Thất bại'},${(item.vnp_OrderInfo).replace(/\+/g, ' ')},${item.vnp_TransactionNo},${item.vnp_Amount / 100}`
+                    )
+                ].join('\n');
+
+                const fileUri = `${FileSystem.documentDirectory}transactions_${companyId}.csv`;
+                await FileSystem.writeAsStringAsync(fileUri, csvContent);
+                await Sharing.shareAsync(fileUri);
+            } catch (error) {
+                console.error('Export error:', error);
+            }
         };
-
-
 
         return (
             <View style={{ flex: 1, marginTop: 10 }}>
@@ -196,71 +205,64 @@ export default function ServicesByCompany({ navigation, route }) {
                         <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
                         <TextInput
                             style={StyleShare.searchInput}
-                            placeholder="Tìm kiếm giao dịch (mã giao dịch) ..."
-                            value={searchKeywork}
-                            onChangeText={(text) => setSearchKeywork(text)}
-                            onSubmitEditing={() => {
-                                fetchListPayment(1, 10, searchKeywork)
-                            }}
+                            placeholder="Tìm kiếm giao dịch (mã giao dịch)"
+                            value={searchKeyword}
+                            onChangeText={setSearchKeyword}
+                            onSubmitEditing={() => fetchListPayment(1)}
                         />
                     </View>
+                    <TouchableOpacity
+                        style={[StyleShare.buttonDetailApply, { marginTop: 10,backgroundColor:orange }]}
+                        onPress={exportToCSV}
+                    >
+                        <Text style={{ fontWeight: '500', color: 'white' }}>Xuất file CSV</Text>
+                    </TouchableOpacity>
                 </View>
-                {loading ? (
-                    <Loading />
-                ) : (
+                {loading ? <Loading /> : (
                     <FlatList
                         data={paymentData}
                         keyExtractor={(item) => item._id}
-                        renderItem={renderItem}
+                        renderItem={({ item }) => <PaymentItem item={item} />}
+                        initialNumToRender={10}
+                        maxToRenderPerBatch={10}
+                        windowSize={5}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{ paddingBottom: 15 }}
+                        onEndReached={loadMorePayment}
+                        onEndReachedThreshold={0.7}
                         ListEmptyComponent={
                             <View style={{ marginTop: 50, alignItems: 'center' }}>
                                 <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
-                                <Text style={StyleShare.titleText20}>Bạn chưa có bất kỳ giao dịch nào nào</Text>
-                                <Text style={{ padding: 20, textAlign: 'center' }}>Bạn chưa có bất kỳ giao dịch nào, hãy mua dịch vụ để tăng hiệu quả cho quá trình tuyển dụng</Text>
+                                <Text style={StyleShare.titleText20}>Bạn chưa có bất kỳ giao dịch nào</Text>
+                                <Text style={{ padding: 20, textAlign: 'center' }}>
+                                    Bạn chưa có bất kỳ giao dịch nào, hãy mua dịch vụ để tăng hiệu quả cho quá trình tuyển dụng
+                                </Text>
                             </View>
                         }
-                        onEndReached={loadingMorePayment} // Gọi khi đến cuối danh sách
-                        onEndReachedThreshold={0.7} // Ngưỡng để kích hoạt loadMore
-                        ListFooterComponent={
-                            loadingMore ? (
-                                <Loading />
-                            ) : null
-                        }
+                        ListFooterComponent={loadingMore && <Loading />}
                     />
                 )}
             </View>
         );
-
     };
-
-
-
-    const formatVND = (amount) => {
-        return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-        }).format(amount);
-    };
-
-
 
     return (
         <View style={StyleShare.container}>
-            <UIHeader leftIcon={"arrow-back"}
-                rightIcon={"ellipsis-horizontal"}
-                title={'Dịch vụ của bạn'}
-                handleLeftIcon={() => { navigation.goBack() }} />
+            <UIHeader
+                leftIcon={"arrow-back"}
 
+                title={'Dịch vụ của bạn'}
+                handleLeftIcon={() => navigation.goBack()}
+            />
             <View style={{ flex: 1 }}>
                 <Tab.Navigator
                     screenOptions={{
-                        tabBarActiveTintColor: orange, // Color of the selected tab
-                        tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold' }, // Style for tab labels
-                        tabBarIndicatorStyle: { backgroundColor: orange }, // Style for the indicator of the selected tab
+                        tabBarActiveTintColor: orange,
+                        tabBarLabelStyle: { fontSize: 14, fontWeight: 'bold' },
+                        tabBarIndicatorStyle: { backgroundColor: orange },
                         tabBarStyle: { backgroundColor: grey },
-                    }}>
+                    }}
+                >
                     <Tab.Screen name="Dịch vụ đã áp dụng" component={Tab1} />
                     <Tab.Screen name={'Lịch sử giao dịch'} component={Tab2} />
                 </Tab.Navigator>
@@ -268,14 +270,3 @@ export default function ServicesByCompany({ navigation, route }) {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    serviceItemContainer: {
-        borderRadius: 20,
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        backgroundColor: white,
-        marginTop: 15,
-        marginHorizontal: 20,
-    },
-});

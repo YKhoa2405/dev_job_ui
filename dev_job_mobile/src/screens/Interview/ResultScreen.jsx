@@ -9,10 +9,6 @@ import Button from '../../components/Button';
 export default function ResultScreen({ route, navigation }) {
     const { totalScore, details, job } = route.params;
 
-    const handleRetry = () => {
-        navigation.navigate('PrepareScreen', { job: job });
-        // navigation.navigate('JobApplied')
-    };
 
     return (
         <View style={{ flex: 1 }}>
@@ -35,11 +31,16 @@ export default function ResultScreen({ route, navigation }) {
                 ))}
 
                 {/* Nút Thử lại */}
-                <View style={{ marginHorizontal: 20, marginTop: 30 }}>
+                <View style={[{ marginHorizontal: 20, marginTop: 30, flexDirection: 'row', justifyContent: 'space-around', }]}>
+                    <Button
+                        title={'    Luyện tập lại    '}
+                        onPress={() => navigation.navigate('PrepareScreen', { job: job })}
+                        backgroundColor={mainColor}
+                        textColor={white} />
 
                     <Button
-                        title={'Thử lại'}
-                        onPress={handleRetry}
+                        title={'      Trang Chủ      '}
+                        onPress={() => navigation.navigate('MainTab', { screen: 'HomeClient' })}
                         backgroundColor={mainColor}
                         textColor={white} />
                 </View>

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { mainColor, white } from '../../assets/themes/Color';
 import StyleShare from '../../assets/themes/StyleShare';
 
-const CongratsScreen = ({ navigation,route }) => {
+const CongratsScreen = ({ navigation, route }) => {
   const { jobTitle, companyName } = route.params;
 
   return (
@@ -15,8 +15,8 @@ const CongratsScreen = ({ navigation,route }) => {
         <Text style={styles.highlight}>{companyName}</Text>.
       </Text>
       <TouchableOpacity
-        style={[StyleShare.buttonDetailApply,{backgroundColor:mainColor}]}
-        onPress={() => navigation.navigate('MainTab')} 
+        style={[StyleShare.buttonDetailApply, { backgroundColor: mainColor }]}
+        onPress={() => navigation.navigate('MainTab', { screen: 'HomeClient' })}
       >
         <Text style={styles.buttonText}>Quay về trang chủ</Text>
       </TouchableOpacity>
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    color:white,
+    color: white,
     fontSize: 16,
   },
 });

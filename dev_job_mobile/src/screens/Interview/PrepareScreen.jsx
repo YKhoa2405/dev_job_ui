@@ -32,7 +32,7 @@ export default function PrepareScreen({ route, navigation }) {
             <UIHeader
                 leftIcon={"arrow-back"}
                 title={'Phỏng vấn ảo'}
-                handleLeftIcon={() => { navigation.goBack() }} />
+                handleLeftIcon={() => { navigation.navigate('JobApplied') }} />
             <View style={StyleShare.jobItemContainer}>
                 <View style={styles.jobDetails}>
                     <Text style={StyleShare.titleText16}>{job.jobId.name}</Text>
