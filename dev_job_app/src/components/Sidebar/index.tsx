@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import Logo from '../../images/logo/logo.svg';
-import { BriefcaseBusiness, Building2, Code, FileUser, Key, LayoutDashboard, RollerCoaster, ShoppingCart, User2Icon, UsersRound } from 'lucide-react';
+import { BriefcaseBusiness, Building2, Code, FileUser, Key, LayoutDashboard, RollerCoaster, ShoppingCart, TicketCheck, User2Icon, UsersRound } from 'lucide-react';
 
 
 interface SidebarProps {
@@ -163,18 +163,25 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   Công nghệ
                 </NavLink>
               </li>
-
+            </ul>
+            <ul className="mb-6 flex flex-col gap-1.5">
+              <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">Tiện ích</h3>
               <li>
                 <NavLink
                   to="admin/services"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('services') && 'bg-graydark dark:bg-meta-4'}`}>
-                  <ShoppingCart width={20} />
+                  <TicketCheck width={20} />
                   Dịch vụ
                 </NavLink>
               </li>
-            </ul>
-            <ul className="mb-6 flex flex-col gap-1.5">
-              <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">PHÂN QUYỀN</h3>
+              <li>
+                <NavLink
+                  to="admin/orders"
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('orders') && 'bg-graydark dark:bg-meta-4'}`}>
+                  <ShoppingCart width={20} />
+                  Đơn hàng
+                </NavLink>
+              </li>
               <li>
                 <NavLink
                   to="admin/roles"

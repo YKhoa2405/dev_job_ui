@@ -24,6 +24,7 @@ import CompanyDetail from './pages/Companies/CompanyDetail';
 import Candidates from './pages/Candidates/Candidats';
 import CandidatesDetail from './pages/Candidates/CandidatesDetail';
 import CandidatesEdit from './pages/Candidates/CandidatesEdit';
+import Orders from './pages/Orders/Order';
 
 
 
@@ -164,6 +165,13 @@ function App() {
           element={<>
             <PageTitle title="Thêm mới dịch vụ" />
             <CreateService /></>} />
+
+        {/* ORder */}
+        <Route
+          path="/admin/orders"
+          element={<>
+            <PageTitle title="Đơn hàng" />
+            <Orders /></>} />
 
         {/* Skill */}
         <Route
