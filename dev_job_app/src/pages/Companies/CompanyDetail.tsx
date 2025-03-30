@@ -5,14 +5,16 @@ import "moment/locale/vi";
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { ICompanyDetail } from '../../types/company';
-import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX, Pencil } from 'lucide-react';
 import { IJobList } from '../../types/job';
 import Loader from '../../common/Loader';
+import { IOrder } from '../../types/order';
 
 const CompanyDetail = () => {
     moment.locale("vi");
     const [companyDetail, setCompanyDetail] = useState<ICompanyDetail | null>();
     const [jobData, setJobData] = useState<IJobList[]>([]);
+    const [orderData, setOrderData] = useState<IOrder[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
@@ -31,7 +33,8 @@ const CompanyDetail = () => {
 
     useEffect(() => {
         fetchCompanyDetail();
-    }, []);
+        fetchOrderByCompany();
+    }, [id]);
 
     useEffect(() => {
         fetchJobByCompany(currentPage, limit)
@@ -47,6 +50,18 @@ const CompanyDetail = () => {
             console.log('Error fetching company detail:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchOrderByCompany = async () => {
+        try {
+            const token: any = localStorage.getItem("access_token");
+            const res = await authApi(token).get(endpoints['ordersByCompany'](id!));
+            const data = res.data.data;
+            console.log(data)
+            setOrderData(data.result); // Update company data
+        } catch (error) {
+            console.log('Error fetching companies:', error);
         }
     };
 
@@ -189,7 +204,69 @@ const CompanyDetail = () => {
                     <div className="rounded-sm border border-stroke bg-white shadow-default">
                         <div className="py-6 px-4 md:px-6 xl:px-7.5">
                             <div className="flex items-center justify-between">
-                                <h4 className="text-xl font-semibold text-black ">Tin tuyển dụng của {companyDetail?.name} </h4>
+                                <h4 className="text-xl font-semibold text-black ">Dịch vụ đã mua</h4>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-8 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
+                            <div className="col-span-2 flex items-center">
+                                <p className="font-medium">Tên dịch vụ</p>
+                            </div>
+                            <div className="col-span-1 hidden items-center sm:flex">
+                                <p className="font-medium">Giá (VND)</p>
+                            </div>
+                            <div className="col-span-2 hidden sm:flex items-center">
+                                <p className="font-medium">Ngày mua</p>
+                            </div>
+                            <div className="col-span-2 flex items-center">
+                                <p className="font-medium">Ngày hết hạn</p>
+                            </div>
+                            <div className="col-span-1 flex items-center">
+                                <p className="font-medium">Trạng thái</p>
+                            </div>
+                        </div>
+                        <div>
+                            {orderData.map((item) => (
+                                <div
+                                    className="grid grid-cols-8 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
+                                    key={item._id}
+                                >
+                                    <div className="col-span-2 flex items-center">
+                                        <p className="text-sm text-blue-600 ">{item.serviceId.name}</p>
+                                    </div>
+                                    <div className="col-span-1 hidden items-center sm:flex">
+                                        <p className="text-sm text-black ">{item.amount.toLocaleString('vi-VN')}</p>
+                                    </div>
+                                    <div className="col-span-2 hidden items-center sm:flex">
+                                        <p className="text-sm text-black ">{moment(item.createdAt).format("ddd, DD/MM/YYYY, HH:mm")}</p>
+                                    </div>
+                                    <div className="col-span-2 hidden items-center sm:flex">
+                                        <p className="text-sm text-black ">{moment(item.endDate).format("ddd, DD/MM/YYYY, HH:mm")}
+                                        </p>
+                                    </div>
+                                    <div className="col-span-1 flex items-center">
+                                        <p className="text-sm text-black ">
+                                            {item.isActive ? (
+                                                <CircleCheckBigIcon size={20} color="green" />
+                                            ) : (
+                                                <CircleX size={20} color="red" />
+                                            )}</p>
+                                    </div>
+                                    {/* <div className="col-span-1 hidden items-center sm:flex">
+                                        <button className="hover:text-primary">
+                                            <Pencil size={20} />
+                                        </button>
+                                    </div> */}
+                                </div>
+                            ))}
+                        </div>
+
+                    </div>
+
+                    <div className="rounded-sm border border-stroke bg-white shadow-default">
+                        <div className="py-6 px-4 md:px-6 xl:px-7.5">
+                            <div className="flex items-center justify-between">
+                                <h4 className="text-xl font-semibold text-black ">Tin tuyển dụng</h4>
 
                             </div>
                         </div>

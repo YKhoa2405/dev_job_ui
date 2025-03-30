@@ -15,7 +15,6 @@ import CreateService from './pages/Services/CreateService';
 import Users from './pages/Users/Users';
 import Login from './pages/Auth/Login';
 import Resumes from './pages/Resumes/Resumes';
-import Permission from './pages/Permissions/Permission';
 import Register from './pages/Auth/Register';
 import Skills from './pages/Skills/Skills';
 import Dashboard from './pages/Dashboard/Dashboard';
@@ -24,6 +23,7 @@ import EditJobs from './pages/Jobs/EditJobs';
 import CompanyDetail from './pages/Companies/CompanyDetail';
 import Candidates from './pages/Candidates/Candidats';
 import CandidatesDetail from './pages/Candidates/CandidatesDetail';
+import CandidatesEdit from './pages/Candidates/CandidatesEdit';
 
 
 
@@ -87,6 +87,11 @@ function App() {
           element={<>
             <PageTitle title="Chi tiết ứng viên" />
             <CandidatesDetail /></>} />
+        <Route
+          path="/admin/candidates/:id/edit"
+          element={<>
+            <PageTitle title="Chỉnh sửa ứng viên" />
+            <CandidatesEdit /></>} />
         {/* Companies */}
         <Route
           path="/admin/companies"
@@ -173,13 +178,6 @@ function App() {
           element={<>
             <PageTitle title="Vai trò" />
             <Roles /></>} />
-
-        {/* permistion */}
-        <Route
-          path="/admin/permission"
-          element={<>
-            <PageTitle title="Quyền hạn" />
-            <Permission /></>} />
 
       </Routes>
     </DefaultLayout>

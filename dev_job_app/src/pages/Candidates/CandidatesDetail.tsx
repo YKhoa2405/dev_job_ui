@@ -5,14 +5,15 @@ import "moment/locale/vi";
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 
-import { IJobList } from '../../types/job';
 import Loader from '../../common/Loader';
 import { ICandidate } from '../../types/candidates';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { IResumeList } from '../../types/resume';
 
 const CandidatesDetail = () => {
     moment.locale("vi");
     const [candidatesDetail, setCandidatesDetail] = useState<ICandidate | null>();
-    const [jobData, setJobData] = useState<IJobList[]>([]);
+    const [resumeData, setResumeData] = useState<IResumeList[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
@@ -33,9 +34,9 @@ const CandidatesDetail = () => {
         fetchCandidatesDetail();
     }, [id]);
 
-    // useEffect(() => {
-    //     fetchJobByCompany(currentPage, limit)
-    // }, [limit, currentPage]);
+    useEffect(() => {
+        fetchResumeByCandidate(currentPage, limit)
+    }, [limit, currentPage, id]);
 
     const fetchCandidatesDetail = async () => {
         setLoading(true);
@@ -51,17 +52,19 @@ const CandidatesDetail = () => {
         }
     };
 
-    const fetchJobByCompany = async (currentPage = 1, limit = 10) => {
+    const fetchResumeByCandidate = async (currentPage = 1, limit = 10) => {
         try {
             const token: any = localStorage.getItem("access_token");
-            const res = await authApi(token).get(endpoints['jobsByCompany'](id!), {
+            const res = await authApi(token).get(endpoints['resume'], { // Update the endpoint as needed
                 params: {
                     page: currentPage,
                     limit: limit,
+                    userId: id
                 },
             });
+            console.log(res.data.data)
             const data = res.data.data;
-            setJobData(data.result); // Update company data
+            setResumeData(data.result); // Update company data
             setCurrentPage(data.meta.currentPage); // Update the current page from API response
             setTotalPages(data.meta.totalPages); // Update the total pages from API response
             setTotalItems(data.meta.totalItems); // Update the total pages from API response
@@ -80,6 +83,16 @@ const CandidatesDetail = () => {
     const handleNextClick = () => {
         if (currentPage < totalPages) {
             setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const getStatusStyle = (status: string) => {
+        switch (status) {
+            case 'Chờ xử lý': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-700 dark:text-yellow-300';
+            case 'Đã xem': return 'text-blue-600 bg-blue-100 dark:bg-blue-700 dark:text-blue-300';
+            case 'Chấp nhận': return 'text-green-600 bg-green-100 dark:bg-green-700 dark:text-green-300';
+            case 'Từ chối': return 'text-red-600 bg-red-100 dark:bg-red-700 dark:text-red-300';
+            default: return '';
         }
     };
 
@@ -147,6 +160,12 @@ const CandidatesDetail = () => {
                                     </div>
                                 </div>
                                 <div className="flex-1">
+                                    <label className="mb-2.5 block text-black dark:text-white">Mô hình việc làm</label>
+                                    <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
+                                        {candidatesDetail?.jobType}
+                                    </div>
+                                </div>
+                                <div className="flex-1">
                                     <label className="mb-2.5 block text-black dark:text-white">Mức lương mong muốn</label>
                                     <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
                                         {candidatesDetail?.salary}
@@ -163,7 +182,7 @@ const CandidatesDetail = () => {
                             {/* Hàng 3 */}
                             <div className="grid grid-cols-5 gap-4 mb-4.5">
                                 <div className="col-span-3">
-                                    <label className="mb-2.5 block text-black dark:text-white">Mô hình làm việc</label>
+                                    <label className="mb-2.5 block text-black dark:text-white">Kỹ năng</label>
                                     <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
                                         {candidatesDetail?.skills?.length ? candidatesDetail.skills.join(", ") : "Chưa cập nhật"}
                                     </div>
@@ -201,6 +220,112 @@ const CandidatesDetail = () => {
                                             "Chưa cập nhật"
                                         )}
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div className="rounded-sm border border-stroke bg-white shadow-default">
+                        <div className="py-6 px-4 md:px-6 xl:px-7.5">
+                            <div className="flex items-center justify-between">
+                                <h4 className="text-xl font-semibold text-black "> Việc làm đã ứng tuyển  </h4>
+
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
+                            <div className="col-span-2 flex items-center">
+                                <p className="font-medium">Tên việc làm</p>
+                            </div>
+                            <div className="col-span-2 hidden items-center sm:flex">
+                                <p className="font-medium">Tên công ty</p>
+                            </div>
+
+                            <div className="col-span-1 flex items-center">
+                                <p className="font-medium">Trạng thái</p>
+                            </div>
+                            <div className="col-span-1 hidden sm:flex items-center">
+                                <p className="font-medium">CV</p>
+                            </div>
+                            <div className="col-span-2 hidden sm:flex items-center">
+                                <p className="font-medium">Ngày tạo</p>
+                            </div>
+                        </div>
+                        <div>
+                            {resumeData.map((item) => (
+                                <div
+                                    className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
+                                    key={item._id}
+                                >
+                                    <a className="col-span-2 flex items-center" href={`/admin/jobs/${item._id}`}>
+                                        <p className="text-sm text-blue-600 ">{item?.jobId?.name}</p>
+                                    </a>
+                                    <div className="col-span-2 hidden items-center sm:flex">
+                                        <p className="text-sm text-black ">{item.companyId?.name}</p>
+                                    </div>
+
+                                    <div className="col-span-1 flex items-center">
+                                        <p className={`text-sm font-bold px-2 rounded ${getStatusStyle(item?.status)}`}>{item?.status}</p>
+                                    </div>
+                                    <div className="col-span-1 hidden items-center sm:flex">
+                                        {item.cv ? (
+                                            <a
+                                                href={item.cv}
+                                                target="_blank"
+                                                className="bg-blue-500 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-600 transition"
+                                            >
+                                                Xem CV
+                                            </a>
+                                        ) : (
+                                            <span className="text-gray-400">Chưa có</span>
+                                        )}
+                                    </div>
+
+                                    <div className="col-span-2 hidden items-center sm:flex">
+                                        <p className="text-sm text-black ">{moment(item.createdAt).format("ddd, DD/MM/YYYY, HH:mm")}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="py-6 px-4 md:px-6 xl:px-7.5 border-t border-stroke dark:border-strokedark">
+                            <div className="flex items-center justify-between">
+                                <h6 className="text-base font-semibold text-black ">Tổng {totalItems} việc làm </h6>
+                                <div className="flex items-center justify-center gap-4">
+                                    <select
+                                        value={limit}
+                                        onChange={(e) => setLimit(Number(e.target.value))}
+                                        className="rounded border-[1.5px] border-stroke bg-transparent py-1 px-2 text-black outline-none transition focus:border-primary active:border-primary"
+                                    >
+                                        {displayOptions.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {/* Nút Previous */}
+                                    <button
+                                        onClick={handlePrevClick}
+                                        disabled={currentPage === 1}
+                                        className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === 1 ? 'cursor-not-allowed bg-gray-300' : ''}`}
+                                    >
+                                        <ChevronLeft size={18} />
+                                    </button>
+
+                                    {/* Current Page */}
+                                    <p className="font-medium text-black  mx-4" style={{ width: '100px', textAlign: 'center' }}>
+                                        {currentPage} / {totalPages} trang
+                                    </p>
+
+                                    {/* Next Button */}
+                                    <button
+                                        onClick={handleNextClick}
+                                        disabled={currentPage === totalPages}
+                                        className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-300' : ''}`}
+                                    >
+                                        <ChevronRight size={18} />
+                                    </button>
                                 </div>
                             </div>
                         </div>

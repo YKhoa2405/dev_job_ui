@@ -183,14 +183,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   Vai trò
                 </NavLink>
               </li>
-              <li>
-                <NavLink
-                  to="admin/permission"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('permission') && 'bg-graydark dark:bg-meta-4'}`}>
-                  <Key width={20} />
-                  Quyền hạn
-                </NavLink>
-              </li>
             </ul>
 
           </div>

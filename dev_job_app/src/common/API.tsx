@@ -28,6 +28,11 @@ export const endpoints = {
     'services': '/services',
     'servicesDetail': (serviceId: string) => `/services/${serviceId}`,
 
+    // order
+    'orders': '/orders',
+    'ordersDetail': (orderId: string) => `/orders/${orderId}`,
+    'ordersByCompany': (companyId: string) => `/orders/${companyId}`,
+
     // company
     'companies': '/companies',
     'companiesDetail': (companyId: string) => `/companies/${companyId}`,

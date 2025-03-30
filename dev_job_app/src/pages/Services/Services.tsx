@@ -58,6 +58,7 @@ const Services = () => {
                 },
             });
             setServiceData(res.data.data.result);
+            console.log(res.data.data);
         } catch (error) {
             console.log('Error fetching services:', error);
             toast.error('Không thể tải danh sách dịch vụ!');
@@ -369,7 +370,7 @@ const Services = () => {
                                         <p className="text-sm text-blue-600 dark:text-white">{item.name}</p>
                                     </div>
                                     <div className="col-span-2 flex items-center">
-                                        <p className="text-sm text-black dark:text-white">{item.code}</p>
+                                        <p className="text-sm text-black dark:text-white">{item?.code}</p>
                                     </div>
                                     <div className="col-span-1 hidden sm:flex items-center">
                                         <p className="text-sm text-green-600 dark:text-white">

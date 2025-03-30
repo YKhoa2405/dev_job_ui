@@ -20,6 +20,8 @@ export type IResumeDetail = {
 export type IResumeList = {
     _id: string;            
     status: string;
+    createdAt: string;
+    cv:string
     companyId:{
         name:string
     };

@@ -29,13 +29,13 @@ const EditJobs = () => {
 
     const salaryOptions = [
         { value: '', label: 'Chọn mức lương' },
-        { value: '1', label: 'Dưới 5 triệu' },
-        { value: '2', label: '10 - 15 triệu' },
-        { value: '3', label: '15 - 20 triệu' },
-        { value: '4', label: '20 - 25 triệu' },
-        { value: '5', label: '30 - 50 triệu' },
-        { value: '6', label: 'Trên 50 triệu' },
-        { value: '7', label: 'Thỏa thuận' },
+        { value: 'Dưới 5 triệu', label: 'Dưới 5 triệu' },
+        { value: '10 - 15 triệu', label: '10 - 15 triệu' },
+        { value: '15 - 20 triệu', label: '15 - 20 triệu' },
+        { value: '20 - 25 triệu', label: '20 - 25 triệu' },
+        { value: '30 - 50 triệu', label: '30 - 50 triệu' },
+        { value: 'Trên 50 triệu', label: 'Trên 50 triệu' },
+        { value: 'Thỏa thuận', label: 'Thỏa thuận' },
     ];
 
     const levelOptions = [
@@ -129,6 +129,7 @@ const EditJobs = () => {
             const token = localStorage.getItem('access_token');
             const res = await authApi(token).get(endpoints['jobDetail'](id!));
             setJobDetail(res.data.data);
+            console.log(res.data.data);
         } catch (error) {
             console.log('Error fetching job detail:', error);
             toast.error('Không thể tải chi tiết công việc!');
@@ -162,12 +163,14 @@ const EditJobs = () => {
                 latitude: coordinates?.latitude ?? jobDetail?.latitude,
                 longitude: coordinates?.longitude ?? jobDetail?.longitude,
                 isActive: jobDetail?.isActive,
+                isUrgent: jobDetail?.isUrgent,
             });
+
             toast.success('Cập nhật thành công!', {
                 position: 'top-right',
                 autoClose: 3000,
             });
-            navigate('/admin/jobs');
+            // navigate('/admin/jobs');
         } catch (error) {
             console.log('Error updating job:', error);
             toast.error('Cập nhật thất bại!', {
@@ -177,6 +180,10 @@ const EditJobs = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleCancel = () => {
+        navigate('/admin/jobs');
     };
 
     return (
@@ -206,6 +213,26 @@ const EditJobs = () => {
                         className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark"
                     >
                         <div className="p-6.5">
+                            <div className="flex justify-end mb-4">
+                                <div className="space-x-2">
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 bg-primary text-white rounded hover:bg-opacity-90"
+                                        disabled={loading}
+                                    >
+                                        Lưu
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleCancel}
+                                        className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-opacity-90"
+                                        disabled={loading}
+                                    >
+                                        Hủy
+                                    </button>
+                                </div>
+                            </div>
+
                             <div className="mb-4.5 flex items-center">
                                 <div className="flex-[4]">
                                     <label className="mb-2.5 block text-black dark:text-white">Tiêu đề</label>
@@ -432,14 +459,39 @@ const EditJobs = () => {
                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                 ></textarea>
                             </div>
+                            <div className="mb-6 flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="hotJob"
+                                    checked={jobDetail?.isUrgent || false}
+                                    onChange={(e) =>
+                                        setJobDetail((prev) => (prev ? { ...prev, isUrgent: e.target.checked } : null))
+                                    }
+                                    className="h-5 w-5 cursor-pointer accent-primary"
+                                />
+                                <label htmlFor="hotJob" className="text-black dark:text-white cursor-pointer">
+                                    Tin tuyển dụng Gấp
+                                </label>
+                            </div>
 
-                            <button
-                                type="submit"
-                                className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
-                            >
-                                Cập nhật
-                            </button>
+                            <div className="flex space-x-4 mb-4.5">
+                                <div className="flex-1">
+                                    <label className="mb-2.5 block text-black dark:text-white">Ngày tạo</label>
+                                    <div className="w-full py-3 px-5 text-black dark:text-white bg-gray-100 border-[1.5px] border-stroke rounded dark:border-form-strokedark">
+                                        {moment(jobDetail?.createdAt).format("ddd, DD/MM/YYYY, HH:mm")}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex space-x-4 mb-4.5">
+                                <div className="flex-1">
+                                    <label className="mb-2.5 block text-black dark:text-white">Ngày cập nhật</label>
+                                    <div className="w-full py-3 px-5 text-black dark:text-white bg-gray-100 border-[1.5px] border-stroke rounded dark:border-form-strokedark">
+                                        {moment(jobDetail?.updatedAt).format("ddd, DD/MM/YYYY, HH:mm")}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                     </form>
                 </div>
             )}

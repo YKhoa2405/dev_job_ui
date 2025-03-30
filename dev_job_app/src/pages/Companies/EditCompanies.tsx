@@ -8,50 +8,67 @@ import Loader from '../../common/Loader';
 import { useParams } from 'react-router-dom';
 import { ICompanyDetail } from '../../types/company';
 
-
 const EditCompanies = () => {
     moment.locale("vi");
-    const [companyDetail, setCompanyDetail] = useState<ICompanyDetail | null>();
+    const [companyDetail, setCompanyDetail] = useState<ICompanyDetail | null>(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
     const { id } = useParams<{ id?: string }>();
 
-    const toggleActiveStatus = () => {
-        if (companyDetail) {
-            setCompanyDetail(prev => prev ? { ...prev, isApproved: !prev.isApproved } : null);
+    useEffect(() => {
+        fetchCompanyDetail();
+    }, [id]); // Include `id` in dependency array to refetch if it changes
+
+    const fetchCompanyDetail = async () => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem("access_token");
+            if (!token) throw new Error("No access token found");
+            const res = await authApi(token).get(endpoints['companiesDetail'](id!));
+            setCompanyDetail(res.data.data);
+        } catch (error) {
+            console.error('Error fetching company detail:', error);
+            toast.error('Không thể tải thông tin công ty', {
+                position: "top-right",
+                autoClose: 3000,
+            });
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setCompanyDetail((prev) => ({
-            ...prev!,
-            [name]: value,
-        }));
+        setCompanyDetail(prev => prev ? { ...prev, [name]: value } : null);
     };
 
-    useEffect(() => {
-        fetchCompanyDetail();
-    }, []);
+    const toggleActiveStatus = () => {
+        setCompanyDetail(prev => prev ? { ...prev, isApproved: !prev.isApproved } : null);
+    };
 
-    const fetchCompanyDetail = async () => {
-        setLoading(true)
-        try {
-            const token: any = localStorage.getItem("access_token");
-            const res = await authApi(token).get(endpoints['companiesDetail'](id!));
-            setCompanyDetail(res.data.data)
-        } catch (error) {
-            console.log('Error fetching resume:', error);
-        } finally { setLoading(false) }
-    }
+    const validateForm = () => {
+        if (!companyDetail?.name) return "Tên công ty không được để trống";
+        if (!companyDetail?.address) return "Địa chỉ công ty không được để trống";
+        if (!companyDetail?.field) return "Lĩnh vực hoạt động không được để trống";
+        if (!companyDetail?.website || !/^https?:\/\/.+/.test(companyDetail.website)) return "Website không hợp lệ (phải bắt đầu bằng http:// hoặc https://)";
+        return null;
+    };
 
-    const handleUpdateCompany = async (e: { preventDefault: () => void; }) => {
-        e.preventDefault(); // Ngăn chặn form reload mặc định
-        console.log(companyDetail?.isApproved)
+    const handleSave = async () => {
+        const validationError = validateForm();
+        if (validationError) {
+            toast.error(validationError, {
+                position: "top-right",
+                autoClose: 3000,
+            });
+            return;
+        }
+
+        setLoading(true);
         try {
-            const token: any = localStorage.getItem("access_token");
-            await authApi(token).patch(endpoints['companiesDetail'](id!), {
+            const token = localStorage.getItem("access_token");
+            if (!token) throw new Error("No access token found");
+            const updatedData = {
                 name: companyDetail?.name,
                 slogan: companyDetail?.slogan,
                 size: companyDetail?.size,
@@ -59,24 +76,29 @@ const EditCompanies = () => {
                 field: companyDetail?.field,
                 website: companyDetail?.website,
                 isApproved: companyDetail?.isApproved,
-                // // avatar: companyDetail?.avatar,
-                about: companyDetail?.about,
-
-            });
-            toast.success('Cập nhật thành công!', {
+                about: companyDetail?.about, // Changed from `description` to match state
+            };
+            const res = await authApi(token).patch(endpoints['companiesDetail'](id!), updatedData);
+            setCompanyDetail(res.data.data);
+            toast.success('Cập nhật công ty thành công!', {
                 position: "top-right",
                 autoClose: 3000,
             });
-            navigate("/admin/companies");
+            // navigate("/admin/companies");
         } catch (error) {
-            console.log('Error updating company:', error);
-            toast.error('Cập nhật thất bại!', {
+            console.error('Error updating company:', error);
+            toast.error('Cập nhật công ty thất bại', {
                 position: "top-right",
                 autoClose: 3000,
             });
+        } finally {
+            setLoading(false);
         }
     };
 
+    const handleCancel = () => {
+        navigate('/admin/companies');
+    };
 
     return (
         <>
@@ -98,11 +120,30 @@ const EditCompanies = () => {
 
             {loading ? (
                 <Loader />
-
             ) : (
                 <div className="flex flex-col gap-10">
-                    <form className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark" onSubmit={handleUpdateCompany}>
+                    <form className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
                         <div className="p-6.5">
+                            <div className="flex justify-end mb-4">
+                                <div className="space-x-2">
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 bg-primary text-white rounded hover:bg-opacity-90"
+                                        disabled={loading}
+                                    >
+                                        Lưu
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleCancel}
+                                        className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-opacity-90"
+                                        disabled={loading}
+                                    >
+                                        Hủy
+                                    </button>
+                                </div>
+                            </div>
+
                             {/* Hàng 1 */}
                             <div className="flex space-x-4 mb-4.5">
                                 <div className="flex-1">
@@ -112,7 +153,8 @@ const EditCompanies = () => {
                                         name="name"
                                         value={companyDetail?.name || ''}
                                         onChange={handleInputChange}
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="flex-1">
@@ -122,7 +164,8 @@ const EditCompanies = () => {
                                         name="slogan"
                                         value={companyDetail?.slogan || ''}
                                         onChange={handleInputChange}
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="flex-1">
@@ -132,7 +175,8 @@ const EditCompanies = () => {
                                         name="size"
                                         value={companyDetail?.size || ''}
                                         onChange={handleInputChange}
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
@@ -146,7 +190,8 @@ const EditCompanies = () => {
                                         name="address"
                                         value={companyDetail?.address || ''}
                                         onChange={handleInputChange}
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="flex-1">
@@ -156,31 +201,31 @@ const EditCompanies = () => {
                                         name="field"
                                         value={companyDetail?.field || ''}
                                         onChange={handleInputChange}
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
 
+                            {/* Hàng 3 */}
                             <div className="grid grid-cols-5 gap-4 mb-4.5">
                                 <div className="col-span-3">
                                     <label className="mb-2.5 block text-black dark:text-white">Website</label>
-
                                     <input
                                         type="url"
                                         name="website"
                                         value={companyDetail?.website || ''}
                                         onChange={handleInputChange}
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white"
-
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="col-span-1">
                                     <label className="mb-2.5 block text-black dark:text-white">Logo</label>
                                     <img
-                                        src={companyDetail?.avatar}
-                                        alt="Uploaded"
+                                        src={companyDetail?.avatar || "https://placehold.co/100x100"}
+                                        alt="Company Logo"
                                         className="h-20 w-20 rounded-full object-cover"
-
                                     />
                                 </div>
                                 <div className="col-span-1">
@@ -189,6 +234,7 @@ const EditCompanies = () => {
                                         type="button"
                                         onClick={toggleActiveStatus}
                                         className={`w-full rounded py-3 px-5 text-white ${companyDetail?.isApproved ? 'bg-green-500' : 'bg-red-500'} hover:bg-opacity-90`}
+                                        disabled={loading}
                                     >
                                         {companyDetail?.isApproved ? 'Hoạt động' : 'Dừng hoạt động'}
                                     </button>
@@ -200,31 +246,21 @@ const EditCompanies = () => {
                                 <div className="flex-1">
                                     <label className="mb-2.5 block text-black dark:text-white">Giới thiệu</label>
                                     <textarea
-                                        name="description"
+                                        name="about" // Changed from `description` to match state
                                         value={companyDetail?.about || ''}
                                         onChange={handleInputChange}
-                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                         rows={4}
-                                    ></textarea>
+                                        disabled={loading}
+                                    />
                                 </div>
                             </div>
-
-                            <button
-                                type="submit"
-                                className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
-                            >
-                                Cập nhật
-                            </button>
                         </div>
                     </form>
-
                 </div>
-            )
-            }
+            )}
         </>
     );
 };
 
 export default EditCompanies;
-
-

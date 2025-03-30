@@ -20,6 +20,9 @@ export type IJobDetail = {
     latitude:number;
     longitude:number
     isActive: boolean;
+    isUrgent: boolean;
+    createdAt: Date;
+    updatedAt: Date
 }
 
 export type IJobList = {

@@ -80,7 +80,7 @@ const Candidates = () => {
             setTotalItems(data.meta.totalItems);
 
             console.log(data.result)
-        } catch (error) {
+        } catch (error) { 
             console.log('error', error);
         } finally { setLoading(false) }
     };
@@ -341,9 +341,9 @@ const Candidates = () => {
                                             <button onClick={() => handleDeleteUser(item._id)} className="hover:text-red-500">
                                                 <TrashIcon size={20} />
                                             </button>
-                                            <button className="hover:text-primary">
+                                            <Link className="hover:text-primary" to={`${item.userId}/edit`}>
                                                 <Pencil size={20} />
-                                            </button>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>
