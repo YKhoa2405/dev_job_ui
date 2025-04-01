@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Logo from '../../images/logo/logo.svg';
 
 const Register: React.FC = () => {
   return (
@@ -9,9 +8,9 @@ const Register: React.FC = () => {
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
             <div className="py-17.5 px-26 text-center">
-              <Link className="mb-5.5 inline-block" to="/">
+              {/* <Link className="mb-5.5 inline-block" to="/">
                 <img className="hidden dark:block" src={Logo} alt="Logo" />
-              </Link>
+              </Link> */}
               <p className="2xl:px-20">
                 Hệ thống tuyển dụng và tìm kiếm việc làm nhanh chóng và hiệu quả
               </p>

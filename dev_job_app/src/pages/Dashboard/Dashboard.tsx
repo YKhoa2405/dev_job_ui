@@ -237,7 +237,9 @@ const Dashboard: React.FC = () => {
       {/* Báo cáo thống kê */}
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark px-5 pt-6 pb-2.5 mb-8">
         <div className="flex justify-between items-center mb-6">
-          <h4 className="text-xl font-semibold text-black dark:text-white">Báo cáo thống kê</h4>
+          <h4 className="text-2xl font-bold text-gray-800 dark:text-white border-b-2 pb-3 border-blue-100 dark:border-blue-900">
+            Báo cáo thống kê
+          </h4>
           <select
             value={selectedYear}
             onChange={handleYearChange}
