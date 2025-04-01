@@ -307,7 +307,7 @@ const CandidatesEdit = () => {
                                 </select>
                             </div>
                             <div className="flex-1">
-                                <label className="mb-2.5 block text-black dark:text-white">Level</label>
+                                <label className="mb-2.5 block text-black dark:text-white">Kinh nghiệm</label>
                                 <select
                                     name="level"
                                     value={formData?.level || ''}

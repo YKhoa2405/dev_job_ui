@@ -56,6 +56,9 @@ export const endpoints = {
     'resume': 'applications',
     'resumeDetail': (resumeId: string) => `/applications/${resumeId}`,
 
+    // statistics
+    'overViewAdmin': '/statistics/overview-admin',
+    'analyticsAdmin': '/statistics/analytics-admin',
 
 
 

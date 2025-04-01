@@ -27,6 +27,7 @@ const Candidates = () => {
     const [currentPage, setCurrentPage] = useState(1); // To store current page
     const [totalPages, setTotalPages] = useState(1); // To store total number of pages
     const [totalItems, setTotalItems] = useState(0);
+    const [level,setLevel]=useState('')
     const [limit, setLimit] = useState(10);
     const [searchKeyword, setSearchKeyword] = useState<string>('')
 
@@ -38,9 +39,21 @@ const Candidates = () => {
         { value: 100, label: '100 mục' },
     ];
 
+    const levelOptions = [
+        { value: '', label: 'Tất cả' },
+        { value: 'Intern', label: 'Intern' },
+        { value: 'Fresher', label: 'Fresher' },
+        { value: 'Junior', label: 'Junior' },
+        { value: 'Middle', label: 'Middle' },
+        { value: 'Senior', label: 'Senior' },
+        { value: 'Trưởng nhóm', label: 'Trưởng nhóm' },
+        { value: 'Trưởng phòng', label: 'Trưởng phòng' },
+        { value: 'Director', label: 'Director' },
+    ];
+
     useEffect(() => {
         fetchListCandidats(currentPage, limit);
-    }, [limit, currentPage]);
+    }, [limit, currentPage,level]);
 
 
     const handlePrevClick = () => {
@@ -70,6 +83,7 @@ const Candidates = () => {
                     page: currentPage,
                     limit: limit,
                     email: searchQuery,
+                    level:level
                 },
             });
             const data = res.data.data;
@@ -80,7 +94,7 @@ const Candidates = () => {
             setTotalItems(data.meta.totalItems);
 
             console.log(data.result)
-        } catch (error) { 
+        } catch (error) {
             console.log('error', error);
         } finally { setLoading(false) }
     };
@@ -165,7 +179,7 @@ const Candidates = () => {
                         as={Fragment}
                         enter="ease-out duration-300"
                         enterFrom="opacity-0"
-                        enterTo="opacity-100"
+                        enterTo="opacity-100"   
                         leave="ease-in duration-200"
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
@@ -252,12 +266,28 @@ const Candidates = () => {
 
             <div className="flex flex-col gap-8">
                 <div className="rounded-sm border border-stroke bg-white shadow-default">
-                    <div className="py-3 px-2 md:px-6 xl:px-7.5">
-                        <div className="relative flex items-center">
+                    <div className="grid grid-cols-4 gap-x-6 py-3 px-2 md:px-6 xl:px-7.5">
+                        <div className="col-span-1 hidden items-center sm:flex">
+                            <p className="font-medium mr-2 whitespace-nowrap">Kinh nghiệm</p>
+                            <select
+                                value={level}
+                                onChange={(e) => setLevel(e.target.value)}
+                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
+                            >
+                                {levelOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="col-span-3 flex items-center relative">
+                            {/* Icon Search */}
                             <div className="absolute left-0 top-1/2 -translate-y-1/2">
                                 <Search size={20} />
                             </div>
 
+                            {/* Input Search */}
                             <input
                                 type="text"
                                 value={searchKeyword}
@@ -266,6 +296,7 @@ const Candidates = () => {
                                 className="w-full bg-transparent pl-9 pr-4 text-black focus:outline-none"
                             />
 
+                            {/* Search Button */}
                             <button onClick={() => handleSearch()} className="absolute right-0 top-1/2 -translate-y-1/2 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 focus:outline-none">
                                 Tìm kiếm
                             </button>
@@ -286,7 +317,7 @@ const Candidates = () => {
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
+                    <div className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
                         <div className="col-span-2 flex items-center">
                             <p className="font-medium">Họ và tên</p>
                         </div>
@@ -296,8 +327,8 @@ const Candidates = () => {
                         <div className="col-span-1 hidden items-center sm:flex">
                             <p className="font-medium">Trạng thái</p>
                         </div>
-                        <div className="col-span-2 hidden items-center sm:flex">
-                            <p className="font-medium">Thành phố</p>
+                        <div className="col-span-1 hidden items-center sm:flex">
+                            <p className="font-medium">Kinh nghiệm</p>
                         </div>
                         <div className="col-span-1 hidden items-center sm:flex">
                             <p className="font-medium">Hành động</p>
@@ -310,7 +341,7 @@ const Candidates = () => {
                         <div>
                             {candidateData.map((item) => (
                                 <div
-                                    className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
+                                    className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
                                     key={item._id}
                                 >
                                     <div className="col-span-2 flex items-center">
@@ -329,8 +360,8 @@ const Candidates = () => {
                                                 {item.availability}</p>
                                         </p>
                                     </div>
-                                    <div className="col-span-2 hidden items-center sm:flex ">
-                                        {item.location}
+                                    <div className="col-span-1 hidden items-center sm:flex ">
+                                        {item.level}
                                     </div>
 
                                     <div className="col-span-1 hidden items-center sm:flex ">

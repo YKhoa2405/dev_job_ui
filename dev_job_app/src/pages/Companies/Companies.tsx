@@ -152,7 +152,6 @@ const Companies = () => {
               </button>
             </div>
           </div>
-
         </div>
 
         <div className="rounded-sm border border-stroke bg-white shadow-default">
@@ -168,11 +167,11 @@ const Companies = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
-            <div className="col-span-3 flex items-center">
+          <div className="grid grid-cols-8 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
+            <div className="col-span-2 flex items-center">
               <p className="font-medium">Tên công ty</p>
             </div>
-            <div className="col-span-1 hidden items-center sm:flex">
+            <div className="col-span-2 hidden items-center sm:flex">
               <p className="font-medium">Địa chỉ</p>
             </div>
             <div className="col-span-2 flex items-center">
@@ -191,10 +190,10 @@ const Companies = () => {
             <div>
               {companyData.map((item) => (
                 <div
-                  className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
+                  className="grid grid-cols-8 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
                   key={item._id}
                 >
-                  <div className="col-span-3 flex items-center">
+                  <div className="col-span-2 flex items-center">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                       <div className="w-12 h-12 rounded-full overflow-hidden">
                         <img src={item.avatar} alt="Avatar" className="w-full h-full object-cover" />
@@ -203,7 +202,7 @@ const Companies = () => {
                       <p className="text-sm text-blue-600 ">{item.name}</p>
                     </div>
                   </div>
-                  <div className="col-span-1 hidden items-center sm:flex">
+                  <div className="col-span-2 hidden items-center sm:flex">
                     <p className="text-sm text-black ">{item.city}</p>
                   </div>
                   <div className="col-span-2 flex items-center">

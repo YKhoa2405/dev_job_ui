@@ -389,9 +389,9 @@ const Services = () => {
                                     </div>
                                     <div className="col-span-1 hidden sm:flex items-center">
                                         <div className="flex items-center space-x-3.5">
-                                            <button onClick={() => handleDeleteService(item._id)} className="hover:text-red-500">
+                                            {/* <button onClick={() => handleDeleteService(item._id)} className="hover:text-red-500">
                                                 <TrashIcon size={20} />
-                                            </button>
+                                            </button> */}
                                             <button onClick={() => openModal(item._id)} className="hover:text-primary">
                                                 <Pencil size={20} />
                                             </button>

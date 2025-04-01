@@ -13,11 +13,13 @@ const Skills = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(100);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [sortOrder,setSortOrder]=useState('')
   const [searchCate, setSearchCate] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingModal, setLoadingModal] = useState(false);
+
 
   // State cho modal thêm mới
   const [isOpenAdd, setIsOpenAdd] = useState(false);
@@ -51,10 +53,10 @@ const Skills = () => {
 
   useEffect(() => {
     fetchListSkill(currentPage, limit);
-  }, [currentPage, limit, searchCate]);
+  }, [currentPage, limit, searchCate,sortOrder]);
 
   const fetchListSkill = useCallback(
-    async (page = 1, limit = 10, name = '') => {
+    async (page = 1, limit = 100, name = '') => {
       setLoading(true);
       const searchQuery = name ? `/${name}/i` : '';
       try {
@@ -64,6 +66,7 @@ const Skills = () => {
             limit,
             name: searchQuery,
             category: searchCate,
+            sort: sortOrder,
           },
         });
         const data = res.data.data;
@@ -78,7 +81,7 @@ const Skills = () => {
         setLoading(false);
       }
     },
-    [searchCate]
+    [searchCate, sortOrder]
   );
 
   const handleSearch = useCallback(() => {
@@ -381,7 +384,7 @@ const Skills = () => {
 
       <div className="flex flex-col gap-8">
         <div className="rounded-sm border border-stroke bg-white shadow-default">
-          <div className="grid grid-cols-4 gap-x-6 py-3 px-2 md:px-6 xl:px-7.5">
+          <div className="grid grid-cols-5 gap-x-6 py-3 px-2 md:px-6 xl:px-7.5">
             <div className="col-span-1 hidden items-center sm:flex">
               <p className="font-medium mr-2 whitespace-nowrap">Nhóm</p>
               <select
@@ -397,6 +400,19 @@ const Skills = () => {
                 ))}
               </select>
             </div>
+            <div className="col-span-1 hidden items-center sm:flex">
+              <p className="font-medium mr-2 whitespace-nowrap">Phổ biến</p>
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
+              >
+                <option value="">Tất cả</option>
+                <option value="popularity">Tăng dần</option>
+                <option value="-popularity">Giảm dần</option>
+              </select>
+            </div>
+
             <div className="col-span-3 flex items-center relative">
               <div className="absolute left-0 top-1/2 -translate-y-1/2">
                 <Search size={20} />
@@ -515,9 +531,8 @@ const Skills = () => {
                 <button
                   onClick={handlePrevClick}
                   disabled={currentPage === 1}
-                  className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${
-                    currentPage === 1 ? 'cursor-not-allowed bg-gray-300' : ''
-                  }`}
+                  className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === 1 ? 'cursor-not-allowed bg-gray-300' : ''
+                    }`}
                 >
                   <ChevronLeft size={18} />
                 </button>
@@ -530,9 +545,8 @@ const Skills = () => {
                 <button
                   onClick={handleNextClick}
                   disabled={currentPage === totalPages}
-                  className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${
-                    currentPage === totalPages ? 'cursor-not-allowed bg-gray-300' : ''
-                  }`}
+                  className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-300' : ''
+                    }`}
                 >
                   <ChevronRight size={18} />
                 </button>

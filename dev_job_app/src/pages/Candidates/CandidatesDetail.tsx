@@ -172,7 +172,7 @@ const CandidatesDetail = () => {
                                     </div>
                                 </div>
                                 <div className="flex-1">
-                                    <label className="mb-2.5 block text-black dark:text-white">Level</label>
+                                    <label className="mb-2.5 block text-black dark:text-white">Kinh nghiệm</label>
                                     <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
                                         {candidatesDetail?.level}
                                     </div>

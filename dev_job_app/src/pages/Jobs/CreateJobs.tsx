@@ -45,8 +45,7 @@ const CreateJobs = () => {
         location: '',
         latitude: 0,
         longitude: 0,
-        isActive: true,
-        isUrgent: false,
+        isUrgent: false
     });
     const [selectedProvinceId, setSelectedProvinceId] = useState<string>('');
     const [selectedDistrictId, setSelectedDistrictId] = useState<string>('');
@@ -222,7 +221,7 @@ const CreateJobs = () => {
 
     const handleCreateJob = async (e: React.FormEvent) => {
         e.preventDefault();
-        const { name, companyId, salary, level, quantity, jobType, city, skills, requirement, description, location, startDate, endDate } = jobData;
+        const { name, companyId, salary, level, quantity, jobType, city, skills, requirement, description, location, startDate, endDate, isUrgent } = jobData;
 
         if (!name || !companyId?._id || !salary || !level || !quantity || !jobType || !city || !skills?.length || !requirement || !description || !location) {
             toast.error('Vui lòng nhập đầy đủ thông tin bắt buộc!', { position: "top-right", autoClose: 3000 });
@@ -475,19 +474,6 @@ const CreateJobs = () => {
                                     </label>
                                 </div>
 
-                                <div className="mb-6 flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        id="activeJob"
-                                        checked={jobData.isActive}
-                                        onChange={(e) => setJobData(prev => ({ ...prev, isActive: e.target.checked }))}
-                                        className="h-5 w-5 cursor-pointer accent-primary"
-                                        disabled={loading}
-                                    />
-                                    <label htmlFor="activeJob" className="text-black dark:text-white cursor-pointer">
-                                        Tin tuyển dụng Hoạt động
-                                    </label>
-                                </div>
 
                                 <div className="mb-6">
                                     <label className="mb-2.5 block text-black dark:text-white">Mô tả <span className="text-meta-1">*</span></label>

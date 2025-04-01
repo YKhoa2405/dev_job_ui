@@ -1,8 +1,8 @@
-import { CircleCheckBigIcon, CircleX, Pencil, Plus, Search, TrashIcon, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Plus, TrashIcon, ChevronLeft, ChevronRight, Eye, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { Fragment, useEffect, useState, useCallback } from 'react';
-import API, { authApi, endpoints } from '../../common/API';
+import { authApi, endpoints } from '../../common/API';
 import { toast } from 'react-toastify';
 import Loading from '../../common/Loader/Loading';
 import Swal from 'sweetalert2';
@@ -23,13 +23,15 @@ const Orders = () => {
     const [startDate, setStartDate] = useState<string>('');
     const [endDate, setEndDate] = useState<string>('');
 
+    const [searchKeyword, setSearchKeyword] = useState('');
+
     const displayOptions = [
         { value: 5, label: '5 mục' },
         { value: 10, label: '10 mục' },
         { value: 20, label: '20 mục' },
         { value: 50, label: '50 mục' },
         { value: 100, label: '100 mục' },
-      ];
+    ];
 
     const openModal = (id: string) => {
         fetchOrderDetail(id);
@@ -40,6 +42,10 @@ const Orders = () => {
         setIsOpen(false);
         setOrderDetail(null);
     };
+
+    const handleSearch = useCallback(() => {
+        fetchListOrders(1, limit);
+      }, [searchKeyword, limit]);
 
     const fetchOrderDetail = useCallback(async (id: string) => {
         setLoadingModal(true);
@@ -64,8 +70,18 @@ const Orders = () => {
                 limit: pageSize,
             };
 
-            if (startDate) params.startDate = startDate;
-            if (endDate) params.endDate = endDate;
+            if (startDate) {
+                // Start of day in UTC
+                const start = new Date(startDate);
+                start.setUTCHours(0, 0, 0, 0);
+                params.createdAtFrom = start.toISOString();
+            }
+            if (endDate) {
+                // End of day in UTC
+                const end = new Date(endDate);
+                end.setUTCHours(23, 59, 59, 999);
+                params.createdAtTo = end.toISOString();
+            }
 
             const res = await authApi(token).get(endpoints['orders'], { params });
             const { result, meta } = res.data.data;
@@ -113,10 +129,6 @@ const Orders = () => {
         }
     }, [currentPage, limit, fetchListOrders]);
 
-    const handleFilter = useCallback(() => {
-        setCurrentPage(1);
-        fetchListOrders(1, limit);
-    }, [fetchListOrders, limit]);
 
     const handlePrevClick = () => {
         if (currentPage > 1) {
@@ -253,6 +265,26 @@ const Orders = () => {
 
             <div className="flex flex-col gap-8">
                 <div className="rounded-sm border border-stroke bg-white shadow-default p-4">
+                    <div className="col-span-3 flex items-center relative">
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2">
+                            <Search size={20} />
+                        </div>
+                        <input
+                            type="text"
+                            value={searchKeyword}
+                            onChange={(e) => setSearchKeyword(e.target.value)}
+                            placeholder="Nhập tên công ty..."
+                            className="w-full bg-transparent pl-9 pr-4 text-black focus:outline-none"
+                        />
+                        <button
+                            onClick={handleSearch}
+                            className="absolute right-0 top-1/2 -translate-y-1/2 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 focus:outline-none"
+                        >
+                            Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+                <div className="rounded-sm border border-stroke bg-white shadow-default p-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="mb-2 block text-black dark:text-white">Từ ngày</label>
@@ -272,14 +304,6 @@ const Orders = () => {
                                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white"
                             />
                         </div>
-                    </div>
-                    <div className="mt-4 flex justify-end">
-                        <button
-                            onClick={handleFilter}
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none"
-                        >
-                            Lọc
-                        </button>
                     </div>
                 </div>
 
