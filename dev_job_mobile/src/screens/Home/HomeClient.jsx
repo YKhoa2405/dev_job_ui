@@ -3,27 +3,21 @@ import {
   View,
   Text,
   TouchableOpacity,
-  TextInput,
   StyleSheet,
-  Image,
   FlatList,
   TouchableWithoutFeedback,
   ScrollView,
-  ActivityIndicator,
   ImageBackground,
   Dimensions,
 } from 'react-native';
 import StyleShare from '../../assets/themes/StyleShare';
-import { bgButton2, mainColor, white, orange, textColor } from '../../assets/themes/Color';
+import { mainColor, white, orange, textColor } from '../../assets/themes/Color';
 import { Avatar, Chip } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import API, { authApi, endpoints } from '../../assets/config/API';
 import moment from 'moment';
-import { fetchPrimaryCvByUser } from '../../redux/slice/cvSLice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ToastMess } from '../../components/ToastMess';
-import axios from 'axios';
 import Loading from '../../components/Loading';
 
 const { width } = Dimensions.get('window');
@@ -221,7 +215,8 @@ export default function HomeClient({ navigation }) {
             <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
               <Text style={StyleShare.titleText20}>Gợi ý việc làm</Text>
               <TouchableOpacity
-                onPress={() => navigation.navigate('JobSuggestions', { title: 'Gợi ý việc làm', api: 'job_recommend' })}
+                // onPress={() => navigation.navigate('JobSuggestions', { title: 'Gợi ý việc làm', api: 'job_recommend' })}
+                onPress={()=>navigation.navigate('JobSwipe')}
               >
                 <Text style={StyleShare.lineText}>Xem tất cả</Text>
               </TouchableOpacity>

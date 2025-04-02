@@ -36,7 +36,7 @@ export default function JobDetail({ route, navigation }) {
         {
             id: '4',
             icon: 'checkmark-circle-sharp',
-            title: 'Level',
+            title: 'Kinh nghiệm',
             info: jobDetail?.level || "N/A",
         },
         {

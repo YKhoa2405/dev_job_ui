@@ -60,6 +60,7 @@ import PrepareScreen from './src/screens/Interview/PrepareScreen';
 import InterviewScreen from './src/screens/Interview/InterviewScreen';
 import ResultScreen from './src/screens/Interview/ResultScreen';
 import CongratsScreen from './src/screens/Congrats/CongratsScreen';
+import JobSwipe from './src/screens/Job/JobSwipe';
 
 
 
@@ -85,6 +86,8 @@ export default function App() {
           <Stack.Screen name="JobSaved" component={JobSaved} />
           <Stack.Screen name="JobApplied" component={JobApplied} />
           <Stack.Screen name="JobSuggestions" component={JobSuggestions} />
+          <Stack.Screen name="JobSwipe" component={JobSwipe} />
+
 
           <Stack.Screen name="CompanyDetail" component={CompanyDetail} />
           <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />

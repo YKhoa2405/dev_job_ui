@@ -94,35 +94,35 @@ export default function JobSaved({ navigation }) {
     }
 
     const renderItem = ({ item }) => {
-        const companyName = item.jobId.companyId && Array.isArray(item.jobId.companyId)
-            ? item.jobId.companyId[0]?.name
-            : item.jobId.companyId?.name;
+        const companyName = item?.jobId?.companyId && Array.isArray(item?.jobId?.companyId)
+            ? item?.jobId?.companyId[0]?.name
+            : item?.jobId?.companyId?.name;
 
         return (
-            <TouchableWithoutFeedback onPress={() => navigation.navigate('JobDetail', { jobId: item.jobId._id })}>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate('JobDetail', { jobId: item?.jobId?._id })}>
                 <View style={StyleShare.jobItemContainer}>
                     <View style={StyleShare.flexCenter}>
-                        <Avatar.Image size={50} style={{ backgroundColor: 'white' }} source={{ uri: item.jobId.companyId.avatar || 'https://via.placeholder.com/60' }} />
+                        <Avatar.Image size={50} style={{ backgroundColor: 'white' }} source={{ uri: item?.jobId?.companyId?.avatar || 'https://via.placeholder.com/60' }} />
                         <View style={{ marginLeft: 10, flex: 1 }}>
                             <Text style={StyleShare.titleText16} numberOfLines={2}>
-                                {item.jobId.name}
+                                {item?.jobId?.name}
                             </Text>
                             <Text style={{ marginTop: 5, color: textColor }}>{companyName || 'Tên công ty'}</Text>
                         </View>
-                        <TouchableOpacity onPress={() => handleDeleteSavedJob(item._id)}>
+                        <TouchableOpacity onPress={() => handleDeleteSavedJob(item?.jobId?._id)}>
                             <Icon name="bookmark" size={26} color={orange} />
                         </TouchableOpacity>
                     </View>
 
                     <View style={StyleShare.technologyContainer}>
-                        <Chip style={StyleShare.chip}>{item.jobId.level|| 'level'}</Chip>
-                        <Chip style={StyleShare.chip}>{item.jobId.salary|| 'salary'}</Chip>
-                        {item.jobId.skills.map((skill, index) => (
+                        <Chip style={StyleShare.chip}>{item?.jobId?.level|| 'level'}</Chip>
+                        <Chip style={StyleShare.chip}>{item?.jobId?.salary|| 'salary'}</Chip>
+                        {item?.jobId?.skills.map((skill, index) => (
                             <Chip key={index} style={StyleShare.chip}>
                                 {skill || 'skill'}
                             </Chip>
                         ))}
-                        {item.isUrgent && (
+                        {item?.isUrgent && (
                             <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
                                 GẤP
                             </Chip>
@@ -131,7 +131,7 @@ export default function JobSaved({ navigation }) {
                     <View style={StyleShare.flexBetween}>
                         <View style={StyleShare.flexCenter}>
                             <Icon name="time" size={22} color={'grey'} style={{ marginRight: 5 }} />
-                            <Text>{moment(item.endDate).format("DD/MM/YYYY")}</Text>
+                            <Text>{moment(item?.endDate).format("DD/MM/YYYY")}</Text>
                         </View>
                     </View>
                 </View>
@@ -175,14 +175,3 @@ export default function JobSaved({ navigation }) {
         </View>
     );
 }
-
-
-const styles = StyleSheet.create({
-    btnSave: {
-        position: 'absolute',
-        top: 20,
-        right: 20,
-        opacity: 0.8,
-        zIndex: 999
-    },
-})
