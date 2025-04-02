@@ -159,16 +159,12 @@ export default function HomeClient({ navigation }) {
       >
         <View style={{ flex: 1, marginHorizontal: 20 }}>
           <View style={[StyleShare.flexBetween, { marginTop: 40 }]}>
-            <View>
               <Text style={[StyleShare.titleText16, { color: white, fontStyle: 'italic' }]}>
                 Chào bạn trở lại!
               </Text>
-            </View>
-            <View style={StyleShare.flexCenter}>
               <TouchableOpacity onPress={() => navigation.navigate('Chat', { currentUserId: currentUser?._id })}>
-                <Icon name="chatbubble" color={white} size={24} style={{ marginRight: 10 }} />
+                <Icon name="chatbubble-outline" color={white} size={24} style={{ marginRight: 10 }} />
               </TouchableOpacity>
-            </View>
           </View>
           <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <TouchableOpacity onPress={() => navigation.navigate('JobSearch')} style={StyleShare.searchHome}>

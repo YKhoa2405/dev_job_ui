@@ -48,16 +48,14 @@ export default function JobSaved({ navigation }) {
     const handleDeleteSavedJob = async (saveJobId) => {
         try {
             const token = await AsyncStorage.getItem("access_token");
-            // API gọi để xóa công việc đã lưu
-            await authApi(token).delete(endpoints['saveJobDetail'](saveJobId));
-
-            // Cập nhật lại danh sách công việc đã lưu
-            setJobs(prevJobs => prevJobs.filter(job => job._id !== saveJobId));
-            setTotalItems(prevTotalItems => prevTotalItems - 1);
+            const res = await authApi(token).delete(endpoints['saveJobDetail'](saveJobId));
+            if (res.data.statusCode === 200) {
+                setJobs(prevJobs => prevJobs.filter(job => job?.jobId?._id !== saveJobId));
+                setTotalItems(prevTotalItems => prevTotalItems - 1);
+            }
 
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
-
             console.log(error);
         }
     };
@@ -115,8 +113,8 @@ export default function JobSaved({ navigation }) {
                     </View>
 
                     <View style={StyleShare.technologyContainer}>
-                        <Chip style={StyleShare.chip}>{item?.jobId?.level|| 'level'}</Chip>
-                        <Chip style={StyleShare.chip}>{item?.jobId?.salary|| 'salary'}</Chip>
+                        <Chip style={StyleShare.chip}>{item?.jobId?.level || 'level'}</Chip>
+                        <Chip style={StyleShare.chip}>{item?.jobId?.salary || 'salary'}</Chip>
                         {item?.jobId?.skills.map((skill, index) => (
                             <Chip key={index} style={StyleShare.chip}>
                                 {skill || 'skill'}
