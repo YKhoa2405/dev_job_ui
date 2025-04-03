@@ -63,6 +63,7 @@ import ResultScreen from './src/screens/Interview/ResultScreen';
 import CongratsScreen from './src/screens/Congrats/CongratsScreen';
 import JobSwipe from './src/screens/Job/JobSwipe';
 import { useEffect } from 'react';
+import Notification from './src/screens/Notifications/Notification';
 
 
 
@@ -79,36 +80,36 @@ Notifications.setNotificationHandler({
 });
 
 export default function App() {
-  useEffect(() => {
-    registerForPushNotificationsAsync();
-  }, []);
+  // useEffect(() => {
+  //   registerForPushNotificationsAsync();
+  // }, []);
 
-  async function registerForPushNotificationsAsync() {
-    if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      });
-    }
+  // async function registerForPushNotificationsAsync() {
+  //   if (Platform.OS === 'android') {
+  //     await Notifications.setNotificationChannelAsync('default', {
+  //       name: 'default',
+  //       importance: Notifications.AndroidImportance.MAX,
+  //       vibrationPattern: [0, 250, 250, 250],
+  //       lightColor: '#FF231F7C',
+  //     });
+  //   }
 
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
+  //   const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  //   let finalStatus = existingStatus;
 
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
+  //   if (existingStatus !== 'granted') {
+  //     const { status } = await Notifications.requestPermissionsAsync();
+  //     finalStatus = status;
+  //   }
 
-    if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notification!');
-      return;
-    }
+  //   if (finalStatus !== 'granted') {
+  //     alert('Failed to get push token for push notification!');
+  //     return;
+  //   }
 
-    const token = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log('Push token:', token);
-  }
+  //   const token = (await Notifications.getExpoPushTokenAsync()).data;
+  //   console.log('Push token:', token);
+  // }
 
   return (
     <Provider store={store}>
@@ -159,6 +160,7 @@ export default function App() {
           <Stack.Screen name="InterviewScreen" component={InterviewScreen} />
           <Stack.Screen name="ResultScreen" component={ResultScreen} />
 
+          <Stack.Screen name="Notification" component={Notification} />
 
 
 

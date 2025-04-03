@@ -194,7 +194,7 @@ export default function JobByCompany({ navigation, route }) {
 
     const renderItem = ({ item }) => {
         return (
-            <TouchableWithoutFeedback onPress={() => navigation.navigate('ResumeByJob', { jobId: item._id })}>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate('ResumeByJob', { jobId: item?._id })}>
                 <View style={StyleShare.jobItemContainer}>
                     <View style={StyleShare.flexBetween}>
                         <View style={{ flex: 1 }}>
@@ -202,26 +202,26 @@ export default function JobByCompany({ navigation, route }) {
                             <Text style={StyleShare.titleText16} numberOfLines={2}>{item?.name}</Text>
                         </View>
                         <View style={StyleShare.flexCenter}>
-                            {item.isActive ? <TouchableOpacity style={{ zIndex: 999 }} onPress={() => handleUpdateActiveJob(item._id)}>
+                            {item.isActive ? <TouchableOpacity style={{ zIndex: 999 }} onPress={() => handleUpdateActiveJob(item?._id)}>
                                 <Icon name="notifications-circle" size={26} color={orange} />
                             </TouchableOpacity>
                                 : <View style={{ zIndex: 999 }}>
                                     <Icon name="notifications-off-circle" size={26} color={mainColor} />
                                 </View>}
-                            <TouchableOpacity style={{ zIndex: 999, marginLeft: 10 }} onPress={() => handleDeleteJob(item._id)} >
+                            <TouchableOpacity style={{ zIndex: 999, marginLeft: 10 }} onPress={() => handleDeleteJob(item?._id)} >
                                 <Icon name="close" size={26} color={'red'} />
                             </TouchableOpacity>
                         </View>
                     </View>
                     <View style={StyleShare.technologyContainer}>
-                        <Chip style={StyleShare.chip}>{item.city}</Chip>
-                        <Chip style={StyleShare.chip}>{item.level}</Chip>
-                        {item.skills.map((s, index) => (
+                        <Chip style={StyleShare.chip}>{item?.city}</Chip>
+                        <Chip style={StyleShare.chip}>{item?.level}</Chip>
+                        {item?.skills?.map((s, index) => (
                             <Chip key={index} style={StyleShare.chip}>
                                 {s}
                             </Chip>
                         ))}
-                        {item.isUrgent && (
+                        {item?.isUrgent && (
                             <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
                                 GẤP
                             </Chip>
@@ -231,7 +231,7 @@ export default function JobByCompany({ navigation, route }) {
                         <View style={StyleShare.flexBetween}>
                             <View style={StyleShare.flexCenter}>
                                 <Icon name="time" size={22} color={'grey'} style={{ marginRight: 5 }} />
-                                <Text>{moment(item.endDate).format("DD/MM/YYYY")}</Text>
+                                <Text>{moment(item?.endDate).format("DD/MM/YYYY")}</Text>
                             </View>
                         </View>
                         <View>

@@ -30,6 +30,7 @@ export default function ResumeByJob({ navigation, route }) {
         const [candidates, setCandidates] = useState([]);
         const dispatch = useDispatch()
         const jobDetail = useSelector((state) => state.job.jobDetail);
+        console.log('jobDetail', jobDetail);
         const status = useSelector((state) => state.job.status);
         useEffect(() => {
             if (jobId) {
@@ -69,20 +70,20 @@ export default function ResumeByJob({ navigation, route }) {
                 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Avatar.Image
-                            source={{ uri: item.avatar || 'https://via.placeholder.com/60' }}
+                            source={{ uri: item?.avatar || 'https://via.placeholder.com/60' }}
                             size={50}
                             style={{ backgroundColor: 'white', marginRight: 5 }}
                         />
                         <View>
-                            <Text style={StyleShare.titleText16}>{item.fullName || 'Chưa cập nhật họ tên'}</Text>
-                            <Text style={{ marginTop: 5 }}>{item.email || 'Chưa cập nhật email'}</Text>
+                            <Text style={StyleShare.titleText16}>{item?.fullName || 'Chưa cập nhật họ tên'}</Text>
+                            <Text style={{ marginTop: 5 }}>{item?.email || 'Chưa cập nhật email'}</Text>
                         </View>
                     </View>
                     <View style={StyleShare.technologyContainer}>
-                        <Chip style={StyleShare.chip}>{item.jobType || 'Chưa cập nhật loại công việc'}</Chip>
-                        <Chip style={StyleShare.chip}>{item.location || 'Chưa cập nhật địa điểm'}</Chip>
-                        {Array.isArray(item.skills) && item.skills.length > 0 ?
-                            item.skills.map((s, index) => (
+                        <Chip style={StyleShare.chip}>{item?.jobType || 'Chưa cập nhật loại công việc'}</Chip>
+                        <Chip style={StyleShare.chip}>{item?.location || 'Chưa cập nhật địa điểm'}</Chip>
+                        {Array.isArray(item?.skills) && item?.skills?.length > 0 ?
+                            item?.skills?.map((s, index) => (
                                 <Chip key={index} style={StyleShare.chip}>
                                     {s}
                                 </Chip>
@@ -128,7 +129,7 @@ export default function ResumeByJob({ navigation, route }) {
                             <View style={{ flex: 1 }}>
                                 <Text style={StyleShare.titleText16}>Kĩ năng</Text>
                                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 5 }}>
-                                    {jobDetail.skills.map((item, index) => (
+                                    {jobDetail?.skills?.map((item, index) => (
                                         <Text
                                             key={index}
                                             style={{
@@ -197,7 +198,7 @@ export default function ResumeByJob({ navigation, route }) {
                                         <FlatList
                                             data={candidates}
                                             renderItem={renderCandidateItem}
-                                            keyExtractor={(item) => item._id}
+                                            keyExtractor={(item) => item?._id}
                                             showsVerticalScrollIndicator={false}
                                         />
                                     ) : (

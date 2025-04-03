@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, View, Text, Image, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import StyleShare from "../../assets/themes/StyleShare";
-import { mainColor, orange, white } from "../../assets/themes/Color";
+import { mainColor, orange, textColor, white } from "../../assets/themes/Color";
 
 
 export default function Wellcome({ navigation }) {
@@ -15,7 +15,7 @@ export default function Wellcome({ navigation }) {
                 <Text style={styles.desc}>Của Bạn Ở Đây</Text>
             </View>
             <View style={{ marginTop: 20 }}>
-                <Text style={{ fontSize: 14 }}>Khám phá tất cả các công việc thú vị nhất dựa trên sở thích và chuyên ngành học của bạn.</Text>
+                <Text style={{ fontSize: 14, color: textColor, lineHeight:25 }}>Khám phá tất cả các công việc thú vị nhất dựa trên sở thích và chuyên ngành học của bạn.</Text>
             </View>
             <TouchableOpacity style={styles.butonNext} onPress={() => { navigation.navigate("Login") }} >
                 <Icon name="arrow-forward" size={30} color={"white"} />

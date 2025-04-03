@@ -27,6 +27,7 @@ export default function HomeClient({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [jobRecommendList, setJobRecommendList] = useState([]);
   const [jobUrgentList, setJobUrgentList] = useState([]);
+  console.log('currentUser', currentUser);
 
 
 
@@ -159,12 +160,23 @@ export default function HomeClient({ navigation }) {
       >
         <View style={{ flex: 1, marginHorizontal: 20 }}>
           <View style={[StyleShare.flexBetween, { marginTop: 40 }]}>
-              <Text style={[StyleShare.titleText16, { color: white, fontStyle: 'italic' }]}>
-                Chào bạn trở lại!
-              </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Chat', { currentUserId: currentUser?._id })}>
-                <Icon name="chatbubble-outline" color={white} size={24} style={{ marginRight: 10 }} />
+            <Text style={[StyleShare.titleText16, { color: white, fontStyle: 'italic' }]}>
+              Chào bạn trở lại!
+            </Text>
+            <View style={StyleShare.flexBetween}>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() => navigation.navigate('Notification', { userId: currentUser?._id })}
+              >
+                <Icon name="notifications-outline" size={24} color={white} />
               </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() => navigation.navigate('Chat', { currentUserId: currentUser?._id })}
+              >
+                <Icon name="chatbubble-outline" size={24} color={white} />
+              </TouchableOpacity>
+            </View>
           </View>
           <View style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <TouchableOpacity onPress={() => navigation.navigate('JobSearch')} style={StyleShare.searchHome}>
@@ -207,12 +219,12 @@ export default function HomeClient({ navigation }) {
           </View>
 
           {/* Việc làm hấp dẫn */}
-          <View style={{ marginTop: 30 }}>
+          {/* <View style={{ marginTop: 30 }}>
             <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
               <Text style={StyleShare.titleText20}>Gợi ý việc làm</Text>
               <TouchableOpacity
                 // onPress={() => navigation.navigate('JobSuggestions', { title: 'Gợi ý việc làm', api: 'job_recommend' })}
-                onPress={()=>navigation.navigate('JobSwipe')}
+                onPress={() => navigation.navigate('JobSwipe')}
               >
                 <Text style={StyleShare.lineText}>Xem tất cả</Text>
               </TouchableOpacity>
@@ -230,7 +242,7 @@ export default function HomeClient({ navigation }) {
               maxToRenderPerBatch={1}
               windowSize={3}
             />
-          </View>
+          </View> */}
         </View>
       )}
     </ScrollView>
@@ -255,5 +267,12 @@ const styles = StyleSheet.create({
   },
   pageContainer: {
     width: width,
+  },
+
+  iconButton: {
+    padding: 10, // Tăng vùng chạm
+    borderRadius: 50, // Hình tròn cho nút
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Nền mờ nhẹ cho nút
+    marginHorizontal: 5, // Khoảng cách giữa các nút
   },
 });

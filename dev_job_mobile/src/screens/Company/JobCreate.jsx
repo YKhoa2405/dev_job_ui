@@ -108,7 +108,7 @@ export default function JobCreate({ navigation, route }) {
         updateLocationDetail();
     }, [selectedProvinceId, selectedDistrictId, selectedWardId, street]);
 
-    const fetchSkills = async (currentPage = 1, limit = 40) => {
+    const fetchSkills = async (currentPage = 1, limit = 100) => {
         try {
             const res = await API.get(endpoints['skills'], {
                 params: {

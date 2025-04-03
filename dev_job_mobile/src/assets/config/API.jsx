@@ -89,21 +89,18 @@ export const endpoints = {
     'resumeDetail': (resumeId) => `/applications/${resumeId}`,
     'resumeApply': '/applications/apply',
     'resumeByUser': '/applications/byUser',
-
-
     'resumeByJob': (jobId) => `/applications/byJob/${jobId}`,
 
-
+    // Notification
+    'notificationsByUser': (userId) => `/notifications/${userId}`,
+    'notification': '/notifications',
+    'notificationDetail': (notificationId) => `/notifications/${notificationId}`,
     // cv
     'uploadCV': '/cv/upload',
     'cvDetail': (cvId) => `/cv/${cvId}`,
     'cvByUser': (userId) => `/cv/${userId}`,
 
     // statistic
-    'applicationsPerJob': '/statistics/applications-per-job',
-    'expectedSalary': '/statistics/expected-salary',
-    'applicationStatus': '/statistics/application-status',
-
     'statistic': (type) => `/statistics/${type}`,
 
 

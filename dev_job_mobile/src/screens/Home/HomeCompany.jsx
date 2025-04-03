@@ -94,7 +94,7 @@ export default function HomeCompany({ navigation }) {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.gridItemUtili}
-        onPress={() => navigation.navigate("Services", { companyId: companyByUser._id })}
+        onPress={() => navigation.navigate("Services", { userId: companyByUser._id })}
       >
         <Icon name={"cart-outline"} size={20} color={mainColor} />
         <Text style={StyleShare.lineText}>Mua dịch vụ</Text>
@@ -171,7 +171,7 @@ export default function HomeCompany({ navigation }) {
       <View style={styles.containerTop}>
         <Text style={StyleShare.titleText20}>Hệ quản trị tuyển dụng</Text>
         {companyByUser && companyByUser.isApproved && (
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Notification", { companyId: companyByUser._id })}>
             <Icon name="notifications-outline" size={24} color={mainColor} />
           </TouchableOpacity>
         )}
