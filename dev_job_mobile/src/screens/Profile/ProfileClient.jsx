@@ -43,7 +43,7 @@ export default function Profile({ navigation }) {
 
     const handleLogout = () => {
         dispatch(logout());
-        navigation.navigate('AuthStack')
+        navigation.navigate('AuthStack',{screen:'Login'})
     };
 
     const ManageJobGrid = () => (

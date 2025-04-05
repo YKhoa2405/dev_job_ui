@@ -50,8 +50,6 @@ export const endpoints = {
     'permissions': 'permission',
     'permissionsDetail': (permissionId: string) => `/permission/${permissionId}`,
 
-
-
     // resume
     'resume': 'applications',
     'resumeDetail': (resumeId: string) => `/applications/${resumeId}`,
@@ -60,6 +58,8 @@ export const endpoints = {
     'overViewAdmin': '/statistics/overview-admin',
     'analyticsAdmin': '/statistics/analytics-admin',
 
+    // report
+    'reportByJob': (jobId: string) => `/reports/job/${jobId}`,
 
 
 

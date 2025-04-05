@@ -27,7 +27,6 @@ export default function HomeClient({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [jobRecommendList, setJobRecommendList] = useState([]);
   const [jobUrgentList, setJobUrgentList] = useState([]);
-  console.log('currentUser', currentUser);
 
 
 

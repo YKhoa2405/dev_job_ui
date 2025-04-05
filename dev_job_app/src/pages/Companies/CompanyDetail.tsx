@@ -5,7 +5,7 @@ import "moment/locale/vi";
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { ICompanyDetail } from '../../types/company';
-import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX, Pencil } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX } from 'lucide-react';
 import { IJobList } from '../../types/job';
 import Loader from '../../common/Loader';
 import { IOrder } from '../../types/order';

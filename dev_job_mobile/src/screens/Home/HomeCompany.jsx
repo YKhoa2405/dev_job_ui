@@ -136,7 +136,7 @@ export default function HomeCompany({ navigation }) {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigation.navigate("AuthStack");
+    navigation.navigate("AuthStack",{screen:'Login'});
   };
 
   const handleManageEmployersClick = (id) => {
@@ -162,7 +162,7 @@ export default function HomeCompany({ navigation }) {
   // Hiển thị khi đang loading
   if (loading || isSavingToFirestore) {
     return (
-      <Loading/>
+      <Loading />
     );
   }
 
@@ -171,8 +171,11 @@ export default function HomeCompany({ navigation }) {
       <View style={styles.containerTop}>
         <Text style={StyleShare.titleText20}>Hệ quản trị tuyển dụng</Text>
         {companyByUser && companyByUser.isApproved && (
-          <TouchableOpacity onPress={() => navigation.navigate("Notification", { companyId: companyByUser._id })}>
-            <Icon name="notifications-outline" size={24} color={mainColor} />
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => navigation.navigate('Notification', { userId: companyByUser?._id })}
+          >
+            <Icon name="notifications-outline" size={24} color={'black'} />
           </TouchableOpacity>
         )}
       </View>
@@ -287,5 +290,11 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     elevation: 2,
+  },
+  iconButton: {
+    padding: 10, // Tăng vùng chạm
+    borderRadius: 50, // Hình tròn cho nút
+    backgroundColor: white, // Nền mờ nhẹ cho nút
+    elevation:2
   },
 });

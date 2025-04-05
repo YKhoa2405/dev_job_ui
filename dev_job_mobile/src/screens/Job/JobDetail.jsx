@@ -100,9 +100,9 @@ export default function JobDetail({ route, navigation }) {
             </> : <>
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>
                     <UIHeader leftIcon={"arrow-back"}
-                        rightIcon={"ellipsis-horizontal"}
-                        handleLeftIcon={() => { navigation.goBack() }} />
-
+                        rightIcon={"flag-outline"}
+                        handleLeftIcon={() => { navigation.goBack() }}
+                        handleRightIcon={() => navigation.navigate('ReportJob', { jobId: jobId, name: jobDetail?.name })} />
                     <View style={styles.containerTop}>
                         <TouchableOpacity style={StyleShare.containerAvatar} onPress={handleNavigateToCompany}>
                             <Avatar.Image

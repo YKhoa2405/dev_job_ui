@@ -67,10 +67,12 @@ export const endpoints = {
     // jobs
     'jobs': '/jobs',
     'jobsSearchKey': '/jobs/searchkey',
-
     'jobsNearBy': (latitude, longitude, distance) => `http://192.168.1.120:8000/jobs/nearby?latitude=${latitude}&longitude=${longitude}&radius=${distance}`,
     'jobsByCompany': (companyId) => `/jobs/${companyId}/jobs`,
     'jobDetail': (jobId) => `/jobs/${jobId}`,
+
+    // report job
+    'reportJob': '/reports',
 
     // save-job
     'saveJob': '/save-job',

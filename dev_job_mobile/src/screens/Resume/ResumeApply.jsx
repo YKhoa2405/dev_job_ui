@@ -21,8 +21,8 @@ export default function ResumeApply({ navigation, route }) {
     const [loading, setLoading] = useState(false)
     const [loadingUpload, setLoadingUpload] = useState(false)
 
-    const [name, setName] = useState(user.name)
-    const [email, setEmail] = useState(user.email)
+    const [name, setName] = useState(user?.name)
+    const [email, setEmail] = useState(user?.email)
     const [phone, setPhone] = useState('')
     const [selectCvUrl, setSelectCvUrl] = useState('');
 

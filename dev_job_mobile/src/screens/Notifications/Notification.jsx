@@ -74,7 +74,6 @@ const Notification = ({ navigation, route }) => {
       );
     } catch (error) {
       console.log("Error marking notification as read:", error);
-      ToastMess({ type: "error", text1: "Không thể đánh dấu đã đọc" });
     }
   };
 
@@ -99,6 +98,8 @@ const Notification = ({ navigation, route }) => {
     // Chuyển hướng dựa trên loại thông báo
     if (notification.type === 'NEW_JOB') {
       navigation.navigate('JobDetail', { jobId: notification.data.jobId });
+    } else if (notification.type === 'NEW_APPLICATION') {
+      navigation.navigate('ResumeByJob', { jobId: notification.data.jobId });
     }
   };
 
@@ -132,7 +133,7 @@ const Notification = ({ navigation, route }) => {
     <View style={StyleShare.container}>
       <UIHeader
         leftIcon={"arrow-back"}
-        rightIcon={"trash-outline"}
+        rightIcon={"flash-off-outline"}
         title={"Thông báo"}
         handleLeftIcon={() => navigation.goBack()}
         handleRightIcon={handleDeleteAllNotifications}
