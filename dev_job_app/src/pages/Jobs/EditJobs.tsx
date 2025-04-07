@@ -30,6 +30,7 @@ const EditJobs = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [limit, setLimit] = useState(5);
 
+
   const navigate = useNavigate();
   const { id } = useParams<{ id?: string }>();
 
@@ -107,6 +108,26 @@ const EditJobs = () => {
     }
   };
 
+  const reclassifyReport = async (id: string, newCategory: string) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const res=await authApi(token).patch(endpoints['reportDetail'](id), { category: newCategory });
+      console.log(res)
+      // Cập nhật lại giao diện nếu cần
+      toast.success('Cập nhật thành công!', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      fetchReportsByJob();
+    } catch (error) {
+      console.error('Lỗi khi cập nhật nhãn:', error);
+      toast.error('Cập nhật thất bại!', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    }
+  };
+
   const handleSkillChange = (selectedOptions: MultiValue<SkillOption>) => {
     setSkillValue(selectedOptions);
   };
@@ -126,7 +147,6 @@ const EditJobs = () => {
       setSkills(formattedOptions);
     } catch (error) {
       console.log('Lỗi khi lấy danh sách kỹ năng:', error);
-      toast.error('Không thể tải danh sách kỹ năng!');
     }
   };
 
@@ -317,10 +337,10 @@ const EditJobs = () => {
                     setJobDetail((prev) =>
                       prev
                         ? {
-                            ...prev,
-                            latitude: coordinates?.latitude ?? prev.latitude,
-                            longitude: coordinates?.longitude ?? prev.longitude,
-                          }
+                          ...prev,
+                          latitude: coordinates?.latitude ?? prev.latitude,
+                          longitude: coordinates?.longitude ?? prev.longitude,
+                        }
                         : null
                     );
                   }}
@@ -540,111 +560,124 @@ const EditJobs = () => {
           </form>
 
           {/* Phần danh sách báo cáo liên quan */}
-          <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div className="py-6 px-4 md:px-6 xl:px-7.5">
-              <div className="flex items-center justify-between">
-                <h4 className="text-xl font-semibold text-black">Báo cáo liên quan</h4>
-              </div>
-            </div>
+        </div>
+      )}
+      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div className="py-6 px-4 md:px-6 xl:px-7.5">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xl font-semibold text-black">Báo cáo liên quan</h4>
+          </div>
+        </div>
 
-            <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-6 md:px-6 2xl:px-7.5">
-              <div className="col-span-1 flex items-center">
-                <p className="font-medium">Người báo cáo</p>
-              </div>
-              <div className="col-span-2 hidden items-center sm:flex">
-                <p className="font-medium">Lý do</p>
-              </div>
-              <div className="col-span-1 flex items-center">
-                <p className="font-medium">Phân loại</p>
-              </div>
-              <div className="col-span-2 hidden sm:flex items-center">
-                <p className="font-medium">Thời gian</p>
-              </div>
+        <div className="grid grid-cols-8 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
+          <div className="col-span-2 flex items-center">
+            <p className="font-medium">Người báo cáo</p>
+          </div>
+          <div className="col-span-2 hidden items-center sm:flex">
+            <p className="font-medium">Lý do</p>
+          </div>
+          <div className="col-span-2 flex items-center">
+            <p className="font-medium">Phân loại</p>
+          </div>
+          <div className="col-span-2 hidden sm:flex items-center">
+            <p className="font-medium">Hành động</p>
+          </div>
+        </div>
+
+        <div>
+          {reportData.length === 0 ? (
+            <div className="py-4 px-4 text-center text-gray-500">
+              Không có báo cáo nào cho tin tuyển dụng này.
             </div>
-            <div>
-              {reportData.length === 0 ? (
-                <div className="py-4 px-4 text-center text-gray-500">
-                  Không có báo cáo nào cho tin tuyển dụng này.
+          ) : (
+            reportData.map((item) => (
+              <div
+                className="grid grid-cols-8 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
+                key={item._id}
+              >
+                <div className="col-span-2 flex items-center">
+                  <p className="text-sm text-blue-600">{item.email}</p>
                 </div>
-              ) : (
-                reportData.map((item) => (
-                  <div
-                    className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-6 md:px-6 2xl:px-7.5"
-                    key={item._id}
+                <div className="col-span-2 hidden items-center sm:flex">
+                  <p className="text-sm text-black truncate">{item.reason || 'Không có'}</p>
+                </div>
+                <div className="col-span-2 flex items-center">
+                  <p
+                    className={`text-sm ${item.category === 'Lừa đảo'
+                      ? 'text-red-500'
+                      : item.category === 'Nội dung không phù hợp'
+                        ? 'text-yellow-500'
+                        : item.category === 'Ứng xử không chuyên nghiệp'
+                          ? 'text-purple-500'
+                          : 'text-gray-500'
+                      }`}
                   >
-                    <div className="col-span-1 flex items-center">
-                      <p className="text-sm text-blue-600">{item.email}</p>
-                    </div>
-                    <div className="col-span-2 hidden items-center sm:flex">
-                      <p className="text-sm text-black truncate">{item.reason || 'Không có'}</p>
-                    </div>
-                    <div className="col-span-1 flex items-center">
-                      <p
-                        className={`text-sm ${
-                          item.category === 'Lừa đảo'
-                            ? 'text-red-500'
-                            : item.category === 'Nội dung không phù hợp'
-                            ? 'text-yellow-500'
-                            : item.category === 'Ứng xử không chuyên nghiệp'
-                            ? 'text-purple-500'
-                            : 'text-gray-500'
-                        }`}
-                      >
-                        {item.category}
-                      </p>
-                    </div>
-                    <div className="col-span-2 hidden items-center sm:flex">
-                      <p className="text-sm text-black">
-                        {moment(item.createdAt).format('ddd, DD/MM/YYYY, HH:mm')}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div className="py-6 px-4 md:px-6 xl:px-7.5 border-t border-stroke dark:border-strokedark">
-              <div className="flex items-center justify-between">
-                <h6 className="text-base font-semibold text-black">Tổng {totalItems} báo cáo</h6>
-                <div className="flex items-center justify-center gap-4">
-                  <select
-                    value={limit}
-                    onChange={(e) => setLimit(Number(e.target.value))}
-                    className="rounded border-[1.5px] border-stroke bg-transparent py-1 px-2 text-black outline-none transition focus:border-primary active:border-primary"
-                  >
-                    {displayOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={handlePrevClick}
-                    disabled={currentPage === 1}
-                    className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${
-                      currentPage === 1 ? 'cursor-not-allowed bg-gray-300' : ''
-                    }`}
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-                  <p className="font-medium text-black mx-4" style={{ width: '100px', textAlign: 'center' }}>
-                    {currentPage} / {totalPages} trang
+                    {item.category}
                   </p>
-                  <button
-                    onClick={handleNextClick}
-                    disabled={currentPage === totalPages}
-                    className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${
-                      currentPage === totalPages ? 'cursor-not-allowed bg-gray-300' : ''
-                    }`}
+                </div>
+                <div className="col-span-2 flex items-center">
+                  <select
+                    defaultValue=""
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value) {
+                        reclassifyReport(item._id, value);
+                      }
+                    }}
+                    className="text-sm text-black border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   >
-                    <ChevronRight size={18} />
-                  </button>
+                    <option value="" disabled hidden>
+                      Gắn nhãn lại
+                    </option>
+                    <option value="Lừa đảo">Lừa đảo</option>
+                    <option value="Nội dung không phù hợp">Nội dung không phù hợp</option>
+                    <option value="Ứng xử không chuyên nghiệp">Ứng xử không chuyên nghiệp</option>
+                  </select>
                 </div>
               </div>
+            ))
+          )}
+        </div>
+
+
+        <div className="py-6 px-4 md:px-6 xl:px-7.5 border-t border-stroke dark:border-strokedark">
+          <div className="flex items-center justify-between">
+            <h6 className="text-base font-semibold text-black">Tổng {totalItems} báo cáo</h6>
+            <div className="flex items-center justify-center gap-4">
+              <select
+                value={limit}
+                onChange={(e) => setLimit(Number(e.target.value))}
+                className="rounded border-[1.5px] border-stroke bg-transparent py-1 px-2 text-black outline-none transition focus:border-primary active:border-primary"
+              >
+                {displayOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handlePrevClick}
+                disabled={currentPage === 1}
+                className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === 1 ? 'cursor-not-allowed bg-gray-300' : ''
+                  }`}
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <p className="font-medium text-black mx-4" style={{ width: '100px', textAlign: 'center' }}>
+                {currentPage} / {totalPages} trang
+              </p>
+              <button
+                onClick={handleNextClick}
+                disabled={currentPage === totalPages}
+                className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-300' : ''
+                  }`}
+              >
+                <ChevronRight size={18} />
+              </button>
             </div>
           </div>
         </div>
-      )}
+      </div>
     </>
   );
 };

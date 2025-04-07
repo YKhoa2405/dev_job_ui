@@ -60,6 +60,7 @@ export const endpoints = {
 
     // report
     'reportByJob': (jobId: string) => `/reports/job/${jobId}`,
+    'reportDetail': (reportId: string) => `/reports/${reportId}`,
 
 
 
