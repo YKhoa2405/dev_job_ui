@@ -23,7 +23,6 @@ import Loading from "../../components/Loading";
 export default function HomeCompany({ navigation }) {
   const dispatch = useDispatch();
   const { companyByUser, loading } = useSelector((state) => state.company);
-
   // Thêm trạng thái loading cục bộ nếu cần
   const [isSavingToFirestore, setIsSavingToFirestore] = useState(false);
 
@@ -108,7 +107,7 @@ export default function HomeCompany({ navigation }) {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.gridItemUtili}
-        onPress={() => navigation.navigate("Chat", { currentUserId: companyByUser._id })}
+        onPress={() => navigation.navigate("ChatHome", { currentUserId: companyByUser?.userId })}
       >
         <Icon name={"chatbubble-outline"} size={20} color={mainColor} />
         <Text style={StyleShare.lineText}>Tin nhắn</Text>

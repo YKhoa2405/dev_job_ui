@@ -18,7 +18,6 @@ import Companies from './src/screens/Company/Companies';
 import JobDetail from './src/screens/Job/JobDetail';
 import CompanyDetail from './src/screens/Company/CompanyDetail';
 import JobNearBy from './src/screens/Job/JobNearBy';
-import Chat from './src/screens/Chat/Chat';
 import JobSearch from './src/screens/Job/JobSearch';
 import JobSearchResult from './src/screens/Job/JobSearchResult';
 import CompaniesFollow from './src/screens/Company/CompaniesFollow';
@@ -27,7 +26,6 @@ import JobApplied from './src/screens/Job/JobApplied';
 import JobSuggestions from './src/screens/Job/JobSuggestions';
 import Toast from 'react-native-toast-message';
 import SendCode from './src/screens/Auth/SendCode';
-import ChatDetail from './src/screens/Chat/ChatDetail';
 import JobCreate from './src/screens/Company/JobCreate';
 import HomeCompany from './src/screens/Home/HomeCompany';
 import JobByCompany from './src/screens/Company/JobByCompany';
@@ -67,6 +65,8 @@ import Notification from './src/screens/Notifications/Notification';
 import ReportJob from './src/screens/Job/ReportJob';
 import EditCompany from './src/screens/Company/EditCompany';
 import EditJob from './src/screens/Job/EditJob';
+import ChatSocket from './src/screens/Chat/ChatSocket';
+import ChatHome from './src/screens/Chat/ChatHome';
 
 
 
@@ -176,9 +176,11 @@ export default function App() {
 
 
 
-          <Stack.Screen name="ChatDetail" component={ChatDetail} />
-          <Stack.Screen name="Chat" component={Chat} />
           <Stack.Screen name="ChatBot" component={ChatBot} />
+          <Stack.Screen name="ChatSocket" component={ChatSocket} />
+          <Stack.Screen name="ChatHome" component={ChatHome} />
+
+
 
 
           <Stack.Screen name="Services" component={Services} />

@@ -30,6 +30,7 @@ export default function ResumeByJob({ navigation, route }) {
         const [candidates, setCandidates] = useState([]);
         const dispatch = useDispatch()
         const jobDetail = useSelector((state) => state.job.jobDetail);
+
         const status = useSelector((state) => state.job.status);
         useEffect(() => {
             if (jobId) {
@@ -315,14 +316,14 @@ export default function ResumeByJob({ navigation, route }) {
                             </View>
                         </View>
                         <View style={[StyleShare.flexBetween, { zIndex: 9999 }]}>
-                            <TouchableOpacity onPress={() => navigation.navigate("ChatDetail", {
-                                userReceiver: {
-                                    id: item?._id,
-                                    avatar: item?.avatar,
-                                    name: item?.name,
-                                    email: item?.email,
-                                }, currentUserId: companyByUser._id
-                            })}>
+                            <TouchableOpacity
+                                onPress={() => navigation.navigate("ChatSocket", {
+                                    recipient: {
+                                        id: item?._id,
+                                        avatar: item?.avatar,
+                                        name: item?.name,
+                                    }, senderId: companyByUser?.userId
+                                })}>
                                 <View style={[StyleShare.buttonDetailApply]}>
                                     <Text>Nhắn tin</Text>
                                 </View>

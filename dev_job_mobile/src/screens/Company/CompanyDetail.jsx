@@ -20,7 +20,7 @@ export default function CompanyDetail({ navigation, route }) {
     const [companyDetail, setCompanyDetail] = useState('');
     const [saved, setSaved] = useState(false);
     const user = useSelector((state) => state.user.user);
-
+    console.log(companyDetail.userId)
     const Tab = createMaterialTopTabNavigator();
 
     useEffect(() => {
@@ -251,13 +251,12 @@ export default function CompanyDetail({ navigation, route }) {
                             </View>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate("ChatDetail", {
-                                userReceiver: {
-                                    id: _id,
+                            onPress={() => navigation.navigate("ChatSocket", {
+                                recipient: {
+                                    id: companyDetail.userId,
                                     avatar: companyDetail?.avatar,
                                     name: companyDetail?.name,
-                                    email: companyDetail?.email,
-                                }, currentUserId: user._id
+                                }, senderId: user._id
                             })}>
                             <View style={[StyleShare.buttonDetailApply, { backgroundColor: white }]}>
                                 <Icon name="chatbubble-outline" size={22} />

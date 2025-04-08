@@ -105,6 +105,9 @@ export const endpoints = {
     // statistic
     'statistic': (type) => `/statistics/${type}`,
 
+    // Chat
+    'getMessages': (senderId, recipientId) => `/chat/messages?senderId=${senderId}&recipientId=${recipientId}`,
+    'chatRooms': (currentUserId) => `/chat/rooms?userId=${currentUserId}`,
 
 
 

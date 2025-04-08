@@ -171,7 +171,7 @@ export default function HomeClient({ navigation }) {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.iconButton}
-                onPress={() => navigation.navigate('Chat', { currentUserId: currentUser?._id })}
+                onPress={() => navigation.navigate('ChatHome', { currentUserId: currentUser?._id })}
               >
                 <Icon name="chatbubble-outline" size={24} color={white} />
               </TouchableOpacity>
