@@ -66,6 +66,7 @@ import { useEffect } from 'react';
 import Notification from './src/screens/Notifications/Notification';
 import ReportJob from './src/screens/Job/ReportJob';
 import EditCompany from './src/screens/Company/EditCompany';
+import EditJob from './src/screens/Job/EditJob';
 
 
 
@@ -133,6 +134,7 @@ export default function App() {
           <Stack.Screen name="JobSuggestions" component={JobSuggestions} />
           <Stack.Screen name="JobSwipe" component={JobSwipe} />
           <Stack.Screen name="ReportJob" component={ReportJob} />
+          <Stack.Screen name="EditJob" component={EditJob} />
 
 
 

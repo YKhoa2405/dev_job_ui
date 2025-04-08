@@ -30,7 +30,6 @@ export default function ResumeByJob({ navigation, route }) {
         const [candidates, setCandidates] = useState([]);
         const dispatch = useDispatch()
         const jobDetail = useSelector((state) => state.job.jobDetail);
-        console.log('jobDetail', jobDetail);
         const status = useSelector((state) => state.job.status);
         useEffect(() => {
             if (jobId) {

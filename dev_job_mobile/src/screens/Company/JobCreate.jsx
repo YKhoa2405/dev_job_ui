@@ -176,10 +176,7 @@ export default function JobCreate({ navigation, route }) {
                     latitude: location.lat,
                     longitude: location.lon
                 };
-            } else {
-
             }
-
         } catch (error) {
             console.log(error);
         }
@@ -218,8 +215,6 @@ export default function JobCreate({ navigation, route }) {
             ToastMess({ type: 'error', text1: 'Thời gian không hợp lệ.' });
             return;
         }
-    
-        // Tạo object jobData khớp với createJobDto ở backend
         const jobData = {
             name,
             companyId,
@@ -239,7 +234,7 @@ export default function JobCreate({ navigation, route }) {
             longitude: lon,
             isUrgent: isUrgent || false,
         };
-    
+
         setLoading(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
@@ -250,24 +245,23 @@ export default function JobCreate({ navigation, route }) {
             });
 
             console.log(res.data)
-    
+
             // Chỉ hiển thị thông báo thành công nếu request thành công (status 2xx)
             if (res.status === 201 || res.status === 200) {
                 ToastMess({ type: 'success', text1: 'Thêm việc làm thành công.' });
                 navigation.goBack();
             }
-    
+
         } catch (error) {
             // Xử lý lỗi từ backend
             if (error.response) {
                 const status = error.response.status;
                 const message = error.response.data.message || 'Có lỗi xảy ra.';
-    
+
                 if (status === 403) {
                     ToastMess({ type: 'error', text1: message }); // Hiển thị thông báo từ backend
                 }
             } else {
-                // Lỗi không liên quan đến response (mạng, timeout, v.v.)
                 ToastMess({ type: 'error', text1: 'Thêm việc làm thất bại. Vui lòng thử lại.' });
             }
             console.log('Error:', error.response?.data || error.message);
