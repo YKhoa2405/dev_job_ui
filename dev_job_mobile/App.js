@@ -65,6 +65,7 @@ import JobSwipe from './src/screens/Job/JobSwipe';
 import { useEffect } from 'react';
 import Notification from './src/screens/Notifications/Notification';
 import ReportJob from './src/screens/Job/ReportJob';
+import EditCompany from './src/screens/Company/EditCompany';
 
 
 
@@ -139,6 +140,8 @@ export default function App() {
           <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
           <Stack.Screen name="CompanyStatistical" component={CompanyStatistical} />
           <Stack.Screen name="CompanyCreate" component={CompanyCreate} />
+          <Stack.Screen name="EditCompany" component={EditCompany} />
+
 
           <Stack.Screen name="ProfileCompany" component={ProfileCompany} />
           <Stack.Screen name="Subscribers" component={Subscribers} />

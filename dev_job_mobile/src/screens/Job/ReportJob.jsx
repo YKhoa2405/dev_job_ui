@@ -61,13 +61,7 @@ const ReportJob = ({ navigation, route }) => {
             console.log(response.data);
             if (response.status === 201) { 
                 ToastMess({ type: 'success', text1: 'Báo cáo đã được gửi thành công!' });
-
-                setSelectedReason('');
-                setOtherReason('');
-                setFullName('');
-                setEmail('');
-                setPhone('');
-                setAddress('');
+                navigation.goBack();
             }
         } catch (error) {
             const message = error?.response?.data?.message || error?.message;

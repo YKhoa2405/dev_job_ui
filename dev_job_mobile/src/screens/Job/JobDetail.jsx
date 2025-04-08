@@ -190,11 +190,16 @@ export default function JobDetail({ route, navigation }) {
                         style={[
                             styles.buttonApply,
                             {
-                                backgroundColor: jobDetail?.hasApplied ? 'grey' : mainColor
+                                backgroundColor:
+                                    jobDetail?.isActive === false
+                                        ? 'grey' // Màu xám nhạt cho trạng thái dừng tuyển dụng
+                                        : jobDetail?.hasApplied
+                                            ? 'grey' // Màu xám cho trạng thái đã ứng tuyển
+                                            : mainColor // Màu chính cho trạng thái có thể ứng tuyển
                             }
                         ]}
                         onPress={() => {
-                            if (!jobDetail?.hasApplied) {
+                            if (jobDetail?.isActive && !jobDetail?.hasApplied) { // Chỉ cho phép nhấn nếu isActive = true và chưa ứng tuyển
                                 navigation.navigate('ResumeApply', {
                                     jobId: jobDetail._id,
                                     companyName: jobDetail.companyId.name,
@@ -205,10 +210,14 @@ export default function JobDetail({ route, navigation }) {
                                 });
                             }
                         }}
-                        disabled={jobDetail?.hasApplied ?? true} // Mặc định disabled nếu hasApplied là null/undefined
+                        disabled={jobDetail?.isActive === false || jobDetail?.hasApplied} // Vô hiệu hóa nếu isActive = false hoặc đã ứng tuyển
                     >
                         <Text style={styles.buttonText}>
-                            {jobDetail?.hasApplied ? 'Bạn đã ứng tuyển' : 'Ứng tuyển ngay'}
+                            {jobDetail?.isActive === false
+                                ? 'Dừng tuyển dụng'
+                                : jobDetail?.hasApplied
+                                    ? 'Bạn đã ứng tuyển'
+                                    : 'Ứng tuyển ngay'}
                         </Text>
                     </TouchableOpacity>
                 </View>

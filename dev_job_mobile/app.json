@@ -4,11 +4,11 @@
     "slug": "dev_job_mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "",
+    "icon": "../assets/images/splash.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true, 
     "splash": {
-      "image": "", 
+      "image": "../assets/images/splash.png", 
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -18,7 +18,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "",
+        "foregroundImage": "../assets/images/background.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.yourcompany.devjobmobile"

@@ -37,7 +37,7 @@ export default function ProfileCompany({ navigation }) {
                         <View style={[StyleShare.flexBetween, { marginTop: 10 }]}>
                             <View style={[StyleShare.flexCenter, { flex: 1 }]}>
                                 <Icon name="people-outline" size={18} />
-                                <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{companyByUser.size} người theo dõi</Text>
+                                <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{companyByUser.followers} người theo dõi</Text>
                             </View>
                             <View style={[StyleShare.flexCenter, { flex: 1 }]}>
                                 <Icon name="business-outline" size={18} />
@@ -46,7 +46,7 @@ export default function ProfileCompany({ navigation }) {
                         </View>
                     </View>
                     <View style={styles.containerMain}>
-                        <TouchableOpacity onPress={() => handleFollow()}>
+                        <TouchableOpacity onPress={() => navigation.navigate("EditCompany")}>
                             <View style={[StyleShare.buttonDetailApply, { backgroundColor: white }]}>
                                 <Icon name="pencil-outline" size={22} />
                                 <Text style={{ marginLeft: 5 }}>Chỉnh sửa thông tin</Text>
@@ -65,6 +65,10 @@ export default function ProfileCompany({ navigation }) {
                             <Text style={{ color: textColor, marginTop: 5 }}>{companyByUser.address}</Text>
                             <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Ngày tạo tài khoản</Text>
                             <Text style={{ color: textColor, marginTop: 5 }}>{moment(companyByUser.createdAt).format("DD/MM/YYYY")}</Text>
+                            <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Ngày cập nhật</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{moment(companyByUser.updatedAt).format("DD/MM/YYYY")}</Text>
+                            <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Cập nhật bởi</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{companyByUser.updateBy.email}</Text>
                             <TouchableOpacity style={{
                                 backgroundColor: white,
                                 paddingHorizontal: 24,

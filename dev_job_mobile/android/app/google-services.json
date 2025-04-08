@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1043747816081",
+    "project_id": "devjob-fe071",
+    "storage_bucket": "devjob-fe071.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1043747816081:android:8e02a95ec90948a98d7530",
+        "android_client_info": {
+          "package_name": "com.project.devjob"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0EvOHT8VbZsYu5p51q77hgyyCh4_dZTI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

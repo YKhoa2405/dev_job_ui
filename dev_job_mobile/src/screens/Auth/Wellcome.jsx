@@ -13,9 +13,9 @@ export default function Wellcome({ navigation }) {
                 <Text style={styles.desc}>Tìm kiếm</Text>
                 <Text style={styles.descMain}>Công Việc Mơ Ước</Text>
                 <Text style={styles.desc}>Của Bạn Ở Đây</Text>
-            </View>
-            <View style={{ marginTop: 20 }}>
-                <Text style={{ fontSize: 14, color: textColor, lineHeight:25 }}>Khám phá tất cả các công việc thú vị nhất dựa trên sở thích và chuyên ngành học của bạn.</Text>
+                <View style={{ marginTop: 20 }}>
+                    <Text style={{ fontSize: 14, color: textColor, lineHeight: 25 }}>Khám phá tất cả các công việc thú vị nhất dựa trên sở thích và chuyên ngành học của bạn.</Text>
+                </View>
             </View>
             <TouchableOpacity style={styles.butonNext} onPress={() => { navigation.navigate("Login") }} >
                 <Icon name="arrow-forward" size={30} color={"white"} />
@@ -40,7 +40,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 40,
         color: orange,
-        marginVertical: -3
     }, butonNext: {
         width: 60,
         height: 60,

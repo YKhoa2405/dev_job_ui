@@ -92,7 +92,7 @@ export default function HomeClient({ navigation }) {
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Avatar.Image
               size={50}
-              source={{ uri: item?.companyId?.logo || 'https://via.placeholder.com/60' }}
+              source={{ uri: item?.companyId?.avatar || 'https://via.placeholder.com/60' }}
               style={{ backgroundColor: 'white' }}
             />
             <View style={{ marginLeft: 10, flex: 1 }}>

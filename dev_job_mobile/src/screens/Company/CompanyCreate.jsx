@@ -171,6 +171,8 @@ export default function CompanyCreate({ navigation }) {
         companyData.append('field', field);
         companyData.append('city', city);
         companyData.append('slogan', slogan);
+        companyData.append('isApproved', false);
+
 
         if (avatar) {
             const uriParts = avatar.split('.');
