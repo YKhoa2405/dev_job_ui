@@ -27,13 +27,13 @@ export default function ChatHome({ navigation, route }) {
     const [loading, setLoading] = useState(true);
     const [chatRooms, setChatRooms] = useState([]);
     const [socket, setSocket] = useState(null);
-    console.log(currentUserId)
 
     // Hàm lấy danh sách chat rooms từ backend
     const fetchChatRooms = async () => {
         try {
             const token = await AsyncStorage.getItem("access_token");
             const response = await authApi(token).get(endpoints['chatRooms'](currentUserId));
+            console.log(response.data.data);
             setChatRooms(response.data.data);
             setLoading(false);
         } catch (error) {
@@ -44,11 +44,6 @@ export default function ChatHome({ navigation, route }) {
     useEffect(() => {
         // Khởi tạo WebSocket
         const socketIo = io("http://192.168.1.120:8000", { transports: ["websocket"] });
-
-        socketIo.on("connect", () => {
-            console.log("Connected to WebSocket server");
-        });
-
         // Lắng nghe tin nhắn mới để cập nhật danh sách chat rooms
         socketIo.on("receiveMessage", (data) => {
             setChatRooms((prevRooms) => {
@@ -84,6 +79,9 @@ export default function ChatHome({ navigation, route }) {
 
     const renderItem = ({ item }) => {
         const isSender = item.lastMessage.senderId === currentUserId;
+        const displayText = item.lastMessage.fileUrl
+            ? 'Đã gửi một file đính kèm'
+            : item.lastMessage.text || "No message";
         return (
             <TouchableWithoutFeedback
                 onPress={() =>
@@ -112,7 +110,7 @@ export default function ChatHome({ navigation, route }) {
                             </Text>
                         </View>
                         <Text style={styles.lastMessage} ellipsizeMode="tail" numberOfLines={1}>
-                            {isSender ? `Bạn: ${item.lastMessage.text}` : item.lastMessage.text}
+                            {isSender ? `Bạn: ${displayText}` : displayText}
                         </Text>
                     </View>
                 </View>

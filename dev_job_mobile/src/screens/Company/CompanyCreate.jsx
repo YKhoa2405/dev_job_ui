@@ -58,7 +58,6 @@ export default function CompanyCreate({ navigation }) {
 
 
     const handleChooseImage = async () => {
-        console.log('Choosing image...');
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
             alert('Permission to access gallery is required!');

@@ -4,15 +4,15 @@ import { Avatar } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
 import { GiftedChat, Send } from "react-native-gifted-chat";
 import StyleShare from "../../assets/themes/StyleShare";
-import { colorChat, grey, mainColor, white } from "../../assets/themes/Color";
+import { bgNotifi, colorChat, grey, mainColor, textColor, white } from "../../assets/themes/Color";
 import io from "socket.io-client";
-import * as DocumentPicker from "expo-document-picker";
+import * as DocumentPicker from 'expo-document-picker';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
 
 const fetchMessages = async (senderId, recipientId) => {
     const token = await AsyncStorage.getItem("access_token");
-    const response= await authApi(token).get(endpoints['getMessages'](senderId, recipientId));
+    const response = await authApi(token).get(endpoints['getMessages'](senderId, recipientId));
     const data = response.data.data;
     return data.map((msg) => ({
         _id: msg._id,
@@ -27,13 +27,10 @@ export default function ChatSocket({ route, navigation }) {
     const { recipient, senderId } = route.params;
     const [messages, setMessages] = useState([]);
     const [socket, setSocket] = useState(null);
-    console.log(recipient,senderId)
+    // console.log(recipient, senderId)
 
     useEffect(() => {
         const socketIo = io("http://192.168.1.120:8000", { transports: ["websocket"] });
-
-        socketIo.on("connect", () => console.log("Connected to server"));
-
         socketIo.on("receiveMessage", (data) => {
             const newMessage = {
                 _id: data._id, // Dùng _id từ server
@@ -76,7 +73,7 @@ export default function ChatSocket({ route, navigation }) {
             socket.emit("sendMessage", {
                 senderId: senderId,
                 recipientId: recipient?.id,
-                message: message.text,
+                message: message.text || "",
                 fileUrl: message.file || null,
                 tempId, // Gửi tempId để đồng bộ
             });
@@ -87,30 +84,48 @@ export default function ChatSocket({ route, navigation }) {
     }, [socket, senderId, recipient?.id]);
 
     const handleChooseFile = async () => {
-        const result = await DocumentPicker.getDocumentAsync({});
-        if (result.type === "success") {
+        const result = await DocumentPicker.getDocumentAsync({
+            type: [
+                'application/pdf',                                             // PDF
+                'application/msword',                                          // .doc
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+                'image/jpeg',                                                  // JPG
+                'image/jpg',
+                'image/png',
+                'image/heic',                                                  // iOS HEIC
+            ],
+            copyToCacheDirectory: true,
+        });
+        if (!result.canceled) {
+            const fileData = result.assets[0];
             const formData = new FormData();
             formData.append("file", {
-                uri: result.uri,
-                name: result.name,
-                type: result.mimeType,
+                uri: fileData.uri,
+                name: fileData.name,
+                type: fileData.mimeType,
             });
-
-            const response = await fetch("http://192.168.1.120:8000/chat/upload", {
-                method: "POST",
-                body: formData,
-                headers: { "Content-Type": "multipart/form-data" },
-            });
-            const { fileUrl } = await response.json();
-
-            const newMessage = {
-                _id: Math.random().toString(36).substring(7), // Tạo tempId
-                text: "",
-                createdAt: new Date(),
-                user: { _id: senderId },
-                file: fileUrl,
-            };
-            onSend([newMessage]);
+            try {
+                
+                const token = await AsyncStorage.getItem("access_token");
+                const response = await authApi(token).post(endpoints['chatUploadFile'], formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+    
+                const fileUrl = response.data.data.fileUrl
+    
+                const newMessage = {
+                    _id: Math.random().toString(36).substring(7),
+                    text: "",
+                    createdAt: new Date(),
+                    user: { _id: senderId },
+                    file: fileUrl,
+                };
+                onSend([newMessage]);
+            } catch (error) {
+                console.log("Upload error:", error.response?.data || error.message);
+            }
         }
     };
 
@@ -118,7 +133,7 @@ export default function ChatSocket({ route, navigation }) {
         <View style={{ backgroundColor: white, flex: 1 }}>
             <View style={styles.container}>
                 <View style={StyleShare.flexCenter}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <TouchableOpacity onPress={() => navigation.navigate("ChatHome",{currentUserId: senderId})}>
                         <Icon size={26} name="arrow-back" />
                     </TouchableOpacity>
                     <Avatar.Image
@@ -127,11 +142,11 @@ export default function ChatSocket({ route, navigation }) {
                         style={{ marginLeft: 10, marginRight: 5 }}
                     />
 
-                        <View>
-                            <Text style={StyleShare.titleText16}>
-                                {recipient?.name}
-                            </Text>
-                        </View>
+                    <View>
+                        <Text style={StyleShare.titleText16}>
+                            {recipient?.name}
+                        </Text>
+                    </View>
                 </View>
             </View>
             <GiftedChat
@@ -159,7 +174,7 @@ export default function ChatSocket({ route, navigation }) {
                         >
                             <View
                                 style={{
-                                    backgroundColor: currentMessage?.user?._id === senderId ? mainColor : colorChat,
+                                    backgroundColor: currentMessage?.user?._id === senderId ? mainColor : bgNotifi,
                                     padding: 10,
                                     borderRadius: 20,
                                     borderBottomRightRadius: currentMessage?.user?._id === senderId ? 0 : 20,
@@ -179,7 +194,6 @@ export default function ChatSocket({ route, navigation }) {
                                         />
                                         <Text
                                             style={{
-                                                fontWeight: "bold",
                                                 color: currentMessage?.user?._id === senderId ? "white" : "black",
                                                 marginLeft: 5,
                                             }}
@@ -197,7 +211,7 @@ export default function ChatSocket({ route, navigation }) {
                                         {currentMessage.text}
                                     </Text>
                                 )}
-                                <Text style={{ color: "grey", fontSize: 10, textAlign: "right", marginTop: 5 }}>
+                                <Text style={{ color: "grey", fontSize: 12, textAlign: "right", marginTop: 5 }}>
                                     {currentMessage.createdAt?.toLocaleString([], { hour: "2-digit", minute: "2-digit" })}
                                 </Text>
                             </View>
@@ -205,8 +219,8 @@ export default function ChatSocket({ route, navigation }) {
                     );
                 }}
                 renderActions={() => (
-                    <TouchableOpacity style={{ marginBottom: 6, marginLeft: 5 }} onPress={handleChooseFile}>
-                        <Icon name="attach-outline" size={30} color={mainColor} />
+                    <TouchableOpacity style={{ marginBottom: 6, marginLeft: 5 }} onPress={() => handleChooseFile()}>
+                        <Icon name="attach-outline" size={30} color='grey' />
                     </TouchableOpacity>
                 )}
             />
