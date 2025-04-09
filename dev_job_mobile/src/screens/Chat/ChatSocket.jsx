@@ -105,16 +105,16 @@ export default function ChatSocket({ route, navigation }) {
                 type: fileData.mimeType,
             });
             try {
-                
+
                 const token = await AsyncStorage.getItem("access_token");
                 const response = await authApi(token).post(endpoints['chatUploadFile'], formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-    
+
                 const fileUrl = response.data.data.fileUrl
-    
+
                 const newMessage = {
                     _id: Math.random().toString(36).substring(7),
                     text: "",
@@ -133,7 +133,10 @@ export default function ChatSocket({ route, navigation }) {
         <View style={{ backgroundColor: white, flex: 1 }}>
             <View style={styles.container}>
                 <View style={StyleShare.flexCenter}>
-                    <TouchableOpacity onPress={() => navigation.navigate("ChatHome",{currentUserId: senderId})}>
+                    {/* <TouchableOpacity onPress={() => navigation.navigate("ChatHome",{currentUserId: senderId})}>
+                        <Icon size={26} name="arrow-back" />
+                    </TouchableOpacity> */}
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
                         <Icon size={26} name="arrow-back" />
                     </TouchableOpacity>
                     <Avatar.Image
@@ -184,7 +187,8 @@ export default function ChatSocket({ route, navigation }) {
                             >
                                 {currentMessage.file ? (
                                     <TouchableOpacity
-                                        onPress={() => Linking.openURL(currentMessage.file)}
+                                        onPress={() => navigation.navigate('ResumeClientView', { pdfUri: currentMessage.file })}
+
                                         style={{ flexDirection: "row", alignItems: "center" }}
                                     >
                                         <Icon

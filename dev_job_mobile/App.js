@@ -186,6 +186,7 @@ export default function App() {
           <Stack.Screen name="Services" component={Services} />
           <Stack.Screen name="ServicesByCompany" component={ServicesByCompany} />
           <Stack.Screen name="PaymentScreen" component={PaymentScreen} />
+          
         </Stack.Navigator>
         <Toast />
       </NavigationContainer>

@@ -9,7 +9,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import { Avatar, Chip } from "react-native-paper";
+import { Avatar, Badge, Chip } from "react-native-paper";
 import { orange, mainColor, grey, white, textColor, green } from "../../assets/themes/Color";
 import Icon from "react-native-vector-icons/Ionicons";
 import StyleShare from "../../assets/themes/StyleShare";
@@ -110,6 +110,7 @@ export default function HomeCompany({ navigation }) {
         onPress={() => navigation.navigate("ChatHome", { currentUserId: companyByUser?.userId })}
       >
         <Icon name={"chatbubble-outline"} size={20} color={mainColor} />
+
         <Text style={StyleShare.lineText}>Tin nhắn</Text>
       </TouchableOpacity>
     </View>

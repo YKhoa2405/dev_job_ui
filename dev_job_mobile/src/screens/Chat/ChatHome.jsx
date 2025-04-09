@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import UIHeader from "../../components/UIHeader";
 import { StyleSheet } from "react-native";
-import { mainColor, orange, white } from "../../assets/themes/Color";
+import { mainColor, white } from "../../assets/themes/Color";
 import { Avatar } from "react-native-paper";
 import moment from "moment";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -28,90 +28,128 @@ export default function ChatHome({ navigation, route }) {
     const [chatRooms, setChatRooms] = useState([]);
     const [socket, setSocket] = useState(null);
 
-    // Hàm lấy danh sách chat rooms từ backend
     const fetchChatRooms = async () => {
         try {
             const token = await AsyncStorage.getItem("access_token");
             const response = await authApi(token).get(endpoints['chatRooms'](currentUserId));
-            console.log(response.data.data);
+            console.log("Fetched chatRooms:", response.data.data);
             setChatRooms(response.data.data);
             setLoading(false);
         } catch (error) {
             setLoading(false);
+            console.log("Error fetching chat rooms:", error);
         }
     };
 
     useEffect(() => {
-        // Khởi tạo WebSocket
         const socketIo = io("http://192.168.1.120:8000", { transports: ["websocket"] });
-        // Lắng nghe tin nhắn mới để cập nhật danh sách chat rooms
+        setSocket(socketIo);
+
         socketIo.on("receiveMessage", (data) => {
             setChatRooms((prevRooms) => {
                 const updatedRooms = prevRooms.filter((room) => room.id !== `${currentUserId}-${data.recipientId}`);
                 const participantId = data.senderId === currentUserId ? data.recipientId : data.senderId;
                 const newRoom = {
                     id: `${currentUserId}-${participantId}`,
-                    participants: [
-                        {
-                            id: participantId,
-                            name: `User ${participantId}`, // Thay bằng thông tin thực tế nếu có
-                            email: `${participantId}@example.com`,
-                            avatar: "https://example.com/avatar.jpg",
-                        },
-                    ],
+                    participants: data.participant || {
+                        id: participantId,
+                        name: `User ${participantId}`,
+                        avatar: "https://example.com/avatar.jpg",
+                    },
                     lastMessage: {
                         text: data.message,
                         timestamp: data.timestamp,
                         senderId: data.senderId,
+                        fileUrl: data.fileUrl || null,
+                        isRead: data.isRead || false,
                     },
                 };
-                return [newRoom, ...updatedRooms]; // Thêm room mới lên đầu
+                return [newRoom, ...updatedRooms];
             });
         });
 
-        setSocket(socketIo);
+        socketIo.on("messageRead", (data) => {
+            setChatRooms((prevRooms) => {
+                return prevRooms.map((room) =>
+                    room.id === `${currentUserId}-${data.recipientId}`
+                        ? { ...room, lastMessage: data.lastMessage }
+                        : room
+                );
+            });
+        });
 
-        // Lấy danh sách chat rooms ban đầu
         fetchChatRooms();
 
         return () => socketIo.disconnect();
     }, [currentUserId]);
 
     const renderItem = ({ item }) => {
-        const isSender = item.lastMessage.senderId === currentUserId;
-        const displayText = item.lastMessage.fileUrl
-            ? 'Đã gửi một file đính kèm'
-            : item.lastMessage.text || "No message";
+        const isSender = item.lastMessage?.senderId === currentUserId;
+        const displayText = item.lastMessage?.fileUrl
+            ? "Đã gửi một file đính kèm"
+            : item.lastMessage?.text
+                ? item.lastMessage.text.length > 25
+                    ? item.lastMessage.text.slice(0, 25) + "..."
+                    : item.lastMessage.text
+                : "No message";
+
+
         return (
             <TouchableWithoutFeedback
-                onPress={() =>
+                onPress={() => {
+                    // Khi mở chat, gửi yêu cầu đánh dấu tin nhắn là đã đọc
+                    if (socket && !isSender) {
+                        socket.emit("markAsRead", {
+                            senderId: item.lastMessage.senderId,
+                            recipientId: currentUserId,
+                        });
+                    }
                     navigation.navigate("ChatSocket", {
                         recipient: {
-                            id: item.participants[0].id,
-                            avatar: item.participants[0].avatar,
-                            name: item.participants[0].name,
-                            email: item.participants[0].email,
+                            id: item.participants?.id || "unknown",
+                            avatar: item.participants?.avatar || "https://via.placeholder.com/60",
+                            name: item.participants?.name || "Unknown",
                         },
                         senderId: currentUserId,
-                    })
-                }
+                    });
+                }}
             >
                 <View style={styles.containerChatRoom}>
-                    <Avatar.Image source={{ uri: item.participants[0].avatar }} size={50} style={styles.avatar} />
+                    <Avatar.Image
+                        source={{ uri: item.participants?.avatar || "https://via.placeholder.com/60" }}
+                        size={50}
+                        style={styles.avatar}
+                    />
                     <View style={styles.chatContent}>
                         <View style={StyleShare.flexBetween}>
                             <Text style={StyleShare.titleText16} numberOfLines={1}>
-                                {item.participants[0].name.length > 25
-                                    ? item.participants[0].name.slice(0, 25) + "..."
-                                    : item.participants[0].name}
+                                {item.participants?.name?.length > 25
+                                    ? item.participants?.name?.slice(0, 25) + "..."
+                                    : item.participants?.name || "Unknown"}
                             </Text>
                             <Text style={styles.timestamp}>
-                                {item.lastMessage.timestamp ? moment(item.lastMessage.timestamp).fromNow() : ""}
+                                {item.lastMessage?.timestamp ? moment(item.lastMessage.timestamp).fromNow() : ""}
                             </Text>
                         </View>
-                        <Text style={styles.lastMessage} ellipsizeMode="tail" numberOfLines={1}>
-                            {isSender ? `Bạn: ${displayText}` : displayText}
-                        </Text>
+                        <View style={[StyleShare.flexBetween, { marginTop: 5 }]}>
+                            <Text
+                                style={[
+                                    styles.lastMessage,
+                                    { fontWeight: !item.lastMessage?.isRead ? 'bold' : 'normal' } // <-- in đậm nếu chưa đọc
+                                ]}
+                                ellipsizeMode="tail"
+                                numberOfLines={1}
+                            >
+                                {isSender ? `Bạn: ${displayText}` : displayText}
+                            </Text>
+
+                            {isSender && item.lastMessage && (
+                                <Text style={{ color: 'grey', fontSize: 12, fontWeight: 'bold' }}>
+                                    {item.lastMessage.isRead ? 'Đã xem' : 'Đã gửi'}
+                                </Text>
+                            )}
+                        </View>
+
                     </View>
                 </View>
             </TouchableWithoutFeedback>
@@ -126,7 +164,6 @@ export default function ChatHome({ navigation, route }) {
                 title={"Nhắn tin"}
             />
             <View style={{ marginHorizontal: 10 }}>
-
                 <View style={StyleShare.searchDetail}>
                     <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
                     <TextInput
@@ -203,7 +240,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     lastMessage: {
-        marginTop: 5,
         color: "#666",
         fontSize: 14,
     },

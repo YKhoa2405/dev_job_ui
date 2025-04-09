@@ -268,6 +268,7 @@ export default function ResumeByJob({ navigation, route }) {
                 } else {
                     setResumeData((prev) => [...prev, ...data.result]);
                 }
+                console.log(data.result)
                 setCurrentPage(data.meta.currentPage);
                 setTotalPages(data.meta.totalPages);
                 setTotalItems(data.meta.totalItems);
@@ -319,7 +320,7 @@ export default function ResumeByJob({ navigation, route }) {
                             <TouchableOpacity
                                 onPress={() => navigation.navigate("ChatSocket", {
                                     recipient: {
-                                        id: item?._id,
+                                        id: item?.userId,
                                         avatar: item?.avatar,
                                         name: item?.name,
                                     }, senderId: companyByUser?.userId
