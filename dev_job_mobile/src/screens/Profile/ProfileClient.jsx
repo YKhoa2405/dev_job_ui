@@ -107,7 +107,7 @@ export default function Profile({ navigation }) {
                     </View>
                     <View style={styles.manageJob}>
                         <Text style={[StyleShare.titleText16, { marginVertical: 10 }]}>Cài đặt và cấu hình</Text>
-                        <TouchableWithoutFeedback onPress={() => navigation.navigate('Subscribers')}>
+                        <TouchableWithoutFeedback onPress={() => navigation.navigate('Subscribers',{user:user})}>
                             <View style={styles.manageJobItem}>
                                 <View style={StyleShare.flexBetween}>
                                     <View style={StyleShare.flexCenter}>

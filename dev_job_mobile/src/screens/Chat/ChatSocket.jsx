@@ -188,8 +188,11 @@ export default function ChatSocket({ route, navigation }) {
                                 {currentMessage.file ? (
                                     <TouchableOpacity
                                         onPress={() => navigation.navigate('ResumeClientView', { pdfUri: currentMessage.file })}
-
-                                        style={{ flexDirection: "row", alignItems: "center" }}
+                                        style={{
+                                            flexDirection: "row",
+                                            alignItems: "center",
+                                            maxWidth: '90%', // giới hạn chiều ngang
+                                        }}
                                     >
                                         <Icon
                                             name="document"
@@ -200,11 +203,15 @@ export default function ChatSocket({ route, navigation }) {
                                             style={{
                                                 color: currentMessage?.user?._id === senderId ? "white" : "black",
                                                 marginLeft: 5,
+                                                flexShrink: 1, // cho phép text co lại trong container
                                             }}
+                                            numberOfLines={1} // chỉ hiện 1 dòng
+                                            ellipsizeMode="middle" // hoặc "tail"
                                         >
                                             {currentMessage.file.split("/").pop()}
                                         </Text>
                                     </TouchableOpacity>
+
                                 ) : (
                                     <Text
                                         style={{

@@ -160,9 +160,9 @@ export default function InterviewScreen({ route, navigation }) {
         Đánh giá các câu trả lời sau:
         ${questions.map((q, i) => `Câu hỏi ${i + 1}: "${q}"\nCâu trả lời: "${answers[i] || currentAnswer}"`).join('\n')}
         Hãy:
-        1. Chấm điểm từng câu từ 0-10.
+        1. Lưu ý chấm điểm từng câu từ 0-10.
         2. Đưa ra feedback cụ thể.
-        3. Tính điểm trung bình tổng.
+        3. Tính điểm trung bình tổng, cộng lại chia 3 trên thang điểm 10.
         Trả về JSON: { "totalScore": number, "details": [{ "score": number, "feedback": string }, ...] }
       `;
             const result = await geminiService(prompt);

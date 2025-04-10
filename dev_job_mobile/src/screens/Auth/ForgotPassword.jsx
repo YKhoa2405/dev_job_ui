@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, Image, ActivityIndicator, KeyboardAvoidingView, ScrollView, Platform } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import { bgButton2, mainColor, orange, white } from "../../assets/themes/Color";
 import Input from "../../components/Input";
@@ -46,35 +46,39 @@ export default function ForgotPassword({ navigation }) {
 
     };
     return (
-        <View style={[StyleShare.container, { paddingHorizontal: 20 }]}>
-            <View style={styles.containerTop}>
-                <Text style={StyleShare.titleText30}>Quên mật khẩu?</Text>
-                <Text style={styles.desc}>Để đặt lại mật khẩu, bạn cần email để xác thực</Text>
-                <Image style={StyleShare.imageLogin} source={require("../../assets/images/forgotPass.png")} />
-            </View>
-            <View>
-                <Text style={styles.textInput}>Email</Text>
-                <Input
-                    placeholder="Địa chỉ Email đã đăng ký tài khoản"
-                    value={email}
-                    onChangeText={setEmail} />
-            </View>
-            <View style={styles.containerFooter}>
-                {loading ? (
-                    <ActivityIndicator color={orange} size={'large'} />
-
-                ) : (
-                    <Button title={'Đặt lại mật khẩu'}
-                        backgroundColor={mainColor}
-                        textColor={white}
-                        onPress={() => handleSendCode()} />
-                )}
-                <Button title={'Trở về đăng nhập'}
-                    backgroundColor={bgButton2}
-                    onPress={() => { navigation.navigate("Login") }}
-                    textColor={mainColor} />
-            </View>
-        </View>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={{ flex: 1 }}
+        >
+            <ScrollView style={[StyleShare.container, { paddingHorizontal: 20 }]}>
+                <View style={styles.containerTop}>
+                    <Text style={StyleShare.titleText30}>Quên mật khẩu?</Text>
+                    <Text style={styles.desc}>Để đặt lại mật khẩu, bạn cần email để xác thực</Text>
+                    <Image style={StyleShare.imageLogin} source={require("../../assets/images/forgotPass.png")} />
+                </View>
+                <View>
+                    <Text style={styles.textInput}>Email</Text>
+                    <Input
+                        placeholder="Địa chỉ Email đã đăng ký tài khoản"
+                        value={email}
+                        onChangeText={setEmail} />
+                </View>
+                <View style={styles.containerFooter}>
+                    {loading ? (
+                        <Loading />
+                    ) : (
+                        <Button title={'Đặt lại mật khẩu'}
+                            backgroundColor={mainColor}
+                            textColor={white}
+                            onPress={() => handleSendCode()} />
+                    )}
+                    <Button title={'Trở về đăng nhập'}
+                        backgroundColor={bgButton2}
+                        onPress={() => { navigation.navigate("Login") }}
+                        textColor={mainColor} />
+                </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
     )
 }
 

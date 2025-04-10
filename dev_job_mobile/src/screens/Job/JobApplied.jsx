@@ -20,21 +20,24 @@ export default function JobApplied({ navigation }) {
     const [loadingMore, setLoadingMore] = useState(false);
 
     useEffect(() => {
-        fetchListResume();
+        fetchResumeByCandidate();
     }, []);
 
-    const fetchListResume = async (currentPage = 1, limit = 10) => {
+    // Lấy danh sách các việc làm mà ứng viên đã ứng tuyển
+    const fetchResumeByCandidate = async (currentPage = 1, limit = 10) => {
         if (currentPage === 1) setLoading(true);
         else setLoadingMore(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
-            const res = await authApi(token).get(endpoints['resumeByUser'], {
+            console.log(token)
+            const res = await authApi(token).get(endpoints['resumeByCandidate'], {
                 params: {
                     page: currentPage,
                     limit: limit,
                 },
             });
             const data = res.data.data;
+            console.log(data)
             if (currentPage === 1) {
                 setJobs(data.result);
             } else {
@@ -53,7 +56,7 @@ export default function JobApplied({ navigation }) {
 
     const loadMoreJobs = () => {
         if (currentPage < totalPages && !loadingMore) {
-            fetchListResume(currentPage + 1);
+            fetchResumeByCandidate(currentPage + 1);
         }
     };
 

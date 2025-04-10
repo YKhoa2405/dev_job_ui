@@ -89,8 +89,8 @@ export const endpoints = {
     // resume
     'resume': 'applications',
     'resumeDetail': (resumeId) => `/applications/${resumeId}`,
-    'resumeApply': '/applications/apply',
-    'resumeByUser': '/applications/byUser',
+    'resumeApply': '/applications/apply', // apply job
+    'resumeByCandidate': '/applications/candidate',
     'resumeByJob': (jobId) => `/applications/byJob/${jobId}`,
 
     // Notification

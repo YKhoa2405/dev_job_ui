@@ -79,8 +79,8 @@ export default function Login({ navigation }) {
             };
             let data = {
                 password: '123456',
-                // username: '2151050202khoa@ou.edu.vn', //nha tuyen dung
-                username: 'nykhoa2405@gmail.com', // ung vien
+                username: '2151050202khoa@ou.edu.vn', //nha tuyen dung
+                // username: 'nykhoa2405@gmail.com', // ung vien
                 // username: 'nguyenykhoa2405@gmail.com', //ung vien
                 // username: 'nguyenykhoali2003@gmail.com', // nha tuyen dung
                 // password: 'caichyrua11',

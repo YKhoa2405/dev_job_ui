@@ -193,7 +193,7 @@ export default function ResumeTemplates({ navigation }) {
                     <ActivityIndicator size="large" color={orange} />
                 ) : (
                     <Button
-                        title="Hoàn tính & Tài lên"
+                        title="Hoàn thiện & Tải lên"
                         onPress={handleCreatePDF}
                         disable={loading}
                         backgroundColor={mainColor}
