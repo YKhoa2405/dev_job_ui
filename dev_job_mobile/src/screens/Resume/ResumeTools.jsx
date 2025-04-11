@@ -85,6 +85,7 @@ export default function ResumeTools({ navigation }) {
                 { headers: { 'Content-Type': 'application/json' } }  // Định dạng JSON
             );
             const processed = res.data.processed_text;
+            console.log(processed);
             if (processed) {
                 const token = await AsyncStorage.getItem('access_token');
                 await authApi(token).patch(endpoints['cvDetail'](cvId), {

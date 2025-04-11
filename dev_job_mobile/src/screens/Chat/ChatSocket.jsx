@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Linking } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Avatar } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
 import { GiftedChat, Send } from "react-native-gifted-chat";
 import StyleShare from "../../assets/themes/StyleShare";
-import { bgNotifi, colorChat, grey, mainColor, textColor, white } from "../../assets/themes/Color";
+import { bgNotifi, grey, mainColor, white } from "../../assets/themes/Color";
 import io from "socket.io-client";
 import * as DocumentPicker from 'expo-document-picker';
 import AsyncStorage from "@react-native-async-storage/async-storage";

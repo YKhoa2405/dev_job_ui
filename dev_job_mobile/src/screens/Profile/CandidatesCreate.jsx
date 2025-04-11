@@ -70,7 +70,7 @@ export default function CandidatesCreate({ navigation, route }) {
         fetchCandidateDetail();
     }, []);
 
-    const fetchSkills = async (currentPage = 1, limit = 40) => {
+    const fetchSkills = async (currentPage = 1, limit = 100) => {
         try {
             const res = await API.get(endpoints['skills'], {
                 params: { page: currentPage, limit: limit },

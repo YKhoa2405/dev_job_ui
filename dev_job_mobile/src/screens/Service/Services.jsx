@@ -12,6 +12,7 @@ import { authApi, endpoints } from "../../assets/config/API";
 
 export default function Services({ navigation, route }) {
     const { companyId } = route.params
+    console.log(companyId)
     const [loading, setLoading] = useState(false);
     const [service, setService] = useState([]);
     const [totalItems, setTotalItems] = useState(0);

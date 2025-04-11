@@ -7,6 +7,7 @@ import { authApi, endpoints } from "../../assets/config/API";
 
 export default function PaymentScreen({ navigation, route }) {
     const { url, serviceId, companyId } = route.params;
+    
     const [isProcessing, setIsProcessing] = useState(false); // Trạng thái để kiểm soát xử lý trùng lặp
 
     const handleNavigationStateChange = async (navState) => {
@@ -84,7 +85,7 @@ export default function PaymentScreen({ navigation, route }) {
             params.append('companyId', companyId);
             params.append('serviceId', serviceId);
             params.append('amount', amount);
-
+            console.log(params);
             const token = await AsyncStorage.getItem('access_token');
             await authApi(token).post(endpoints['order'], params, {
                 headers: {

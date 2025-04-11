@@ -42,7 +42,6 @@ export default function InterviewScreen({ route, navigation }) {
                     }
                 }
             } catch (error) {
-                console.log("Lỗi khi lấy câu hỏi:", error);
                 ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
                 setQuestions(["Câu hỏi mẫu 1", "Câu hỏi mẫu 2", "Câu hỏi mẫu 3"]);
             }
@@ -50,10 +49,6 @@ export default function InterviewScreen({ route, navigation }) {
         };
         generateQuestions();
     }, []);
-
-    useEffect(() => {
-        console.log('Current Answer đã cập nhật:', currentAnswer);
-    }, [currentAnswer]);
 
     async function startRecording() {
         try {
@@ -175,7 +170,6 @@ export default function InterviewScreen({ route, navigation }) {
                 }
             }
         } catch (error) {
-            console.log("Lỗi khi đánh giá câu trả lời:", error);
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
             navigation.navigate('ResultScreen', {
                 totalScore: 0,

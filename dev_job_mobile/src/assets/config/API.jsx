@@ -10,8 +10,8 @@ const HOST = 'http://192.168.1.120:8000';
 
 export const endpoints = {
     // 
-    'scanCV': 'http://192.168.1.120:8001/api/extract-text',
-    'recommend': 'http://192.168.1.120:8001/api/recommend',
+    'scanCV': 'http://192.168.1.120:8001/apip/extract',
+    'recommend': 'http://192.168.1.120:8001/apip/recommend',
     // auths
     'login': '/auth/login',
     'loginGoogle': '/auth/google/',

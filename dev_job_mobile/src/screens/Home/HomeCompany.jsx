@@ -1,79 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
-  TouchableWithoutFeedback,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator,
 } from "react-native";
-import { Avatar, Badge, Chip } from "react-native-paper";
-import { orange, mainColor, grey, white, textColor, green } from "../../assets/themes/Color";
+import { orange, mainColor, white, green } from "../../assets/themes/Color";
 import Icon from "react-native-vector-icons/Ionicons";
 import StyleShare from "../../assets/themes/StyleShare";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slice/userSlice";
 import { fetchCompanyByUser } from "../../redux/slice/companySlice";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { storeDb } from "../../assets/config/Key";
 import Loading from "../../components/Loading";
 
 export default function HomeCompany({ navigation }) {
   const dispatch = useDispatch();
   const { companyByUser, loading } = useSelector((state) => state.company);
-  // Thêm trạng thái loading cục bộ nếu cần
-  const [isSavingToFirestore, setIsSavingToFirestore] = useState(false);
 
   useEffect(() => {
     dispatch(fetchCompanyByUser());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (companyByUser) {
-      saveUserToFirestore(
-        companyByUser._id,
-        companyByUser.createBy.email,
-        companyByUser.name,
-        companyByUser.avatar
-      );
-    }
-  }, [companyByUser]);
-
-  const saveUserToFirestore = async (id, email, name, avatar) => {
-    setIsSavingToFirestore(true);
-    try {
-      const userDoc = doc(storeDb, "users", id.toString());
-      const docSnap = await getDoc(userDoc);
-
-      if (!docSnap.exists()) {
-        await setDoc(userDoc, {
-          id: id.toString(),
-          email: email || "",
-          name: name || "",
-          role: "EMPLOYER_USER",
-          avatar: avatar || "",
-        });
-      } else {
-        await setDoc(
-          userDoc,
-          {
-            id: id.toString(),
-            email: email || "",
-            name: name || "",
-            role: "EMPLOYER_USER",
-            avatar: avatar || "",
-          },
-          { merge: true }
-        );
-      }
-    } catch (error) {
-      console.log("Error saving user:", error);
-    } finally {
-      setIsSavingToFirestore(false);
-    }
-  };
+  }, []);
+  console.log(companyByUser._id);
 
   const manageEmployers = [
     { id: 1, icon: "megaphone-outline", title: "Chiến dịch tuyển dụng" },
@@ -93,7 +42,7 @@ export default function HomeCompany({ navigation }) {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.gridItemUtili}
-        onPress={() => navigation.navigate("Services", { userId: companyByUser._id })}
+        onPress={() => navigation.navigate("Services", { companyId: companyByUser._id })}
       >
         <Icon name={"cart-outline"} size={20} color={mainColor} />
         <Text style={StyleShare.lineText}>Mua dịch vụ</Text>
@@ -107,7 +56,7 @@ export default function HomeCompany({ navigation }) {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.gridItemUtili}
-        onPress={() => navigation.navigate("ChatHome", { currentUserId: companyByUser?.userId })}
+        onPress={() => navigation.navigate("ChatHome", { currentUserId: companyByUser.userId })}
       >
         <Icon name={"chatbubble-outline"} size={20} color={mainColor} />
 
@@ -135,23 +84,23 @@ export default function HomeCompany({ navigation }) {
   );
 
   const handleLogout = () => {
+    navigation.navigate("AuthStack", { screen: 'Login' });
     dispatch(logout());
-    navigation.navigate("AuthStack",{screen:'Login'});
   };
 
   const handleManageEmployersClick = (id) => {
     switch (id) {
       case 1:
-        navigation.navigate("JobByCompany", { companyId: companyByUser._id });
+        navigation.navigate("JobByCompany", { companyId: companyByUser?._id });
         break;
       case 3:
-        navigation.navigate("CandidateSearch", { companyId: companyByUser._id });
+        navigation.navigate("CandidateSearch", { companyId: companyByUser?._id });
         break;
       case 4:
-        navigation.navigate("CompanyStatistical", { companyId: companyByUser._id });
+        navigation.navigate("CompanyStatistical", { companyId: companyByUser?._id });
         break;
       case 5:
-        navigation.navigate("ServicesByCompany", { companyId: companyByUser._id });
+        navigation.navigate("ServicesByCompany", { companyId: companyByUser?._id });
         break;
       default:
         console.log("Unknown item clicked");
@@ -160,7 +109,7 @@ export default function HomeCompany({ navigation }) {
   };
 
   // Hiển thị khi đang loading
-  if (loading || isSavingToFirestore) {
+  if (loading) {
     return (
       <Loading />
     );
@@ -170,7 +119,7 @@ export default function HomeCompany({ navigation }) {
     <ScrollView style={StyleShare.container} showsVerticalScrollIndicator={false}>
       <View style={styles.containerTop}>
         <Text style={StyleShare.titleText20}>Hệ quản trị tuyển dụng</Text>
-        {companyByUser && companyByUser.isApproved && (
+        {companyByUser && companyByUser?.isApproved && (
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => navigation.navigate('Notification', { userId: companyByUser?._id })}
@@ -181,7 +130,7 @@ export default function HomeCompany({ navigation }) {
       </View>
 
       <View style={styles.containerMain}>
-        {companyByUser && companyByUser.isApproved ? (
+        {companyByUser && companyByUser?.isApproved ? (
           <>
             <Text style={[StyleShare.titleText16, { marginVertical: 10 }]}>Tiện ích</Text>
             <UtilitiesGrid />
@@ -295,6 +244,6 @@ const styles = StyleSheet.create({
     padding: 10, // Tăng vùng chạm
     borderRadius: 50, // Hình tròn cho nút
     backgroundColor: white, // Nền mờ nhẹ cho nút
-    elevation:2
+    elevation: 2
   },
 });

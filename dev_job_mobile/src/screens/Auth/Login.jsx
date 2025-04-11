@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from "react-native";
 import { mainColor, orange, white } from "../../assets/themes/Color";
 import StyleShare from "../../assets/themes/StyleShare";
@@ -9,10 +9,6 @@ import { ToastMess } from "../../components/ToastMess";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from "../../redux/slice/userSlice";
-import { storeDb } from "../../assets/config/Key";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { use } from "react";
-
 
 
 
@@ -28,43 +24,12 @@ export default function Login({ navigation }) {
             const role = user.role?.name;
             if (role === 'NORMAL_USER') {
                 navigation.navigate('MainTab');
-                saveUserToFirestore(user._id, user.email, user.name, user.avatar);
             } else if (role === 'EMPLOYER_USER') {
                 navigation.navigate('HomeCompany');
             }
         }
     }, [user]);
 
-    const saveUserToFirestore = async (id, email, name, avatar) => {
-
-        try {
-            const userDoc = doc(storeDb, "users", id.toString());
-            const docSnap = await getDoc(userDoc);
-
-            if (!docSnap.exists()) {
-                // Lưu thông tin người dùng mới
-                await setDoc(userDoc, {
-                    id: id.toString(),
-                    email: email || '',
-                    name: name || '',
-                    role: "NORMAL_USER",
-                    avatar: avatar || '',
-                });
-            } else {
-                // Cập nhật thông tin người dùng
-                await setDoc(userDoc, {
-                    id: id.toString(),
-                    email: email || '',
-                    name: name || '',
-                    role: "NORMAL_USER",
-                    avatar: avatar || '',
-                }, { merge: true });
-            }
-            console.log("User saved successfully!");
-        } catch (error) {
-            console.error('Error saving user:', error);
-        }
-    }
 
     const handleLogin = async () => {
         // if (!email || !password) {
@@ -79,9 +44,9 @@ export default function Login({ navigation }) {
             };
             let data = {
                 password: '123456',
-                username: '2151050202khoa@ou.edu.vn', //nha tuyen dung
+                // username: '2151050202khoa@ou.edu.vn', //nha tuyen dung
                 // username: 'nykhoa2405@gmail.com', // ung vien
-                // username: 'nguyenykhoa2405@gmail.com', //ung vien
+                username: 'nguyenykhoa2405@gmail.com', //ung vien
                 // username: 'nguyenykhoali2003@gmail.com', // nha tuyen dung
                 // password: 'caichyrua11',
             };
@@ -94,13 +59,10 @@ export default function Login({ navigation }) {
                     user: user,
                 })
             )
-
-
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 ToastMess({ type: 'error', text1: 'Email hoặc mật khẩu không chính xác' })
             }
-            console.log(error)
         } finally {
             setLoading(false);
         }

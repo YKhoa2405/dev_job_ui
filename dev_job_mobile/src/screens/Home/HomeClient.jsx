@@ -218,7 +218,7 @@ export default function HomeClient({ navigation }) {
           </View>
 
           {/* Việc làm hấp dẫn */}
-          {/* <View style={{ marginTop: 30 }}>
+          <View style={{ marginTop: 30 }}>
             <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
               <Text style={StyleShare.titleText20}>Gợi ý việc làm</Text>
               <TouchableOpacity
@@ -241,7 +241,7 @@ export default function HomeClient({ navigation }) {
               maxToRenderPerBatch={1}
               windowSize={3}
             />
-          </View> */}
+          </View>
         </View>
       )}
     </ScrollView>
