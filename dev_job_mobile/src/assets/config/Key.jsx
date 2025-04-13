@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore"; 
+import { getFirestore } from "firebase/firestore";
 
 // Map
 export const client_id_api = "SC93qLAKpYHvP5G5tz0hOwuXOznK3jTnyte3YpKe"
@@ -11,7 +11,7 @@ export const clinet_id_google = "239735618406-cm48vh19b18p843uju9anq2jtsnha7ek.a
 export const api_key_gemini = "AIzaSyCJbQIrPPeWjdEXlNAZITcUfyWlWAOvp90";
 export const api_key_speech = "AIzaSyCJbQIrPPeWjdEXlNAZIT1ahvACXLLoMmE3Umxiq9wDfneS93QCnObP09K3ebGh7wk3IjpH5QJQQJ99BCAC3pKaRXJ3w3AAAYACOGkqDOcUfyWlWAOvp90";
 
-
+export const github_client_id = "Ov23linSRUtRzaebNvHn"
 
 // Firebase
 const firebaseConfig = {
@@ -26,4 +26,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const storeDb = getFirestore(app)
 
-export { storeDb}
+export { storeDb }

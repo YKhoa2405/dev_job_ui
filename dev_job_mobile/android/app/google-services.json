@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "1043747816081",
-    "project_id": "devjob-fe071",
-    "storage_bucket": "devjob-fe071.firebasestorage.app"
+    "project_number": "696043940583",
+    "project_id": "devjob-1917a",
+    "storage_bucket": "devjob-1917a.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1043747816081:android:8e02a95ec90948a98d7530",
+        "mobilesdk_app_id": "1:696043940583:android:6ae76508d75a6a65571042",
         "android_client_info": {
-          "package_name": "com.project.devjob"
+          "package_name": "com.yourcompany.devjobmobile"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA0EvOHT8VbZsYu5p51q77hgyyCh4_dZTI"
+          "current_key": "AIzaSyBRk2j7NRt1-QIh1QwN5lUrEs0CHP_kLb4"
         }
       ],
       "services": {

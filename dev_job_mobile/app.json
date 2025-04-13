@@ -5,35 +5,45 @@
     "scheme": "devjob",
     "owner": "khoa2405",
     "extra": {
-      "googleClientId": "326778772960-fv0bk4m2cbkug6fpsdoc0g24tr6uefrb.apps.googleusercontent.com"
+      "googleClientId": "326778772960-fv0bk4m2cbkug6fpsdoc0g24tr6uefrb.apps.googleusercontent.com",
+
+      "eas": {
+        "projectId": "1e6bc4e7-2494-401f-a02a-e0c8f9b29c7a"
+      },
+      "githubClientId": "Ov23linSRUtRzaebNvHn"
     },
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "../assets/images/splash.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true, 
+    "newArchEnabled": true,
     "splash": {
-      "image": "../assets/images/splash.png", 
+      "image": "../assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.devjobmobile"
+      "bundleIdentifier": "com.yourcompany.devjobmobile",
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "../assets/images/background.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.yourcompany.devjobmobile"
+      "package": "com.yourcompany.devjobmobile",
+      "googleServicesFile": "./android/app/google-services.json",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "favicon": ""
     },
-    "plugins": [
-      "expo-asset",
-      "expo-notifications"
-    ]
+    "plugins": ["expo-asset"],
+    "updates": {
+      "url": "https://u.expo.dev/1e6bc4e7-2494-401f-a02a-e0c8f9b29c7a"
+    }
   }
 }

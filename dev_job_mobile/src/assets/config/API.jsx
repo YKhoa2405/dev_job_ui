@@ -14,8 +14,8 @@ export const endpoints = {
     'recommend': 'http://192.168.1.120:8001/apip/recommend',
     // auths
     'login': '/auth/login',
-    'loginGoogle': '/auth/google/',
-    'google': '/auth/google',
+    'github': '/auth/github/',
+    'githubCallback': '/auth/github/callback',
     // users
     'users': '/users',
     'listUsers': '/users/allUser',
