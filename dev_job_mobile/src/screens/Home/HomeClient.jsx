@@ -33,7 +33,7 @@ export default function HomeClient({ navigation }) {
   useEffect(() => {
     if (currentUser?._id) {
       fetchJobUrgent();
-      fetchRecommendedJobs(currentUser._id);
+      fetchRecommendedJobs(currentUser?._id);
     } else {
       console.log('User ID không tồn tại, bỏ qua gọi API recommend.');
       setLoading(false); // Tắt loading nếu không có user

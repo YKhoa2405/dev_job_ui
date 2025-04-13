@@ -1,7 +1,12 @@
 {
   "expo": {
-    "name": "dev_job_mobile",
-    "slug": "dev_job_mobile",
+    "name": "DevJob",
+    "slug": "dev-job",
+    "scheme": "devjob",
+    "owner": "khoa2405",
+    "extra": {
+      "googleClientId": "326778772960-fv0bk4m2cbkug6fpsdoc0g24tr6uefrb.apps.googleusercontent.com"
+    },
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "../assets/images/splash.png",

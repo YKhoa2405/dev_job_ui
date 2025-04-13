@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
         paddingHorizontal:10,
         borderRadius: 10,
         borderColor: mainColor,
+        borderWidth: 1,
         marginTop: 10,
         justifyContent: 'space-between',
         backgroundColor: white,

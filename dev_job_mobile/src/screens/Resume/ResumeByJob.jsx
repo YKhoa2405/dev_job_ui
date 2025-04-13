@@ -268,7 +268,6 @@ export default function ResumeByJob({ navigation, route }) {
                 } else {
                     setResumeData((prev) => [...prev, ...data.result]);
                 }
-                console.log(data.result)
                 setCurrentPage(data.meta.currentPage);
                 setTotalPages(data.meta.totalPages);
                 setTotalItems(data.meta.totalItems);
@@ -429,8 +428,8 @@ export default function ResumeByJob({ navigation, route }) {
                         tabBarIndicatorStyle: { backgroundColor: orange }, // Style for the indicator of the selected tab
                         tabBarStyle: { backgroundColor: grey },
                     }}>
-                    <Tab.Screen name="Chi tiết tin tuyển dụng" component={ProfileTab1} />
                     <Tab.Screen name={'Hồ sơ ứng tuyển'} component={ProfileTab2} />
+                    <Tab.Screen name="Chi tiết tin tuyển dụng" component={ProfileTab1} />
                 </Tab.Navigator>
             </View>
         </View>

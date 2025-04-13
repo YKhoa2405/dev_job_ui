@@ -15,6 +15,7 @@ export const endpoints = {
     // auths
     'login': '/auth/login',
     'loginGoogle': '/auth/google/',
+    'google': '/auth/google',
     // users
     'users': '/users',
     'listUsers': '/users/allUser',

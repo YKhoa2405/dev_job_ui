@@ -22,7 +22,6 @@ export default function HomeCompany({ navigation }) {
   useEffect(() => {
     dispatch(fetchCompanyByUser());
   }, []);
-  console.log(companyByUser._id);
 
   const manageEmployers = [
     { id: 1, icon: "megaphone-outline", title: "Chiến dịch tuyển dụng" },
@@ -35,14 +34,14 @@ export default function HomeCompany({ navigation }) {
     <View style={styles.gridUtili}>
       <TouchableOpacity
         style={styles.gridItemUtili}
-        onPress={() => navigation.navigate("JobCreate", { companyId: companyByUser._id })}
+        onPress={() => navigation.navigate("JobCreate", { companyId: companyByUser?._id })}
       >
         <Icon name={"add-circle-outline"} size={20} color={mainColor} />
         <Text style={StyleShare.lineText}>Tuyển dụng</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.gridItemUtili}
-        onPress={() => navigation.navigate("Services", { companyId: companyByUser._id })}
+        onPress={() => navigation.navigate("Services", { companyId: companyByUser?._id })}
       >
         <Icon name={"cart-outline"} size={20} color={mainColor} />
         <Text style={StyleShare.lineText}>Mua dịch vụ</Text>
