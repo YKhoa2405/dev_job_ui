@@ -126,8 +126,10 @@ export default function Login({ navigation }) {
             };
             let data = {
                 // password: password,
-                // username: 'nguyenykhoali2003@gmail.com',
-                username: 'nykhoa2405@gmail.com',
+                username: 'nguyenykhoali2003@gmail.com',
+                // username: 'nykhoa2405@gmail.com',
+                // username: 'nguyenykhoa2405@gmail.com',
+
 
                 password: '123456',
             };

@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slice/userSlice";
 import { fetchCompanyByUser } from "../../redux/slice/companySlice";
 import Loading from "../../components/Loading";
+import { Badge } from "react-native-paper";
 
 export default function HomeCompany({ navigation }) {
   const dispatch = useDispatch();
@@ -123,7 +124,15 @@ export default function HomeCompany({ navigation }) {
             style={styles.iconButton}
             onPress={() => navigation.navigate('Notification', { userId: companyByUser?._id })}
           >
-            <Icon name="notifications-outline" size={24} color={'black'} />
+            <View style={{ position: 'relative' }}>
+              <Icon name="notifications-outline" size={24} color={'black'} />
+              <Badge
+                visible={true} // Set to false to hide the badge when no notifications
+                size={10} // Size of the badge
+                style={styles.badge}
+              >
+              </Badge>
+            </View>
           </TouchableOpacity>
         )}
       </View>
@@ -244,5 +253,11 @@ const styles = StyleSheet.create({
     borderRadius: 50, // Hình tròn cho nút
     backgroundColor: white, // Nền mờ nhẹ cho nút
     elevation: 2
+  },
+  badge: {
+    position: 'absolute',
+    top: -4, // Adjust to position the badge relative to the icon
+    right: -4, // Adjust to position the badge relative to the icon
+    backgroundColor: 'red', // Customize badge color
   },
 });

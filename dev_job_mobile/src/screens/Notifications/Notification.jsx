@@ -15,6 +15,8 @@ import { textColor, white } from "../../assets/themes/Color";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
 import { ToastMess } from "../../components/ToastMess";
+import { io } from "socket.io-client";
+
 
 const Notification = ({ navigation, route }) => {
   const { userId } = route.params;
@@ -25,15 +27,41 @@ const Notification = ({ navigation, route }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
 
+  // Khởi tạo WebSocket
+  const socket = io("http://192.168.1.120:8000", {
+    transports: ["websocket"],
+    reconnection: true,
+    reconnectionAttempts: 5,
+  });
+
+  useEffect(() => {
+    // Kết nối WebSocket và tham gia phòng với userId
+    socket.emit("join", userId);
+
+    // Lắng nghe thông báo mới
+    socket.on("notification", (notification) => {
+      setNotifications((prev) => [notification, ...prev]); // Thêm thông báo mới vào đầu danh sách
+      setTotalItems((prev) => prev + 1); // Cập nhật tổng số thông báo
+    });
+
+    // Cleanup khi component unmount
+    return () => {
+      socket.disconnect();
+    };
+  }, [userId]);
+
   const fetchNotifications = async (page = 1, limit = 20) => {
     if (page === 1) setLoading(true);
     else setLoadingMore(true);
 
     try {
       const token = await AsyncStorage.getItem("access_token");
-      const res = await authApi(token).get(endpoints['notificationsByUser'](userId), {
-        params: { page, limit },
-      });
+      const res = await authApi(token).get(
+        endpoints["notificationsByUser"](userId),
+        {
+          params: { page, limit },
+        }
+      );
       const data = res.data.data;
       if (page === 1) {
         setNotifications(data.result);
@@ -64,7 +92,10 @@ const Notification = ({ navigation, route }) => {
   const markAsRead = async (notificationId) => {
     try {
       const token = await AsyncStorage.getItem("access_token");
-      await authApi(token).patch(endpoints['notificationDetail'](notificationId), { isRead: true });
+      await authApi(token).patch(
+        endpoints["notificationDetail"](notificationId),
+        { isRead: true }
+      );
 
       // Cập nhật state cục bộ
       setNotifications((prev) =>
@@ -96,10 +127,12 @@ const Notification = ({ navigation, route }) => {
     }
 
     // Chuyển hướng dựa trên loại thông báo
-    if (notification.type === 'NEW_JOB') {
-      navigation.navigate('JobDetail', { jobId: notification.data.jobId });
-    } else if (notification.type === 'NEW_APPLICATION') {
-      navigation.navigate('ResumeByJob', { jobId: notification.data.jobId });
+    if (notification.type === "NEW_JOB") {
+      navigation.navigate("JobDetail", { jobId: notification.data.jobId });
+    } else if (notification.type === "NEW_APPLICATION") {
+      navigation.navigate("ResumeByJob", { jobId: notification.data.jobId });
+    } else if (notification.type === "NEW_ORDER") {
+      navigation.navigate("ServicesByCompany", { companyId: userId });
     }
   };
 
@@ -114,12 +147,20 @@ const Notification = ({ navigation, route }) => {
           onPress: async () => {
             try {
               const token = await AsyncStorage.getItem("access_token");
-              await authApi(token).delete(endpoints['notificationsByUser'](userId));
+              await authApi(token).delete(
+                endpoints["notificationsByUser"](userId)
+              );
               setNotifications([]);
               setTotalItems(0);
-              ToastMess({ type: "success", text1: "Đã xóa tất cả thông báo thành công" });
+              ToastMess({
+                type: "success",
+                text1: "Đã xóa tất cả thông báo thành công",
+              });
             } catch (error) {
-              ToastMess({ type: "error", text1: "Có lỗi xảy ra, vui lòng thử lại" });
+              ToastMess({
+                type: "error",
+                text1: "Có lỗi xảy ra, vui lòng thử lại",
+              });
               console.log(error);
             }
           },
@@ -154,8 +195,8 @@ const Notification = ({ navigation, route }) => {
                 style={StyleShare.imageNullData}
               />
               <Text style={StyleShare.titleText20}>Không có thông báo nào</Text>
-              <Text style={{ padding: 20, textAlign: 'center' }}>
-                BẠn chưa có bất kỳ thông báo nào, hãy quay lại sau.
+              <Text style={{ padding: 20, textAlign: "center" }}>
+                Bạn chưa có bất kỳ thông báo nào, hãy quay lại sau.
               </Text>
             </View>
           }

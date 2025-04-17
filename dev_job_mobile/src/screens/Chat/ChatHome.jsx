@@ -32,12 +32,10 @@ export default function ChatHome({ navigation, route }) {
         try {
             const token = await AsyncStorage.getItem("access_token");
             const response = await authApi(token).get(endpoints['chatRooms'](currentUserId));
-            console.log("Fetched chatRooms:", response.data.data);
             setChatRooms(response.data.data);
             setLoading(false);
         } catch (error) {
             setLoading(false);
-            console.log("Error fetching chat rooms:", error);
         }
     };
 
@@ -155,6 +153,11 @@ export default function ChatHome({ navigation, route }) {
             </TouchableWithoutFeedback>
         );
     };
+    if (loading) {
+        return (
+            <Loading />
+        )
+    }
 
     return (
         <View style={styles.container}>
@@ -171,27 +174,25 @@ export default function ChatHome({ navigation, route }) {
                         placeholder="Nhập tên người dùng..."
                         value={searchKeywork}
                         onChangeText={(text) => setSearchKeywork(text)}
-                        onSubmitEditing={() => navigation.navigate("JobSearch", { query: searchKeywork })}
+                        onSubmitEditing={() => {
+                            
+                        }}
                     />
                 </View>
 
-                {loading ? (
-                    <Loading />
-                ) : (
-                    <FlatList
-                        data={chatRooms}
-                        keyExtractor={(item) => item.id}
-                        renderItem={renderItem}
-                        contentContainerStyle={styles.chatList}
-                        ListEmptyComponent={
-                            <View style={styles.emptyContainer}>
-                                <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
-                                <Text style={StyleShare.titleText20}>Không có tin nhắn nào</Text>
-                                <Text style={styles.emptyText}>Bạn chưa có bất kỳ tin nhắn nào, kiểm tra lại sau</Text>
-                            </View>
-                        }
-                    />
-                )}
+                <FlatList
+                    data={chatRooms}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderItem}
+                    contentContainerStyle={styles.chatList}
+                    ListEmptyComponent={
+                        <View style={styles.emptyContainer}>
+                            <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
+                            <Text style={StyleShare.titleText20}>Không có tin nhắn nào</Text>
+                            <Text style={styles.emptyText}>Bạn chưa có bất kỳ tin nhắn nào, kiểm tra lại sau</Text>
+                        </View>
+                    }
+                />
             </View>
 
             <TouchableOpacity

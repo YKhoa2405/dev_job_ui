@@ -8,7 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
 import Loading from "../../components/Loading";
 import moment from "moment";
-import { textColor } from "../../assets/themes/Color";
+import { grey, mainColor, textColor } from "../../assets/themes/Color";
 
 
 export default function JobApplied({ navigation }) {
@@ -62,7 +62,7 @@ export default function JobApplied({ navigation }) {
 
     const renderItem = ({ item }) => {
         return (
-            <TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate('JobDetail', { jobId: item?.jobId?._id })}>
                 <View style={StyleShare.jobItemContainer}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Avatar.Image
@@ -96,7 +96,17 @@ export default function JobApplied({ navigation }) {
                             </Text>
                         </View>
                         <View>
-                            <Text style={StyleShare.titleText16}>{item.status}</Text>
+                            <Text
+                                style={[StyleShare.titleText16,
+                                {
+                                    color:
+                                        item.status === 'Chờ xử lý' ? mainColor
+                                            : item.status === 'Đã xem' ? 'blue'
+                                                : item.status === 'Chấp nhận' ? 'green'
+                                                    : item.status === 'Từ chối' ? 'red'
+                                                        : grey
+                                }]}>{item.status}
+                            </Text>
                         </View>
                     </View>
                     <View style={StyleShare.flexBetween}>
@@ -127,7 +137,7 @@ export default function JobApplied({ navigation }) {
             <UIHeader
                 leftIcon={"arrow-back"}
                 title={'Việc làm đã ứng tuyển'}
-                handleLeftIcon={() => { navigation.navigate("MainTab",{"screen":"Profile"}) }} />
+                handleLeftIcon={() => { navigation.navigate("MainTab", { "screen": "Profile" }) }} />
             {loading ? (
                 <Loading />
             ) : (
@@ -144,7 +154,7 @@ export default function JobApplied({ navigation }) {
                             </View>
                         }
                         contentContainerStyle={{ paddingBottom: 40 }}
-                        onEndReached={loadMoreJobs} // Gọi khi đến cuối danh sách
+                        onEndReached={loadMoreJobs}
                         onEndReachedThreshold={0.7} // Ngưỡng để kích hoạt loadMore
                         ListFooterComponent={
                             loadingMore ? (

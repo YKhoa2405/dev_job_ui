@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import StyleShare from '../../assets/themes/StyleShare';
 import { mainColor, white, orange, textColor } from '../../assets/themes/Color';
-import { Avatar, Chip } from 'react-native-paper';
+import { Avatar, Badge, Chip } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'react-redux';
 import API, { authApi, endpoints } from '../../assets/config/API';
@@ -35,7 +35,6 @@ export default function HomeClient({ navigation }) {
       fetchJobUrgent();
       fetchRecommendedJobs(currentUser?._id);
     } else {
-      console.log('User ID không tồn tại, bỏ qua gọi API recommend.');
       setLoading(false); // Tắt loading nếu không có user
     }
   }, [currentUser?._id]);
@@ -50,7 +49,6 @@ export default function HomeClient({ navigation }) {
       });
       setJobUrgentList(res.data.data.result || []);
     } catch (error) {
-      console.log('Lỗi khi lấy gợi ý việc làm:', error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
@@ -64,7 +62,6 @@ export default function HomeClient({ navigation }) {
         headers: { 'Content-Type': 'application/json' },
       });
       setJobRecommendList(res.data.recommendations || []);
-      console.log(res.data.recommendations)
     } catch (error) {
       console.log('Lỗi khi lấy gợi ý việc làm:', error.response?.data || error.message);
     } finally {
@@ -147,6 +144,8 @@ export default function HomeClient({ navigation }) {
     [renderItem]
   );
 
+  if (loading) return <Loading />
+
   return (
     <ScrollView
       style={styles.scrollContainer}
@@ -160,15 +159,27 @@ export default function HomeClient({ navigation }) {
         <View style={{ flex: 1, marginHorizontal: 20 }}>
           <View style={[StyleShare.flexBetween, { marginTop: 40 }]}>
             <Text style={[StyleShare.titleText16, { color: white, fontStyle: 'italic' }]}>
-              Chào bạn trở lại!
+              Chào bạn, {currentUser?.name}.
             </Text>
             <View style={StyleShare.flexBetween}>
-              <TouchableOpacity
-                style={styles.iconButton}
-                onPress={() => navigation.navigate('Notification', { userId: currentUser?._id })}
-              >
-                <Icon name="notifications-outline" size={24} color={white} />
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <TouchableOpacity
+                  style={styles.iconButton}
+                  onPress={() => navigation.navigate('Notification', { userId: currentUser?._id })}
+                >
+                  <View style={{ position: 'relative' }}>
+                    <Icon name="notifications-outline" size={24} color={white} />
+                    <Badge
+                      visible={true} // Set to false to hide when no notifications
+                      size={10} // Size of the badge
+                      style={styles.badge}
+                    >
+                      {/* Optional: Add notification count, e.g., 3 */}
+                      {/* 3 */}
+                    </Badge>
+                  </View>
+                </TouchableOpacity>
+              </View>
               <TouchableOpacity
                 style={styles.iconButton}
                 onPress={() => navigation.navigate('ChatHome', { currentUserId: currentUser?._id })}
@@ -188,62 +199,62 @@ export default function HomeClient({ navigation }) {
           </View>
         </View>
       </ImageBackground>
-      {loading ? (
+      <View>
+        {/* Gợi ý việc làm */}
+        <View style={{ marginTop: 20 }}>
+          <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
+            <Text style={StyleShare.titleText20}>Việc làm Gấp</Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('JobSuggestions', { title: 'Việc làm gấp', api: 'jobs' })}
+            >
+              <Text style={StyleShare.lineText}>Xem tất cả</Text>
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            data={jobUrgentPages}
+            renderItem={renderPage}
+            keyExtractor={(page, index) => `page-${index}`}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={width}
+            decelerationRate="fast"
+            pagingEnabled
+            initialNumToRender={1} // Chỉ render 1 page ban đầu
+            maxToRenderPerBatch={1} // Giới hạn số page mỗi lần render
+            windowSize={3} // Giảm kích thước cửa sổ render
+          />
+        </View>
+
+        {/* Việc làm hấp dẫn */}
+        <View style={{ marginTop: 30 }}>
+          <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
+            <Text style={StyleShare.titleText20}>Gợi ý việc làm</Text>
+            <TouchableOpacity
+              // onPress={() => navigation.navigate('JobSuggestions', { title: 'Gợi ý việc làm', api: 'job_recommend' })}
+              onPress={() => navigation.navigate('JobSwipe')}
+            >
+              <Text style={StyleShare.lineText}>Xem tất cả</Text>
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            data={jobRecommendPages} // Sửa lỗi từ jobUrgentPages thành jobRecommendPages
+            renderItem={renderPage}
+            keyExtractor={(page, index) => `page-${index}`}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={width}
+            decelerationRate="fast"
+            pagingEnabled
+            initialNumToRender={1}
+            maxToRenderPerBatch={1}
+            windowSize={3}
+          />
+        </View>
+      </View>
+      {/* {loading ? (
         <Loading />
       ) : (
-        <View>
-          {/* Gợi ý việc làm */}
-          <View style={{ marginTop: 20 }}>
-            <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
-              <Text style={StyleShare.titleText20}>Việc làm Gấp</Text>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('JobSuggestions', { title: 'Việc làm gấp', api: 'jobs' })}
-              >
-                <Text style={StyleShare.lineText}>Xem tất cả</Text>
-              </TouchableOpacity>
-            </View>
-            <FlatList
-              data={jobUrgentPages}
-              renderItem={renderPage}
-              keyExtractor={(page, index) => `page-${index}`}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              snapToInterval={width}
-              decelerationRate="fast"
-              pagingEnabled
-              initialNumToRender={1} // Chỉ render 1 page ban đầu
-              maxToRenderPerBatch={1} // Giới hạn số page mỗi lần render
-              windowSize={3} // Giảm kích thước cửa sổ render
-            />
-          </View>
-
-          {/* Việc làm hấp dẫn */}
-          <View style={{ marginTop: 30 }}>
-            <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
-              <Text style={StyleShare.titleText20}>Gợi ý việc làm</Text>
-              <TouchableOpacity
-                // onPress={() => navigation.navigate('JobSuggestions', { title: 'Gợi ý việc làm', api: 'job_recommend' })}
-                onPress={() => navigation.navigate('JobSwipe')}
-              >
-                <Text style={StyleShare.lineText}>Xem tất cả</Text>
-              </TouchableOpacity>
-            </View>
-            <FlatList
-              data={jobRecommendPages} // Sửa lỗi từ jobUrgentPages thành jobRecommendPages
-              renderItem={renderPage}
-              keyExtractor={(page, index) => `page-${index}`}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              snapToInterval={width}
-              decelerationRate="fast"
-              pagingEnabled
-              initialNumToRender={1}
-              maxToRenderPerBatch={1}
-              windowSize={3}
-            />
-          </View>
-        </View>
-      )}
+      )} */}
     </ScrollView>
   );
 }
@@ -273,5 +284,11 @@ const styles = StyleSheet.create({
     borderRadius: 50, // Hình tròn cho nút
     backgroundColor: 'rgba(255, 255, 255, 0.2)', // Nền mờ nhẹ cho nút
     marginHorizontal: 5, // Khoảng cách giữa các nút
+  },
+  badge: {
+    position: 'absolute',
+    top: -4, // Adjust to position the badge relative to the icon
+    right: -4, // Adjust to position the badge relative to the icon
+    backgroundColor: 'red', // Customize badge color
   },
 });
