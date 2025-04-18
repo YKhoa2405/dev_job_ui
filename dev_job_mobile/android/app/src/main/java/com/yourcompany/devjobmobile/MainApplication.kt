@@ -1,4 +1,4 @@
-package com.yourcompany.devjobmobile
+package com.project.devjob
 
 import android.app.Application
 import android.content.res.Configuration

@@ -11,6 +11,8 @@ import 'moment/locale/vi';
 export default function Profile({ navigation }) {
     const dispatch = useDispatch()
     const user = useSelector((state) => state.user.user)
+    const fcmToken = useSelector((state) => state.user.fcmToken)
+    console.log('FCM Token:', fcmToken);
 
     const aboutApp = [
         { id: 1, icon: 'business', title: 'Về HeyJob' },
@@ -24,6 +26,31 @@ export default function Profile({ navigation }) {
         { id: 2, icon: 'briefcase', title: 'Việc làm đã ứng tuyển', },
         { id: 3, icon: 'business', title: 'Công ty đang theo dõi', },
     ]
+
+    async function sendPushNotification(token) {
+        const message = {
+            to: 'fQqAC5w2R9u6gffg1NIkWp:APA91bFNg6Oux2-2SNgahXstp8TdY0zWlBjo5i6vRMbOvg3CdmXg8Ez-Da65U2bWCalhlpFxpFjiAHDOthz5rfrs3m0i-EGYQVzY_RjIse45TvmQ_-8QUsY',
+            sound: 'default',
+            title: 'Test Notification',
+            body: 'Đây là thông báo thử nghiệm!',
+            data: { someData: 'test data' },
+        };
+
+        try {
+            const response = await fetch('https://exp.host/--/api/v2/push/send', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Accept-encoding': 'gzip, deflate',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(message),
+            });
+            console.log('Push response:', await response.json());
+        } catch (error) {
+            console.error('Error sending push:', error);
+        }
+    }
 
     const handleManageJobClick = (id) => {
         switch (id) {
@@ -43,7 +70,7 @@ export default function Profile({ navigation }) {
 
     const handleLogout = () => {
         dispatch(logout());
-        navigation.navigate('AuthStack',{screen:'Login'})
+        navigation.navigate('AuthStack', { screen: 'Login' })
     };
 
     const ManageJobGrid = () => (
@@ -74,17 +101,17 @@ export default function Profile({ navigation }) {
                 <View style={styles.containerTop}>
                     <View style={StyleShare.flexBetween}>
 
-                    <Avatar.Image
-                        source={{ uri: user?.avatar || 'https://via.placeholder.com/60' }} // Placeholder nếu không có avatar
-                        size={60}
-                        style={{ marginLeft: 40, marginRight: 20, backgroundColor: white }}
-                    />
-                    <View>
-                        <Text style={StyleShare.titleText16}>{user?.name || 'Không có tên'}</Text>
-                        <Text>{user?.email || 'Không có email'}</Text>
+                        <Avatar.Image
+                            source={{ uri: user?.avatar || 'https://via.placeholder.com/60' }} // Placeholder nếu không có avatar
+                            size={60}
+                            style={{ marginLeft: 40, marginRight: 20, backgroundColor: white }}
+                        />
+                        <View>
+                            <Text style={StyleShare.titleText16}>{user?.name || 'Không có tên'}</Text>
+                            <Text>{user?.email || 'Không có email'}</Text>
+                        </View>
                     </View>
-                    </View>
-                    <TouchableOpacity  style={{marginRight: 20}} onPress={() => navigation.navigate('CandidatesCreate', { user })}>
+                    <TouchableOpacity style={{ marginRight: 20 }} onPress={() => navigation.navigate('CandidatesCreate', { user })}>
                         <Icon name="pencil" size={24} color="grey" />
                     </TouchableOpacity>
                 </View>
@@ -107,7 +134,7 @@ export default function Profile({ navigation }) {
                     </View>
                     <View style={styles.manageJob}>
                         <Text style={[StyleShare.titleText16, { marginVertical: 10 }]}>Cài đặt và cấu hình</Text>
-                        <TouchableWithoutFeedback onPress={() => navigation.navigate('Subscribers',{user:user})}>
+                        <TouchableWithoutFeedback onPress={() => navigation.navigate('Subscribers', { user: user })}>
                             <View style={styles.manageJobItem}>
                                 <View style={StyleShare.flexBetween}>
                                     <View style={StyleShare.flexCenter}>
@@ -137,6 +164,13 @@ export default function Profile({ navigation }) {
                         ))}
                     </View>
                     <TouchableOpacity style={styles.manageJob} onPress={() => handleLogout()}>
+                        <View style={StyleShare.flexCenter}>
+                            <Text style={{ fontWeight: '500', fontSize: 16, marginRight: 10, color: 'red' }}>Đăng xuất</Text>
+                            <Icon name="exit" size={24} color={'red'} />
+                        </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.manageJob} onPress={() => sendPushNotification(fcmToken)}>
                         <View style={StyleShare.flexCenter}>
                             <Text style={{ fontWeight: '500', fontSize: 16, marginRight: 10, color: 'red' }}>Đăng xuất</Text>
                             <Icon name="exit" size={24} color={'red'} />

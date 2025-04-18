@@ -6,44 +6,55 @@
     "owner": "khoa2405",
     "extra": {
       "googleClientId": "326778772960-fv0bk4m2cbkug6fpsdoc0g24tr6uefrb.apps.googleusercontent.com",
-
+      "githubClientId": "Ov23linSRUtRzaebNvHn",
       "eas": {
         "projectId": "1e6bc4e7-2494-401f-a02a-e0c8f9b29c7a"
-      },
-      "githubClientId": "Ov23linSRUtRzaebNvHn"
+      }
     },
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "../assets/images/splash.png",
+    "icon": "./assets/android/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "../assets/images/splash.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.devjobmobile",
-      "runtimeVersion": {
-        "policy": "appVersion"
-      }
-    },
+    "ios": {},
     "android": {
+      "package": "com.project.devjob",
+      "googleServicesFile": "./android/app/google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "../assets/images/background.png",
+        "foregroundImage": "./assets/android/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.yourcompany.devjobmobile",
-      "googleServicesFile": "./android/app/google-services.json",
-      "runtimeVersion": "1.0.0"
+      "runtimeVersion": "1.0.0",
+      "permissions": ["RECEIVE_BOOT_COMPLETED", "VIBRATE"],
+      "versionCode": 1
     },
     "web": {
-      "favicon": ""
+      "favicon": "./assets/android/favicon.png"
     },
-    "plugins": ["expo-asset"],
+    "plugins": [
+      "expo-asset",
+      "@react-native-firebase/app",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/android/notification-icon.png",
+          "color": "#ffffff",
+          "defaultChannel": "default"
+        }
+      ]
+    ],
     "updates": {
-      "url": "https://u.expo.dev/1e6bc4e7-2494-401f-a02a-e0c8f9b29c7a"
+      "url": "https://u.expo.dev/1e6bc4e7-2494-401f-a02a-e0c8f9b29c7a",
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": "1.0.0",
+    "cli": {
+      "appVersionSource": "remote"
     }
   }
 }

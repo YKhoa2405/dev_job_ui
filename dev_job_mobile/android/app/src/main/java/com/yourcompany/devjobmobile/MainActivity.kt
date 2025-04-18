@@ -1,4 +1,4 @@
-package com.yourcompany.devjobmobile
+package com.project.devjob
 
 import android.os.Build
 import android.os.Bundle

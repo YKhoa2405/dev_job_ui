@@ -88,7 +88,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.yourcompany.devjobmobile'
+    namespace 'com.project.devjob'
     defaultConfig {
         applicationId 'com.project.devjob'
         minSdkVersion rootProject.ext.minSdkVersion

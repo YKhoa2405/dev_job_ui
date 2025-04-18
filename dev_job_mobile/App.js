@@ -59,7 +59,7 @@ import InterviewScreen from './src/screens/Interview/InterviewScreen';
 import ResultScreen from './src/screens/Interview/ResultScreen';
 import CongratsScreen from './src/screens/Congrats/CongratsScreen';
 import JobSwipe from './src/screens/Job/JobSwipe';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Notification from './src/screens/Notifications/Notification';
 import ReportJob from './src/screens/Job/ReportJob';
 import EditCompany from './src/screens/Company/EditCompany';
@@ -67,13 +67,109 @@ import EditJob from './src/screens/Job/EditJob';
 import ChatSocket from './src/screens/Chat/ChatSocket';
 import ChatHome from './src/screens/Chat/ChatHome';
 
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import { getMessaging, onMessage, onNotificationOpenedApp, getInitialNotification, onTokenRefresh } from '@react-native-firebase/messaging';
+import { setFcmToken } from './src/redux/slice/userSlice';
+
 
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
 export default function App() {
+
+  const notificationListener = useRef();
+  const responseListener = useRef();
+  const messaging = getMessaging(); // Sử dụng API modular
+
+  async function registerForPushNotificationsAsync() {
+    if (!Device.isDevice) {
+      Alert.alert('Lỗi', 'Push notifications chỉ hoạt động trên thiết bị thật');
+      return null;
+    }
+
+    try {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+
+      if (finalStatus !== 'granted') {
+        Alert.alert('Lỗi', 'Bạn cần cấp quyền để nhận thông báo!');
+        return null;
+      }
+
+      const token = (await Notifications.getDevicePushTokenAsync()).data;
+      console.log('FCM Token:', token); // In token để kiểm tra
+      store.dispatch(setFcmToken(token)); // Lưu token vào Redux
+      return token;
+    } catch (error) {
+      console.error('Error getting FCM token:', error);
+      Alert.alert('Lỗi', 'Không thể lấy FCM token');
+      return null;
+    }
+  }
+
+  useEffect(() => {
+    registerForPushNotificationsAsync();
+
+    // Xử lý thông báo khi ứng dụng ở foreground
+    const unsubscribeOnMessage = onMessage(messaging, async (remoteMessage) => {
+      console.log('Notification received in foreground:', remoteMessage);
+      Alert.alert(
+        remoteMessage.notification?.title || 'Thông báo',
+        remoteMessage.notification?.body || 'Bạn có thông báo mới'
+      );
+    });
+
+    // Xử lý khi nhấn thông báo khi ứng dụng ở background
+    const unsubscribeOnNotificationOpened = onNotificationOpenedApp(messaging, (remoteMessage) => {
+      console.log('Notification opened:', remoteMessage);
+    });
+
+    // Xử lý thông báo khi ứng dụng được mở từ trạng thái quit
+    getInitialNotification(messaging).then((remoteMessage) => {
+      if (remoteMessage) {
+        console.log('Notification caused app to open:', remoteMessage);
+      }
+    });
+
+    // Xử lý thông báo từ expo-notifications
+    notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
+      console.log('Expo Notification:', notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+      console.log('Notification Response:', response);
+    });
+
+    // Lắng nghe thay đổi token
+    const unsubscribeOnTokenRefresh = onTokenRefresh(messaging, (newToken) => {
+      console.log('New FCM Token:', newToken);
+      store.dispatch(setFcmToken(newToken)); // Cập nhật token mới
+    });
+
+    return () => {
+      unsubscribeOnMessage();
+      unsubscribeOnNotificationOpened();
+      unsubscribeOnTokenRefresh();
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
 
 
   return (
