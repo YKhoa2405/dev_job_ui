@@ -23,21 +23,39 @@ import Loading from '../../components/Loading';
 const { width } = Dimensions.get('window');
 
 export default function HomeClient({ navigation }) {
-  const currentUser = useSelector((state) => state.user.user);
+  const { user: currentUser, fcmToken } = useSelector((state) => state.user);
   const [loading, setLoading] = useState(true);
   const [jobRecommendList, setJobRecommendList] = useState([]);
   const [jobUrgentList, setJobUrgentList] = useState([]);
 
+  console.log(fcmToken)
 
 
   useEffect(() => {
     if (currentUser?._id) {
       fetchJobUrgent();
       fetchRecommendedJobs(currentUser?._id);
+      saveFcmToken();
     } else {
       setLoading(false); // Tắt loading nếu không có user
     }
   }, [currentUser?._id]);
+
+  const saveFcmToken = async () => {
+    if (fcmToken) {
+      try {
+        const token = await AsyncStorage.getItem('access_token');
+
+        await authApi(token).post(endpoints['saveFcmToken'], {
+          userId: currentUser._id,
+          fcmToken: fcmToken,
+        });
+        console.log('FCM Token saved to backend');
+      } catch (error) {
+        console.log('Error saving FCM token:', error);
+      }
+    }
+  }
 
   // Giữ nguyên phương thức gọi API, chỉ thêm useCallback để tối ưu
   const fetchJobUrgent = useCallback(async () => {

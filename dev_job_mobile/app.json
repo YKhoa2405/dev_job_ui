@@ -39,14 +39,7 @@
     "plugins": [
       "expo-asset",
       "@react-native-firebase/app",
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/android/notification-icon.png",
-          "color": "#ffffff",
-          "defaultChannel": "default"
-        }
-      ]
+      "@react-native-firebase/messaging"
     ],
     "updates": {
       "url": "https://u.expo.dev/1e6bc4e7-2494-401f-a02a-e0c8f9b29c7a",

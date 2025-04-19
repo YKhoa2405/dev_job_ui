@@ -25,6 +25,7 @@ export const endpoints = {
     'verify': '/users/verify',
     'registerUser': '/users/register',
     'uploadChat': '/files/uploadChat',
+    'saveFcmToken':'/users/saveFcmToken',
 
     // skills
     'skills': '/skills',

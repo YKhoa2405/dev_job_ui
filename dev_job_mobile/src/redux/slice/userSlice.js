@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const initialState = {
   user: null,
   isAuthenticated: false,
-  fcmToken: null, // Thêm trường để lưu FCM token
+  fcmToken: null, // Lưu FCM Token
 };
 
 const userSlice = createSlice({
@@ -18,15 +18,25 @@ const userSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
-      state.fcmToken = null; // Xóa FCM token khi đăng xuất
-      AsyncStorage.removeItem('access_token'); // Xóa access_token
+      state.fcmToken = null; // Xóa FCM Token khi đăng xuất
+      // AsyncStorage.removeItem nên được xử lý trong thunk hoặc component
     },
     setFcmToken: (state, action) => {
-      state.fcmToken = action.payload; // Lưu FCM token
+      state.fcmToken = action.payload; // Lưu FCM Token
     },
   },
 });
 
 export const { loginSuccess, logout, setFcmToken } = userSlice.actions;
+
+// Thunk để xử lý logout bất đồng bộ
+export const logoutAsync = () => async (dispatch) => {
+  try {
+    await AsyncStorage.removeItem('access_token');
+    dispatch(logout());
+  } catch (error) {
+    console.error('Error removing access token:', error);
+  }
+};
 
 export default userSlice.reducer;

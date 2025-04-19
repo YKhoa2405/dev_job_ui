@@ -7,12 +7,12 @@ import Icon from "react-native-vector-icons/Ionicons"
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slice/userSlice";
 import 'moment/locale/vi';
+import { ToastMess } from "../../components/ToastMess";
 
 export default function Profile({ navigation }) {
     const dispatch = useDispatch()
     const user = useSelector((state) => state.user.user)
-    const fcmToken = useSelector((state) => state.user.fcmToken)
-    console.log('FCM Token:', fcmToken);
+
 
     const aboutApp = [
         { id: 1, icon: 'business', title: 'Về HeyJob' },
@@ -27,30 +27,7 @@ export default function Profile({ navigation }) {
         { id: 3, icon: 'business', title: 'Công ty đang theo dõi', },
     ]
 
-    async function sendPushNotification(token) {
-        const message = {
-            to: 'fQqAC5w2R9u6gffg1NIkWp:APA91bFNg6Oux2-2SNgahXstp8TdY0zWlBjo5i6vRMbOvg3CdmXg8Ez-Da65U2bWCalhlpFxpFjiAHDOthz5rfrs3m0i-EGYQVzY_RjIse45TvmQ_-8QUsY',
-            sound: 'default',
-            title: 'Test Notification',
-            body: 'Đây là thông báo thử nghiệm!',
-            data: { someData: 'test data' },
-        };
 
-        try {
-            const response = await fetch('https://exp.host/--/api/v2/push/send', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Accept-encoding': 'gzip, deflate',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(message),
-            });
-            console.log('Push response:', await response.json());
-        } catch (error) {
-            console.error('Error sending push:', error);
-        }
-    }
 
     const handleManageJobClick = (id) => {
         switch (id) {
@@ -164,13 +141,6 @@ export default function Profile({ navigation }) {
                         ))}
                     </View>
                     <TouchableOpacity style={styles.manageJob} onPress={() => handleLogout()}>
-                        <View style={StyleShare.flexCenter}>
-                            <Text style={{ fontWeight: '500', fontSize: 16, marginRight: 10, color: 'red' }}>Đăng xuất</Text>
-                            <Icon name="exit" size={24} color={'red'} />
-                        </View>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.manageJob} onPress={() => sendPushNotification(fcmToken)}>
                         <View style={StyleShare.flexCenter}>
                             <Text style={{ fontWeight: '500', fontSize: 16, marginRight: 10, color: 'red' }}>Đăng xuất</Text>
                             <Icon name="exit" size={24} color={'red'} />
