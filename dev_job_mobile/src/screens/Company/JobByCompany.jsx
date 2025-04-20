@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import UIHeader from "../../components/UIHeader";
-import { Avatar, Chip } from "react-native-paper";
+import { Chip } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
 import Dropdown from "../../components/Dropdown";
 import { bgButton2, green, grey, mainColor, orange, textColor, white } from "../../assets/themes/Color";

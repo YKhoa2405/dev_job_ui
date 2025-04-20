@@ -18,8 +18,6 @@ const userSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
-      state.fcmToken = null; // Xóa FCM Token khi đăng xuất
-      // AsyncStorage.removeItem nên được xử lý trong thunk hoặc component
     },
     setFcmToken: (state, action) => {
       state.fcmToken = action.payload; // Lưu FCM Token

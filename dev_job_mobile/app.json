@@ -31,7 +31,19 @@
       },
       "runtimeVersion": "1.0.0",
       "permissions": ["RECEIVE_BOOT_COMPLETED", "VIBRATE"],
-      "versionCode": 1
+      "versionCode": 1,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "myapp",
+              "host": "auth"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/android/favicon.png"

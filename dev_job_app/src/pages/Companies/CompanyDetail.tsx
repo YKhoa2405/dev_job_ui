@@ -58,7 +58,6 @@ const CompanyDetail = () => {
             const token: any = localStorage.getItem("access_token");
             const res = await authApi(token).get(endpoints['ordersByCompany'](id!));
             const data = res.data.data;
-            console.log(data)
             setOrderData(data.result); // Update company data
         } catch (error) {
             console.log('Error fetching companies:', error);
@@ -75,7 +74,6 @@ const CompanyDetail = () => {
                 },
             });
             const data = res.data.data;
-            console.log(data)
             setJobData(data.result); // Update company data
             setCurrentPage(data.meta.currentPage); // Update the current page from API response
             setTotalPages(data.meta.totalPages); // Update the total pages from API response

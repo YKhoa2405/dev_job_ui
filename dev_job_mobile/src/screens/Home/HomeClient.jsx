@@ -108,7 +108,6 @@ export default function HomeClient({ navigation }) {
             <Avatar.Image
               size={50}
               source={{ uri: item?.companyId?.avatar || 'https://via.placeholder.com/60' }}
-              style={{ backgroundColor: 'white' }}
             />
             <View style={{ marginLeft: 10, flex: 1 }}>
               <Text style={StyleShare.titleText16} numberOfLines={2}>

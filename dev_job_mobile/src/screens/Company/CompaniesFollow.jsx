@@ -98,7 +98,7 @@ export default function CompaniesFollow({ navigation }) {
             <TouchableWithoutFeedback key={item._id} onPress={() => { navigation.navigate('CompanyDetail', { _id: item.companyId._id }) }}>
                 <View style={StyleShare.jobItemContainer}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Avatar.Image source={{ uri: item.companyId.avatar || 'https://example.com/default-avatar.png' }} size={50} style={{ backgroundColor: 'white', marginRight: 5 }} />
+                        <Avatar.Image source={{ uri: item.companyId.avatar || 'https://example.com/default-avatar.png' }} size={50} style={{  marginRight: 5 }} />
                         <View>
                             <Text style={StyleShare.titleText16}>{item.companyId.name}</Text>
                             <Text style={{ marginTop: 5 }}>{item.companyId.slogan}</Text>

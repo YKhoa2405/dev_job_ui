@@ -68,7 +68,6 @@ export default function JobApplied({ navigation }) {
                         <Avatar.Image
                             size={50}
                             source={{ uri: item?.companyId?.avatar }}
-                            style={{ backgroundColor: 'white' }}
                         />
                         <View style={{ marginLeft: 10, flex: 1 }}>
                             <Text numberOfLines={2} style={StyleShare.titleText16}>{item?.jobId?.name} </Text>

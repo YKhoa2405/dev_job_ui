@@ -20,7 +20,6 @@ export default function CompanyDetail({ navigation, route }) {
     const [companyDetail, setCompanyDetail] = useState('');
     const [saved, setSaved] = useState(false);
     const user = useSelector((state) => state.user.user);
-    console.log(companyDetail.userId)
     const Tab = createMaterialTopTabNavigator();
 
     useEffect(() => {
@@ -34,7 +33,6 @@ export default function CompanyDetail({ navigation, route }) {
         try {
             const token = await AsyncStorage.getItem("access_token");
             const res = await authApi(token).get(endpoints['followSaved'](_id));
-            console.log(res.data);
             setSaved(res.data.data.saved);
         } catch (error) {
 
@@ -221,7 +219,7 @@ export default function CompanyDetail({ navigation, route }) {
                 <Loading /></> : <>
                 <View style={styles.containerTop}>
                     <View style={StyleShare.containerAvatar}>
-                        <Avatar.Image source={{ uri: companyDetail.avatar }} size={60} style={{ backgroundColor: 'white' }} />
+                        <Avatar.Image source={{ uri: companyDetail?.avatar }} size={60}  />
                     </View>
                     <Text style={StyleShare.titleText16}>{companyDetail.name}</Text>
                     <Text style={{ marginTop: 5, textAlign: 'center' }}>{companyDetail.slogan}</Text>

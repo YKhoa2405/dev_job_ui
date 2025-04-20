@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Linking } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from "react-native";
 import { mainColor, orange, white } from "../../assets/themes/Color";
 import StyleShare from "../../assets/themes/StyleShare";
 import Input from "../../components/Input";
@@ -10,8 +10,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess, logout } from "../../redux/slice/userSlice";
 import * as WebBrowser from 'expo-web-browser';
+import * as AuthSession from 'expo-auth-session';
 import axios from 'axios';
 import { github_client_id } from "../../assets/config/Key";
+
+// Hoàn tất phiên xác thực
+WebBrowser.maybeCompleteAuthSession();
 
 export default function Login({ navigation }) {
     const [email, setEmail] = useState('');
@@ -19,6 +23,22 @@ export default function Login({ navigation }) {
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
     const user = useSelector((state) => state.user.user);
+
+    // Cấu hình redirect URI cho deep linking
+    const redirectUri = AuthSession.makeRedirectUri({
+        scheme: 'devjob',
+        path: 'auth',
+    });
+
+    // Cấu hình yêu cầu OAuth
+    const [request, response, promptAsync] = AuthSession.useAuthRequest(
+        {
+            clientId: github_client_id,
+            redirectUri,
+            scopes: ['user:email'],
+        },
+        { authorizationEndpoint: 'https://github.com/login/oauth/authorize' }
+    );
 
     useEffect(() => {
         if (user) {
@@ -34,86 +54,46 @@ export default function Login({ navigation }) {
                 dispatch(logout());
             }
         }
-
-        // Lắng nghe redirect từ backend qua custom URI scheme
-        const handleOpenURL = (event) => {
-            const { url } = event;
-            console.log('Received URL:', url);
-            const token = new URL(url).searchParams.get('token');
-
-            if (token) {
-                handleGithubCallback(token);
-            } else {
-                ToastMess({ type: 'error', text1: 'Không nhận được token' });
-                setLoading(false);
-            }
-        };
-
-        // Lưu subscription từ addEventListener
-        const subscription = Linking.addEventListener('url', handleOpenURL);
-
-        // Cleanup bằng subscription.remove()
-        return () => {
-            subscription.remove();
-        };
     }, [user]);
 
-    const handleGithubCallback = async (token) => {
+    useEffect(() => {
+        // Xử lý phản hồi từ GitHub OAuth
+        if (response?.type === 'success') {
+            const { code } = response.params;
+            handleGitHubCallback(code);
+        } else if (response?.type === 'error') {
+            ToastMess({ type: 'error', text1: 'Đăng nhập GitHub thất bại' });
+        }
+    }, [response]);
+
+    // Hàm xử lý đăng nhập GitHub
+    const handleLoginGithub = async () => {
+        if (!request) {
+            ToastMess({ type: 'error', text1: 'Đang tải cấu hình GitHub...' });
+            return;
+        }
         try {
-            // Gọi API backend để lấy thông tin user với token
-            const response = await axios.get(
-                `http://192.168.1.120:8000/auth/verify-token?token=${token}`,
-                { timeout: 10000 }
-            );
-
-            console.log('Backend Response:', response.data);
-
-            const { user } = response.data;
-
-            if (user.role?.name !== 'NORMAL_USER') {
-                throw new Error('Chỉ người dùng thông thường (NORMAL_USER) được phép đăng nhập bằng GitHub');
-            }
-
-            await AsyncStorage.setItem("access_token", token);
-            dispatch(
-                loginSuccess({
-                    user,
-                })
-            );
+            await promptAsync();
         } catch (error) {
-            console.error('Lỗi xử lý GitHub callback:', error.response?.data || error.message);
-            ToastMess({
-                type: 'error',
-                text1: error.message || 'Có lỗi xảy ra khi đăng nhập GitHub',
-            });
-            setLoading(false);
+            console.error('GitHub login error:', error);
+            ToastMess({ type: 'error', text1: 'Lỗi khi khởi động đăng nhập GitHub' });
         }
     };
 
-    const handleLoginGithub = async () => {
-        setLoading(true);
+    // Hàm gửi code đến backend và nhận JWT
+    const handleGitHubCallback = async (code) => {
         try {
-            const clientId = github_client_id;
-            const redirectUri = 'http://192.168.1.120:8000/auth/github/callback';
-            const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=user:email`;
-
-            console.log('Auth URL:', authUrl);
-
-            const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
-
-            console.log('WebBrowser Result:', result);
-
-            if (result.type !== 'success') {
-                ToastMess({ type: 'error', text1: 'Đăng nhập GitHub bị hủy hoặc thất bại' });
-                setLoading(false);
-            }
-        } catch (error) {
-            console.error('Lỗi đăng nhập GitHub:', error.response?.data || error.message);
-            ToastMess({
-                type: 'error',
-                text1: error.message || 'Có lỗi xảy ra khi đăng nhập GitHub',
+            const response = await axios.get('http://192.168.1.120:8000/auth/github/callback', {
+                params: { code },
             });
-            setLoading(false);
+            const { accessToken, user } = response.data;
+
+            // Lưu token và thông tin người dùng
+            await AsyncStorage.setItem("access_token", accessToken);
+            dispatch(loginSuccess({ user }));
+        } catch (error) {
+            console.error('GitHub callback error:', error);
+            ToastMess({ type: 'error', text1: 'Lỗi khi xác thực GitHub' });
         }
     };
 
@@ -125,23 +105,16 @@ export default function Login({ navigation }) {
                 'Content-Type': 'application/x-www-form-urlencoded',
             };
             let data = {
-                // password: password,
-                // username: 'nguyenykhoali2003@gmail.com',
-                // username: 'nykhoa2405@gmail.com',
-                username: 'nguyenykhoa2405@gmail.com',
+                // username: email || '2151050202khoa@ou.edu.vn',
+                username: email || 'nguyenykhoa2405@gmail.com',
 
-
-                password: '123456',
+                password: password || '123456',
             };
             let res = await API.post(endpoints['login'], data, { headers: header });
             const { access_token, ...user } = res.data.data;
             await AsyncStorage.setItem("access_token", access_token);
 
-            dispatch(
-                loginSuccess({
-                    user,
-                })
-            );
+            dispatch(loginSuccess({ user }));
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 ToastMess({ type: 'error', text1: 'Email hoặc mật khẩu không chính xác' });
@@ -152,8 +125,6 @@ export default function Login({ navigation }) {
             setLoading(false);
         }
     };
-
-
 
     return (
         <View style={[StyleShare.container, { marginHorizontal: 20 }]}>

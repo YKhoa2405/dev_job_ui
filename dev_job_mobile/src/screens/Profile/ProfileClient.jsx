@@ -7,7 +7,6 @@ import Icon from "react-native-vector-icons/Ionicons"
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/slice/userSlice";
 import 'moment/locale/vi';
-import { ToastMess } from "../../components/ToastMess";
 
 export default function Profile({ navigation }) {
     const dispatch = useDispatch()
@@ -79,9 +78,9 @@ export default function Profile({ navigation }) {
                     <View style={StyleShare.flexBetween}>
 
                         <Avatar.Image
-                            source={{ uri: user?.avatar || 'https://via.placeholder.com/60' }} // Placeholder nếu không có avatar
+                            source={{ uri: user?.avatar }} // Placeholder nếu không có avatar
                             size={60}
-                            style={{ marginLeft: 40, marginRight: 20, backgroundColor: white }}
+                            style={{ marginLeft: 40, marginRight: 20 }}
                         />
                         <View>
                             <Text style={StyleShare.titleText16}>{user?.name || 'Không có tên'}</Text>
