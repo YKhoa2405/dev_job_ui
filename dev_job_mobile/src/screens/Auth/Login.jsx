@@ -8,29 +8,25 @@ import API, { endpoints } from "../../assets/config/API";
 import { ToastMess } from "../../components/ToastMess";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from 'react-redux';
-import { loginSuccess, logout } from "../../redux/slice/userSlice";
+import { loginSuccess } from "../../redux/slice/userSlice";
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
-import axios from 'axios';
 import { github_client_id } from "../../assets/config/Key";
 
-// Hoàn tất phiên xác thực
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Login({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false); // For email/password login
+    const [githubLoading, setGithubLoading] = useState(false); // For GitHub login
     const dispatch = useDispatch();
-    const user = useSelector((state) => state.user.user);
 
-    // Cấu hình redirect URI cho deep linking
     const redirectUri = AuthSession.makeRedirectUri({
         scheme: 'devjob',
         path: 'auth',
     });
 
-    // Cấu hình yêu cầu OAuth
     const [request, response, promptAsync] = AuthSession.useAuthRequest(
         {
             clientId: github_client_id,
@@ -41,63 +37,61 @@ export default function Login({ navigation }) {
     );
 
     useEffect(() => {
-        if (user) {
-            const role = user.role?.name;
-            console.log('User role:', role);
-            if (role === 'NORMAL_USER') {
-                navigation.navigate('MainTab');
-            } else if (role === 'EMPLOYER_USER') {
-                navigation.navigate('HomeCompany');
-            } else {
-                console.warn('Unknown role:', role);
-                ToastMess({ type: 'error', text1: 'Vai trò không hợp lệ' });
-                dispatch(logout());
-            }
-        }
-    }, [user]);
-
-    useEffect(() => {
-        // Xử lý phản hồi từ GitHub OAuth
         if (response?.type === 'success') {
             const { code } = response.params;
-            handleGitHubCallback(code);
+            handleGithubCallback(code);
         } else if (response?.type === 'error') {
-            ToastMess({ type: 'error', text1: 'Đăng nhập GitHub thất bại' });
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
+            setGithubLoading(false);
         }
     }, [response]);
 
-    // Hàm xử lý đăng nhập GitHub
-    const handleLoginGithub = async () => {
-        if (!request) {
-            ToastMess({ type: 'error', text1: 'Đang tải cấu hình GitHub...' });
-            return;
-        }
+    const handleGithubCallback = async (code) => {
+        setGithubLoading(true);
         try {
+            const res = await API.get(endpoints['githubCallback'](code), {
+                headers: {
+                    Accept: 'application/json',
+                },
+            });
+            const { access_token, _id, email, name, role, avatar } = res.data.data;
+
+            // Create user object for consistency
+            const user = {
+                _id,
+                email,
+                name,
+                role, // { _id, name: "NORMAL_USER" }
+                avatar: avatar || 'https://via.placeholder.com/100',
+            };
+
+            await AsyncStorage.setItem("access_token", access_token);
+            dispatch(loginSuccess({ user }));
+
+            const roleName = role.name;
+            if (roleName === 'NORMAL_USER') {
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'MainTab', params: { screen: 'HomeClient' } }],
+                });
+            }
+        } catch (error) {
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
+        } finally {
+            setGithubLoading(false);
+        }
+    };
+
+    const handleLoginGithub = async () => {
+        try {
+            setGithubLoading(true);
             await promptAsync();
         } catch (error) {
-            console.error('GitHub login error:', error);
-            ToastMess({ type: 'error', text1: 'Lỗi khi khởi động đăng nhập GitHub' });
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
+            setGithubLoading(false);
         }
     };
 
-    // Hàm gửi code đến backend và nhận JWT
-    const handleGitHubCallback = async (code) => {
-        try {
-            const response = await axios.get('http://192.168.1.120:8000/auth/github/callback', {
-                params: { code },
-            });
-            const { accessToken, user } = response.data;
-
-            // Lưu token và thông tin người dùng
-            await AsyncStorage.setItem("access_token", accessToken);
-            dispatch(loginSuccess({ user }));
-        } catch (error) {
-            console.error('GitHub callback error:', error);
-            ToastMess({ type: 'error', text1: 'Lỗi khi xác thực GitHub' });
-        }
-    };
-
-    // Hàm xử lý đăng nhập bằng email/mật khẩu
     const handleLogin = async () => {
         setLoading(true);
         try {
@@ -105,21 +99,40 @@ export default function Login({ navigation }) {
                 'Content-Type': 'application/x-www-form-urlencoded',
             };
             let data = {
-                // username: email || '2151050202khoa@ou.edu.vn',
-                username: email || 'nguyenykhoa2405@gmail.com',
-
+                username: email || '2151050202khoa@ou.edu.vn',
                 password: password || '123456',
             };
             let res = await API.post(endpoints['login'], data, { headers: header });
-            const { access_token, ...user } = res.data.data;
-            await AsyncStorage.setItem("access_token", access_token);
+            const { access_token, _id, email, name, role, avatar } = res.data.data;
 
+            const user = {
+                _id,
+                email,
+                name,
+                role,
+                avatar: avatar || 'https://via.placeholder.com/100',
+            };
+
+            await AsyncStorage.setItem("access_token", access_token);
             dispatch(loginSuccess({ user }));
+
+            const roleName = role.name;
+            if (roleName === 'NORMAL_USER') {
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'MainTab', params: { screen: 'HomeClient' } }],
+                });
+            } else if (roleName === 'EMPLOYER_USER') {
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'HomeCompany' }],
+                });
+            }
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 ToastMess({ type: 'error', text1: 'Email hoặc mật khẩu không chính xác' });
             } else {
-                ToastMess({ type: 'error', text1: 'Có lỗi xảy ra khi đăng nhập' });
+                ToastMess({ type: 'error', text1: error.message || 'Có lỗi xảy ra khi đăng nhập' });
             }
         } finally {
             setLoading(false);
@@ -166,25 +179,32 @@ export default function Login({ navigation }) {
                         onPress={handleLogin}
                     />
                 )}
-
                 <View style={StyleShare.lineContainer}>
                     <View style={[StyleShare.line, { backgroundColor: white }]}></View>
                     <Text style={StyleShare.lineText}>hoặc đăng nhập bằng</Text>
                     <View style={[StyleShare.line, { backgroundColor: white }]}></View>
                 </View>
                 <View style={StyleShare.flexCenter}>
-                    <TouchableOpacity style={styles.optionLoginContainer} onPress={handleLoginGithub}>
-                        <Image
-                            source={require('../../assets/images/github.png')}
-                            style={styles.optionImage}
-                        />
+                    <TouchableOpacity
+                        style={styles.optionLoginContainer}
+                        onPress={handleLoginGithub}
+                        disabled={githubLoading}
+                    >
+                        {githubLoading ? (
+                            <ActivityIndicator color={orange} size={'large'} />
+                        ) : (
+                            <Image
+                                source={require('../../assets/images/github.png')}
+                                style={styles.optionImage}
+                            />
+                        )}
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.optionLoginContainer}>
+                    {/* <TouchableOpacity style={styles.optionLoginContainer}>
                         <Image
                             source={require('../../assets/images/google.png')}
                             style={styles.optionImage}
                         />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View>
                 <View style={StyleShare.flexCenter}>
                     <Text>Bạn chưa có tài khoản ? </Text>

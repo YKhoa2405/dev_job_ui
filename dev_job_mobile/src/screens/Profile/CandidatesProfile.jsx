@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Linking, FlatList } from "react-native";
+import { ScrollView, StyleSheet, View, Text, TouchableOpacity, Linking, FlatList } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import { mainColor, bgButton2, grey, orange, textColor, white } from "../../assets/themes/Color";
 import { Avatar } from "react-native-paper";
@@ -20,7 +20,7 @@ export default function CandidatesProfile({ navigation, route }) {
     const userId = route.params?.userId;
 
     const { cvData, status } = useSelector((state) => state.cv);
-    
+
     const primaryCvList = useMemo(() => cvData?.filter((cv) => cv.isPrimary) || [], [cvData]);
 
     useEffect(() => {
@@ -95,7 +95,7 @@ export default function CandidatesProfile({ navigation, route }) {
                             <Avatar.Image
                                 source={{ uri: candidate?.avatar || 'https://via.placeholder.com/60' }}
                                 size={60}
-                                style={{ backgroundColor: white }}
+
                             />
                         </View>
                         <Text style={StyleShare.titleText16}>{candidate?.fullName || 'Không có tên'}</Text>

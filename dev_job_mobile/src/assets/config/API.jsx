@@ -5,17 +5,13 @@ const HOST = 'http://192.168.1.120:8000';
 // const HOST = 'http://192.168.1.4:8000';
 
 
-
-
-
 export const endpoints = {
     // 
     'scanCV': 'http://192.168.1.120:8001/apip/extract',
     'recommend': 'http://192.168.1.120:8001/apip/recommend',
     // auths
     'login': '/auth/login',
-    'github': '/auth/github/',
-    'githubCallback': '/auth/github/callback',
+    'githubCallback': (code) => `/auth/github/callback?code=${code}`,
     // users
     'users': '/users',
     'listUsers': '/users/allUser',
@@ -25,7 +21,7 @@ export const endpoints = {
     'verify': '/users/verify',
     'registerUser': '/users/register',
     'uploadChat': '/files/uploadChat',
-    'saveFcmToken':'/users/saveFcmToken',
+    'saveFcmToken': '/users/saveFcmToken',
 
     // skills
     'skills': '/skills',

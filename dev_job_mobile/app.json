@@ -30,15 +30,30 @@
         "backgroundColor": "#ffffff"
       },
       "runtimeVersion": "1.0.0",
-      "permissions": ["RECEIVE_BOOT_COMPLETED", "VIBRATE"],
+      "permissions": [
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "ACCESS_FINE_LOCATION",
+        "RECORD_AUDIO"
+      ],
       "versionCode": 1,
+
       "intentFilters": [
         {
           "action": "VIEW",
           "data": [
             {
-              "scheme": "myapp",
+              "scheme": "devjob",
               "host": "auth"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        },
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "devjob"
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]

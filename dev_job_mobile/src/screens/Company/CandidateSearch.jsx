@@ -1,9 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, TouchableWithoutFeedback, Image, ActivityIndicator, SafeAreaViewBase } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, TouchableWithoutFeedback, Image, ActivityIndicator, SafeAreaViewBase } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons"
 import { mainColor, bgButton2, grey, orange, white } from "../../assets/themes/Color";
 import { Searchbar, Chip, Avatar } from "react-native-paper";
-import moment from "moment";
 import StyleShare from "../../assets/themes/StyleShare";
 import Dropdown from "../../components/Dropdown";
 import { authApi, endpoints } from "../../assets/config/API";
@@ -133,7 +132,7 @@ export default function CandidateSearch({ navigation, route }) {
         <TouchableWithoutFeedback key={item._id} onPress={() => { navigation.navigate('CandidatesProfile', { userId: item.userId }) }}>
             <View style={StyleShare.jobItemContainer}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Avatar.Image source={{ uri: item.avatar || 'https://via.placeholder.com/60' }} size={50} style={{ backgroundColor: 'white', marginRight: 5 }} />
+                    <Avatar.Image source={{ uri: item.avatar || 'https://via.placeholder.com/60' }} size={50} style={{  marginRight: 5 }} />
                     <View>
                         <Text style={StyleShare.titleText16}>{item.fullName}</Text>
                         <Text style={{ marginTop: 5 }}>{item.email}</Text>
