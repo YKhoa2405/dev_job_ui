@@ -25,7 +25,7 @@ export default function Input({ placeholder, onChangeText, value, isPassword }) 
                 <TouchableOpacity onPress={handlePass}>
                     <Icon
                         name={hidePassword ? 'visibility-off' : 'visibility'}
-                        size={24}
+                        size={20}
                         color={hidePassword ? '#888' : orange}
                     />
                 </TouchableOpacity>

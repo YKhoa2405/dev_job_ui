@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View, Text, TextInput, ActivityIndicator, TouchableOpacity } from "react-native";
+import { ScrollView, StyleSheet, View, Text, TextInput, ActivityIndicator, TouchableOpacity, Image } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import UIHeader from "../../components/UIHeader";
 import { grey, mainColor, orange, white } from "../../assets/themes/Color";
@@ -10,9 +10,10 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import DropDownPicker from 'react-native-dropdown-picker';
 import { ToastMess } from "../../components/ToastMess";
+import * as ImagePicker from 'expo-image-picker';
 
 export default function CandidatesCreate({ navigation, route }) {
-    const user = route.params?.user; // Lấy user từ route.params
+    const user = route.params?.user;
     const [loading, setLoading] = useState(false);
 
     const [provinces, setProvinces] = useState([]);
@@ -21,7 +22,8 @@ export default function CandidatesCreate({ navigation, route }) {
 
     const [selectedProvinceId, setSelectedProvinceId] = useState('');
     const [fullName, setFullName] = useState(user?.name || '');
-    const [avatar, setAvatar] = useState('');
+    const [avatar, setAvatar] = useState(user?.avatar || ''); // Store avatar URI or URL
+    const [avatarPreview, setAvatarPreview] = useState(user?.avatar || ''); // For previewing selected image
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState(user?.email || '');
     const [selectedSkills, setSelectedSkills] = useState([]);
@@ -71,36 +73,26 @@ export default function CandidatesCreate({ navigation, route }) {
     }, []);
 
     const fetchSkills = async (currentPage = 1, limit = 100) => {
-        try {
-            const res = await API.get(endpoints['skills'], {
-                params: { page: currentPage, limit: limit },
-            });
-            const formattedSkills = res.data.data.result.map(skill => ({
-                label: skill.name,
-                value: skill.name,
-            }));
-            setSkills(formattedSkills);
-        } catch (error) {
-            console.log('Error fetching skills:', error);
-        }
+        const res = await API.get(endpoints['skills'], {
+            params: { page: currentPage, limit: limit },
+        });
+        const formattedSkills = res.data.data.result.map(skill => ({
+            label: skill.name,
+            value: skill.name,
+        }));
+        setSkills(formattedSkills);
     };
 
     const fetchProvinces = async () => {
-        try {
-            const res = await axios.get('https://esgoo.net/api-tinhthanh/1/0.htm');
-            const provinceList = res.data.data.map(province => ({
-                title: province.full_name, // Hiển thị tên tỉnh/thành phố
-            }));
-            setProvinces(provinceList);
-        } catch (error) {
-            console.log('Error fetching provinces:', error);
-        }
+        const res = await axios.get('https://esgoo.net/api-tinhthanh/1/0.htm');
+        const provinceList = res.data.data.map(province => ({
+            title: province.full_name,
+        }));
+        setProvinces(provinceList);
     };
 
-
-
     const fetchCandidateDetail = async () => {
-        if (!user?._id) return; // Nếu không có user._id thì bỏ qua
+        if (!user?._id) return;
         setLoading(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
@@ -116,6 +108,8 @@ export default function CandidatesCreate({ navigation, route }) {
             setSalary(candidate.salary || '');
             setJobType(candidate.jobType || '');
             setAvailability(candidate.availability || '');
+            setAvatar(candidate.avatar || '');
+            setAvatarPreview(candidate.avatar || '');
         } catch (error) {
             console.log('Error fetching candidate detail:', error.response?.data || error.message);
         } finally {
@@ -123,36 +117,74 @@ export default function CandidatesCreate({ navigation, route }) {
         }
     };
 
-    const handleUpdateCandidate = async () => {
-        const candidateData = {
-            fullName: fullName || undefined,
-            phone: phone || undefined,
-            email,
-            location: selectedProvinceId || undefined, // location là tên tỉnh
-            skills: selectedSkills,
-            level: level || undefined,
-            salary: salary || undefined,
-            jobType: jobType || undefined,
-            availability: availability || undefined,
-        };
+    const handleUpdateAvatar = async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            ToastMess({ type: 'error', text1: 'Cần cấp quyền truy cập thư viện ảnh!' });
+            return;
+        }
 
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+            maxWidth: 500,
+            maxHeight: 500,
+        });
+
+        if (!result.canceled) {
+            const uri = result.assets[0].uri;
+            setAvatar(uri); // Store URI for upload
+            setAvatarPreview(uri); // Update preview
+        }
+    };
+
+    const handleUpdateCandidate = async () => {
         setLoading(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
+            const formData = new FormData();
+    
+            // Append text fields
+            formData.append('fullName', fullName || '');
+            formData.append('phone', phone || '');
+            formData.append('email', email || '');
+            formData.append('location', selectedProvinceId || '');
+            formData.append('level', level || '');
+            formData.append('salary', salary || '');
+            formData.append('jobType', jobType || '');
+            formData.append('availability', availability || '');
+    
+            // Append skills as individual entries
+            selectedSkills.forEach((skill) => {
+                formData.append('skills[]', skill); // Use 'skills[]' to indicate an array
+            });
+    
+            // Append avatar if selected
+            if (avatar && avatar.startsWith('file://')) {
+                const fileName = avatar.split('/').pop();
+                formData.append('avatar', {
+                    uri: avatar,
+                    name: fileName || 'avatar.jpg',
+                    type: 'image/jpeg',
+                });
+            }
+    
             const res = await authApi(token).patch(
                 endpoints['candidateDetail'](user._id),
-                candidateData,
+                formData,
                 {
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'multipart/form-data' },
                 }
             );
+    
             ToastMess({ type: 'success', text1: 'Cập nhật ứng viên thành công.' });
             if (res.data.statusCode === 200) {
                 navigation.goBack();
             }
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
-            console.log('Error updating candidate:', error.response?.data || error.message);
         } finally {
             setLoading(false);
         }
@@ -167,6 +199,17 @@ export default function CandidatesCreate({ navigation, route }) {
             />
             <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled>
                 <View style={styles.containerMain}>
+                    {/* Avatar Section */}
+                    <Text style={styles.textInput}>Ảnh đại diện</Text>
+                    <TouchableOpacity onPress={handleUpdateAvatar} style={styles.avatarContainer}>
+                        {avatarPreview ? (
+                            <Image source={{ uri: avatarPreview }} style={styles.avatar} />
+                        ) : (
+                            <View style={styles.avatarPlaceholder}>
+                                <Text style={styles.avatarPlaceholderText}>Chọn ảnh</Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
 
                     <Text style={styles.textInput}>Họ tên</Text>
                     <TextInput
@@ -200,7 +243,7 @@ export default function CandidatesCreate({ navigation, route }) {
                         onSelect={(item) => setSelectedProvinceId(item.title)}
                         placeholder="Chọn tỉnh/thành phố"
                         buttonStyle={{ width: '100%', height: 50 }}
-                        defaultValue={selectedProvinceId} // Hiển thị giá trị mặc định
+                        defaultValue={selectedProvinceId}
                     />
 
                     <Text style={styles.textInput}>Kỹ năng</Text>
@@ -238,7 +281,7 @@ export default function CandidatesCreate({ navigation, route }) {
                                 onSelect={(item) => setSalary(item.title)}
                                 placeholder="Chọn mức lương"
                                 buttonStyle={{ height: 50 }}
-                                defaultValue={salary} // Hiển thị giá trị mặc định
+                                defaultValue={salary}
                             />
                         </View>
                         <View style={{ flex: 1, marginLeft: 20 }}>
@@ -248,7 +291,7 @@ export default function CandidatesCreate({ navigation, route }) {
                                 onSelect={(item) => setLevel(item.title)}
                                 placeholder="Chọn level"
                                 buttonStyle={{ height: 50 }}
-                                defaultValue={level} // Hiển thị giá trị mặc định
+                                defaultValue={level}
                             />
                         </View>
                     </View>
@@ -261,7 +304,7 @@ export default function CandidatesCreate({ navigation, route }) {
                                 onSelect={(item) => setJobType(item.title)}
                                 placeholder="Chọn loại hình"
                                 buttonStyle={{ height: 50 }}
-                                defaultValue={jobType} // Hiển thị giá trị mặc định
+                                defaultValue={jobType}
                             />
                         </View>
                         <View style={{ flex: 1, marginLeft: 20 }}>
@@ -271,7 +314,7 @@ export default function CandidatesCreate({ navigation, route }) {
                                 onSelect={(item) => setAvailability(item.title)}
                                 placeholder="Chọn trạng thái"
                                 buttonStyle={{ height: 50 }}
-                                defaultValue={availability} // Hiển thị giá trị mặc định
+                                defaultValue={availability}
                             />
                         </View>
                     </View>
@@ -309,5 +352,30 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 15,
         backgroundColor: white,
+    },
+    avatarContainer: {
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    avatar: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        borderWidth: 2,
+        borderColor: mainColor,
+    },
+    avatarPlaceholder: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        backgroundColor: grey,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: mainColor,
+    },
+    avatarPlaceholderText: {
+        color: mainColor,
+        fontWeight: '500',
     },
 });

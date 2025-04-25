@@ -19,7 +19,6 @@ export default function Login({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false); // For email/password login
-    const [githubLoading, setGithubLoading] = useState(false); // For GitHub login
     const dispatch = useDispatch();
 
     const redirectUri = AuthSession.makeRedirectUri({
@@ -42,12 +41,10 @@ export default function Login({ navigation }) {
             handleGithubCallback(code);
         } else if (response?.type === 'error') {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
-            setGithubLoading(false);
         }
     }, [response]);
 
     const handleGithubCallback = async (code) => {
-        setGithubLoading(true);
         try {
             const res = await API.get(endpoints['githubCallback'](code), {
                 headers: {
@@ -61,7 +58,7 @@ export default function Login({ navigation }) {
                 _id,
                 email,
                 name,
-                role, // { _id, name: "NORMAL_USER" }
+                role,
                 avatar: avatar || 'https://via.placeholder.com/100',
             };
 
@@ -77,18 +74,14 @@ export default function Login({ navigation }) {
             }
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
-        } finally {
-            setGithubLoading(false);
         }
     };
 
     const handleLoginGithub = async () => {
         try {
-            setGithubLoading(true);
             await promptAsync();
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
-            setGithubLoading(false);
         }
     };
 
@@ -99,7 +92,8 @@ export default function Login({ navigation }) {
                 'Content-Type': 'application/x-www-form-urlencoded',
             };
             let data = {
-                username: email || '2151050202khoa@ou.edu.vn',
+                // username: email || '2151050202khoa@ou.edu.vn',
+                username: 'nykhoa2405@gmail.com',
                 password: password || '123456',
             };
             let res = await API.post(endpoints['login'], data, { headers: header });
@@ -132,7 +126,7 @@ export default function Login({ navigation }) {
             if (error.response && error.response.status === 400) {
                 ToastMess({ type: 'error', text1: 'Email hoặc mật khẩu không chính xác' });
             } else {
-                ToastMess({ type: 'error', text1: error.message || 'Có lỗi xảy ra khi đăng nhập' });
+                ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
             }
         } finally {
             setLoading(false);
@@ -188,23 +182,12 @@ export default function Login({ navigation }) {
                     <TouchableOpacity
                         style={styles.optionLoginContainer}
                         onPress={handleLoginGithub}
-                        disabled={githubLoading}
                     >
-                        {githubLoading ? (
-                            <ActivityIndicator color={orange} size={'large'} />
-                        ) : (
-                            <Image
-                                source={require('../../assets/images/github.png')}
-                                style={styles.optionImage}
-                            />
-                        )}
-                    </TouchableOpacity>
-                    {/* <TouchableOpacity style={styles.optionLoginContainer}>
                         <Image
-                            source={require('../../assets/images/google.png')}
+                            source={require('../../assets/images/github.png')}
                             style={styles.optionImage}
                         />
-                    </TouchableOpacity> */}
+                    </TouchableOpacity>
                 </View>
                 <View style={StyleShare.flexCenter}>
                     <Text>Bạn chưa có tài khoản ? </Text>

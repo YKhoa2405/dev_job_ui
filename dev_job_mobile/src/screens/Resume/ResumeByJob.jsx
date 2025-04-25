@@ -45,8 +45,8 @@ export default function ResumeByJob({ navigation, route }) {
                 const params = {
                     companyId: jobDetail.companyId._id,
                     location: jobDetail.city || null,
-                    // skills: jobDetail.skills?.length > 0 ? jobDetail.skills.join(',') : null,
-                    // level: jobDetail.level || null,
+                    skills: jobDetail.skills?.length > 0 ? jobDetail.skills.join(',') : null,
+                    level: jobDetail.level || null,
                     // salary: jobDetail.salary || null,
                     // jobType: jobDetail.jobType || null,
                 };

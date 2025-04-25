@@ -93,7 +93,6 @@ export default function ResumeApply({ navigation, route }) {
             }
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
-            console.log(error.message)
         } finally {
             setLoading(false)
         }
@@ -171,14 +170,14 @@ export default function ResumeApply({ navigation, route }) {
                     <Text style={StyleShare.titleText16}>Thông tin</Text>
 
                     <View style={{ marginTop: 20 }}>
-                        <Text>Họ và tên</Text>
+                        <Text>Họ và tên <Text style={{ color: 'red' }}>*</Text></Text>
                         <TextInput
                             placeholder="Nhập họ và tên"
                             value={name}
                             onChangeText={(text) => setName(text)}
                             style={styles.inputUploadCV}
                         />
-                        <Text>Email</Text>
+                        <Text>Email <Text style={{ color: 'red' }}>*</Text></Text>
                         <TextInput
                             placeholder="Nhập địa chỉ Email"
                             value={email}
@@ -187,7 +186,7 @@ export default function ResumeApply({ navigation, route }) {
                             keyboardType="email-address"
                             autoCapitalize="none"
                         />
-                        <Text>Số điện thoại</Text>
+                        <Text>Số điện thoại <Text style={{ color: 'red' }}>*</Text></Text>
                         <TextInput
                             placeholder="Nhập số điện thoại"
                             value={phone}
@@ -272,7 +271,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: bgButton2,
         paddingHorizontal: 10,
-        paddingVertical: 10,
+        paddingVertical: 15,
         marginTop: 5,
         marginBottom: 10,
         borderRadius: 10

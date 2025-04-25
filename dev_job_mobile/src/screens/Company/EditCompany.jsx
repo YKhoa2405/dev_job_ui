@@ -6,12 +6,11 @@ import {
     ScrollView,
     TextInput,
     TouchableOpacity,
-    ActivityIndicator,
     Image,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import StyleShare from "../../assets/themes/StyleShare";
-import { mainColor, bgButton2, grey, textColor, white, orange } from "../../assets/themes/Color";
+import { mainColor, bgButton2, grey, white } from "../../assets/themes/Color";
 import UIHeader from "../../components/UIHeader";
 import Icon from "react-native-vector-icons/Ionicons";
 import { fetchCompanyByUser } from "../../redux/slice/companySlice";

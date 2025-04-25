@@ -11,8 +11,6 @@ import 'moment/locale/vi';
 export default function Profile({ navigation }) {
     const dispatch = useDispatch()
     const user = useSelector((state) => state.user.user)
-
-
     const aboutApp = [
         { id: 1, icon: 'business', title: 'Về HeyJob' },
         { id: 2, icon: 'book', title: 'Điều khoản và dịch vụ' },
@@ -25,8 +23,6 @@ export default function Profile({ navigation }) {
         { id: 2, icon: 'briefcase', title: 'Việc làm đã ứng tuyển', },
         { id: 3, icon: 'business', title: 'Công ty đang theo dõi', },
     ]
-
-
 
     const handleManageJobClick = (id) => {
         switch (id) {
@@ -59,7 +55,6 @@ export default function Profile({ navigation }) {
                         </View>
                         <View style={[StyleShare.flexBetween, { marginTop: 10 }]}>
                             <Text style={{ paddingRight: 10, fontWeight: '500' }}>{item.title}</Text>
-                            {/* <Text style={StyleShare.textMainOption}>{item.info}</Text> */}
 
                         </View>
                     </View>
@@ -78,7 +73,7 @@ export default function Profile({ navigation }) {
                     <View style={StyleShare.flexBetween}>
 
                         <Avatar.Image
-                            source={{ uri: user?.avatar }} // Placeholder nếu không có avatar
+                            source={{ uri: user?.avatar }}
                             size={60}
                             style={{ marginLeft: 40, marginRight: 20 }}
                         />

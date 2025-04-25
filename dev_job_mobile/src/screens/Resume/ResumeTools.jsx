@@ -35,7 +35,6 @@ export default function ResumeTools({ navigation }) {
     }, [dispatch]);
 
 
-
     const handleUploadCV = async () => {
         setLoading(true);
         try {
@@ -69,10 +68,8 @@ export default function ResumeTools({ navigation }) {
             } else {
                 ToastMess({ type: 'error', text1: 'Chỉ hỗ trợ định dạng pdf, docx' });
             }
-
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
-            console.log(error);
         } finally {
             setLoading(false);
         }
