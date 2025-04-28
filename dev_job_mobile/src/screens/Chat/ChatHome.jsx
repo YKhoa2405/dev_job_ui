@@ -197,7 +197,7 @@ export default function ChatHome({ navigation, route }) {
 
             <TouchableOpacity
                 style={styles.chatBotContainer}
-                onPress={() => navigation.navigate("ChatBot", { userId: currentUserId })}
+                onPress={() => navigation.navigate("ChatBot", { senderId: currentUserId })}
                 activeOpacity={0.8}
             >
                 <Avatar.Image

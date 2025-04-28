@@ -106,7 +106,8 @@ export const endpoints = {
     // Chat
     'getMessages': (senderId, recipientId) => `/chat/messages?senderId=${senderId}&recipientId=${recipientId}`,
     'chatRooms': (currentUserId) => `/chat/rooms?userId=${currentUserId}`,
-    'chatUploadFile': '/chat/upload'
+    'chatUploadFile': '/chat/upload',
+    'chatbot': 'chat/chatbot',
 
 
 
