@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-// const HOST = 'http://localhost:3000';
-const HOST = 'http://192.168.1.120:8000';
-// const HOST = 'http://192.168.1.4:8000';
+// const HOST = 'http://192.168.1.120:8000';
+const HOST = 'https://devjob-yo64.onrender.com';
+
+
 
 
 export const endpoints = {
@@ -29,8 +30,9 @@ export const endpoints = {
 
     // subscribers
     'subscribers': '/subscribers',
+    'subscribersUser': '/subscribers/user',
     'subscribersDetail': (subId) => `/subscribers/${subId}`,
-
+ 
     // suggestions
     'suggestions': '/suggestions',
     'popularSuggestions': '/suggestions/popular',

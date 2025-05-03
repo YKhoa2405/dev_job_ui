@@ -34,11 +34,11 @@ export default function Subscribers({ navigation, route }) {
     };
 
     // Danh sách tùy chọn lịch trình
-    const scheduleOptions = [
+    const [scheduleOptions, setScheduleOptions] = useState([
         { label: "Mỗi ngày", value: "daily" },
         { label: "Thứ 4 hàng tuần", value: "wednesday" },
         { label: "Thứ 7 hàng tuần", value: "saturday" },
-    ];
+    ]);
 
     useEffect(() => {
         fetchListSub();
@@ -54,7 +54,7 @@ export default function Subscribers({ navigation, route }) {
         setLoading(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
-            const res = await authApi(token).get(endpoints['subscribers']);
+            const res = await authApi(token).get(endpoints['subscribersUser']);
             const data = res.data.data;
             setSub(data.result);
         } catch (error) {
@@ -232,7 +232,7 @@ export default function Subscribers({ navigation, route }) {
                         items={scheduleOptions}
                         setOpen={setOpenSchedule}
                         setValue={setNotificationSchedule}
-                        setItems={() => { }} // Không cần cập nhật danh sách tĩnh
+                        setItems={setScheduleOptions}
                         placeholder="Chọn lịch nhận thông báo"
                         listMode="SCROLLVIEW"
                         style={{
@@ -248,8 +248,9 @@ export default function Subscribers({ navigation, route }) {
                             maxHeight: 150,
                         }}
                         textStyle={{ fontWeight: '500' }}
-                        zIndex={1000} // Đảm bảo không bị chồng lấn với DropDownPicker kỹ năng
+                        zIndex={1000}
                     />
+
                     <View style={{ marginTop: 20 }} />
                     <Button
                         title={'Đăng ký'}

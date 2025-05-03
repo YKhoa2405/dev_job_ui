@@ -27,7 +27,6 @@ export default function ChatSocket({ route, navigation }) {
     const { recipient, senderId } = route.params;
     const [messages, setMessages] = useState([]);
     const [socket, setSocket] = useState(null);
-    // console.log(recipient, senderId)
 
     useEffect(() => {
         const socketIo = io("http://192.168.1.120:8000", { transports: ["websocket"] });
