@@ -3,6 +3,7 @@ import Chart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
 import { authApi, endpoints } from '../../common/API';
 import Loading from '../../common/Loader/Loading';
+import { Link } from 'react-router-dom';
 
 // Định nghĩa interface
 interface OverviewData {
@@ -164,6 +165,20 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
+      {/* <div className="rounded-xl border border-stroke bg-white shadow-xl dark:border-strokedark dark:bg-boxdark px-8 py-8 mb-10 transition-all hover:shadow-2xl">
+        <div className="flex justify-between items-center mb-6">
+          <h4 className="text-2xl font-bold text-gray-800 dark:text-white border-b-2 pb-3 border-blue-100 dark:border-blue-900">
+            Tác vụ
+          </h4>
+        </div>
+        <Link
+          to="/admin/notifications"
+          className="px-4 py-2 bg-primary text-white rounded hover:bg-opacity-90 transition-all duration-200"
+        >
+        Quản lý thông báo
+        </Link>
+      </div> */}
+
       {/* Tổng quan hệ thống */}
       <div className="rounded-xl border border-stroke bg-white shadow-xl dark:border-strokedark dark:bg-boxdark px-8 py-8 mb-10 transition-all hover:shadow-2xl">
         <div className="flex justify-between items-center mb-6">

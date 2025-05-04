@@ -63,6 +63,11 @@ export const endpoints = {
     // report
     'reportByJob': (jobId: string) => `/reports/job/${jobId}`,
     'reportDetail': (reportId: string) => `/reports/${reportId}`,
+
+    // notifications
+    'notifications': '/notifications',
+    'notificationDetail': (notificationId: string) => `/notifications/${notificationId}`,
+    'notificationCreateAdmin': '/notifications/group',
 };
 
 export const authApi = (accessToken: any) => {

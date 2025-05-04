@@ -25,6 +25,8 @@ import CandidatesDetail from './pages/Candidates/CandidatesDetail';
 import CandidatesEdit from './pages/Candidates/CandidatesEdit';
 import Orders from './pages/Orders/Order';
 import Loader from './common/Loader';
+import NotificationCreate from './pages/Notifications/NotificationCreate';
+import Notifications from './pages/Notifications/Notifications';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -250,6 +252,26 @@ function App() {
             <>
               <PageTitle title="Vai trò" />
               <Roles />
+            </>
+          }
+        />
+
+        {/* Notification */}
+        <Route
+          path="/admin/notifications"
+          element={
+            <>
+              <PageTitle title="Danh sách thông báo" />
+              <Notifications />
+            </>
+          }
+        />
+        <Route
+          path="/admin/notifications/create"
+          element={
+            <>
+              <PageTitle title="Tạo thông báo" />
+              <NotificationCreate />
             </>
           }
         />
