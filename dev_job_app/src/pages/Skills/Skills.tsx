@@ -453,18 +453,15 @@ const Skills = () => {
 
           <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
             <div className="col-span-2 flex items-center">
-              <p className="font-medium">Mã công nghệ</p>
-            </div>
-            <div className="col-span-2 hidden items-center sm:flex">
               <p className="font-medium">Tên công nghệ</p>
             </div>
-            <div className="col-span-2 hidden items-center sm:flex">
+            <div className="col-span-2 flex items-center">
               <p className="font-medium">Nhóm</p>
             </div>
-            <div className="col-span-1 hidden sm:flex items-center">
+            <div className="col-span-2 flex items-center">
               <p className="font-medium">Phổ biến</p>
             </div>
-            <div className="col-span-1 hidden sm:flex items-center">
+            <div className="col-span-2 hidden sm:flex items-center">
               <p className="font-medium">Hành động</p>
             </div>
           </div>
@@ -478,19 +475,16 @@ const Skills = () => {
                   className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
                   key={item._id}
                 >
-                  <div className="col-span-2 hidden items-center sm:flex">
-                    <p className="text-sm text-blue-600">{item._id}</p>
-                  </div>
-                  <div className="col-span-2 hidden items-center sm:flex">
+                  <div className="col-span-2  items-center">
                     <p className="text-sm text-black">{item.name}</p>
                   </div>
-                  <div className="col-span-2 hidden items-center sm:flex">
+                  <div className="col-span-2  items-center">
                     <p className="text-sm text-black">{item.category}</p>
                   </div>
-                  <div className="col-span-1 hidden items-center sm:flex">
+                  <div className="col-span-2  items-center ">
                     <p className="text-sm text-black">{item.popularity}</p>
                   </div>
-                  <div className="col-span-1 hidden sm:flex items-center">
+                  <div className="col-span-2 hidden sm:flex items-center">
                     <div className="flex items-center space-x-3.5">
                       <button
                         onClick={() => handleDeleteSkills(item._id)}

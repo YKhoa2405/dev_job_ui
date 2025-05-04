@@ -59,7 +59,7 @@ const Jobs = () => {
   const fetchListJob = async (currentPage = 1, limit = 10, name = '', salary = '', level = '') => {
     setLoading(true)
     const searchQuery = {
-      name: name ? `/${name}/i` : '', 
+      name: name ? `/${name}/i` : '',
       salary: salary ? salary : '',
       level: level ? level : ''
     };
@@ -214,7 +214,7 @@ const Jobs = () => {
             <div className="col-span-2 flex items-center">
               <p className="font-medium">Tiêu đề</p>
             </div>
-            <div className="col-span-2 flex items-center">
+            <div className="col-span-2 items-center sm:flex hidden">
               <p className="font-medium">Công ty</p>
             </div>
             <div className="col-span-1 hidden items-center sm:flex">

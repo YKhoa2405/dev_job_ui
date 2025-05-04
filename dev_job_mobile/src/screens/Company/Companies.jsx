@@ -58,7 +58,6 @@ export default function Companies({ navigation }) {
                 },
             });
             const data = res.data.data;
-            console.log(data.result)
             setCompanyData(data.result); // Update company data
             setCurrentPage(data.meta.currentPage); // Update the current page from API response
             setTotalPages(data.meta.totalPages); // Update the total pages from API response

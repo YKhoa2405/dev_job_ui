@@ -28,7 +28,7 @@ const Notification = ({ navigation, route }) => {
   const [totalItems, setTotalItems] = useState(0);
 
   // Khởi tạo WebSocket
-  const socket = io("http://192.168.1.120:8000", {
+  const socket = io("https://devjob-yo64.onrender.com", {
     transports: ["websocket"],
     reconnection: true,
     reconnectionAttempts: 5,

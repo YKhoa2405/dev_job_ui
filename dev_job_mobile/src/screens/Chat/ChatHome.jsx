@@ -40,7 +40,7 @@ export default function ChatHome({ navigation, route }) {
     };
 
     useEffect(() => {
-        const socketIo = io("http://192.168.1.120:8000", { transports: ["websocket"] });
+        const socketIo = io("https://devjob-yo64.onrender.com", { transports: ["websocket"] });
         setSocket(socketIo);
 
         socketIo.on("receiveMessage", (data) => {

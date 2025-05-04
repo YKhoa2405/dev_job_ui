@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom'; // Thêm Navigate
 
 import PageTitle from './components/PageTitle';
 import DefaultLayout from './layout/DefaultLayout';
-
 
 import Roles from './pages/Roles';
 import CreateJobs from './pages/Jobs/CreateJobs';
@@ -25,8 +24,7 @@ import Candidates from './pages/Candidates/Candidats';
 import CandidatesDetail from './pages/Candidates/CandidatesDetail';
 import CandidatesEdit from './pages/Candidates/CandidatesEdit';
 import Orders from './pages/Orders/Order';
-
-
+import Loader from './common/Loader';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -40,71 +38,105 @@ function App() {
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
-  // return loading ? (
-  //   <Loader />
-  // ) : (
-  // );
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
-
     <DefaultLayout>
-
       <Routes>
+        <Route path="/" element={<Navigate to="/auth/login" replace />} />
+
         <Route
           path="/dashboard"
-          element={<>
-            <PageTitle title="Bảng điều khiển" />
-            <Dashboard /></>
-          } />
+          element={
+            <>
+              <PageTitle title="Bảng điều khiển" />
+              <Dashboard />
+            </>
+          }
+        />
 
         <Route
           path="/auth/login"
-          element={<>
-            <PageTitle title="Đăng nhập tài khoản" />
-            <Login /></>
-          } />
+          element={
+            <>
+              <PageTitle title="Đăng nhập tài khoản" />
+              <Login />
+            </>
+          }
+        />
 
         <Route
           path="/auth/register"
-          element={<>
-            <PageTitle title="Đăng ký tài khoản" />
-            <Register /></>
-          } />
+          element={
+            <>
+              <PageTitle title="Đăng ký tài khoản" />
+              <Register />
+            </>
+          }
+        />
+
         {/* USer */}
         <Route
           path="/admin/users"
-          element={<>
-            <PageTitle title="Người dùng" />
-            <Users /></>} />
+          element={
+            <>
+              <PageTitle title="Người dùng" />
+              <Users />
+            </>
+          }
+        />
 
         {/* Candidates */}
         <Route
           path="/admin/candidates"
-          element={<>
-            <PageTitle title="Ứng viên tìm việc" />
-            <Candidates /></>} />
+          element={
+            <>
+              <PageTitle title="Ứng viên tìm việc" />
+              <Candidates />
+            </>
+          }
+        />
         <Route
           path="/admin/candidates/:id/detail"
-          element={<>
-            <PageTitle title="Chi tiết ứng viên" />
-            <CandidatesDetail /></>} />
+          element={
+            <>
+              <PageTitle title="Chi tiết ứng viên" />
+              <CandidatesDetail />
+            </>
+          }
+        />
         <Route
           path="/admin/candidates/:id/edit"
-          element={<>
-            <PageTitle title="Chỉnh sửa ứng viên" />
-            <CandidatesEdit /></>} />
+          element={
+            <>
+              <PageTitle title="Chỉnh sửa ứng viên" />
+              <CandidatesEdit />
+            </>
+          }
+        />
+
         {/* Companies */}
         <Route
           path="/admin/companies"
-          element={<>
-            <PageTitle title="Công ty" />
-            <Companies /></>} />
+          element={
+            <>
+              <PageTitle title="Công ty" />
+              <Companies />
+            </>
+          }
+        />
 
         <Route
           path="/admin/companies/create"
-          element={<>
-            <PageTitle title="Thêm mới công ty" />
-            <CreateCompany /></>} />
+          element={
+            <>
+              <PageTitle title="Thêm mới công ty" />
+              <CreateCompany />
+            </>
+          }
+        />
 
         <Route
           path="/admin/companies/:id/edit"
@@ -129,67 +161,101 @@ function App() {
         {/* Jobs */}
         <Route
           path="/admin/jobs"
-          element={<>
-            <PageTitle title="Tin tuyển dụng" />
-            <Jobs /></>} />
+          element={
+            <>
+              <PageTitle title="Tin tuyển dụng" />
+              <Jobs />
+            </>
+          }
+        />
 
         <Route
           path="/admin/jobs/create"
-          element={<>
-            <PageTitle title="Thêm tin tuyển dụng" />
-            <CreateJobs /></>} />
+          element={
+            <>
+              <PageTitle title="Thêm tin tuyển dụng" />
+              <CreateJobs />
+            </>
+          }
+        />
 
         <Route
           path="/admin/jobs/:id"
           element={
             <>
               <PageTitle title="Chi tiết tin tuyển dụng" />
-              <EditJobs /> </>} />
+              <EditJobs />
+            </>
+          }
+        />
 
-        {/* resume */}
+        {/* Resume */}
         <Route
           path="/admin/resumes"
-          element={<>
-            <PageTitle title="Ứng tuyển" />
-            <Resumes /></>} />
+          element={
+            <>
+              <PageTitle title="Ứng tuyển" />
+              <Resumes />
+            </>
+          }
+        />
 
-        {/* service */}
+        {/* Service */}
         <Route
           path="/admin/services"
-          element={<>
-            <PageTitle title="Dịch vụ" />
-            <Services /></>} />
+          element={
+            <>
+              <PageTitle title="Dịch vụ" />
+              <Services />
+            </>
+          }
+        />
 
         <Route
           path="/admin/services/create"
-          element={<>
-            <PageTitle title="Thêm mới dịch vụ" />
-            <CreateService /></>} />
+          element={
+            <>
+              <PageTitle title="Thêm mới dịch vụ" />
+              <CreateService />
+            </>
+          }
+        />
 
-        {/* ORder */}
+        {/* Order */}
         <Route
           path="/admin/orders"
-          element={<>
-            <PageTitle title="Đơn hàng" />
-            <Orders /></>} />
+          element={
+            <>
+              <PageTitle title="Đơn hàng" />
+              <Orders />
+            </>
+          }
+        />
 
         {/* Skill */}
         <Route
           path="/admin/skills"
-          element={<>
-            <PageTitle title="Kĩ năng" />
-            <Skills /></>} />
+          element={
+            <>
+              <PageTitle title="Kĩ năng" />
+              <Skills />
+            </>
+          }
+        />
 
-        {/* role */}
+        {/* Role */}
         <Route
           path="/admin/roles"
-          element={<>
-            <PageTitle title="Vai trò" />
-            <Roles /></>} />
-
+          element={
+            <>
+              <PageTitle title="Vai trò" />
+              <Roles />
+            </>
+          }
+        />
       </Routes>
     </DefaultLayout>
-  )
+  );
 }
 
 export default App;

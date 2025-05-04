@@ -4,7 +4,7 @@ import API, { authApi, endpoints } from '../../common/API';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { Fragment, useEffect, useState } from 'react';
 import moment from "moment";
-import "moment/locale/vi"; // Đảm bảo ngôn ngữ tiếng Việt được import
+import "moment/locale/vi";
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import Loading from '../../common/Loader/Loading';

@@ -29,7 +29,7 @@ export default function ChatSocket({ route, navigation }) {
     const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-        const socketIo = io("http://192.168.1.120:8000", { transports: ["websocket"] });
+        const socketIo = io("https://devjob-yo64.onrender.com", { transports: ["websocket"] });
         socketIo.on("receiveMessage", (data) => {
             const newMessage = {
                 _id: data._id, // Dùng _id từ server
