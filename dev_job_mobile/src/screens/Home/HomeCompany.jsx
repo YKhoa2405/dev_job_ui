@@ -56,7 +56,7 @@ export default function HomeCompany({ navigation }) {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.gridItemUtili}
-        onPress={() => navigation.navigate("ChatHome", { currentUserId: companyByUser.userId })}
+        onPress={() => navigation.navigate("ChatHome", { currentUserId: companyByUser.userId, roleName: 'company' })}
       >
         <Icon name={"chatbubble-outline"} size={20} color={mainColor} />
 

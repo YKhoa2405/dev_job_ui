@@ -7,7 +7,7 @@ import Button from "../../components/Button";
 import API, { endpoints } from "../../assets/config/API";
 import { ToastMess } from "../../components/ToastMess";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { loginSuccess } from "../../redux/slice/userSlice";
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';

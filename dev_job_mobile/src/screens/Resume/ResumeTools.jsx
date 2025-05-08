@@ -17,6 +17,8 @@ import API, { authApi, endpoints } from "../../assets/config/API";
 import { fetchListCvByUser } from "../../redux/slice/cvSLice";
 import Modal from 'react-native-modal';
 import * as FileSystem from 'expo-file-system';
+import AlertBanner from "../../components/AlertBanner";
+
 
 export default function ResumeTools({ navigation }) {
     const dispatch = useDispatch()
@@ -266,7 +268,9 @@ export default function ResumeTools({ navigation }) {
                 </View>
                 <View>
                     <Text style={StyleShare.titleText16}>Cv của bạn</Text>
+
                     <View style={{ marginTop: 15 }}>
+                    <AlertBanner message={"CV chính của bạn sẽ hiển thị với nhà tuyển dụng."} type={'info'} />
                         {cvData && cvData.length > 0 ? (
                             <>
                                 {cvData.map((item) => (

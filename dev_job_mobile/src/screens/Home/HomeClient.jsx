@@ -28,16 +28,13 @@ export default function HomeClient({ navigation }) {
   const [jobRecommendList, setJobRecommendList] = useState([]);
   const [jobUrgentList, setJobUrgentList] = useState([]);
 
-  console.log(fcmToken)
-
-
   useEffect(() => {
     if (currentUser?._id) {
       fetchJobUrgent();
       fetchRecommendedJobs(currentUser?._id);
       saveFcmToken();
     } else {
-      setLoading(false); // Tắt loading nếu không có user
+      setLoading(false);
     }
   }, [currentUser?._id]);
 
@@ -199,7 +196,7 @@ export default function HomeClient({ navigation }) {
               </View>
               <TouchableOpacity
                 style={styles.iconButton}
-                onPress={() => navigation.navigate('ChatHome', { currentUserId: currentUser?._id })}
+                onPress={() => navigation.navigate('ChatHome', { currentUserId: currentUser?._id, roleName: 'client' })}
               >
                 <Icon name="chatbubble-outline" size={24} color={white} />
               </TouchableOpacity>
@@ -241,7 +238,6 @@ export default function HomeClient({ navigation }) {
             windowSize={3} // Giảm kích thước cửa sổ render
           />
         </View>
-
         {/* Việc làm hấp dẫn */}
         <View style={{ marginTop: 30 }}>
           <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>

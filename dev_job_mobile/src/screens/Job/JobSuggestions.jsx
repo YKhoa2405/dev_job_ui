@@ -16,7 +16,6 @@ import moment from 'moment';
 
 export default function JobSuggestions({ navigation, route }) {
     const { title, api } = route.params;
-    console.log(api)
     const [searchKeywork, setSearchKeywork] = useState('')
     const [isModalVisible, setModalVisible] = useState(false);
     const [level, setLevel] = useState(null)

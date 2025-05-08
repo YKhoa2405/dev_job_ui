@@ -21,7 +21,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
 
 export default function ChatHome({ navigation, route }) {
-    const { currentUserId } = route.params;
+    const { currentUserId, roleName } = route.params;
 
     const [searchKeywork, setSearchKeywork] = useState("");
     const [loading, setLoading] = useState(true);
@@ -175,7 +175,7 @@ export default function ChatHome({ navigation, route }) {
                         value={searchKeywork}
                         onChangeText={(text) => setSearchKeywork(text)}
                         onSubmitEditing={() => {
-                            
+
                         }}
                     />
                 </View>
@@ -194,18 +194,20 @@ export default function ChatHome({ navigation, route }) {
                     }
                 />
             </View>
+            {roleName === 'client' && (
 
-            <TouchableOpacity
-                style={styles.chatBotContainer}
-                onPress={() => navigation.navigate("ChatBot", { senderId: currentUserId })}
-                activeOpacity={0.8}
-            >
-                <Avatar.Image
-                    source={require("../../assets/images/happy.png")}
-                    size={60}
-                    style={styles.chatBotAvatar}
-                />
-            </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.chatBotContainer}
+                    onPress={() => navigation.navigate("ChatBot", { senderId: currentUserId })}
+                    activeOpacity={0.8}
+                >
+                    <Avatar.Image
+                        source={require("../../assets/images/happy.png")}
+                        size={60}
+                        style={styles.chatBotAvatar}
+                    />
+                </TouchableOpacity>
+            )}
         </View>
     );
 }

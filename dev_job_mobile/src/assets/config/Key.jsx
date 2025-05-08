@@ -1,5 +1,3 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
 
 // Map
 export const client_id_api = "SC93qLAKpYHvP5G5tz0hOwuXOznK3jTnyte3YpKe"
@@ -12,18 +10,3 @@ export const api_key_gemini = "AIzaSyCJbQIrPPeWjdEXlNAZITcUfyWlWAOvp90";
 export const api_key_speech = "AIzaSyCJbQIrPPeWjdEXlNAZIT1ahvACXLLoMmE3Umxiq9wDfneS93QCnObP09K3ebGh7wk3IjpH5QJQQJ99BCAC3pKaRXJ3w3AAAYACOGkqDOcUfyWlWAOvp90";
 
 export const github_client_id = "Ov23linSRUtRzaebNvHn"
-
-// Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyDFRUrMi8QbQmzrUOEHCmbVwyqKVpveuV8",
-  authDomain: "devjob-fe071.firebaseapp.com",
-  projectId: "devjob-fe071",
-  storageBucket: "devjob-fe071.firebasestorage.app",
-  messagingSenderId: "1043747816081",
-  appId: "1:1043747816081:web:3d45a59179f5f5eb8d7530"
-};
-
-const app = initializeApp(firebaseConfig);
-const storeDb = getFirestore(app)
-
-export { storeDb }

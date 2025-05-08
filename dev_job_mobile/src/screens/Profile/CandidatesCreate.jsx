@@ -15,6 +15,7 @@ import * as ImagePicker from 'expo-image-picker';
 export default function CandidatesCreate({ navigation, route }) {
     const user = route.params?.user;
     const [loading, setLoading] = useState(false);
+    const [isNewCandidate, setIsNewCandidate] = useState(true); // Flag to track if creating or updating
 
     const [provinces, setProvinces] = useState([]);
     const [skills, setSkills] = useState([]);
@@ -22,8 +23,8 @@ export default function CandidatesCreate({ navigation, route }) {
 
     const [selectedProvinceId, setSelectedProvinceId] = useState('');
     const [fullName, setFullName] = useState(user?.name || '');
-    const [avatar, setAvatar] = useState(user?.avatar || ''); // Store avatar URI or URL
-    const [avatarPreview, setAvatarPreview] = useState(user?.avatar || ''); // For previewing selected image
+    const [avatar, setAvatar] = useState(user?.avatar || '');
+    const [avatarPreview, setAvatarPreview] = useState(user?.avatar || '');
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState(user?.email || '');
     const [selectedSkills, setSelectedSkills] = useState([]);
@@ -99,18 +100,24 @@ export default function CandidatesCreate({ navigation, route }) {
             const res = await authApi(token).get(endpoints['candidateDetail'](user._id));
             const candidate = res.data.data;
 
-            setFullName(candidate.fullName || user.name || '');
-            setPhone(candidate.phone || '');
-            setEmail(candidate.email || user.email || '');
-            setSelectedProvinceId(candidate.location || '');
-            setSelectedSkills(candidate.skills || []);
-            setLevel(candidate.level || '');
-            setSalary(candidate.salary || '');
-            setJobType(candidate.jobType || '');
-            setAvailability(candidate.availability || '');
-            setAvatar(candidate.avatar || '');
-            setAvatarPreview(candidate.avatar || '');
+            if (candidate) {
+                setIsNewCandidate(false); // Candidate exists, so we're updating
+                setFullName(candidate.fullName || user.name || '');
+                setPhone(candidate.phone || '');
+                setEmail(candidate.email || user.email || '');
+                setSelectedProvinceId(candidate.location || '');
+                setSelectedSkills(candidate.skills || []);
+                setLevel(candidate.level || '');
+                setSalary(candidate.salary || '');
+                setJobType(candidate.jobType || '');
+                setAvailability(candidate.availability || '');
+                setAvatar(candidate.avatar || '');
+                setAvatarPreview(candidate.avatar || '');
+            } else {
+                setIsNewCandidate(true); // No candidate data, so we're creating
+            }
         } catch (error) {
+            setIsNewCandidate(true); // If fetch fails, assume no candidate exists
             console.log('Error fetching candidate detail:', error.response?.data || error.message);
         } finally {
             setLoading(false);
@@ -135,17 +142,17 @@ export default function CandidatesCreate({ navigation, route }) {
 
         if (!result.canceled) {
             const uri = result.assets[0].uri;
-            setAvatar(uri); // Store URI for upload
-            setAvatarPreview(uri); // Update preview
+            setAvatar(uri);
+            setAvatarPreview(uri);
         }
     };
 
-    const handleUpdateCandidate = async () => {
+    const handleSaveCandidate = async () => {
         setLoading(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
             const formData = new FormData();
-    
+
             // Append text fields
             formData.append('fullName', fullName || '');
             formData.append('phone', phone || '');
@@ -155,12 +162,12 @@ export default function CandidatesCreate({ navigation, route }) {
             formData.append('salary', salary || '');
             formData.append('jobType', jobType || '');
             formData.append('availability', availability || '');
-    
+
             // Append skills as individual entries
             selectedSkills.forEach((skill) => {
-                formData.append('skills[]', skill); // Use 'skills[]' to indicate an array
+                formData.append('skills[]', skill);
             });
-    
+
             // Append avatar if selected
             if (avatar && avatar.startsWith('file://')) {
                 const fileName = avatar.split('/').pop();
@@ -170,21 +177,35 @@ export default function CandidatesCreate({ navigation, route }) {
                     type: 'image/jpeg',
                 });
             }
-    
-            const res = await authApi(token).patch(
-                endpoints['candidateDetail'](user._id),
-                formData,
-                {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                }
-            );
-    
-            ToastMess({ type: 'success', text1: 'Cập nhật ứng viên thành công.' });
+
+            let res;
+            if (isNewCandidate) {
+                // Create new candidate
+                res = await authApi(token).post(
+                    endpoints['candidates'], // Assume this endpoint exists
+                    formData,
+                    {
+                        headers: { 'Content-Type': 'multipart/form-data' },
+                    }
+                );
+                console.log(res)
+            } else {
+                // Update existing candidate
+                res = await authApi(token).patch(
+                    endpoints['candidateDetail'](user._id),
+                    formData,
+                    {
+                        headers: { 'Content-Type': 'multipart/form-data' },
+                    }
+                );
+            }
+            ToastMess({ type: 'success', text1: 'Cập nhật hồ sơ thành công.' });
             if (res.data.statusCode === 200) {
                 navigation.goBack();
             }
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
+            console.log('Error:', error.response?.data || error.message);
         } finally {
             setLoading(false);
         }
@@ -195,7 +216,7 @@ export default function CandidatesCreate({ navigation, route }) {
             <UIHeader
                 leftIcon={"arrow-back"}
                 handleLeftIcon={() => navigation.goBack()}
-                title={'Chỉnh sửa phần giới thiệu'}
+                title={isNewCandidate ? 'Tạo hồ sơ ứng viên' : 'Chỉnh sửa phần giới thiệu'}
             />
             <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled>
                 <View style={styles.containerMain}>
@@ -217,6 +238,7 @@ export default function CandidatesCreate({ navigation, route }) {
                         onChangeText={setFullName}
                         value={fullName}
                         style={styles.introduceInput}
+                        editable={false}
                     />
 
                     <Text style={styles.textInput}>Email</Text>
@@ -226,6 +248,7 @@ export default function CandidatesCreate({ navigation, route }) {
                         value={email}
                         style={styles.introduceInput}
                         keyboardType="email-address"
+                        editable={false}
                     />
 
                     <Text style={styles.textInput}>Số điện thoại</Text>
@@ -324,10 +347,10 @@ export default function CandidatesCreate({ navigation, route }) {
                             <ActivityIndicator color={orange} size={'large'} />
                         ) : (
                             <Button
-                                title={'Cập nhật'}
+                                title={isNewCandidate ? 'Tạo hồ sơ' : 'Cập nhật'}
                                 backgroundColor={mainColor}
                                 textColor={white}
-                                onPress={handleUpdateCandidate}
+                                onPress={handleSaveCandidate}
                             />
                         )}
                     </View>

@@ -28,7 +28,7 @@ const Login: React.FC = () => {
         progress: undefined,
       })
     } catch (error) {
-      toast.error('Thông tin Email hoạt mật khẩu không chính xác!', {
+      toast.error('Thông tin đăng nhập không chính xác!', {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,

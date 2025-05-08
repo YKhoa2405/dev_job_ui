@@ -106,15 +106,15 @@ export default function ResumeApply({ navigation, route }) {
                 handleLeftIcon={() => { navigation.goBack() }} />
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 }}>
                 <View style={{ paddingHorizontal: 20, backgroundColor: white, paddingVertical: 10 }}>
-                    <Text style={[StyleShare.titleText20, { marginVertical: 5, marginLeft: 3 }]}>{jobTitle}</Text>
+                    <Text style={[StyleShare.titleText20, { marginVertical: 5 }]}>{jobTitle}</Text>
                     <Text style={StyleShare.titleText16}>{companyName}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
                         <Icon name="location-outline" size={18} />
-                        <Text style={{ fontWeight: '500', marginHorizontal: 5 }}>{location}</Text>
+                        <Text style={{ marginHorizontal: 5 }}>{location}</Text>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
                         <Icon name="cash-outline" size={18} />
-                        <Text style={{ fontWeight: '500', marginHorizontal: 5 }}>{salary}</Text>
+                        <Text style={{ marginHorizontal: 5 }}>{salary}</Text>
                     </View>
                 </View>
                 {loadingUpload ? <>

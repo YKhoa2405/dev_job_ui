@@ -16,7 +16,6 @@ import Button from "../../components/Button";
 
 
 export default function JobSearchResult({ navigation, route }) {
-
     const { searchKeywork } = route.params;
     const [level, setLevel] = useState(null)
     const [salary, setSalary] = useState(null)
