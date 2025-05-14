@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View, Text, TextInput, ActivityIndicator, TouchableOpacity } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import UIHeader from "../../components/UIHeader";
-import { bgButton2, grey, mainColor, orange, white } from "../../assets/themes/Color";
-import Button from "../../components/Button"
-import API, { authApi, endpoints } from "../../assets/config/API";
+import { grey, mainColor, orange, white } from "../../assets/themes/Color";
+import Button from "../../components/Button";
+import { authApi, endpoints } from "../../assets/config/API";
 import Dropdown from "../../components/Dropdown";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -13,11 +13,9 @@ import * as ImagePicker from 'expo-image-picker';
 import { Avatar } from "react-native-paper";
 import { geminiService } from "../../assets/config/GeminiService";
 
-
-
 export default function CompanyCreate({ navigation }) {
-    const [loading, setLoading] = useState(false)
-    const [loadingR, setLoadingR] = useState(false)
+    const [loading, setLoading] = useState(false);
+    const [loadingR, setLoadingR] = useState(false);
 
     const [provinces, setProvinces] = useState([]);
     const [districts, setDistricts] = useState([]);
@@ -28,6 +26,7 @@ export default function CompanyCreate({ navigation }) {
     const [selectedWardId, setSelectedWardId] = useState('');
 
     const [name, setName] = useState('');
+    const [taxCode, setTaxCode] = useState(''); // Thêm state cho mã số thuế
     const [slogan, setSlogan] = useState('');
     const [address, setAddress] = useState('');
     const [city, setCity] = useState('');
@@ -35,9 +34,8 @@ export default function CompanyCreate({ navigation }) {
     const [avatar, setAvatar] = useState(null);
     const [website, setWebsite] = useState('');
     const [field, setField] = useState('');
-    const [size, setSize] = useState();
+    const [size, setSize] = useState('');
     const [about, setAbout] = useState('');
-
 
     const sizeData = [
         { title: '100 - 199' },
@@ -46,7 +44,7 @@ export default function CompanyCreate({ navigation }) {
         { title: '400 - 499' },
         { title: '500+' },
         { title: '1000+' },
-    ]
+    ];
 
     useEffect(() => {
         fetchProvinces();
@@ -56,7 +54,6 @@ export default function CompanyCreate({ navigation }) {
         updateLocationDetail();
     }, [selectedProvinceId, selectedDistrictId, selectedWardId, street]);
 
-
     const handleChooseImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
@@ -64,17 +61,16 @@ export default function CompanyCreate({ navigation }) {
             return;
         }
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.CameraType.Image,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [1, 1],
             quality: 1,
         });
-        console.log
-        // Kiểm tra nếu người dùng không hủy lựa chọn ảnh
+
         if (!result.canceled) {
             setAvatar(result.assets[0].uri);
         }
-    }
+    };
 
     const fetchProvinces = async () => {
         try {
@@ -90,7 +86,7 @@ export default function CompanyCreate({ navigation }) {
             const response = await axios.get(`https://esgoo.net/api-tinhthanh/2/${provinceId}.htm`);
             if (response.data.error === 0) {
                 setDistricts(response.data.data || []);
-                setSelectedDistrictId(''); // Reset district and ward selections
+                setSelectedDistrictId('');
                 setWards([]);
             }
         } catch (error) {
@@ -109,38 +105,12 @@ export default function CompanyCreate({ navigation }) {
         }
     };
 
-    const getCoordinatesFromAddress = async (address) => {
-        try {
-            const response = await axios.get('https://atlas.microsoft.com/search/address/json', {
-                params: {
-                    'api-version': '1.0',
-                    'subscription-key': 'FaqJhLIckgPjz6XjhcxZfxsRukcyNyZhHJzRZ8H3eMlo4sISPeilJQQJ99AIACYeBjF6AxJHAAAgAZMPFtxq',
-                    query: address
-                }
-            });
-
-            const { data } = response;
-            if (data && data.results && data.results.length > 0) {
-                const location = data.results[0].position;
-                return {
-                    latitude: location.lat,
-                    longitude: location.lon
-                };
-            } else {
-
-            }
-
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
     const updateLocationDetail = async () => {
         const province = provinces.find(p => p.id === selectedProvinceId)?.full_name || '';
         const district = districts.find(d => d.id === selectedDistrictId)?.full_name || '';
         const ward = wards.find(w => w.id === selectedWardId)?.full_name || '';
 
-        setCity(province)
+        setCity(province);
 
         const detail = [
             street,
@@ -154,15 +124,15 @@ export default function CompanyCreate({ navigation }) {
         setAddress(detail);
     };
 
-
-
     const handleCreateCompany = async () => {
-        if (!name || !about || !size || !field || !address || !slogan || !website) {
+        if (!name || !taxCode || !about || !size || !field || !address || !slogan || !website) {
             ToastMess({ type: 'error', text1: 'Vui lòng không để trống các trường.' });
             return;
         }
+
         const companyData = new FormData();
         companyData.append('name', name);
+        companyData.append('taxCode', taxCode); // Thêm mã số thuế vào dữ liệu gửi lên
         companyData.append('about', about);
         companyData.append('address', address);
         companyData.append('website', website);
@@ -172,10 +142,9 @@ export default function CompanyCreate({ navigation }) {
         companyData.append('slogan', slogan);
         companyData.append('isApproved', false);
 
-
         if (avatar) {
             const uriParts = avatar.split('.');
-            const fileType = uriParts[uriParts.length - 1];  // Lấy phần mở rộng file
+            const fileType = uriParts[uriParts.length - 1];
 
             companyData.append('avatar', {
                 uri: avatar,
@@ -183,7 +152,8 @@ export default function CompanyCreate({ navigation }) {
                 type: `image/${fileType}`,
             });
         }
-        setLoading(true)
+
+        setLoading(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
             await authApi(token).post(endpoints['companies'], companyData, {
@@ -192,17 +162,14 @@ export default function CompanyCreate({ navigation }) {
                 },
             });
             ToastMess({ type: 'success', text1: 'Cập nhật thông tin thành công.' });
-            navigation.goBack()
-
+            navigation.goBack();
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
             console.log(error.response ? error.response.data : error.message);
-        }
-        finally {
-            setLoading(false)
+        } finally {
+            setLoading(false);
         }
     };
-
 
     const handleGenerateAbout = async () => {
         setLoadingR(true);
@@ -211,9 +178,7 @@ export default function CompanyCreate({ navigation }) {
                 ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
                 return;
             }
-            const prompt = `Tạo một mô tả ngắn gọn, chuyên nghiệp 
-                về công ty ${name}, lĩnh vực hoạt động ${field}, quy mô ${size}, và điểm nổi bật, hiển thị thành một đoạn văn bản.
-            `;
+            const prompt = `Tạo một mô tả ngắn gọn, chuyên nghiệp về công ty ${name}, lĩnh vực hoạt động ${field}, quy mô ${size}, và điểm nổi bật, hiển thị thành một đoạn văn bản.`;
             const response = await geminiService(prompt);
             setAbout(response);
         } catch (error) {
@@ -224,14 +189,13 @@ export default function CompanyCreate({ navigation }) {
         }
     };
 
-
-
-
     return (
         <View style={StyleShare.container}>
-            <UIHeader leftIcon={"arrow-back"}
-                handleLeftIcon={() => { navigation.goBack() }}
-                title={'Cập nhật thông tin công ty'} />
+            <UIHeader
+                leftIcon={"arrow-back"}
+                handleLeftIcon={() => navigation.goBack()}
+                title={'Cập nhật thông tin công ty'}
+            />
             <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled>
                 <View style={styles.containerMain}>
                     <Text style={styles.textInput}>Tên công ty</Text>
@@ -240,6 +204,15 @@ export default function CompanyCreate({ navigation }) {
                         onChangeText={setName}
                         value={name}
                         style={styles.introduceInput}
+                    />
+
+                    <Text style={styles.textInput}>Mã số thuế</Text>
+                    <TextInput
+                        placeholder="Nhập mã số thuế..."
+                        onChangeText={setTaxCode}
+                        value={taxCode}
+                        style={styles.introduceInput}
+                        keyboardType="numeric"
                     />
 
                     <Text style={styles.textInput}>Logo công ty</Text>
@@ -252,6 +225,7 @@ export default function CompanyCreate({ navigation }) {
                             <Text style={{ fontSize: 16 }}>Tải ảnh của bạn</Text>
                         </TouchableOpacity>
                     )}
+
                     <View>
                         <Text style={styles.textInput}>Địa điểm làm việc</Text>
                         <Dropdown
@@ -269,7 +243,6 @@ export default function CompanyCreate({ navigation }) {
                                 height: 50,
                             }}
                         />
-
                         <Dropdown
                             data={districts.map(district => ({ title: district.full_name, id: district.id }))}
                             onSelect={(item) => {
@@ -285,7 +258,6 @@ export default function CompanyCreate({ navigation }) {
                                 height: 50,
                             }}
                         />
-
                         <Dropdown
                             data={wards.map(ward => ({ title: ward.full_name, id: ward.id }))}
                             onSelect={(item) => {
@@ -303,15 +275,14 @@ export default function CompanyCreate({ navigation }) {
                             style={[styles.introduceInput, { marginTop: 10 }]}
                             placeholder="Tên đường, số công ty, vị trí cụ thể ..."
                             onChangeText={setStreet}
-                            multiline={true} />
+                            multiline={true}
+                        />
                     </View>
 
                     <Text style={styles.textInput}>Quy mô công ty</Text>
                     <Dropdown
                         data={sizeData}
-                        onSelect={(item) => {
-                            setSize(item.title)
-                        }}
+                        onSelect={(item) => setSize(item.title)}
                         placeholder="Chọn số lượng nhân viên"
                         buttonStyle={{
                             marginTop: 10,
@@ -319,6 +290,7 @@ export default function CompanyCreate({ navigation }) {
                             height: 50,
                         }}
                     />
+
                     <Text style={styles.textInput}>Slogan</Text>
                     <TextInput
                         placeholder="Nhập slogan của công ty"
@@ -348,57 +320,60 @@ export default function CompanyCreate({ navigation }) {
                         {loadingR ? (
                             <Text style={{ color: 'grey', fontWeight: 'bold' }}>Đang tải...</Text>
                         ) : (
-                            <TouchableOpacity onPress={() => handleGenerateAbout()}>
+                            <TouchableOpacity onPress={handleGenerateAbout}>
                                 <Text style={{ color: 'grey', fontWeight: 'bold' }}>Ví dụ</Text>
                             </TouchableOpacity>
                         )}
                     </View>
                     <TextInput
-                        style={styles.introduceInput}
+                        style={styles.aboutInput} // Sử dụng style mới cho phần "Giới thiệu"
                         placeholder="Giới thiệu về công ty"
                         onChangeText={setAbout}
                         multiline={true}
-                        numberOfLines={15}
+                        numberOfLines={20} // Tăng số dòng lên 20
                         textAlignVertical="top"
                         value={about}
                     />
-                    <View style={{ marginTop: 20 }}></View>
-                    {loading ? (
-                        <ActivityIndicator color={orange} size={'large'} />
-                    ) : (
-                        <Button title={'Cập nhật'} backgroundColor={mainColor} textColor={white} onPress={() => handleCreateCompany()} />
-                    )}
+
+                    <View style={{ marginTop: 20 }}>
+                        {loading ? (
+                            <ActivityIndicator color={orange} size={'large'} />
+                        ) : (
+                            <Button
+                                title={'Cập nhật'}
+                                backgroundColor={mainColor}
+                                textColor={white}
+                                onPress={handleCreateCompany}
+                            />
+                        )}
+                    </View>
                 </View>
             </ScrollView>
-
-
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
     containerMain: {
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
     },
     textInput: {
         fontWeight: 'bold',
         color: mainColor,
         marginTop: 20,
-        marginBottom: 5
+        marginBottom: 5,
     },
-
     introduceInput: {
         borderRadius: 10,
         paddingHorizontal: 10,
         paddingVertical: 15,
-        backgroundColor: white
+        backgroundColor: white,
     },
-    imageUpload: {
-        marginTop: 10,
-        width: 60,
-        height: 60,
-        resizeMode: 'cover',
-        borderRadius: 100,
-        borderWidth: 1
+    aboutInput: {
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 15,
+        backgroundColor: white,
+        height: 300, // Tăng chiều cao để chứa nhiều nội dung hơn
     },
-})
+});

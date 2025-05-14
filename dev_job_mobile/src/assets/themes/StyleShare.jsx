@@ -151,7 +151,7 @@ const StyleShare = StyleSheet.create({
     // style item job
     jobItemContainer: {
         backgroundColor: white,
-        borderRadius: 15, // Tăng bo góc cho mềm mại hơn
+        borderRadius: 12, // Tăng bo góc cho mềm mại hơn
         padding: 15,
         marginTop: 20, // Tăng khoảng cách dọc giữa các item
         marginHorizontal: 15, // Giảm margin ngang để tận dụng không gian
@@ -170,6 +170,8 @@ const StyleShare = StyleSheet.create({
         height: 35,
         backgroundColor: white,
         borderRadius: 10,
+        borderWidth:1,
+        borderColor:'grey',
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',

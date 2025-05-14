@@ -75,8 +75,8 @@ export default function Companies({ navigation }) {
             <TouchableWithoutFeedback onPress={() => navigation.navigate('CompanyDetail', { _id: item._id })}>
                 <View style={styles.itemContainer}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Avatar.Image source={{ uri: item?.avatar  }} size={50} style={{   marginRight: 10 }} />
-                        <View style={{flex:1}}>
+                        <Avatar.Image source={{ uri: item?.avatar }} size={50} style={{ marginRight: 10 }} />
+                        <View style={{ flex: 1 }}>
                             <Text style={StyleShare.titleText16} numberOfLines={2}>{item?.name}</Text>
                             <Text style={{ marginTop: 5 }}>{item.field}</Text>
                         </View>
@@ -107,15 +107,20 @@ export default function Companies({ navigation }) {
                         }}
                     />
                 </View>
-                <View>
-                    <Dropdown
-                        data={provinceData}
-                        onSelect={(item) => {
-                            setSelectProvince(item.title)
-                        }}
-                        placeholder="Chọn thành phố"
-                        value={selectProvince}
-                    />
+                <View style={StyleShare.flexBetween}>
+                    <View style={{ flex: 1 }}>
+                        <Text style={StyleShare.titleText16}>{totalItems} công ty</Text>
+                    </View>
+                    <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                        <Dropdown
+                            data={provinceData}
+                            onSelect={(item) => {
+                                setSelectProvince(item.title)
+                            }}
+                            placeholder="Chọn thành phố"
+                            value={selectProvince}
+                        />
+                    </View>
                 </View>
             </View>
             {loading ? <>

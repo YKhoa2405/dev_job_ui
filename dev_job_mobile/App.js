@@ -70,6 +70,7 @@ import messaging from '@react-native-firebase/messaging';
 import { setFcmToken } from './src/redux/slice/userSlice';
 import { createRef } from 'react';
 import { useEffect } from 'react';
+import UploadDocumentsCompany from './src/screens/Company/UploadDocumentsCompany';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -214,6 +215,7 @@ export default function App() {
           <Stack.Screen name="CompaniesFollow" component={CompaniesFollow} />
           <Stack.Screen name="CompanyStatistical" component={CompanyStatistical} />
           <Stack.Screen name="CompanyCreate" component={CompanyCreate} />
+          <Stack.Screen name="UploadDocumentsCompany" component={UploadDocumentsCompany} />
           <Stack.Screen name="EditCompany" component={EditCompany} />
           <Stack.Screen name="ProfileCompany" component={ProfileCompany} />
           <Stack.Screen name="Subscribers" component={Subscribers} />

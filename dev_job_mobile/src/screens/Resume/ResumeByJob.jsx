@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Image, TextInput, ScrollView, FlatList } from "react-native"
+import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Image, TextInput, ScrollView, FlatList, StyleSheet } from "react-native"
 import StyleShare from "../../assets/themes/StyleShare"
 import UIHeader from "../../components/UIHeader"
 import { grey, mainColor, white, orange, textColor, green, bgButton2 } from "../../assets/themes/Color"
@@ -159,10 +159,23 @@ export default function ResumeByJob({ navigation, route }) {
                             <Text style={StyleShare.titleText16}>Địa chỉ làm việc</Text>
                             <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.location}</Text>
                         </View>
-                        <View style={{ marginBottom: 10 }}>
-                            <Text style={StyleShare.titleText16}>Trạng thái</Text>
-                            {jobDetail.isActive ? <Text style={[StyleShare.titleText16, { color: green, marginTop: 5 }]}>Đang hoạt động</Text>
-                                : <Text style={[StyleShare.titleText16, { color: 'red', marginTop: 5 }]}>Hết hạn</Text>}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={StyleShare.titleText16}>Ngày tạo</Text>
+                                <Text style={{ color: textColor, marginTop: 5 }}>{moment(jobDetail.createdAt).format('DD/MM/YYYY')}</Text>
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={StyleShare.titleText16}>Trạng thái</Text>
+                                {jobDetail.isActive ? <Text style={[StyleShare.titleText16, { color: green, marginTop: 5 }]}>Đang hoạt động</Text>
+                                    : <Text style={[StyleShare.titleText16, { color: 'red', marginTop: 5 }]}>Hết hạn</Text>}
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                {jobDetail.isUrgent && (
+                                    <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
+                                        GẤP
+                                    </Chip>
+                                )}
+                            </View>
                         </View>
                         <View style={{ marginTop: 20 }}>
                             {loading ? (
@@ -263,6 +276,7 @@ export default function ResumeByJob({ navigation, route }) {
                     },
                 });
                 const data = res.data.data;
+                console.log(data);
                 if (currentPage === 1) {
                     setResumeData(data.result);
                 } else {
@@ -279,6 +293,23 @@ export default function ResumeByJob({ navigation, route }) {
             }
         };
 
+        const markAsViewed = async (resumeId) => {
+            try {
+                const token = await AsyncStorage.getItem("access_token");
+                await authApi(token).patch(endpoints['resumeDetail'](resumeId), {
+                    status: 'Đã xem',
+                });
+                // Cập nhật trạng thái trong danh sách
+                setResumeData((prev) =>
+                    prev.map((resume) =>
+                        resume._id === resumeId ? { ...resume, status: 'Đã xem' } : resume
+                    )
+                );
+            } catch (error) {
+                console.log('Mark as viewed error:', error);
+            }
+        };
+
         const loadMoreResume = () => {
             if (currentPage < totalPages && !loadingMore) {
                 fetchResumeByJob(currentPage + 1);
@@ -287,61 +318,81 @@ export default function ResumeByJob({ navigation, route }) {
 
         const renderItem = ({ item }) => {
             return (
-                <TouchableWithoutFeedback onPress={() => navigation.navigate("ResumeView", { resumeDetail: item })}>
+                <TouchableWithoutFeedback
+                    onPress={() => {
+                        if (item.status !== 'Chấp nhận' && item.status !== 'Từ chối') {
+                            markAsViewed(item._id);
+                        }
+                        navigation.navigate("ResumeView", { resumeDetail: item });
+                    }}
+                >
                     <View style={StyleShare.jobItemContainer}>
-                        <View style={{ marginVertical: 10 }}>
-                            <Text style={{ color: mainColor, marginBottom: 5, fontWeight: '500' }}>{item.name} - {item.phone}</Text>
-                            <Text style={{ color: mainColor, fontWeight: '500' }} >{item.email}</Text>
+                        {/* Phần tiêu đề: Tên và trạng thái */}
+                        <View style={StyleShare.flexBetween}>
+                            <Text style={StyleShare.titleText16}>{item.name}</Text>
+                            <View style={[
+                                styles.statusBadge,
+                                {
+                                    backgroundColor:
+                                        item.status === 'Chờ xử lý' ? mainColor
+                                            : item.status === 'Đã xem' ? 'blue'
+                                                : item.status === 'Chấp nhận' ? 'green'
+                                                    : item.status === 'Từ chối' ? 'red'
+                                                        : grey,
+                                }
+                            ]}>
+                                <Text style={styles.statusText}>{item.status}</Text>
+                            </View>
                         </View>
 
-                        <View style={StyleShare.flexBetween}>
-                            <View style={StyleShare.flexBetween}>
-                                <View style={StyleShare.flexCenter}>
-                                    <Icon name="time" size={20} color={textColor} style={{ marginRight: 5 }} />
-                                    <Text>{moment(item.createdAt).format("DD/MM/YYYY")}</Text>
-                                </View>
+                        {/* Phần thông tin liên hệ */}
+                        <View style={{ marginVertical: 5 }}>
+                            <View style={styles.infoRow}>
+                                <Icon name="call" size={16} color={textColor} style={styles.infoIcon} />
+                                <Text style={{ color: textColor }}>{item.phone}</Text>
                             </View>
-                            <View>
-                                <Text
-                                    style={[StyleShare.titleText16,
-                                    {
-                                        color:
-                                            item.status === 'Chờ xử lý' ? mainColor
-                                                : item.status === 'Đã xem' ? 'blue'
-                                                    : item.status === 'Chấp nhận' ? 'green'
-                                                        : item.status === 'Từ chối' ? 'red'
-                                                            : grey
-                                    }]}>{item.status}
-                                </Text>
+                            <View style={styles.infoRow}>
+                                <Icon name="mail" size={16} color={textColor} style={styles.infoIcon} />
+                                <Text style={{ color: textColor }}>{item.email}</Text>
+                            </View>
+                            <View style={styles.infoRow}>
+                                <Icon name="time" size={16} color={textColor} style={styles.infoIcon} />
+                                <Text style={{ color: textColor }}>{moment(item.createdAt).format("DD/MM/YYYY")}</Text>
                             </View>
                         </View>
-                        <View style={[StyleShare.flexBetween, { zIndex: 9999 }]}>
+
+                        {/* Phần hành động */}
+                        <View style={StyleShare.flexCenter}>
                             <TouchableOpacity
-                                onPress={() => navigation.navigate("ChatSocket", {
-                                    recipient: {
-                                        id: item?.userId,
-                                        avatar: item?.avatar,
-                                        name: item?.name,
-                                    }, senderId: companyByUser?.userId
-                                })}>
-                                <View style={[StyleShare.buttonDetailApply]}>
-                                    <Text>Nhắn tin</Text>
-                                </View>
+                                onPress={() =>
+                                    navigation.navigate("ChatSocket", {
+                                        recipient: {
+                                            id: item?.userId,
+                                            avatar: item?.avatar,
+                                            name: item?.name,
+                                        },
+                                        senderId: companyByUser?.userId
+                                    })
+                                }
+                                style={[styles.actionButton, { backgroundColor: mainColor }]}
+                            >
+                                <Text style={styles.actionButtonText}>Nhắn tin</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => handleOpenPhone(item.phone)}>
-                                <View style={[StyleShare.buttonDetailApply]}>
-                                    <Text>Gọi điện</Text>
-                                </View>
+                            <TouchableOpacity
+                                onPress={() => handleOpenPhone(item.phone)}
+                                style={[styles.actionButton, { backgroundColor: green }]}
+                            >
+                                <Text style={styles.actionButtonText}>Gọi điện</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => handleOpenEmail(item.email)}>
-                                <View style={[StyleShare.buttonDetailApply]}>
-                                    <Text>Gửi Mail</Text>
-                                </View>
+                            <TouchableOpacity
+                                onPress={() => handleOpenEmail(item.email)}
+                                style={[styles.actionButton, { backgroundColor: orange }]}
+                            >
+                                <Text style={styles.actionButtonText}>Gửi Mail</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
-
             );
         };
 
@@ -356,32 +407,37 @@ export default function ResumeByJob({ navigation, route }) {
         return (
             <View style={{ flex: 1 }}>
                 <View style={{ paddingHorizontal: 20, marginBottom: 5 }}>
-                    <View style={{ marginTop: 10 }}>
-                        <View style={StyleShare.searchDetail}>
-                            <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
-                            <TextInput
-                                style={StyleShare.searchInput}
-                                placeholder="Nhập tên ứng viên..."
-                                value={searchKeywork}
-                                onChangeText={(text) => setSearchKeywork(text)}
-                                onSubmitEditing={() => {
-                                    fetchResumeByJob(1, 10, searchKeywork)
-                                }}
-                            />
-                        </View>
-                        <Dropdown
-                            data={activeData}
-                            onSelect={(item) => {
-                                setSelectedStatus(item.value);
+                    <View style={[StyleShare.searchDetail, { marginTop: 10 }]}>
+                        <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
+                        <TextInput
+                            style={StyleShare.searchInput}
+                            placeholder="Nhập tên ứng viên..."
+                            value={searchKeywork}
+                            onChangeText={(text) => setSearchKeywork(text)}
+                            onSubmitEditing={() => {
+                                fetchResumeByJob(1, 10, searchKeywork)
                             }}
-                            value={
-                                selectedStatus !== null
-                                    ? activeData.find((item) => item.value === selectedStatus)?.title
-                                    : null
-                            }
-                            placeholder="Trạng thái hồ sơ"
                         />
                     </View>
+                    <View style={StyleShare.flexBetween}>
+                        <View style={{ flex: 1}}>
+                            <Text style={StyleShare.titleText16}>{totalItems} hồ sơ</Text>
+                        </View>
+                        <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                            <Dropdown
+                                data={activeData}
+                                onSelect={(item) => setSelectedStatus(item.value)}
+                                value={
+                                    selectedStatus !== null
+                                        ? activeData.find((item) => item.value === selectedStatus)?.title
+                                        : null
+                                }
+                                placeholder="Trạng thái hồ sơ"
+                            />
+                        </View>
+                    </View>
+
+
                 </View>
                 {loading ? (
                     <Loading />
@@ -435,4 +491,38 @@ export default function ResumeByJob({ navigation, route }) {
         </View>
     )
 }
+
+
+const styles = StyleSheet.create({
+    statusBadge: {
+        paddingVertical: 4,
+        paddingHorizontal: 10,
+        borderRadius: 12,
+    },
+    statusText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: white,
+    },
+    infoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 4,
+    },
+    infoIcon: {
+        marginRight: 8,
+    },
+    actionButton: {
+        flex: 1,
+        paddingVertical: 8,
+        marginHorizontal: 5,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    actionButtonText: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: white,
+    },
+});
 

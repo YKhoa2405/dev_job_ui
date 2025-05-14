@@ -1,7 +1,7 @@
 import { View, StyleSheet, Dimensions, Text, FlatList, TouchableWithoutFeedback, ActivityIndicator, TouchableOpacity } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import UIHeader from "../../components/UIHeader";
-import MapView, { Marker, Polyline, Circle, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, Polyline, Circle } from "react-native-maps";
 import Slider from '@react-native-community/slider';
 import { mainColor, grey, orange, white } from "../../assets/themes/Color";
 import { Avatar, Chip } from "react-native-paper";
@@ -246,7 +246,7 @@ export default function JobNearBy({ navigation }) {
             </View>
             {latitude && longitude ? (
                 <MapView
-                    provider={PROVIDER_GOOGLE}
+                    // provider={PROVIDER_GOOGLE}
                     style={styles.map}
                     initialRegion={{
                         latitude: latitude,

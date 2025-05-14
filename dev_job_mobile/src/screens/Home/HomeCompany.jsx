@@ -6,6 +6,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ScrollView,
+  ImageBackground,
 } from "react-native";
 import { orange, mainColor, white, green } from "../../assets/themes/Color";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -37,28 +38,28 @@ export default function HomeCompany({ navigation }) {
         style={styles.gridItemUtili}
         onPress={() => navigation.navigate("JobCreate", { companyId: companyByUser?._id })}
       >
-        <Icon name={"add-circle-outline"} size={20} color={mainColor} />
+        <Icon name={"add-circle-outline"} size={26} color={mainColor} />
         <Text style={StyleShare.lineText}>Tuyển dụng</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.gridItemUtili}
         onPress={() => navigation.navigate("Services", { companyId: companyByUser?._id })}
       >
-        <Icon name={"cart-outline"} size={20} color={mainColor} />
+        <Icon name={"cart-outline"} size={26} color={mainColor} />
         <Text style={StyleShare.lineText}>Mua dịch vụ</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.gridItemUtili}
         onPress={() => navigation.navigate("ProfileCompany")}
       >
-        <Icon name={"person-outline"} size={20} color={mainColor} />
+        <Icon name={"person-outline"} size={26} color={mainColor} />
         <Text style={StyleShare.lineText}>Hồ sơ</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.gridItemUtili}
         onPress={() => navigation.navigate("ChatHome", { currentUserId: companyByUser.userId, roleName: 'company' })}
       >
-        <Icon name={"chatbubble-outline"} size={20} color={mainColor} />
+        <Icon name={"chatbubble-outline"} size={26} color={mainColor} />
 
         <Text style={StyleShare.lineText}>Tin nhắn</Text>
       </TouchableOpacity>
@@ -117,25 +118,32 @@ export default function HomeCompany({ navigation }) {
 
   return (
     <ScrollView style={StyleShare.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.containerTop}>
-        <Text style={StyleShare.titleText20}>Hệ quản trị tuyển dụng</Text>
-        {companyByUser && companyByUser?.isApproved && (
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => navigation.navigate('Notification', { userId: companyByUser?._id })}
-          >
-            <View style={{ position: 'relative' }}>
-              <Icon name="notifications-outline" size={24} color={'black'} />
-              <Badge
-                visible={true} // Set to false to hide the badge when no notifications
-                size={10} // Size of the badge
-                style={styles.badge}
-              >
-              </Badge>
-            </View>
-          </TouchableOpacity>
-        )}
-      </View>
+      <ImageBackground source={require('../../assets/images/background.png')}>
+        <View style={styles.containerTop}>
+          <View>
+            <Text style={[StyleShare.titleText20, { color: 'white' }]}>Hệ quản trị tuyển dụng</Text>
+            <Text style={[StyleShare.titleText16, { color: 'white', marginTop: 10 }]}>
+              {companyByUser?.name || "Công ty"}
+            </Text>
+          </View>
+          {companyByUser && companyByUser?.isApproved && (
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => navigation.navigate('Notification', { userId: companyByUser?._id })}
+            >
+              <View style={{ position: 'relative' }}>
+                <Icon name="notifications-outline" size={24} color={'black'} />
+                <Badge
+                  visible={true} // Set to false to hide the badge when no notifications
+                  size={10} // Size of the badge
+                  style={styles.badge}
+                >
+                </Badge>
+              </View>
+            </TouchableOpacity>
+          )}
+        </View>
+      </ImageBackground>
 
       <View style={styles.containerMain}>
         {companyByUser && companyByUser?.isApproved ? (
@@ -150,7 +158,7 @@ export default function HomeCompany({ navigation }) {
             <TouchableOpacity
               style={styles.itemUploadCompany}
               onPress={() => navigation.navigate("CompanyCreate")}
-              disabled={companyByUser != null}
+            // disabled={companyByUser != null}
             >
               <View style={StyleShare.flexBetween}>
                 <Text style={StyleShare.titleText16}>
@@ -165,7 +173,7 @@ export default function HomeCompany({ navigation }) {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.itemUploadCompany}
-              onPress={() => navigation.navigate("UpdateEmployer")}
+              onPress={() => navigation.navigate('UploadDocumentsCompany')}
             >
               <View style={StyleShare.flexBetween}>
                 <Text style={StyleShare.titleText16}>Cập nhật giấy tờ minh chứng</Text>
@@ -204,6 +212,7 @@ const styles = StyleSheet.create({
   },
   containerMain: {
     marginHorizontal: 20,
+    marginTop: 20
   },
   grid: {
     flexDirection: "row",
