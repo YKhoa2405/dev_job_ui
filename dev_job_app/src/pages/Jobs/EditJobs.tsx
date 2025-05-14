@@ -108,19 +108,18 @@ const EditJobs = () => {
     }
   };
 
-  const reclassifyReport = async (id: string, newCategory: string) => {
+  const reclassifyReport = async (id: string, updates: { category?: string; isGoodForTraining?: boolean }) => {
     try {
       const token = localStorage.getItem('access_token');
-      const res=await authApi(token).patch(endpoints['reportDetail'](id), { category: newCategory });
-      console.log(res)
-      // Cập nhật lại giao diện nếu cần
+      const res = await authApi(token).patch(endpoints['reportDetail'](id), updates);
+      console.log(res);
       toast.success('Cập nhật thành công!', {
         position: 'top-right',
         autoClose: 3000,
       });
       fetchReportsByJob();
     } catch (error) {
-      console.error('Lỗi khi cập nhật nhãn:', error);
+      console.error('Lỗi khi cập nhật:', error);
       toast.error('Cập nhật thất bại!', {
         position: 'top-right',
         autoClose: 3000,
@@ -562,14 +561,14 @@ const EditJobs = () => {
           {/* Phần danh sách báo cáo liên quan */}
         </div>
       )}
-      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mt-10">
         <div className="py-6 px-4 md:px-6 xl:px-7.5">
           <div className="flex items-center justify-between">
             <h4 className="text-xl font-semibold text-black">Báo cáo liên quan</h4>
           </div>
         </div>
 
-        <div className="grid grid-cols-8 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
+        <div className="grid grid-cols-9 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-9 md:px-6 2xl:px-7.5">
           <div className="col-span-2 flex items-center">
             <p className="font-medium">Người báo cáo</p>
           </div>
@@ -582,6 +581,9 @@ const EditJobs = () => {
           <div className="col-span-2 hidden sm:flex items-center">
             <p className="font-medium">Hành động</p>
           </div>
+          <div className="col-span-1 flex items-center">
+            <p className="font-medium">Dữ liệu tốt</p>
+          </div>
         </div>
 
         <div>
@@ -592,7 +594,7 @@ const EditJobs = () => {
           ) : (
             reportData.map((item) => (
               <div
-                className="grid grid-cols-8 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
+                className="grid grid-cols-9 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-9 md:px-6 2xl:px-7.5"
                 key={item._id}
               >
                 <div className="col-span-2 flex items-center">
@@ -621,7 +623,7 @@ const EditJobs = () => {
                     onChange={(e) => {
                       const value = e.target.value;
                       if (value) {
-                        reclassifyReport(item._id, value);
+                        reclassifyReport(item._id, { category: value });
                       }
                     }}
                     className="text-sm text-black border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
@@ -634,11 +636,20 @@ const EditJobs = () => {
                     <option value="Ứng xử không chuyên nghiệp">Ứng xử không chuyên nghiệp</option>
                   </select>
                 </div>
+                <div className="col-span-1 flex items-center justify-center">
+                  <input
+                    type="checkbox"
+                    checked={item.isGoodForTraining || false}
+                    onChange={() =>
+                      reclassifyReport(item._id, { isGoodForTraining: !item.isGoodForTraining })
+                    }
+                    className="h-5 w-5 cursor-pointer accent-primary"
+                  />
+                </div>
               </div>
             ))
           )}
         </div>
-
 
         <div className="py-6 px-4 md:px-6 xl:px-7.5 border-t border-stroke dark:border-strokedark">
           <div className="flex items-center justify-between">
@@ -663,7 +674,10 @@ const EditJobs = () => {
               >
                 <ChevronLeft size={18} />
               </button>
-              <p className="font-medium text-black mx-4" style={{ width: '100px', textAlign: 'center' }}>
+              <p
+                className="font-medium text-black mx-4"
+                style={{ width: '100px', textAlign: 'center' }}
+              >
                 {currentPage} / {totalPages} trang
               </p>
               <button

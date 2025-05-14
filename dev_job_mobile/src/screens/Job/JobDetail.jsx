@@ -1,6 +1,6 @@
 import { StyleSheet, View, Image, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback, ActivityIndicator, Linking } from "react-native";
 import UIHeader from "../../components/UIHeader";
-import { Avatar } from "react-native-paper";
+import { Avatar, Chip } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
 import StyleShare from "../../assets/themes/StyleShare";
 import { grey, mainColor, orange, textColor, white } from "../../assets/themes/Color";
@@ -50,7 +50,7 @@ export default function JobDetail({ route, navigation }) {
             icon: 'calendar',
             title: 'Ngày hết hạn',
             info: jobDetail?.endDate ? moment(jobDetail.endDate).format('DD/MM/YYYY') : "N/A",
-        },
+        }
     ];
 
     const handleNavigateToCompany = () => {
@@ -129,6 +129,11 @@ export default function JobDetail({ route, navigation }) {
                     </View>
                     <View style={styles.containerMain}>
                         <Text style={StyleShare.titleText20}>Thông tin chung</Text>
+                        {jobDetail?.isUrgent && (
+                            <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
+                                GẤP
+                            </Chip>
+                        )}
                         <View style={{ marginBottom: 20 }}>
                             {menuItems.map((item) => (
                                 <View key={item.id} style={styles.infoContainer}>
@@ -155,6 +160,7 @@ export default function JobDetail({ route, navigation }) {
                                     </View>
                                 </View>
                             )}
+
                         </View>
                         <View style={{ marginBottom: 20 }}>
                             <Text style={StyleShare.titleText20}>Mô tả công việc</Text>

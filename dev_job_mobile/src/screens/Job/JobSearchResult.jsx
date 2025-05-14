@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, TouchableWithoutFeedback, Image, ActivityIndicator } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons"
-import { mainColor, bgButton2, grey, orange, white } from "../../assets/themes/Color";
+import { mainColor, bgButton2, grey, orange, white, textColor } from "../../assets/themes/Color";
 import { Searchbar, Chip, Avatar } from "react-native-paper";
 import moment from "moment";
 import StyleShare from "../../assets/themes/StyleShare";
@@ -87,7 +87,7 @@ export default function JobSearchResult({ navigation, route }) {
                 params: {
                     page: currentPage,
                     limit: limit,
-                    skills: searchQuery,
+                    name: searchQuery,
                     level: level,
                     salary: salary,
                     jobType: jobType,
@@ -137,8 +137,9 @@ export default function JobSearchResult({ navigation, route }) {
                     </View>
                 </View>
                 <View style={StyleShare.technologyContainer}>
-                    <Chip style={StyleShare.chip}>{item.city}</Chip>
-                    <Chip style={StyleShare.chip}>{item.jobType}</Chip>
+                    <Chip style={StyleShare.chip}>{item.city || 'N/A'}</Chip>
+                    <Chip style={StyleShare.chip}>{item.level || 'N/A'}</Chip>
+
                     {item.skills.map((s, index) => (
                         <Chip key={index} style={StyleShare.chip}>
                             {s}
@@ -152,8 +153,8 @@ export default function JobSearchResult({ navigation, route }) {
                 </View>
                 <View style={StyleShare.flexBetween}>
                     <View style={StyleShare.flexCenter}>
-                        <Icon name="time" size={22} color={'grey'} style={{ marginRight: 5 }} />
-                        <Text>{moment(item.endDate).format('DD/MM/YYYY')}</Text>
+                        <Icon name="time" size={20} color={textColor} style={{ marginRight: 5 }} />
+                        <Text style={{ color: textColor }}>{moment(item.endDate).fromNow() || 'Không xác định'}</Text>
                     </View>
                 </View>
             </View>
@@ -243,7 +244,7 @@ export default function JobSearchResult({ navigation, route }) {
                 </View>
             </Modal>
 
-            <View style={{ flex: 1,paddingTop:30 }}>
+            <View style={{ flex: 1, paddingTop: 30 }}>
                 <View style={{ marginHorizontal: 20 }}>
                     <View style={[StyleShare.flexBetween, { marginBottom: 10 }]}>
                         <TouchableOpacity onPress={() => navigation.navigate('JobSearch')} style={StyleShare.searchHome}>

@@ -92,8 +92,9 @@ export default function Login({ navigation }) {
                 'Content-Type': 'application/x-www-form-urlencoded',
             };
             let data = {
-                // username: email || '2151050202khoa@ou.edu.vn',
-                username: 'nykhoa2405@gmail.com',
+                // username: email || 'nguyenykhoali2003@gmail.com',
+                // username: 'nykhoa2405@gmail.com',
+                username: '2151050202khoa@ou.edu.vn',
                 password: password || '123456',
             };
             let res = await API.post(endpoints['login'], data, { headers: header });

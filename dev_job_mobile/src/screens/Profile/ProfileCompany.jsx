@@ -19,6 +19,19 @@ export default function ProfileCompany({ navigation }) {
     useEffect(() => {
         dispatch(fetchCompanyByUser());
     }, []);
+
+    const handleLocationPress = async () => {
+        const address = companyByUser?.address;
+        const encodedAddress = encodeURIComponent(address);
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+        const supported = await Linking.canOpenURL(mapUrl);
+
+        if (supported) {
+            await Linking.openURL(mapUrl);
+        } else {
+            ToastMess({ type: 'error', text1: 'Không thể mở bản đồ.' });
+        }
+    };
     return (
         <View style={StyleShare.container}>
             <UIHeader leftIcon={"arrow-back"}

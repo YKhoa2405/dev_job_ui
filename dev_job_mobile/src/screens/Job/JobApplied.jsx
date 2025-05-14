@@ -75,17 +75,21 @@ export default function JobApplied({ navigation }) {
                             <Text style={{ marginTop: 5, color: textColor }}>{item?.companyId?.name}</Text>
                         </View>
                     </View>
-
                     <View style={StyleShare.technologyContainer}>
-                        <Chip style={StyleShare.chip}>{item?.jobId?.salary}</Chip>
-                        <Chip style={StyleShare.chip}>{item?.jobId?.level}</Chip>
-                        {item.isUrgent && (
+                        <Chip style={StyleShare.chip}>{item.jobId.city || 'N/A'}</Chip>
+                        <Chip style={StyleShare.chip}>{item.jobId.level || 'N/A'}</Chip>
+
+                        {item.jobId.skills.map((s, index) => (
+                            <Chip key={index} style={StyleShare.chip}>
+                                {s || 'N/A'}
+                            </Chip>
+                        ))}
+                        {item.jobId.isUrgent && (
                             <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
                                 GẤP
                             </Chip>
                         )}
                     </View>
-
 
                     <View style={StyleShare.flexBetween}>
                         <View style={StyleShare.flexCenter}>

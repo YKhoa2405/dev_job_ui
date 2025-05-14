@@ -210,15 +210,12 @@ const Jobs = () => {
           </div>
 
 
-          <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
+          <div className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
             <div className="col-span-2 flex items-center">
               <p className="font-medium">Tiêu đề</p>
             </div>
             <div className="col-span-2 items-center sm:flex hidden">
               <p className="font-medium">Công ty</p>
-            </div>
-            <div className="col-span-1 hidden items-center sm:flex">
-              <p className="font-medium">Mức lương</p>
             </div>
             <div className="col-span-1 hidden items-center sm:flex">
               <p className="font-medium">Level</p>
@@ -236,7 +233,7 @@ const Jobs = () => {
             <div>
               {jobData.map((item, key) => (
                 <div
-                  className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
+                  className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
                   key={key}
                 >
                   <div className="col-span-2 flex items-center">
@@ -251,11 +248,7 @@ const Jobs = () => {
                       {item.companyId.name}
                     </p>
                   </div>
-                  <div className="col-span-1 hidden items-center sm:flex">
-                    <p className="text-sm text-green-600 ">
-                      {item.salary}
-                    </p>
-                  </div>
+
                   <div className="col-span-1 hidden items-center sm:flex">
                     <p className="text-sm text-black ">
                       {item.level}

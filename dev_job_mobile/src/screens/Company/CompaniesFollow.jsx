@@ -107,7 +107,7 @@ export default function CompaniesFollow({ navigation }) {
                     <View style={[StyleShare.flexBetween, { marginVertical: 10 }]}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Icon name="business-outline" size={18} />
-                            <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{item.companyId.size} người theo dõi</Text>
+                            <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{item.companyId.size} nhân viên</Text>
 
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>

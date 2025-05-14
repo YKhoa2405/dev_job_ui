@@ -8,6 +8,7 @@ import {
     TouchableOpacity,
     TextInput,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native"; // Thêm useFocusEffect
 import UIHeader from "../../components/UIHeader";
 import { StyleSheet } from "react-native";
 import { mainColor, white } from "../../assets/themes/Color";
@@ -31,21 +32,36 @@ export default function ChatHome({ navigation, route }) {
     const fetchChatRooms = async () => {
         try {
             const token = await AsyncStorage.getItem("access_token");
-            const response = await authApi(token).get(endpoints['chatRooms'](currentUserId));
+            const response = await authApi(token).get(endpoints["chatRooms"](currentUserId));
             setChatRooms(response.data.data);
             setLoading(false);
         } catch (error) {
+            console.error("Error fetching chat rooms:", error);
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        const socketIo = io("https://devjob-yo64.onrender.com", { transports: ["websocket"] });
-        setSocket(socketIo);
+        const socketIo = io("http://192.168.1.120:8000", {
+            transports: ["websocket"],
+            query: { userId: currentUserId }, // Thêm userId vào query
+        });
+
+        socketIo.on("connect", () => {
+            console.log("ChatHome: Connected to WebSocket server");
+        });
+
+        socketIo.on("connect_error", (error) => {
+            console.log("ChatHome: WebSocket connection error:", error);
+        });
 
         socketIo.on("receiveMessage", (data) => {
+            console.log("ChatHome: Received message:", data);
             setChatRooms((prevRooms) => {
-                const updatedRooms = prevRooms.filter((room) => room.id !== `${currentUserId}-${data.recipientId}`);
+                // Loại bỏ room cũ để cập nhật room mới lên đầu
+                const updatedRooms = prevRooms.filter(
+                    (room) => room.id !== `${currentUserId}-${data.senderId}` && room.id !== `${currentUserId}-${data.recipientId}`
+                );
                 const participantId = data.senderId === currentUserId ? data.recipientId : data.senderId;
                 const newRoom = {
                     id: `${currentUserId}-${participantId}`,
@@ -67,6 +83,7 @@ export default function ChatHome({ navigation, route }) {
         });
 
         socketIo.on("messageRead", (data) => {
+            console.log("ChatHome: Message read:", data);
             setChatRooms((prevRooms) => {
                 return prevRooms.map((room) =>
                     room.id === `${currentUserId}-${data.recipientId}`
@@ -76,10 +93,18 @@ export default function ChatHome({ navigation, route }) {
             });
         });
 
+        setSocket(socketIo);
         fetchChatRooms();
 
         return () => socketIo.disconnect();
     }, [currentUserId]);
+
+    // Gọi fetchChatRooms khi màn hình được focus
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchChatRooms();
+        }, [])
+    );
 
     const renderItem = ({ item }) => {
         const isSender = item.lastMessage?.senderId === currentUserId;
@@ -91,17 +116,9 @@ export default function ChatHome({ navigation, route }) {
                     : item.lastMessage.text
                 : "No message";
 
-
         return (
             <TouchableWithoutFeedback
                 onPress={() => {
-                    // Khi mở chat, gửi yêu cầu đánh dấu tin nhắn là đã đọc
-                    if (socket && !isSender) {
-                        socket.emit("markAsRead", {
-                            senderId: item.lastMessage.senderId,
-                            recipientId: currentUserId,
-                        });
-                    }
                     navigation.navigate("ChatSocket", {
                         recipient: {
                             id: item.participants?.id || "unknown",
@@ -130,33 +147,18 @@ export default function ChatHome({ navigation, route }) {
                             </Text>
                         </View>
                         <View style={[StyleShare.flexBetween, { marginTop: 5 }]}>
-                            <Text
-                                style={[
-                                    styles.lastMessage,
-                                    { fontWeight: !item.lastMessage?.isRead ? 'bold' : 'normal' } // <-- in đậm nếu chưa đọc
-                                ]}
-                                ellipsizeMode="tail"
-                                numberOfLines={1}
-                            >
+                            <Text style={styles.lastMessage} ellipsizeMode="tail" numberOfLines={1}>
                                 {isSender ? `Bạn: ${displayText}` : displayText}
                             </Text>
-
-                            {isSender && item.lastMessage && (
-                                <Text style={{ color: 'grey', fontSize: 12, fontWeight: 'bold' }}>
-                                    {item.lastMessage.isRead ? 'Đã xem' : 'Đã gửi'}
-                                </Text>
-                            )}
                         </View>
-
                     </View>
                 </View>
             </TouchableWithoutFeedback>
         );
     };
+
     if (loading) {
-        return (
-            <Loading />
-        )
+        return <Loading />;
     }
 
     return (
@@ -174,9 +176,7 @@ export default function ChatHome({ navigation, route }) {
                         placeholder="Nhập tên người dùng..."
                         value={searchKeywork}
                         onChangeText={(text) => setSearchKeywork(text)}
-                        onSubmitEditing={() => {
-
-                        }}
+                        onSubmitEditing={() => {}}
                     />
                 </View>
 
@@ -194,8 +194,7 @@ export default function ChatHome({ navigation, route }) {
                     }
                 />
             </View>
-            {roleName === 'client' && (
-
+            {roleName === "client" && (
                 <TouchableOpacity
                     style={styles.chatBotContainer}
                     onPress={() => navigation.navigate("ChatBot", { senderId: currentUserId })}

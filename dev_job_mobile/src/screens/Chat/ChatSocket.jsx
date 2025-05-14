@@ -29,17 +29,24 @@ export default function ChatSocket({ route, navigation }) {
     const [socket, setSocket] = useState(null);
 
     useEffect(() => {
-        const socketIo = io("https://devjob-yo64.onrender.com", { transports: ["websocket"] });
+        const socketIo = io("http://192.168.1.120:8000", {
+            transports: ["websocket"],
+            query: { userId: senderId }, // Truyền senderId qua query
+        });
+
+        socketIo.on("connect", () => {
+            console.log("Connected to WebSocket server");
+        });
+
         socketIo.on("receiveMessage", (data) => {
             const newMessage = {
-                _id: data._id, // Dùng _id từ server
+                _id: data._id,
                 text: data.message,
                 createdAt: new Date(data.timestamp),
                 user: { _id: data.senderId },
                 file: data.fileUrl || null,
             };
             setMessages((prev) => {
-                // Thay thế tin nhắn tạm thời bằng tin nhắn từ server
                 const updatedMessages = prev.map((msg) =>
                     msg._id === data.tempId ? { ...newMessage, _id: data._id } : msg
                 );
@@ -48,6 +55,10 @@ export default function ChatSocket({ route, navigation }) {
                 }
                 return updatedMessages;
             });
+        });
+
+        socketIo.on("error", (error) => {
+            console.log("WebSocket error:", error);
         });
 
         setSocket(socketIo);
@@ -176,7 +187,7 @@ export default function ChatSocket({ route, navigation }) {
                         >
                             <View
                                 style={{
-                                    backgroundColor: currentMessage?.user?._id === senderId ? mainColor : bgNotifi,
+                                    backgroundColor: currentMessage?.user?._id === senderId ? mainColor : '#E5E5EA',
                                     padding: 10,
                                     borderRadius: 20,
                                     borderBottomRightRadius: currentMessage?.user?._id === senderId ? 0 : 20,

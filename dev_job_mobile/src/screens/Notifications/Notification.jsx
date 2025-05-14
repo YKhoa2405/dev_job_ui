@@ -28,7 +28,7 @@ const Notification = ({ navigation, route }) => {
   const [totalItems, setTotalItems] = useState(0);
 
   // Khởi tạo WebSocket
-  const socket = io("https://devjob-yo64.onrender.com", {
+  const socket = io("http://192.168.1.120:8000", {
     transports: ["websocket"],
     reconnection: true,
     reconnectionAttempts: 5,
@@ -185,7 +185,7 @@ const Notification = ({ navigation, route }) => {
         <FlatList
           data={notifications}
           renderItem={renderNotificationItem}
-          keyExtractor={(item) => item._id} // Sử dụng _id làm key
+          keyExtractor={(item, index) => item._id ? item._id.toString() : `temp-${index}`}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={

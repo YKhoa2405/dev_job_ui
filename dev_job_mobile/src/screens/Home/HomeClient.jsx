@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,9 +6,7 @@ import {
   StyleSheet,
   FlatList,
   TouchableWithoutFeedback,
-  ScrollView,
   ImageBackground,
-  Dimensions,
 } from 'react-native';
 import StyleShare from '../../assets/themes/StyleShare';
 import { mainColor, white, orange, textColor } from '../../assets/themes/Color';
@@ -20,87 +18,91 @@ import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loading from '../../components/Loading';
 
-const { width } = Dimensions.get('window');
-
 export default function HomeClient({ navigation }) {
   const { user: currentUser, fcmToken } = useSelector((state) => state.user);
-  const [loading, setLoading] = useState(true);
-  const [jobRecommendList, setJobRecommendList] = useState([]);
+  const [loadingUrgent, setLoadingUrgent] = useState(true);
+  const [loadingRecommend, setLoadingRecommend] = useState(true);
   const [jobUrgentList, setJobUrgentList] = useState([]);
+  const [jobRecommendList, setJobRecommendList] = useState([]);
+  const [sectionData, setSectionData] = useState([]);
 
   useEffect(() => {
     if (currentUser?._id) {
       fetchJobUrgent();
-      fetchRecommendedJobs(currentUser?._id);
+      fetchRecommendedJobs(currentUser._id);
       saveFcmToken();
-    } else {
-      setLoading(false);
     }
   }, [currentUser?._id]);
 
-  const saveFcmToken = async () => {
-    if (fcmToken) {
-      try {
-        const token = await AsyncStorage.getItem('access_token');
+  useEffect(() => {
+    const sections = [
+      { type: 'urgent_header', id: 'urgent_header' },
+      ...(jobUrgentList.length > 0
+        ? jobUrgentList.map((job) => ({
+            type: 'urgent_job',
+            data: job,
+            id: `urgent_${job._id}`,
+          }))
+        : [{ type: 'empty_urgent', id: 'empty_urgent' }]),
+      { type: 'recommend_header', id: 'recommend_header' },
+      ...(jobRecommendList.length > 0
+        ? jobRecommendList.map((job) => ({
+            type: 'recommend_job',
+            data: job,
+            id: `recommend_${job._id}`,
+          }))
+        : [{ type: 'empty_recommend', id: 'empty_recommend' }]),
+    ];
+    setSectionData(sections);
+  }, [jobUrgentList, jobRecommendList]);
 
-        await authApi(token).post(endpoints['saveFcmToken'], {
-          userId: currentUser._id,
-          fcmToken: fcmToken,
-        });
-        console.log('FCM Token saved to backend');
-      } catch (error) {
-        console.log('Error saving FCM token:', error);
-      }
-    }
-  }
+  const saveFcmToken = useCallback(async () => {
+    if (!fcmToken) return;
+    const token = await AsyncStorage.getItem('access_token');
+    await authApi(token).post(endpoints['saveFcmToken'], {
+      userId: currentUser._id,
+      fcmToken,
+    });
+  }, [fcmToken, currentUser?._id]);
 
-  // Giữ nguyên phương thức gọi API, chỉ thêm useCallback để tối ưu
   const fetchJobUrgent = useCallback(async () => {
-    setLoading(true);
+    setLoadingUrgent(true);
     try {
       const token = await AsyncStorage.getItem('access_token');
       const res = await authApi(token).get(endpoints['jobs'], {
-        params: { page: 1, limit: 9, isUrgent: true },
+        params: { page: 1, limit: 5, isUrgent: true },
       });
-      setJobUrgentList(res.data.data.result || []);
+      const result = res.data?.data?.result || [];
+      setJobUrgentList(result);
     } catch (error) {
+      console.log('Lỗi khi tải việc làm gấp:', error);
     } finally {
-      setLoading(false);
+      setLoadingUrgent(false);
     }
   }, []);
 
   const fetchRecommendedJobs = useCallback(async (userId) => {
-    setLoading(true);
-    const payload = { user_id: userId }; // Thay 'text' thành 'user_id' để khớp với backend
+    setLoadingRecommend(true);
     try {
-      const res = await API.post(endpoints['recommend'], payload, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-      setJobRecommendList(res.data.recommendations || []);
+      const res = await API.post(
+        endpoints['recommend'],
+        { user_id: userId },
+        { params: { page: 1, limit: 5 } },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      const recommendations = res.data?.data?.result || [];
+      setJobRecommendList(recommendations);
     } catch (error) {
-      console.log('Lỗi khi lấy gợi ý việc làm:', error.response?.data || error.message);
+      console.log('Lỗi khi tải gợi ý việc làm:', error);
     } finally {
-      setLoading(false);
+      setLoadingRecommend(false);
     }
   }, []);
 
-  // Memoize chunked arrays
-  const chunkArray = useCallback((array, chunkSize) => {
-    const result = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
-      result.push(array.slice(i, i + chunkSize));
-    }
-    return result;
-  }, []);
-
-  const jobRecommendPages = useMemo(() => chunkArray(jobRecommendList, 3), [jobRecommendList]);
-  const jobUrgentPages = useMemo(() => chunkArray(jobUrgentList, 3), [jobUrgentList]);
-
-  // Memoize renderItem
-  const renderItem = useCallback(
-    ({ item }) => (
+  const renderJobItem = useCallback(
+    (item) => (
       <TouchableWithoutFeedback onPress={() => navigation.navigate('JobDetail', { jobId: item?._id })}>
-        <View style={[StyleShare.jobItemContainer]}>
+        <View style={StyleShare.jobItemContainer}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Avatar.Image
               size={50}
@@ -108,15 +110,15 @@ export default function HomeClient({ navigation }) {
             />
             <View style={{ marginLeft: 10, flex: 1 }}>
               <Text style={StyleShare.titleText16} numberOfLines={2}>
-                {item?.name}
+                {item?.name || 'Không có tiêu đề'}
               </Text>
-              <Text style={{ marginTop: 5, color: textColor }}>{item?.companyId?.name}</Text>
+              <Text style={{ marginTop: 5, color: textColor }}>{item?.companyId?.name || 'Không xác định'}</Text>
             </View>
           </View>
-
           <View style={StyleShare.technologyContainer}>
-            <Chip style={StyleShare.chip}>{item?.level}</Chip>
-            {item?.skills.map((skill, index) => (
+            <Chip style={StyleShare.chip}>{item?.city || 'N/A'}</Chip>
+            <Chip style={StyleShare.chip}>{item?.level || 'N/A'}</Chip>
+            {item?.skills?.map((skill, index) => (
               <Chip key={index} style={StyleShare.chip}>
                 {skill || 'skill'}
               </Chip>
@@ -127,11 +129,10 @@ export default function HomeClient({ navigation }) {
               </Chip>
             )}
           </View>
-
           <View style={StyleShare.flexBetween}>
             <View style={StyleShare.flexCenter}>
               <Icon name="time" size={20} color={textColor} style={{ marginRight: 5 }} />
-              <Text style={{ color: textColor }}>{moment(item.endDate).fromNow()}</Text>
+              <Text style={{ color: textColor }}>{moment(item.endDate).fromNow() || 'Không xác định'}</Text>
             </View>
           </View>
         </View>
@@ -140,60 +141,61 @@ export default function HomeClient({ navigation }) {
     [navigation]
   );
 
-  // Memoize renderPage
-  const renderPage = useCallback(
-    ({ item }) => (
-      <View style={styles.pageContainer}>
-        <FlatList
-          data={item}
-          renderItem={renderItem}
-          keyExtractor={(job) => job?._id}
-          showsVerticalScrollIndicator={false}
-          initialNumToRender={3} // Chỉ render 3 item ban đầu
-          maxToRenderPerBatch={3} // Giới hạn số item mỗi lần render
-          windowSize={5} // Giảm kích thước cửa sổ render
-        />
-      </View>
-    ),
-    [renderItem]
+  const renderItem = useCallback(
+    ({ item }) => {
+      switch (item.type) {
+        case 'urgent_header':
+          return (
+            <View style={[StyleShare.flexBetween, { marginHorizontal: 20, marginTop: 20 }]}> 
+              <Text style={StyleShare.titleText20}>Việc làm Gấp</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('JobSuggestions', { title: 'Việc làm gấp', api: 'jobs' })}
+              >
+                <Text style={StyleShare.lineText}>Xem tất cả</Text>
+              </TouchableOpacity>
+            </View>
+          );
+        case 'recommend_header':
+          return (
+            <View style={[StyleShare.flexBetween, { marginHorizontal: 20, marginTop: 30 }]}> 
+              <Text style={StyleShare.titleText20}>Gợi ý việc làm</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('JobSuggestions', { title: 'Gợi ý việc làm', api: 'recommend' })}
+              >
+                <Text style={StyleShare.lineText}>Xem tất cả</Text>
+              </TouchableOpacity>
+            </View>
+          );
+        case 'urgent_job':
+        case 'recommend_job':
+          return renderJobItem(item.data);
+        case 'empty_urgent':
+          return loadingUrgent ? <Loading /> : null;
+        case 'empty_recommend':
+          return loadingRecommend ? <Loading /> : null;
+        default:
+          return null;
+      }
+    },
+    [navigation, renderJobItem, loadingUrgent, loadingRecommend]
   );
 
-  if (loading) return <Loading />
-
-  return (
-    <ScrollView
-      style={styles.scrollContainer}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 20 }}
-    >
-      <ImageBackground
-        source={require('../../assets/images/background.png')}
-        style={styles.background}
-      >
+  const renderHeader = useCallback(
+    () => (
+      <ImageBackground source={require('../../assets/images/background.png')} style={styles.background}>
         <View style={{ flex: 1, marginHorizontal: 20 }}>
-          <View style={[StyleShare.flexBetween, { marginTop: 40 }]}>
-            <Text style={[StyleShare.titleText16, { color: white, fontStyle: 'italic' }]}>
-              Chào bạn, {currentUser?.name}.
-            </Text>
+          <View style={[StyleShare.flexBetween, { marginTop: 40 }]}> 
+            <Text style={[StyleShare.titleText16, { color: white, fontStyle: 'italic' }]}>Chào bạn, {currentUser?.name || 'Khách'}.</Text>
             <View style={StyleShare.flexBetween}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={() => navigation.navigate('Notification', { userId: currentUser?._id })}
-                >
-                  <View style={{ position: 'relative' }}>
-                    <Icon name="notifications-outline" size={24} color={white} />
-                    <Badge
-                      visible={true} // Set to false to hide when no notifications
-                      size={10} // Size of the badge
-                      style={styles.badge}
-                    >
-                      {/* Optional: Add notification count, e.g., 3 */}
-                      {/* 3 */}
-                    </Badge>
-                  </View>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() => navigation.navigate('Notification', { userId: currentUser?._id })}
+              >
+                <View style={{ position: 'relative' }}>
+                  <Icon name="notifications-outline" size={24} color={white} />
+                  <Badge visible={false} size={10} style={styles.badge} />
+                </View>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.iconButton}
                 onPress={() => navigation.navigate('ChatHome', { currentUserId: currentUser?._id, roleName: 'client' })}
@@ -213,69 +215,26 @@ export default function HomeClient({ navigation }) {
           </View>
         </View>
       </ImageBackground>
-      <View>
-        {/* Gợi ý việc làm */}
-        <View style={{ marginTop: 20 }}>
-          <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
-            <Text style={StyleShare.titleText20}>Việc làm Gấp</Text>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('JobSuggestions', { title: 'Việc làm gấp', api: 'jobs' })}
-            >
-              <Text style={StyleShare.lineText}>Xem tất cả</Text>
-            </TouchableOpacity>
-          </View>
-          <FlatList
-            data={jobUrgentPages}
-            renderItem={renderPage}
-            keyExtractor={(page, index) => `page-${index}`}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            snapToInterval={width}
-            decelerationRate="fast"
-            pagingEnabled
-            initialNumToRender={1} // Chỉ render 1 page ban đầu
-            maxToRenderPerBatch={1} // Giới hạn số page mỗi lần render
-            windowSize={3} // Giảm kích thước cửa sổ render
-          />
-        </View>
-        {/* Việc làm hấp dẫn */}
-        <View style={{ marginTop: 30 }}>
-          <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
-            <Text style={StyleShare.titleText20}>Gợi ý việc làm</Text>
-            <TouchableOpacity
-              // onPress={() => navigation.navigate('JobSuggestions', { title: 'Gợi ý việc làm', api: 'job_recommend' })}
-              onPress={() => navigation.navigate('JobSwipe')}
-            >
-              <Text style={StyleShare.lineText}>Xem tất cả</Text>
-            </TouchableOpacity>
-          </View>
-          <FlatList
-            data={jobRecommendPages} // Sửa lỗi từ jobUrgentPages thành jobRecommendPages
-            renderItem={renderPage}
-            keyExtractor={(page, index) => `page-${index}`}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            snapToInterval={width}
-            decelerationRate="fast"
-            pagingEnabled
-            initialNumToRender={1}
-            maxToRenderPerBatch={1}
-            windowSize={3}
-          />
-        </View>
-      </View>
-      {/* {loading ? (
-        <Loading />
-      ) : (
-      )} */}
-    </ScrollView>
+    ),
+    [navigation, currentUser]
+  );
+
+  return (
+    <FlatList
+      data={sectionData}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id}
+      ListHeaderComponent={renderHeader}
+      showsVerticalScrollIndicator={false}
+      initialNumToRender={10}
+      maxToRenderPerBatch={10}
+      windowSize={5}
+      contentContainerStyle={{ paddingBottom: 20 }}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flex: 1,
-  },
   background: {
     flex: 1,
     resizeMode: 'cover',
@@ -288,20 +247,16 @@ const styles = StyleSheet.create({
     backgroundColor: orange,
     elevation: 2,
   },
-  pageContainer: {
-    width: width,
-  },
-
   iconButton: {
-    padding: 10, // Tăng vùng chạm
-    borderRadius: 50, // Hình tròn cho nút
-    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Nền mờ nhẹ cho nút
-    marginHorizontal: 5, // Khoảng cách giữa các nút
+    padding: 10,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    marginHorizontal: 5,
   },
   badge: {
     position: 'absolute',
-    top: -4, // Adjust to position the badge relative to the icon
-    right: -4, // Adjust to position the badge relative to the icon
-    backgroundColor: 'red', // Customize badge color
+    top: -4,
+    right: -4,
+    backgroundColor: 'red',
   },
 });
