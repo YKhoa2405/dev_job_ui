@@ -365,7 +365,7 @@ export default function ResumeInput({ route, navigation }) {
                             <Text style={{ color: 'grey', fontWeight: 'bold' }}>Đang tải...</Text>
                         ) : (
                             <TouchableOpacity onPress={() => handleGenerateExample()}>
-                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Ví dụ</Text>
+                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Gợi ý với AI</Text>
                             </TouchableOpacity>
                         )}
                     </View>

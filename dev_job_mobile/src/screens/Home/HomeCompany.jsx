@@ -171,15 +171,6 @@ export default function HomeCompany({ navigation }) {
                 />
               </View>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.itemUploadCompany}
-              onPress={() => navigation.navigate('UploadDocumentsCompany')}
-            >
-              <View style={StyleShare.flexBetween}>
-                <Text style={StyleShare.titleText16}>Cập nhật giấy tờ minh chứng</Text>
-                <Icon name={"arrow-forward-circle"} size={30} color={orange} />
-              </View>
-            </TouchableOpacity>
             <Text style={[StyleShare.titleText16, { marginVertical: 20 }]}>
               Sau khi hoàn thành cập nhật thông tin, chúng tôi sẽ xem xét hồ sơ và xét duyệt tài khoản của bạn trong thời gian sớm nhất
             </Text>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View, Text, TextInput, ActivityIndicator, TouchableOpacity } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import UIHeader from "../../components/UIHeader";
-import { grey, mainColor, orange, white } from "../../assets/themes/Color";
+import { grey, mainColor, orange, textColor, white } from "../../assets/themes/Color";
 import Button from "../../components/Button";
 import { authApi, endpoints } from "../../assets/config/API";
 import Dropdown from "../../components/Dropdown";
@@ -12,6 +12,7 @@ import { ToastMess } from "../../components/ToastMess";
 import * as ImagePicker from 'expo-image-picker';
 import { Avatar } from "react-native-paper";
 import { geminiService } from "../../assets/config/GeminiService";
+import * as DocumentPicker from 'expo-document-picker'; // Updated import
 
 export default function CompanyCreate({ navigation }) {
     const [loading, setLoading] = useState(false);
@@ -26,12 +27,13 @@ export default function CompanyCreate({ navigation }) {
     const [selectedWardId, setSelectedWardId] = useState('');
 
     const [name, setName] = useState('');
-    const [taxCode, setTaxCode] = useState(''); // Thêm state cho mã số thuế
+    const [taxCode, setTaxCode] = useState('');
     const [slogan, setSlogan] = useState('');
     const [address, setAddress] = useState('');
     const [city, setCity] = useState('');
     const [street, setStreet] = useState('');
     const [avatar, setAvatar] = useState(null);
+    const [businessLicense, setBusinessLicense] = useState(null);
     const [website, setWebsite] = useState('');
     const [field, setField] = useState('');
     const [size, setSize] = useState('');
@@ -69,6 +71,22 @@ export default function CompanyCreate({ navigation }) {
 
         if (!result.canceled) {
             setAvatar(result.assets[0].uri);
+        }
+    };
+
+    const handleChooseDocument = async () => {
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+                copyToCacheDirectory: true, // Ensure file is accessible
+            });
+
+            if (!result.canceled) {
+                setBusinessLicense(result.assets[0]); // Store the document object
+            }
+        } catch (error) {
+            console.log('Document picker error:', error);
+            alert('Error selecting document. Please try again.');
         }
     };
 
@@ -125,14 +143,14 @@ export default function CompanyCreate({ navigation }) {
     };
 
     const handleCreateCompany = async () => {
-        if (!name || !taxCode || !about || !size || !field || !address || !slogan || !website) {
-            ToastMess({ type: 'error', text1: 'Vui lòng không để trống các trường.' });
+        if (!name || !taxCode || !about || !size || !field || !address || !slogan || !website || !businessLicense) {
+            ToastMess({ type: 'error', text1: 'Vui lòng không để trống các trường, bao gồm giấy đăng ký kinh doanh.' });
             return;
         }
 
         const companyData = new FormData();
         companyData.append('name', name);
-        companyData.append('taxCode', taxCode); // Thêm mã số thuế vào dữ liệu gửi lên
+        companyData.append('taxCode', taxCode);
         companyData.append('about', about);
         companyData.append('address', address);
         companyData.append('website', website);
@@ -140,16 +158,24 @@ export default function CompanyCreate({ navigation }) {
         companyData.append('field', field);
         companyData.append('city', city);
         companyData.append('slogan', slogan);
-        companyData.append('isApproved', false);
 
         if (avatar) {
             const uriParts = avatar.split('.');
             const fileType = uriParts[uriParts.length - 1];
-
             companyData.append('avatar', {
                 uri: avatar,
                 name: `avatar.${fileType}`,
                 type: `image/${fileType}`,
+            });
+        }
+
+        if (businessLicense) {
+            const fileExtension = businessLicense.uri.split('.').pop();
+            const mimeType = businessLicense.mimeType || (fileExtension === 'pdf' ? 'application/pdf' : 'application/msword');
+            companyData.append('businessLicense', {
+                uri: businessLicense.uri,
+                name: businessLicense.name || `business_license.${fileExtension}`,
+                type: mimeType,
             });
         }
 
@@ -221,8 +247,19 @@ export default function CompanyCreate({ navigation }) {
                             <Avatar.Image source={{ uri: avatar }} size={70} />
                         </TouchableOpacity>
                     ) : (
-                        <TouchableOpacity onPress={handleChooseImage} style={{ width: '100%', height: 50, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', marginTop: 5, borderRadius: 10, elevation: 2 }}>
-                            <Text style={{ fontSize: 16 }}>Tải ảnh của bạn</Text>
+                        <TouchableOpacity onPress={handleChooseImage} style={styles.uploadButton}>
+                            <Text style={styles.uploadText}>Tải ảnh của bạn</Text>
+                        </TouchableOpacity>
+                    )}
+
+                    <Text style={styles.textInput}>Giấy đăng ký kinh doanh</Text>
+                    {businessLicense ? (
+                        <TouchableOpacity onPress={handleChooseDocument}>
+                            <Text style={styles.documentText}>{businessLicense.name || 'Giấy đăng ký kinh doanh đã chọn'}</Text>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity onPress={handleChooseDocument} style={styles.uploadButton}>
+                            <Text style={styles.uploadText}>Tải giấy đăng ký kinh doanh</Text>
                         </TouchableOpacity>
                     )}
 
@@ -237,11 +274,7 @@ export default function CompanyCreate({ navigation }) {
                                 fetchDistricts(item.id);
                             }}
                             placeholder="Chọn tỉnh/thành phố"
-                            buttonStyle={{
-                                marginTop: 10,
-                                width: '100%',
-                                height: 50,
-                            }}
+                            buttonStyle={styles.dropdown}
                         />
                         <Dropdown
                             data={districts.map(district => ({ title: district.full_name, id: district.id }))}
@@ -252,11 +285,7 @@ export default function CompanyCreate({ navigation }) {
                             }}
                             placeholder="Chọn quận/huyện"
                             disabled={!selectedProvinceId}
-                            buttonStyle={{
-                                marginTop: 10,
-                                width: '100%',
-                                height: 50,
-                            }}
+                            buttonStyle={styles.dropdown}
                         />
                         <Dropdown
                             data={wards.map(ward => ({ title: ward.full_name, id: ward.id }))}
@@ -265,11 +294,7 @@ export default function CompanyCreate({ navigation }) {
                             }}
                             placeholder="Chọn phường/xã"
                             disabled={!selectedDistrictId}
-                            buttonStyle={{
-                                marginTop: 10,
-                                width: '100%',
-                                height: 50,
-                            }}
+                            buttonStyle={styles.dropdown}
                         />
                         <TextInput
                             style={[styles.introduceInput, { marginTop: 10 }]}
@@ -284,11 +309,7 @@ export default function CompanyCreate({ navigation }) {
                         data={sizeData}
                         onSelect={(item) => setSize(item.title)}
                         placeholder="Chọn số lượng nhân viên"
-                        buttonStyle={{
-                            marginTop: 10,
-                            width: '100%',
-                            height: 50,
-                        }}
+                        buttonStyle={styles.dropdown}
                     />
 
                     <Text style={styles.textInput}>Slogan</Text>
@@ -321,16 +342,16 @@ export default function CompanyCreate({ navigation }) {
                             <Text style={{ color: 'grey', fontWeight: 'bold' }}>Đang tải...</Text>
                         ) : (
                             <TouchableOpacity onPress={handleGenerateAbout}>
-                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Ví dụ</Text>
+                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Gợi ý với AI</Text>
                             </TouchableOpacity>
                         )}
                     </View>
                     <TextInput
-                        style={styles.aboutInput} // Sử dụng style mới cho phần "Giới thiệu"
+                        style={styles.aboutInput}
                         placeholder="Giới thiệu về công ty"
                         onChangeText={setAbout}
                         multiline={true}
-                        numberOfLines={20} // Tăng số dòng lên 20
+                        numberOfLines={20}
                         textAlignVertical="top"
                         value={about}
                     />
@@ -374,6 +395,30 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 15,
         backgroundColor: white,
-        height: 300, // Tăng chiều cao để chứa nhiều nội dung hơn
+        height: 300,
+    },
+    uploadButton: {
+        width: '100%',
+        height: 50,
+        backgroundColor: white,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 5,
+        borderRadius: 10,
+        elevation: 2,
+    },
+    uploadText: {
+        fontSize: 16,
+        color: textColor,
+    },
+    documentText: {
+        fontSize: 16,
+        color: mainColor,
+        marginTop: 5,
+    },
+    dropdown: {
+        marginTop: 10,
+        width: '100%',
+        height: 50,
     },
 });

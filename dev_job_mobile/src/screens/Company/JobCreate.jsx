@@ -525,7 +525,7 @@ export default function JobCreate({ navigation, route }) {
                             <Text style={{ color: 'grey', fontWeight: 'bold' }}>Đang tải...</Text>
                         ) : (
                             <TouchableOpacity onPress={() => handleGenerateDescription()}>
-                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Ví dụ</Text>
+                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Gợi ý với AI</Text>
                             </TouchableOpacity>
                         )}
                     </View>
@@ -544,7 +544,7 @@ export default function JobCreate({ navigation, route }) {
                             <Text style={{ color: 'grey', fontWeight: 'bold' }}>Đang tải...</Text>
                         ) : (
                             <TouchableOpacity onPress={() => handleGenerateRequirements()}>
-                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Ví dụ</Text>
+                                <Text style={{ color: 'grey', fontWeight: 'bold' }}>Gợi ý với AI</Text>
                             </TouchableOpacity>
                         )}
                     </View>

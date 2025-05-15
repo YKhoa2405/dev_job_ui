@@ -67,8 +67,6 @@ export default function ResumeTools({ navigation }) {
                     await handScanCV(res.data.data.url, res.data.data._id);
                 }
 
-            } else {
-                ToastMess({ type: 'error', text1: 'Chỉ hỗ trợ định dạng pdf, docx' });
             }
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
