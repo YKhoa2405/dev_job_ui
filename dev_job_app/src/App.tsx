@@ -27,6 +27,7 @@ import Orders from './pages/Orders/Order';
 import Loader from './common/Loader';
 import NotificationCreate from './pages/Notifications/NotificationCreate';
 import Notifications from './pages/Notifications/Notifications';
+import CreateCandidate from './pages/Candidates/CreateCandidate';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -115,6 +116,16 @@ function App() {
             <>
               <PageTitle title="Chỉnh sửa ứng viên" />
               <CandidatesEdit />
+            </>
+          }
+        />
+
+        <Route
+          path="/admin/candidates/create"
+          element={
+            <>
+              <PageTitle title="Thêm mới ứng viên" />
+              <CreateCandidate />
             </>
           }
         />

@@ -147,6 +147,12 @@ const CompanyDetail = () => {
                             {/* Hàng 2 */}
                             <div className="flex space-x-4 mb-4.5">
                                 <div className="flex-1">
+                                    <label className="mb-2.5 block text-black dark:text-white">Mã số thuế</label>
+                                    <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
+                                        {companyDetail?.taxCode}
+                                    </div>
+                                </div>
+                                <div className="flex-1">
                                     <label className="mb-2.5 block text-black dark:text-white">Slogan</label>
                                     <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
                                         {companyDetail?.slogan}
@@ -193,6 +199,43 @@ const CompanyDetail = () => {
                                     <label className="mb-2.5 block text-black dark:text-white">Giới thiệu</label>
                                     <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
                                         {companyDetail?.about}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex space-x-4 mb-4.5">
+                                <div className="flex-1">
+                                    <label className="mb-2.5 block text-black dark:text-white">Giấy phép kinh doanh</label>
+                                    <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
+                                        {companyDetail?.followers}
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <label className="mb-2.5 block text-black dark:text-white">Số người theo dõi</label>
+                                    <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
+                                        {companyDetail?.followers}
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <label className="mb-2.5 block text-black dark:text-white">Người tạo tài khoản</label>
+                                    <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
+                                        {companyDetail?.createBy.email}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex space-x-4 mb-4.5">
+
+                                <div className="flex-1">
+                                    <label className="mb-2.5 block text-black dark:text-white">Ngày tạo tài khoản</label>
+                                    <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
+                                        {moment(companyDetail?.createdAt).format("ddd, DD/MM/YYYY, HH:mm")}
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <label className="mb-2.5 block text-black dark:text-white">Ngày cập nhật</label>
+                                    <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
+                                        {moment(companyDetail?.updatedAt).format("ddd, DD/MM/YYYY, HH:mm")}
                                     </div>
                                 </div>
                             </div>

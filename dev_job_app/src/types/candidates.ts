@@ -12,6 +12,7 @@ export type ICandidate = {
     jobType?: string;
     availability?: 'Ngay lập tức' | '1 tuần' | '2 tuần' | '1 tháng' | null;
     createdAt: string;
+    createBy: { _id: string; email: string };
     updatedAt: string;
     cvUrl:string;
 };

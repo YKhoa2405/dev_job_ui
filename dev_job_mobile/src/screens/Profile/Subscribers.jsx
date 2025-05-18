@@ -24,7 +24,6 @@ export default function Subscribers({ navigation, route }) {
     const [selectedSkills, setSelectedSkills] = useState([]);
     const [openSchedule, setOpenSchedule] = useState(false);
     const [notificationSchedule, setNotificationSchedule] = useState("daily"); // Giá trị mặc định
-
     const [sub, setSub] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
@@ -114,6 +113,7 @@ export default function Subscribers({ navigation, route }) {
             skills: selectedSkills,
             notificationSchedule: notificationSchedule, // Thêm trường mới
         };
+        console.log(data);
         try {
             const token = await AsyncStorage.getItem('access_token');
             await authApi(token).post(endpoints['subscribers'], data);
@@ -122,11 +122,8 @@ export default function Subscribers({ navigation, route }) {
             setSelectedSkills([]); // Reset sau khi tạo
             setNotificationSchedule("daily"); // Reset về mặc định
         } catch (error) {
-            if (error.response && error.response.status === 400) {
-                ToastMess({ type: 'error', text1: 'Người dùng đã tồn tại' });
-            } else {
-                ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
-            }
+            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
+            console.log(error.message.errors);
         }
     };
 

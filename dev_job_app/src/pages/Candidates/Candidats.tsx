@@ -1,33 +1,25 @@
-import { ChevronLeft, ChevronRight, Eye, Pencil, Plus, Search, TrashIcon } from 'lucide-react';
-import API, { authApi, endpoints } from '../../common/API';
+import { ChevronLeft, ChevronRight, Eye, Pencil, Search, TrashIcon } from 'lucide-react';
+import { authApi, endpoints } from '../../common/API';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
-import { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import moment from "moment";
 import "moment/locale/vi"; // Đảm bảo ngôn ngữ tiếng Việt được import
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import Loading from '../../common/Loader/Loading';
-import { Dialog, Transition } from '@headlessui/react';
 import { ICandidate } from '../../types/candidates';
 import { Link } from 'react-router-dom';
 
 const Candidates = () => {
     moment.locale("vi");
     const [loading, setLoading] = useState(false);
-    const [isOpen, setIsOpen] = useState(false);
 
-    const closeModal = () => setIsOpen(false);
-    const openModal = () => setIsOpen(true);
-
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [name, setName] = useState('');
 
     const [candidateData, setcandidateData] = useState<ICandidate[]>([]);
     const [currentPage, setCurrentPage] = useState(1); // To store current page
     const [totalPages, setTotalPages] = useState(1); // To store total number of pages
     const [totalItems, setTotalItems] = useState(0);
-    const [level,setLevel]=useState('')
+    const [level, setLevel] = useState('')
     const [limit, setLimit] = useState(10);
     const [searchKeyword, setSearchKeyword] = useState<string>('')
 
@@ -53,7 +45,7 @@ const Candidates = () => {
 
     useEffect(() => {
         fetchListCandidats(currentPage, limit);
-    }, [limit, currentPage,level]);
+    }, [limit, currentPage, level]);
 
 
     const handlePrevClick = () => {
@@ -83,7 +75,7 @@ const Candidates = () => {
                     page: currentPage,
                     limit: limit,
                     email: searchQuery,
-                    level:level
+                    level: level
                 },
             });
             const data = res.data.data;
@@ -97,44 +89,6 @@ const Candidates = () => {
         } catch (error) {
             console.log('error', error);
         } finally { setLoading(false) }
-    };
-
-    const handleCreateUser = async () => {
-        if (
-            !name || !email || !password
-        ) {
-            toast.error('Vui lòng nhập đầy đủ thông tin!', {
-                position: "top-right",
-                autoClose: 3000,
-            });
-            return;
-        }
-
-        const candidateData = new URLSearchParams();
-        candidateData.append('name', name);
-        candidateData.append('email', email);
-        candidateData.append('password', password);
-
-        try {
-            const response = await API.post(endpoints['users'], candidateData, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-            });
-
-            if (response.status === 201) {
-                toast.success('Thêm người dùng thành công!', {
-                    position: "top-right",
-                    autoClose: 3000,
-                });
-                closeModal()
-            }
-        } catch (error) {
-            toast.error('Thêm mới người dùng thất bại!', {
-                position: "top-right",
-                autoClose: 3000,
-            });
-        }
     };
 
     const handleDeleteUser = async (id: string) => {
@@ -172,97 +126,6 @@ const Candidates = () => {
     return (
         <>
             <Breadcrumb pageName="Quản lý ứng viên tìm việc" />
-            <Transition appear show={isOpen} as={Fragment}>
-                <Dialog as="div" className="relative z-10" onClose={closeModal}>
-                    {/* Overlay */}
-                    <Transition.Child
-                        as={Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0"
-                        enterTo="opacity-100"   
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                    >
-                        <div className="fixed inset-0 bg-black bg-opacity-25" />
-                    </Transition.Child>
-
-                    <div className="fixed inset-0 flex items-center justify-center p-4">
-                        <Transition.Child
-                            as={Fragment}
-                            enter="ease-out duration-300"
-                            enterFrom="opacity-0 scale-95"
-                            enterTo="opacity-100 scale-100"
-                            leave="ease-in duration-200"
-                            leaveFrom="opacity-100 scale-100"
-                            leaveTo="opacity-0 scale-95"
-                        >
-                            <Dialog.Panel className="w-full max-w-3xl h-auto bg-white rounded-lg shadow-xl p-6">
-                                {/* Header */}
-                                <Dialog.Title
-                                    as="h3"
-                                    className="text-lg font-semibold leading-6 text-gray-900">
-                                    Thêm mới quyền hạn
-                                </Dialog.Title>
-
-                                {/* Body */}
-                                <div className="mt-4">
-                                    <div className="flex space-x-4 mb-4.5">
-                                        <div className="flex-1">
-                                            <label className="mb-2.5 block text-black dark:text-white">Email <span className="text-meta-1">*</span></label>
-                                            <input
-                                                type="email"
-                                                value={email}
-                                                onChange={(e) => setEmail(e.target.value)}
-                                                placeholder="Nhập Email người dùng"
-                                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                            />
-                                        </div>
-
-                                        <div className="flex-1">
-                                            <label className="mb-2.5 block text-black dark:text-white">Mật khẩu <span className="text-meta-1">*</span></label>
-                                            <input
-                                                type="password"
-                                                value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                placeholder="Nhập mật khẩu người dùng"
-                                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="flex space-x-4 mb-4.5">
-                                        <div className="flex-1">
-                                            <label className="mb-2.5 block text-black dark:text-white">Tên tài khoản <span className="text-meta-1">*</span></label>
-                                            <input
-                                                type="text"
-                                                value={name}
-                                                onChange={(e) => setName(e.target.value)}
-                                                placeholder="Nhập tên tài khoản ..."
-                                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                            />
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                {/* Footer */}
-                                <div className="mt-6 flex justify-end gap-3">
-                                    <button
-                                        onClick={closeModal}
-                                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">Hủy
-                                    </button>
-                                    <button
-                                        onClick={() => handleCreateUser()}
-                                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">Xác nhận
-                                    </button>
-                                </div>
-                            </Dialog.Panel>
-                        </Transition.Child>
-                    </div>
-                </Dialog>
-            </Transition>
 
             <div className="flex flex-col gap-8">
                 <div className="rounded-sm border border-stroke bg-white shadow-default">
@@ -309,12 +172,6 @@ const Candidates = () => {
                         <h4 className="text-xl font-semibold text-black dark:text-white">
                             Danh sách ứng viên
                         </h4>
-                        <button
-                            onClick={openModal}
-                            className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md">
-                            <Plus size={20} />
-                            Thêm mới
-                        </button>
                     </div>
 
                     <div className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">

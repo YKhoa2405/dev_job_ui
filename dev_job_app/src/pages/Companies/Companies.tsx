@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX, Eye, Pencil, Plus, Search, TrashIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX, Eye, Pencil, Search, TrashIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ICompanyList } from '../../types/company';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
@@ -158,12 +158,6 @@ const Companies = () => {
           <div className="py-6 px-4 md:px-6 xl:px-7.5">
             <div className="flex items-center justify-between">
               <h4 className="text-xl font-semibold text-black ">Danh sách công ty</h4>
-              <Link
-                to="create"
-                className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md">
-                <Plus size={20} />
-                Thêm mới
-              </Link>
             </div>
           </div>
 

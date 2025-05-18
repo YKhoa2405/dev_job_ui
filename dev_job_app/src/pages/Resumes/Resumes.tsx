@@ -315,7 +315,7 @@ const Resumes = () => {
 
                     <div className="py-6 px-4 md:px-6 xl:px-7.5 border-t border-stroke dark:border-strokedark">
                         <div className="flex items-center justify-between">
-                            <h6 className="text-base font-semibold text-black dark:text-white">Tổng {totalItems} CV</h6>
+                            <h6 className="text-base font-semibold text-black dark:text-white">Tổng {totalItems} hồ sơ ứng tuyển</h6>
                             <div className="flex items-center justify-center gap-4">
                                 <select
                                     value={limit}

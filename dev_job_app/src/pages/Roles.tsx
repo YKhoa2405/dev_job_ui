@@ -1,4 +1,4 @@
-import { CircleCheckBigIcon, CircleX, Eye, Pencil, Plus } from 'lucide-react';
+import { CircleCheckBigIcon, CircleX, Plus } from 'lucide-react';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -57,9 +57,6 @@ const Roles = () => {
                         <div className="col-span-1 hidden items-center sm:flex">
                             <p className="font-medium">Trạng thái</p>
                         </div>
-                        <div className="col-span-1 flex items-center">
-                            <p className="font-medium">Hành động</p>
-                        </div>
                     </div>
 
                     {roleData.map((item) => (
@@ -94,16 +91,6 @@ const Roles = () => {
                                             <CircleX size={20} color="red" />
                                         )}
                                     </p>
-                                </div>
-                            </div>
-                            <div className="col-span-1 flex items-center">
-                                <div className="flex items-center space-x-3.5">
-                                    <button className="hover:text-primary">
-                                        <Eye size={20} />
-                                    </button>
-                                    <button className="hover:text-primary">
-                                        <Pencil size={20} />
-                                    </button>
                                 </div>
                             </div>
                         </div>

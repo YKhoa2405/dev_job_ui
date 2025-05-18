@@ -1,37 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { authApi, endpoints } from '../../common/API';
 import moment from 'moment';
-import "moment/locale/vi";
+import 'moment/locale/vi';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from 'react-router-dom';
 import Loader from '../../common/Loader';
 import { useParams } from 'react-router-dom';
 import { ICompanyDetail } from '../../types/company';
+import Swal from 'sweetalert2';
 
 const EditCompanies = () => {
-    moment.locale("vi");
+    moment.locale('vi');
     const [companyDetail, setCompanyDetail] = useState<ICompanyDetail | null>(null);
     const [loading, setLoading] = useState(false);
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
     const navigate = useNavigate();
     const { id } = useParams<{ id?: string }>();
 
     useEffect(() => {
         fetchCompanyDetail();
-    }, [id]); // Include `id` in dependency array to refetch if it changes
+    }, [id]);
 
     const fetchCompanyDetail = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem("access_token");
-            if (!token) throw new Error("No access token found");
+            const token = localStorage.getItem('access_token');
+            if (!token) throw new Error('No access token found');
             const res = await authApi(token).get(endpoints['companiesDetail'](id!));
             setCompanyDetail(res.data.data);
+            setAvatarPreview(res.data.data.avatar || 'https://placehold.co/100x100');
         } catch (error) {
             console.error('Error fetching company detail:', error);
             toast.error('Không thể tải thông tin công ty', {
-                position: "top-right",
+                position: 'top-right',
                 autoClose: 3000,
             });
+            navigate('/admin/companies');
         } finally {
             setLoading(false);
         }
@@ -39,31 +44,49 @@ const EditCompanies = () => {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setCompanyDetail(prev => prev ? { ...prev, [name]: value } : null);
+        setCompanyDetail((prev) => (prev ? { ...prev, [name]: value } : null));
+    };
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files.length > 0) {
+            const file = event.target.files[0];
+            // Kiểm tra kích thước file (tối đa 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error('File ảnh vượt quá 5MB', {
+                    position: 'top-right',
+                    autoClose: 3000,
+                });
+                return;
+            }
+            // Kiểm tra định dạng file
+            if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+                toast.error('Vui lòng chọn file ảnh (JPEG, PNG, GIF)', {
+                    position: 'top-right',
+                    autoClose: 3000,
+                });
+                return;
+            }
+            setAvatarFile(file);
+            // Tạo URL preview cho avatar
+            setAvatarPreview(URL.createObjectURL(file));
+        }
     };
 
     const toggleActiveStatus = () => {
-        setCompanyDetail(prev => prev ? { ...prev, isApproved: !prev.isApproved } : null);
+        setCompanyDetail((prev) => (prev ? { ...prev, isApproved: !prev.isApproved } : null));
     };
 
     const validateForm = () => {
-        if (!companyDetail?.name) return "Tên công ty không được để trống";
-        if (!companyDetail?.address) return "Địa chỉ công ty không được để trống";
-        if (!companyDetail?.field) return "Lĩnh vực hoạt động không được để trống";
-        if (!companyDetail?.website || !/^https?:\/\/.+/.test(companyDetail.website)) return "Website không hợp lệ (phải bắt đầu bằng http:// hoặc https://)";
+        if (!companyDetail?.name) return 'Tên công ty không được để trống';
+        if (!companyDetail?.address) return 'Địa chỉ công ty không được để trống';
+        if (!companyDetail?.field) return 'Lĩnh vực hoạt động không được để trống';
+        if (!companyDetail?.website || !/^https?:\/\/.+/.test(companyDetail.website))
+            return 'Website không hợp lệ (phải bắt đầu bằng http:// hoặc https://)';
+        if (!companyDetail?.taxCode) return 'Mã số thuế không được để trống';
         return null;
     };
 
     const handleSave = async () => {
-        const validationError = validateForm();
-        if (validationError) {
-            toast.error(validationError, {
-                position: "top-right",
-                autoClose: 3000,
-            });
-            return;
-        }
-
         setLoading(true);
         try {
             const token = localStorage.getItem("access_token");
@@ -76,7 +99,8 @@ const EditCompanies = () => {
                 field: companyDetail?.field,
                 website: companyDetail?.website,
                 isApproved: companyDetail?.isApproved,
-                about: companyDetail?.about, // Changed from `description` to match state
+                about: companyDetail?.about,
+                taxCode: companyDetail?.taxCode,
             };
             const res = await authApi(token).patch(endpoints['companiesDetail'](id!), updatedData);
             setCompanyDetail(res.data.data);
@@ -84,9 +108,8 @@ const EditCompanies = () => {
                 position: "top-right",
                 autoClose: 3000,
             });
-            // navigate("/admin/companies");
+            navigate("/admin/companies");
         } catch (error) {
-            console.error('Error updating company:', error);
             toast.error('Cập nhật công ty thất bại', {
                 position: "top-right",
                 autoClose: 3000,
@@ -103,9 +126,7 @@ const EditCompanies = () => {
     return (
         <>
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-title-md2 font-semibold text-black dark:text-white">
-                    Chỉnh sửa công ty
-                </h2>
+                <h2 className="text-title-md2 font-semibold text-black dark:text-white">Chỉnh sửa công ty</h2>
                 <nav>
                     <ol className="flex items-center gap-2">
                         <li>
@@ -122,7 +143,13 @@ const EditCompanies = () => {
                 <Loader />
             ) : (
                 <div className="flex flex-col gap-10">
-                    <form className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+                    <form
+                        className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark"
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSave();
+                        }}
+                    >
                         <div className="p-6.5">
                             <div className="flex justify-end mb-4">
                                 <div className="space-x-2">
@@ -147,7 +174,9 @@ const EditCompanies = () => {
                             {/* Hàng 1 */}
                             <div className="flex space-x-4 mb-4.5">
                                 <div className="flex-1">
-                                    <label className="mb-2.5 block text-black dark:text-white">Tên công ty</label>
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Tên công ty <span className="text-meta-1">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         name="name"
@@ -184,7 +213,9 @@ const EditCompanies = () => {
                             {/* Hàng 2 */}
                             <div className="flex space-x-4 mb-4.5">
                                 <div className="flex-1">
-                                    <label className="mb-2.5 block text-black dark:text-white">Địa chỉ công ty</label>
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Địa chỉ công ty <span className="text-meta-1">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         name="address"
@@ -195,7 +226,9 @@ const EditCompanies = () => {
                                     />
                                 </div>
                                 <div className="flex-1">
-                                    <label className="mb-2.5 block text-black dark:text-white">Lĩnh vực hoạt động</label>
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Lĩnh vực hoạt động <span className="text-meta-1">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         name="field"
@@ -210,7 +243,9 @@ const EditCompanies = () => {
                             {/* Hàng 3 */}
                             <div className="grid grid-cols-5 gap-4 mb-4.5">
                                 <div className="col-span-3">
-                                    <label className="mb-2.5 block text-black dark:text-white">Website</label>
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Website <span className="text-meta-1">*</span>
+                                    </label>
                                     <input
                                         type="url"
                                         name="website"
@@ -222,10 +257,22 @@ const EditCompanies = () => {
                                 </div>
                                 <div className="col-span-1">
                                     <label className="mb-2.5 block text-black dark:text-white">Logo</label>
-                                    <img
-                                        src={companyDetail?.avatar || "https://placehold.co/100x100"}
-                                        alt="Company Logo"
-                                        className="h-20 w-20 rounded-full object-cover"
+                                    <label htmlFor="avatar-upload" className="cursor-pointer block w-20 h-20">
+                                        <img
+                                            src={avatarPreview || 'https://placehold.co/100x100'}
+                                            alt="Company Logo"
+                                            className="h-15 w-15 rounded-full object-cover border border-dashed border-gray-300 hover:opacity-80 transition"
+                                        />
+                                    </label>
+
+                                    {/* Input ẩn đi */}
+                                    <input
+                                        id="avatar-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                        disabled={loading}
                                     />
                                 </div>
                                 <div className="col-span-1">
@@ -233,7 +280,8 @@ const EditCompanies = () => {
                                     <button
                                         type="button"
                                         onClick={toggleActiveStatus}
-                                        className={`w-full rounded py-3 px-5 text-white ${companyDetail?.isApproved ? 'bg-green-500' : 'bg-red-500'} hover:bg-opacity-90`}
+                                        className={`w-full rounded py-3 px-5 text-white ${companyDetail?.isApproved ? 'bg-green-500' : 'bg-red-500'
+                                            } hover:bg-opacity-90`}
                                         disabled={loading}
                                     >
                                         {companyDetail?.isApproved ? 'Hoạt động' : 'Dừng hoạt động'}
@@ -241,12 +289,31 @@ const EditCompanies = () => {
                                 </div>
                             </div>
 
-                            {/* Hàng 4 */}
+                            {/* Hàng 4: Mã số thuế */}
                             <div className="flex space-x-4 mb-4.5">
                                 <div className="flex-1">
-                                    <label className="mb-2.5 block text-black dark:text-white">Giới thiệu</label>
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Mã số thuế <span className="text-meta-1">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="taxCode"
+                                        value={companyDetail?.taxCode || ''}
+                                        onChange={handleInputChange}
+                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                        disabled={loading}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Hàng 5: Giới thiệu */}
+                            <div className="flex space-x-4 mb-4.5">
+                                <div className="flex-1">
+                                    <label className="mb-2.5 block text-black dark:text-white">
+                                        Giới thiệu <span className="text-meta-1">*</span>
+                                    </label>
                                     <textarea
-                                        name="about" // Changed from `description` to match state
+                                        name="about"
                                         value={companyDetail?.about || ''}
                                         onChange={handleInputChange}
                                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"

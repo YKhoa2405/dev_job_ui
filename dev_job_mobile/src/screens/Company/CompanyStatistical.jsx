@@ -3,20 +3,16 @@ import {
     StyleSheet,
     View,
     Text,
-    TouchableOpacity,
     Dimensions,
     FlatList,
     ActivityIndicator,
 } from "react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import UIHeader from "../../components/UIHeader";
-import Icon from "react-native-vector-icons/Ionicons";
 import StyleShare from "../../assets/themes/StyleShare";
 import {  PieChart } from "react-native-chart-kit";
 import {  mainColor, orange, white } from "../../assets/themes/Color";
 import { DataTable } from 'react-native-paper';
 import API, { endpoints } from "../../assets/config/API";
-import { ToastMess } from "../../components/ToastMess";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -24,10 +20,6 @@ export default function CompanyStatistical({ navigation, route }) {
     const { companyId } = route.params;
 
     // Quản lý state
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
-    const [isStartPickerVisible, setStartPickerVisible] = useState(false);
-    const [isEndPickerVisible, setEndPickerVisible] = useState(false);
 
     const [pageSkills, setPageSkills] = useState(0);
     const [itemsPerPageSkills] = useState(4);
@@ -40,38 +32,13 @@ export default function CompanyStatistical({ navigation, route }) {
     const [skillsData, setSkillsData] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // Date Picker handlers
-    const showStartPicker = () => setStartPickerVisible(true);
-    const hideStartPicker = () => setStartPickerVisible(false);
-    const handleStartConfirm = (date) => {
-        setStartDate(date);
-        hideStartPicker();
-    };
-
-    const showEndPicker = () => setEndPickerVisible(true);
-    const hideEndPicker = () => setEndPickerVisible(false);
-    const handleEndConfirm = (date) => {
-        setEndDate(date);
-        hideEndPicker();
-    };
-
     // Gọi API với bộ lọc thời gian
     const fetchData = async () => {
         setLoading(true);
-
-        // Params cho các endpoint cần companyId
         const companyParams = {
-            companyId,
-            ...(startDate && { startDate: startDate.toISOString() }),
-            ...(endDate && { endDate: endDate.toISOString() }),
+            companyId
         };
 
-
-        if (startDate > endDate) {
-            ToastMess({ type: 'error', text1: 'Thời gian không hợp lệ.' });
-            setLoading(false);
-            return;
-        }
 
         try {
             const [applicationsResponse, salaryResponse, statusResponse, skillsResponse] = await Promise.all([
@@ -90,7 +57,6 @@ export default function CompanyStatistical({ navigation, route }) {
             setSkillsData(skillsResponse.data.data || []);
 
         } catch (error) {
-            console.log('Error fetching data:', error.response?.data || error.message);
             setApplicationsData([]);
             setSalaryData([]);
             setStatusData([]);
@@ -99,20 +65,10 @@ export default function CompanyStatistical({ navigation, route }) {
         }
     };
 
-    // Áp dụng bộ lọc
-    const applyFilter = () => {
-        if (startDate && endDate) {
-            fetchData(); // Gọi lại API với startDate và endDate mới
-        } else {
-            console.log("Vui lòng chọn cả ngày bắt đầu và ngày kết thúc.");
-        }
-    };
-
     useEffect(() => {
         fetchData();
     }, [companyId]);
 
-    // Dữ liệu mock tạm thời cho kỹ năng (thay bằng API sau)
     const mockCandidateSkills = [
         { skill: "JavaScript", count: 40 },
         { skill: "Python", count: 25 },
@@ -259,43 +215,6 @@ export default function CompanyStatistical({ navigation, route }) {
                 leftIcon={"arrow-back"}
                 handleLeftIcon={() => navigation.goBack()}
                 title={"Thống kê tuyển dụng"}
-            />
-
-            {/* Bộ lọc thời gian */}
-            <View style={styles.filterContainer}>
-                <View style={StyleShare.flexBetween}>
-                    <Text style={StyleShare.lineText}>
-                        {startDate ? startDate.toLocaleDateString() : "Ngày bắt đầu"}
-                    </Text>
-                    <TouchableOpacity onPress={showStartPicker}>
-                        <Icon name="calendar" size={20} color={mainColor} />
-                    </TouchableOpacity>
-                </View>
-                <View style={StyleShare.flexBetween}>
-                    <Text style={StyleShare.lineText}>
-                        {endDate ? endDate.toLocaleDateString() : "Ngày kết thúc"}
-                    </Text>
-                    <TouchableOpacity onPress={showEndPicker}>
-                        <Icon name="calendar" size={20} color={mainColor} />
-                    </TouchableOpacity>
-                </View>
-                <TouchableOpacity style={styles.applyButton} onPress={applyFilter}>
-                    <Text style={{ color: white }}>Áp dụng</Text>
-                </TouchableOpacity>
-            </View>
-
-            {/* Date Pickers */}
-            <DateTimePickerModal
-                isVisible={isStartPickerVisible}
-                mode="date"
-                onConfirm={handleStartConfirm}
-                onCancel={hideStartPicker}
-            />
-            <DateTimePickerModal
-                isVisible={isEndPickerVisible}
-                mode="date"
-                onConfirm={handleEndConfirm}
-                onCancel={hideEndPicker}
             />
 
             {/* Nội dung chính */}

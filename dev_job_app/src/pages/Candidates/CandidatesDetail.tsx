@@ -211,15 +211,18 @@ const CandidatesDetail = () => {
                             <div className="flex space-x-4 mb-4.5">
                                 <div className="flex-1">
                                     <label className="mb-2.5 block text-black dark:text-white">CV ứng viên</label>
-                                    <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
-                                        {candidatesDetail?.cvUrl ? (
-                                            <a href={candidatesDetail.cvUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500">
-                                                {candidatesDetail.cvUrl}
-                                            </a>
-                                        ) : (
-                                            "Chưa cập nhật"
-                                        )}
-                                    </div>
+                                    {candidatesDetail?.cvUrl ? (
+                                        <a
+                                            href={candidatesDetail.cvUrl}
+                                            target="_blank"
+                                            className="bg-blue-500 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-600 transition"
+                                        >
+                                            Xem CV
+                                        </a>
+                                    ) : (
+                                        "Chưa cập nhật"
+                                    )}
+
                                 </div>
                             </div>
                         </div>

@@ -91,7 +91,6 @@ export default function CandidatesCreate({ navigation, route }) {
         }));
         setProvinces(provinceList);
     };
-
     const fetchCandidateDetail = async () => {
         if (!user?._id) return;
         setLoading(true);
@@ -99,7 +98,7 @@ export default function CandidatesCreate({ navigation, route }) {
             const token = await AsyncStorage.getItem("access_token");
             const res = await authApi(token).get(endpoints['candidateDetail'](user._id));
             const candidate = res.data.data;
-
+            console.log(candidate);
             if (candidate) {
                 setIsNewCandidate(false); // Candidate exists, so we're updating
                 setFullName(candidate.fullName || user.name || '');

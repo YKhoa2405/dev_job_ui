@@ -1,9 +1,10 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { authApi, endpoints } from '../../common/API';
 import { toast } from 'react-toastify';
 import Loader from '../../common/Loader';
+import { useSearchParams } from 'react-router-dom';
 
 interface Province {
     id: string;
@@ -22,6 +23,9 @@ interface Ward {
 
 
 const CreateCompany = () => {
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const userId = searchParams.get('userId');
     const [loading, setLoading] = useState(false)
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [districts, setDistricts] = useState<District[]>([]);
@@ -39,15 +43,17 @@ const CreateCompany = () => {
     const [avatar, setAvatar] = useState<File | null>(null);
     const [website, setWebsite] = useState<string>('');
     const [field, setField] = useState<string>('');
-    const [size, setSize] = useState<string>();
+    const [size, setSize] = useState<string>('100-199');
     const [about, setAbout] = useState<string>('');
+    const [taxCode, setTaxCode] = useState<string>('');
+
 
     const sizeOptions = [
         { value: "100-199", label: "100 - 199 nhân viên" },
         { value: "200-299", label: "200 - 299 nhân viên" },
         { value: "300-399", label: "300 - 399 nhân viên" },
         { value: "400-499", label: "400 - 499 nhân viên" }
-        
+
     ];
 
 
@@ -124,20 +130,17 @@ const CreateCompany = () => {
     const handleCreateCompany = async (e: any) => {
         e.preventDefault();
         if (
-            !name || !about || !size || !field || !address || !slogan || !website
+            !name || !about || !size || !field || !address || !slogan || !website || !taxCode
         ) {
-            // Nếu thiếu trường nào, thông báo lỗi cho người dùng
             toast.error('Vui lòng nhập đầy đủ thông tin', {
                 position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: false,
-
             });
             return;
         }
         setLoading(true)
 
-        // Dữ liệu đầy đủ, tiến hành tạo companyData
         const companyData = new FormData();
         companyData.append('name', name);
         companyData.append('about', about);
@@ -147,26 +150,31 @@ const CreateCompany = () => {
         companyData.append('field', field);
         companyData.append('city', city);
         companyData.append('slogan', slogan);
+        companyData.append('taxCode', taxCode);
+        if (userId) {
+            companyData.append('userId', userId);
+        }
         if (avatar) {
             companyData.append('avatar', avatar);
         }
-
         try {
             const token: any = localStorage.getItem("access_token");
-            await authApi(token).post(endpoints['companies'], companyData, {
+            await authApi(token).post(endpoints['companiesAdmin'], companyData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                },
+                }
             });
             toast.success('Thêm mới thành công!', {
                 position: "top-right",
                 autoClose: 3000,
             });
+            navigate('/admin/companies');
         } catch (error) {
             toast.error('Thêm mới thất bại', {
                 position: "top-right",
                 autoClose: 3000,
             });
+            console.log(error);
         } finally { setLoading(false) }
     };
 
@@ -306,6 +314,16 @@ const CreateCompany = () => {
                                     </div>
                                 </div>
                                 <div className="flex space-x-4 mb-4.5">
+                                    <div className="flex-1">
+                                        <label className="mb-2.5 block text-black dark:text-white">Mã số thuế  <span className="text-meta-1">*</span></label>
+                                        <input
+                                            type="text"
+                                            value={taxCode}
+                                            onChange={(e) => setTaxCode(e.target.value)}
+                                            placeholder="Nhập mã số thuế"
+                                            className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                        />
+                                    </div>
                                     <div className="flex-1">
                                         <label className="mb-2.5 block text-black dark:text-white">Slogan <span className="text-meta-1">*</span></label>
                                         <input

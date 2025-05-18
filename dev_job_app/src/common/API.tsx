@@ -19,6 +19,7 @@ export const endpoints = {
 
     // candidates
     'candidates': '/candidates',
+    'candidatesAdmin': '/candidates/admin',
     'candidatesDetail': (candidateId: string) => `/candidates/${candidateId}`,
 
     // skills
@@ -37,6 +38,8 @@ export const endpoints = {
 
     // company
     'companies': '/companies',
+    'companiesAdmin': '/companies/admin',
+
     'companiesDetail': (companyId: string) => `/companies/${companyId}`,
 
 
