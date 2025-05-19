@@ -165,8 +165,11 @@ const Companies = () => {
             <div className="col-span-2 flex items-center">
               <p className="font-medium">Tên công ty</p>
             </div>
-            <div className="col-span-2 hidden items-center sm:flex">
+            <div className="col-span-1 hidden items-center sm:flex">
               <p className="font-medium">Địa chỉ</p>
+            </div>
+            <div className="col-span-1 hidden items-center sm:flex">
+              <p className="font-medium">Giấy phép</p>
             </div>
             <div className="col-span-2 flex items-center">
               <p className="font-medium">Website</p>
@@ -196,9 +199,24 @@ const Companies = () => {
                       <p className="text-sm text-blue-600 ">{item.name}</p>
                     </div>
                   </div>
-                  <div className="col-span-2 hidden items-center sm:flex">
+                  <div className="col-span-1 hidden items-center sm:flex">
                     <p className="text-sm text-black ">{item.city}</p>
                   </div>
+                  <div className="col-span-1 hidden items-center sm:flex">
+                    {item?.businessLicenseUrl ? (
+                      <a
+                        href={item.businessLicenseUrl}
+                        target="_blank"
+                        className="bg-blue-500 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-600 transition"
+                      >
+                        Xem chi tiết
+                      </a>
+                    ) : (
+                      <p className="text-sm text-black ">Chưa cập nhật</p>
+
+                    )}
+                  </div>
+
                   <div className="col-span-2 flex items-center">
                     <a
                       href={item.website}

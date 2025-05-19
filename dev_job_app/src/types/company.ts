@@ -6,7 +6,8 @@ export type ICompanyList = {
     website: string
     city: string
     isApproved: boolean
-    size: number
+    size: number,
+    businessLicenseUrl: string
 }
 
 export type ICompanyEdit = {
@@ -36,7 +37,7 @@ export type ICompanyDetail = {
     taxCode: string,
     createdAt: string
     updatedAt: string,
-    businessLicenseUrl:string
+    businessLicenseUrl: string
     createBy: {
         _id: string
         email: string
