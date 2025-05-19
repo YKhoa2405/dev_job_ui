@@ -15,7 +15,7 @@ const Skills = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [limit, setLimit] = useState(100);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [sortOrder,setSortOrder]=useState('')
+  const [sortOrder, setSortOrder] = useState('')
   const [searchCate, setSearchCate] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingModal, setLoadingModal] = useState(false);
@@ -53,7 +53,7 @@ const Skills = () => {
 
   useEffect(() => {
     fetchListSkill(currentPage, limit);
-  }, [currentPage, limit, searchCate,sortOrder]);
+  }, [currentPage, limit, searchCate, sortOrder]);
 
   const fetchListSkill = useCallback(
     async (page = 1, limit = 100, name = '') => {
@@ -98,18 +98,17 @@ const Skills = () => {
 
   const handleCreateSkill = useCallback(async () => {
     setLoadingModal(true);
-    if (!name) {
-      toast.error('Vui lòng nhập tên công nghệ!', {
+    if (!name ||!category) {
+      toast.error('Vui lòng nhập đầy đủ thông tin!', {
         position: 'top-right',
         autoClose: 3000,
       });
       setLoadingModal(false);
       return;
     }
-    console.log(name)
     try {
       const response = await API.post(endpoints['skills'], { name, category });
-      console.log(response);
+
       if (response.status === 201) {
         toast.success('Thêm mới thành công!', {
           position: 'top-right',
@@ -261,6 +260,9 @@ const Skills = () => {
                           onChange={(e) => setCategory(e.target.value)}
                           className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         >
+                          <option value="" disabled>
+                            Chọn danh mục
+                          </option>
                           {categoryOptions.map((item) => (
                             <option key={item.value} value={item.value}>
                               {item.label}
@@ -487,16 +489,16 @@ const Skills = () => {
                   <div className="col-span-2 hidden sm:flex items-center">
                     <div className="flex items-center space-x-3.5">
                       <button
-                        onClick={() => handleDeleteSkills(item._id)}
-                        className="hover:text-red-500"
-                      >
-                        <TrashIcon size={20} />
-                      </button>
-                      <button
                         onClick={() => openEditModal(item)}
                         className="hover:text-primary"
                       >
                         <Pencil size={20} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteSkills(item._id)}
+                        className="hover:text-red-500"
+                      >
+                        <TrashIcon size={20} />
                       </button>
                     </div>
                   </div>

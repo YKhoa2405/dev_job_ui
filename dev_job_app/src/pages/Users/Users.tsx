@@ -468,7 +468,7 @@ const Users = () => {
               Thêm mới
             </button>
           </div>
-          <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
+          <div className="grid grid-cols-6 border-t border-stroke py-4 px-4 dark:border-strokedark sm:grid-cols-7 md:px-6 2xl:px-7.5">
             <div className="col-span-2 flex items-center">
               <p className="font-medium">Id</p>
             </div>
@@ -481,17 +481,15 @@ const Users = () => {
             <div className="col-span-2 hidden items-center sm:flex">
               <p className="font-medium">Role</p>
             </div>
-            {/* <div className="col-span-1 hidden items-center sm:flex">
-              <p className="font-medium">Hành động</p>
-            </div> */}
           </div>
+
           {loading ? (
             <Loading />
           ) : (
             <div>
               {userData.map((item) => (
                 <div
-                  className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
+                  className="grid grid-cols-6 border-t border-stroke py-4 px-4 dark:border-strokedark sm:grid-cols-7 md:px-6 2xl:px-7.5"
                   key={item._id}
                 >
                   <div className="col-span-2 flex items-center">
@@ -501,32 +499,20 @@ const Users = () => {
                     <p className="text-sm text-black dark:text-white">{item.email}</p>
                   </div>
                   <div className="col-span-1 hidden items-center sm:flex">
-                    <p className="text-sm text-black dark:text-white">
-                      {item.isDeleted ? (
-                        <CircleX size={20} color="red" />
-                      ) : (
-                        <CircleCheckBigIcon size={20} color="green" />
-                      )}
-                    </p>
+                    {item.isDeleted ? (
+                      <CircleX size={20} color="red" />
+                    ) : (
+                      <CircleCheckBigIcon size={20} color="green" />
+                    )}
                   </div>
-                  <div className="col-span-2 hidden items-center sm:flex">{item.role.name}</div>
-                  {/* <div className="col-span-1 hidden items-center sm:flex">
-                    <div className="flex items-center space-x-3.5">
-                      <button className="hover:text-primary">
-                        <Eye size={20} />
-                      </button>
-                      <button onClick={() => handleDeleteUser(item._id)} className="hover:text-red-500">
-                        <TrashIcon size={20} />
-                      </button>
-                      <button className="hover:text-primary">
-                        <Pencil size={20} />
-                      </button>
-                    </div>
-                  </div> */}
+                  <div className="col-span-2 hidden items-center sm:flex">
+                    <p className="text-sm text-black dark:text-white">{item.role.name}</p>
+                  </div>
                 </div>
               ))}
             </div>
           )}
+
           <div className="py-6 px-4 md:px-6 xl:px-7.5 border-t border-stroke dark:border-strokedark">
             <div className="flex items-center justify-between">
               <h6 className="text-base font-semibold text-black dark:text-white">

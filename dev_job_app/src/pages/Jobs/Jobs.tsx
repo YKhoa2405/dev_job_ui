@@ -210,7 +210,7 @@ const Jobs = () => {
           </div>
 
 
-          <div className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
+          <div className="grid grid-cols-7 border-t border-stroke py-4.5 px-4  sm:grid-cols-7 md:px-6 2xl:px-7.5">
             <div className="col-span-2 flex items-center">
               <p className="font-medium">Tiêu đề</p>
             </div>
@@ -233,7 +233,7 @@ const Jobs = () => {
             <div>
               {jobData.map((item, key) => (
                 <div
-                  className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
+                  className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 sm:grid-cols-7 md:px-6 2xl:px-7.5"
                   key={key}
                 >
                   <div className="col-span-2 flex items-center">
@@ -267,12 +267,12 @@ const Jobs = () => {
                     <div className="flex items-center space-x-3.5">
                       <div className="hover:text-primary">
                       </div>
-                      <button onClick={() => handleDeleteJob(item._id)} className="hover:text-red-500">
-                        <TrashIcon size={20} />
-                      </button>
                       <Link className="hover:text-primary" to={`${item._id}`}>
                         <Pencil size={20} />
                       </Link>
+                      <button onClick={() => handleDeleteJob(item._id)} className="hover:text-red-500">
+                        <TrashIcon size={20} />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -280,7 +280,7 @@ const Jobs = () => {
             </div>
           )}
 
-          <div className="py-6 px-4 md:px-6 xl:px-7.5 border-t border-stroke dark:border-strokedark">
+          <div className="py-6 px-4 md:px-6 xl:px-7.5 border-t border-stroke ">
             <div className="flex items-center justify-between">
               <h6 className="text-base font-semibold text-black ">Tổng {totalItems} tin tuyển dụng </h6>
               <div className="flex items-center justify-center gap-4">

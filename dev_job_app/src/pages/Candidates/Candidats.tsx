@@ -174,7 +174,7 @@ const Candidates = () => {
                         </h4>
                     </div>
 
-                    <div className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
+                    <div className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-7 md:px-6 2xl:px-7.5">
                         <div className="col-span-2 flex items-center">
                             <p className="font-medium">Họ và tên</p>
                         </div>
@@ -198,7 +198,7 @@ const Candidates = () => {
                         <div>
                             {candidateData.map((item) => (
                                 <div
-                                    className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
+                                    className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-7 md:px-6 2xl:px-7.5"
                                     key={item._id}
                                 >
                                     <div className="col-span-2 flex items-center">

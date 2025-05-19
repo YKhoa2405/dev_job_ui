@@ -301,11 +301,11 @@ const Resumes = () => {
                                 </div>
                                 <div className="col-span-1 flex items-center">
                                     <div className="flex items-center space-x-3.5">
-                                        <button onClick={() => handleDeleteResume(item._id)} className="hover:text-red-600" title="Xóa hồ sơ">
-                                            <TrashIcon size={20} />
-                                        </button>
                                         <button onClick={() => openModal(item._id)} className="hover:text-primary" title="Chỉnh sửa">
                                             <Pencil size={20} />
+                                        </button>
+                                        <button onClick={() => handleDeleteResume(item._id)} className="hover:text-red-600" title="Xóa hồ sơ">
+                                            <TrashIcon size={20} />
                                         </button>
                                     </div>
                                 </div>
