@@ -35,7 +35,8 @@ export type ICompanyDetail = {
     isApproved: boolean,
     taxCode: string,
     createdAt: string
-    updatedAt: string
+    updatedAt: string,
+    businessLicenseUrl:string
     createBy: {
         _id: string
         email: string

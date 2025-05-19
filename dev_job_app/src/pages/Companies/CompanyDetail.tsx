@@ -206,9 +206,17 @@ const CompanyDetail = () => {
                             <div className="flex space-x-4 mb-4.5">
                                 <div className="flex-1">
                                     <label className="mb-2.5 block text-black dark:text-white">Giấy phép kinh doanh</label>
-                                    <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
-                                        {companyDetail?.followers}
-                                    </div>
+                                    {companyDetail?.businessLicenseUrl ? (
+                                        <a
+                                            href={companyDetail.businessLicenseUrl}
+                                            target="_blank"
+                                            className="bg-blue-500 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-600 transition"
+                                        >
+                                            Xem chi tiết
+                                        </a>
+                                    ) : (
+                                        "Chưa cập nhật"
+                                    )}
                                 </div>
                                 <div className="flex-1">
                                     <label className="mb-2.5 block text-black dark:text-white">Số người theo dõi</label>
