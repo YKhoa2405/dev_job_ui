@@ -48,11 +48,14 @@ const CreateCompany = () => {
   const [taxCode, setTaxCode] = useState<string>('');
 
   const sizeOptions = [
-    { value: '100-199', label: '100 - 199 nhân viên' },
-    { value: '200-299', label: '200 - 299 nhân viên' },
-    { value: '300-399', label: '300 - 399 nhân viên' },
-    { value: '400-499', label: '400 - 499 nhân viên' },
+    { value: '100-199', label: '100 - 199' },
+    { value: '200-299', label: '200 - 299' },
+    { value: '300-399', label: '300 - 399' },
+    { value: '400-499', label: '400 - 499' },
+    { value: '500+', label: '500+' },
+    { value: '1000+', label: '1000+' },
   ];
+
 
   useEffect(() => {
     fetchProvinces();

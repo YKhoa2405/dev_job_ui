@@ -64,7 +64,9 @@ export default function CandidatesProfile({ navigation, route }) {
     const renderCVItem = ({ item }) => (
         <TouchableOpacity
             style={styles.cvItem}
-            onPress={() => navigation.navigate('ResumeClientView', { pdfUri: item.url })}
+            onPress={() => {
+                Linking.openURL(item?.url);
+            }}
         >
             <Icon name="document-outline" size={20} color={mainColor} />
             <View style={{ marginLeft: 10, flex: 1 }}>

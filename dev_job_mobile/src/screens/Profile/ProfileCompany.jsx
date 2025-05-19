@@ -42,58 +42,69 @@ export default function ProfileCompany({ navigation }) {
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 20 }}>
                     <View style={styles.containerTop}>
                         <View style={StyleShare.containerAvatar}>
-                            <Avatar.Image source={{ uri: companyByUser.avatar }} size={60} style={{ backgroundColor: 'white' }} />
+                            <Avatar.Image source={{ uri: companyByUser?.avatar }} size={60} style={{ backgroundColor: 'white' }} />
                         </View>
-                        <Text style={StyleShare.titleText16}>{companyByUser.name}</Text>
-                        <Text style={{ marginTop: 5, textAlign: 'center' }}>{companyByUser.slogan}</Text>
+                        <Text style={StyleShare.titleText16}>{companyByUser?.name}</Text>
+                        <Text style={{ marginTop: 5, textAlign: 'center' }}>{companyByUser?.slogan}</Text>
 
                         <View style={[StyleShare.flexBetween, { marginTop: 10 }]}>
                             <View style={[StyleShare.flexCenter, { flex: 1 }]}>
                                 <Icon name="people-outline" size={18} />
-                                <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{companyByUser.followers} người theo dõi</Text>
+                                <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{companyByUser?.followers} người theo dõi</Text>
                             </View>
                             <View style={[StyleShare.flexCenter, { flex: 1 }]}>
                                 <Icon name="business-outline" size={18} />
-                                <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{companyByUser.size} nhân viên</Text>
+                                <Text style={{ marginLeft: 5, fontSize: 12, fontWeight: '500' }}>{companyByUser?.size} nhân viên</Text>
                             </View>
                         </View>
                     </View>
                     <View style={styles.containerMain}>
-                        <TouchableOpacity onPress={() => navigation.navigate("EditCompany")}>
-                            <View style={[StyleShare.buttonDetailApply, { backgroundColor: white }]}>
-                                <Icon name="pencil-outline" size={22} />
-                                <Text style={{ marginLeft: 5 }}>Chỉnh sửa thông tin</Text>
-                            </View>
-                        </TouchableOpacity>
+                        <View style={StyleShare.flexBetween}>
+                            <TouchableOpacity onPress={() => handleLocationPress()}>
+                                <View style={[StyleShare.buttonDetailApply, { backgroundColor: white }]}>
+                                    <Icon name="map-outline" size={22} />
+                                    <Text style={{ marginLeft: 5 }}>Xem bản đồ</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation.navigate("EditCompany")}>
+                                <View style={[StyleShare.buttonDetailApply, { backgroundColor: white }]}>
+                                    <Icon name="pencil-outline" size={22} />
+                                    <Text style={{ marginLeft: 5 }}>Chỉnh sửa thông tin</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
                         <View style={{ marginTop: 10 }}>
                             <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Giới thiệu công ty</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{companyByUser.about}</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{companyByUser?.about}</Text>
                             <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Lĩnh vực hoạt động</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{companyByUser.field}</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{companyByUser?.field}</Text>
                             <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Website</Text>
-                            <TouchableOpacity onPress={() => handleOpenWebsite(companyByUser.website)}>
-                                <Text style={{ color: orange, marginTop: 5 }}>{companyByUser.website}</Text>
+                            <TouchableOpacity onPress={() => handleOpenWebsite(companyByUser?.website)}>
+                                <Text style={{ color: orange, marginTop: 5 }}>{companyByUser?.website}</Text>
+                            </TouchableOpacity>
+                            <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Mã số thuế</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{companyByUser?.taxCode}</Text>
+                            <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Giấy phép kinh doanh</Text>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    if (companyByUser?.businessLicenseUrl) {
+                                        Linking.openURL(companyByUser.businessLicenseUrl);
+                                    }
+                                }}
+                            >
+                                <Text style={{ color: orange, marginTop: 5, }}>
+                                    {companyByUser?.businessLicenseUrl ? 'Xem giấy phép' : 'Chưa có'}
+                                </Text>
                             </TouchableOpacity>
                             <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Địa chỉ công ty</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{companyByUser.address}</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{companyByUser?.address}</Text>
                             <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Ngày tạo tài khoản</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{moment(companyByUser.createdAt).format("DD/MM/YYYY")}</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{moment(companyByUser?.createdAt).format("DD/MM/YYYY")}</Text>
                             <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Ngày cập nhật</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{moment(companyByUser.updatedAt).format("DD/MM/YYYY")}</Text>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{moment(companyByUser?.updatedAt).format("DD/MM/YYYY")}</Text>
                             <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Cập nhật bởi</Text>
-                            <Text style={{ color: textColor, marginTop: 5 }}>{companyByUser.updateBy.email}</Text>
-                            <TouchableOpacity style={{
-                                backgroundColor: white,
-                                paddingHorizontal: 24,
-                                paddingVertical: 10,
-                                borderRadius: 10,
-                                marginTop: 10,
-                                alignItems: 'center',
-                                borderWidth: 1,
-                                borderColor: bgButton2
-                            }} onPress={() => handleLocationPress()}>
-                                <Text style={{ color: textColor, marginTop: 5 }}><Text style={{ fontWeight: '500', color: mainColor }}>Xem địa chỉ trên Map</Text></Text>
-                            </TouchableOpacity>
+                            <Text style={{ color: textColor, marginTop: 5 }}>{companyByUser?.updateBy?.email}</Text>
+
                         </View>
                     </View>
 

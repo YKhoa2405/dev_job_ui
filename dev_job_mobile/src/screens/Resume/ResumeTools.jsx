@@ -1,5 +1,5 @@
 
-import { View, Text, ActivityIndicator, TouchableOpacity, TextInput, Alert, ScrollView, Share } from "react-native";
+import { View, Text, ActivityIndicator, TouchableOpacity, Alert, ScrollView, Share, Linking } from "react-native";
 import UIHeader from "../../components/UIHeader";
 import { StyleSheet } from "react-native";
 import { bgButton2, grey, mainColor, orange, textColor, white } from "../../assets/themes/Color";
@@ -95,7 +95,7 @@ export default function ResumeTools({ navigation }) {
     };
 
     const handleShare = async () => {
-        const result = await Share.share({
+        await Share.share({
             message: `Xem CV của tôi: ${selectedCv.url}`,
             title: "Chia sẻ CV",
             url: selectedCv.url,
@@ -268,13 +268,15 @@ export default function ResumeTools({ navigation }) {
                     <Text style={StyleShare.titleText16}>Cv của bạn</Text>
 
                     <View style={{ marginTop: 15 }}>
-                    <AlertBanner message={"CV chính của bạn sẽ hiển thị với nhà tuyển dụng."} type={'info'} />
+                        <AlertBanner message={"CV chính của bạn sẽ hiển thị với nhà tuyển dụng."} type={'info'} />
                         {cvData && cvData.length > 0 ? (
                             <>
                                 {cvData.map((item) => (
                                     <TouchableOpacity
                                         style={styles.cvItem}
-                                        onPress={() => navigation.navigate('ResumeClientView', { pdfUri: item.url })}
+                                        onPress={() => {
+                                            Linking.openURL(item?.url);
+                                        }}
                                         key={item._id}
                                     >
                                         <Icon name="document-outline" size={20} color={mainColor} />

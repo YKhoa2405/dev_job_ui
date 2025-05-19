@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Linking } from "react-native";
 import { Avatar } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
 import { GiftedChat, Send } from "react-native-gifted-chat";
@@ -197,7 +197,9 @@ export default function ChatSocket({ route, navigation }) {
                             >
                                 {currentMessage.file ? (
                                     <TouchableOpacity
-                                        onPress={() => navigation.navigate('ResumeClientView', { pdfUri: currentMessage.file })}
+                                        onPress={() => {
+                                            Linking.openURL(currentMessage?.file);
+                                        }}
                                         style={{
                                             flexDirection: "row",
                                             alignItems: "center",

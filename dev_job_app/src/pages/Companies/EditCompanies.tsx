@@ -8,7 +8,6 @@ import Loader from '../../common/Loader';
 import { useParams } from 'react-router-dom';
 import { ICompanyDetail } from '../../types/company';
 
-
 const EditCompanies = () => {
   moment.locale('vi');
   const [companyDetail, setCompanyDetail] = useState<ICompanyDetail | null>(null);
@@ -19,6 +18,15 @@ const EditCompanies = () => {
   const [businessLicensePreview, setBusinessLicensePreview] = useState<string | null>(null);
   const navigate = useNavigate();
   const { id } = useParams<{ id?: string }>();
+
+  const sizeOptions = [
+    { value: '100-199', label: '100 - 199' },
+    { value: '200-299', label: '200 - 299' },
+    { value: '300-399', label: '300 - 399' },
+    { value: '400-499', label: '400 - 499' },
+    { value: '500+', label: '500+' },
+    { value: '1000+', label: '1000+' },
+  ];
 
   useEffect(() => {
     fetchCompanyDetail();
@@ -41,7 +49,7 @@ const EditCompanies = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setCompanyDetail((prev) => (prev ? { ...prev, [name]: value } : null));
   };
@@ -232,14 +240,22 @@ const EditCompanies = () => {
                 </div>
                 <div className="flex-1">
                   <label className="mb-2.5 block text-black dark:text-white">Quy mô công ty</label>
-                  <input
-                    type="text"
+                  <select
                     name="size"
                     value={companyDetail?.size || ''}
                     onChange={handleInputChange}
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     disabled={loading}
-                  />
+                  >
+                    <option value="" disabled>
+                      Chọn quy mô
+                    </option>
+                    {sizeOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -252,7 +268,7 @@ const EditCompanies = () => {
                   <input
                     type="text"
                     name="address"
-                    value={companyDetail?.address || ''}
+                    value={companyDetail?.size || ''}
                     onChange={handleInputChange}
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     disabled={loading}
@@ -341,12 +357,10 @@ const EditCompanies = () => {
                   <label htmlFor="business-license-upload" className="cursor-pointer block w-full">
                     {businessLicensePreview ? (
                       <div className="flex items-center gap-2">
-                        <span className="truncate">
-                          {businessLicensePreview}
-                        </span>
+                        <span className="truncate">{businessLicensePreview}</span>
                       </div>
                     ) : (
-                      <div className="h-20 w-full rounded border border-dashed border-gray-300 flex items-center justify-center text-gray-500">
+                      <div className="h-12 w-full rounded border border-dashed border-gray-300 flex items-center justify-center text-gray-500">
                         Chọn file
                       </div>
                     )}

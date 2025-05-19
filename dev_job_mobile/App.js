@@ -49,7 +49,6 @@ import ResumeInput from './src/screens/Resume/ResumeInput';
 import ResumeExperience from './src/screens/Resume/ResumeExperience';
 import ResumeProject from './src/screens/Resume/ResumeProject';
 import ResumeTemplates from './src/screens/Resume/ResumeTemplates';
-import ResumeClientView from './src/screens/Resume/ResumeClientView';
 import ChatBot from './src/screens/Chat/ChatBot';
 import CandidatesCreate from './src/screens/Profile/CandidatesCreate';
 import CandidateSearch from './src/screens/Company/CandidateSearch';
@@ -220,7 +219,6 @@ export default function App() {
           <Stack.Screen name="ResumeApply" component={ResumeApply} />
           <Stack.Screen name="ResumeByJob" component={ResumeByJob} />
           <Stack.Screen name="ResumeView" component={ResumeView} />
-          <Stack.Screen name="ResumeClientView" component={ResumeClientView} />
           <Stack.Screen name="CongratsScreen" component={CongratsScreen} />
           <Stack.Screen name="ResumeInput" component={ResumeInput} />
           <Stack.Screen name="ResumeExperience" component={ResumeExperience} />

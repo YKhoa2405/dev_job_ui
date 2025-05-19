@@ -20,7 +20,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
 import { ToastMess } from "../../components/ToastMess";
 import Dropdown from "../../components/Dropdown";
-import * as ImagePicker from "expo-image-picker"; // Thêm expo-image-picker
+import * as ImagePicker from "expo-image-picker";
 
 export default function EditCompany({ navigation }) {
     const dispatch = useDispatch();
@@ -43,10 +43,13 @@ export default function EditCompany({ navigation }) {
         website: "",
         address: "",
         size: "",
-        avatar: "", // URI hoặc URL của avatar
+        taxCode: "", // Added taxCode
+        avatar: "",
+        businessLicense: "",
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [avatarPreview, setAvatarPreview] = useState(null); // Xem trước avatar
+    const [avatarPreview, setAvatarPreview] = useState(null);
+    const [businessLicensePreview, setBusinessLicensePreview] = useState(null);
 
     useEffect(() => {
         dispatch(fetchCompanyByUser());
@@ -62,9 +65,12 @@ export default function EditCompany({ navigation }) {
                 website: companyByUser.website || "",
                 address: companyByUser.address || "",
                 size: companyByUser.size || "",
+                taxCode: companyByUser.taxCode || "", // Initialize taxCode
                 avatar: companyByUser.avatar || "",
+                businessLicense: companyByUser.businessLicenseUrl || "",
             });
-            setAvatarPreview(companyByUser.avatar || null); // Hiển thị avatar hiện tại
+            setAvatarPreview(companyByUser.avatar || null);
+            setBusinessLicensePreview(companyByUser.businessLicenseUrl || null);
         }
     }, [companyByUser]);
 
@@ -72,7 +78,6 @@ export default function EditCompany({ navigation }) {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    // Hàm chọn ảnh từ thư viện
     const handleUpdateAvatar = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== "granted") {
@@ -83,7 +88,7 @@ export default function EditCompany({ navigation }) {
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
-            aspect: [1, 1], // Tỷ lệ 1:1
+            aspect: [1, 1],
             quality: 1,
             maxWidth: 500,
             maxHeight: 500,
@@ -91,16 +96,43 @@ export default function EditCompany({ navigation }) {
 
         if (!result.canceled) {
             const uri = result.assets[0].uri;
-            setAvatarPreview(uri); // Cập nhật xem trước
-            setFormData((prev) => ({ ...prev, avatar: uri })); // Lưu URI vào formData
+            setAvatarPreview(uri);
+            setFormData((prev) => ({ ...prev, avatar: uri }));
+        }
+    };
+
+    const handleUpdateBusinessLicense = async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== "granted") {
+            ToastMess({ type: "error", text1: "Cần cấp quyền truy cập thư viện!" });
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: false,
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            const uri = result.assets[0].uri;
+            const fileType = uri.endsWith(".pdf") ? "application/pdf" : "image/jpeg";
+            setBusinessLicensePreview(uri);
+            setFormData((prev) => ({ ...prev, businessLicense: uri }));
         }
     };
 
     const handleSave = async () => {
+        // Validation
         if (!formData.name.trim()) {
             ToastMess({ type: "error", text1: "Tên công ty không được để trống" });
             return;
         }
+        if (!formData.taxCode.trim()) {
+            ToastMess({ type: "error", text1: "Mã số thuế không được để trống" });
+            return;
+        }
+
         setIsSubmitting(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
@@ -108,7 +140,7 @@ export default function EditCompany({ navigation }) {
 
             // Thêm các trường văn bản vào payload
             Object.keys(formData).forEach((key) => {
-                if (key !== "avatar") {
+                if (key !== "avatar" && key !== "businessLicense") {
                     payload.append(key, formData[key]);
                 }
             });
@@ -117,8 +149,18 @@ export default function EditCompany({ navigation }) {
             if (formData.avatar && formData.avatar !== companyByUser.avatar) {
                 payload.append("avatar", {
                     uri: formData.avatar,
-                    type: "image/jpeg", // Giả định là JPEG
+                    type: "image/jpeg",
                     name: "avatar.jpg",
+                });
+            }
+
+            // Thêm businessLicense nếu có thay đổi
+            if (formData.businessLicense && formData.businessLicense !== companyByUser.businessLicenseUrl) {
+                const fileType = formData.businessLicense.endsWith(".pdf") ? "application/pdf" : "image/jpeg";
+                payload.append("businessLicense", {
+                    uri: formData.businessLicense,
+                    type: fileType,
+                    name: formData.businessLicense.endsWith(".pdf") ? "license.pdf" : "license.jpg",
                 });
             }
 
@@ -168,6 +210,28 @@ export default function EditCompany({ navigation }) {
                             </TouchableOpacity>
                         </View>
 
+                        {/* Giấy phép kinh doanh */}
+                        <Text style={[StyleShare.titleText16, { marginBottom: 5, marginTop: 15 }]}>Giấy phép kinh doanh</Text>
+                        <View style={styles.avatarContainer}>
+                            {businessLicensePreview ? (
+                                businessLicensePreview.endsWith(".pdf") ? (
+                                    <View style={styles.avatarPlaceholder}>
+                                        <Icon name="document-outline" size={30} color={grey} />
+                                        <Text style={styles.previewText}>PDF</Text>
+                                    </View>
+                                ) : (
+                                    <Image source={{ uri: businessLicensePreview }} style={styles.avatarImage} />
+                                )
+                            ) : (
+                                <View style={styles.avatarPlaceholder}>
+                                    <Icon name="document-outline" size={30} color={grey} />
+                                </View>
+                            )}
+                            <TouchableOpacity style={styles.updateAvatarButton} onPress={handleUpdateBusinessLicense}>
+                                <Text style={styles.updateAvatarText}>Cập nhật giấy phép</Text>
+                            </TouchableOpacity>
+                        </View>
+
                         {/* Tên công ty */}
                         <Text style={styles.label}>Tên công ty</Text>
                         <TextInput
@@ -200,6 +264,16 @@ export default function EditCompany({ navigation }) {
                                 height: 50,
                             }}
                             defaultValue={formData.size}
+                        />
+
+                        {/* Mã số thuế */}
+                        <Text style={styles.label}>Mã số thuế</Text>
+                        <TextInput
+                            style={styles.introduceInput}
+                            value={formData.taxCode}
+                            onChangeText={(text) => handleInputChange("taxCode", text)}
+                            placeholder="Nhập mã số thuế"
+                            keyboardType="numeric" // Restrict to numeric input
                         />
 
                         {/* Giới thiệu công ty */}
@@ -241,8 +315,9 @@ export default function EditCompany({ navigation }) {
                         />
 
                         <View style={{ marginTop: 30 }}>
-                            {isSubmitting ? <Loading /> : (
-
+                            {isSubmitting ? (
+                                <Loading />
+                            ) : (
                                 <Button
                                     title={isSubmitting ? "" : "Lưu"}
                                     onPress={handleSave}
@@ -305,5 +380,10 @@ const styles = StyleSheet.create({
         color: white,
         fontSize: 14,
         fontWeight: "500",
+    },
+    previewText: {
+        fontSize: 12,
+        color: grey,
+        marginTop: 5,
     },
 });

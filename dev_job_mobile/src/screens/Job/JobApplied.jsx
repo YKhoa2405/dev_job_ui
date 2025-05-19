@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Image, TouchableOpacity, Text, FlatList, TouchableWithoutFeedback } from "react-native";
+import { View, Image, TouchableOpacity, Text, FlatList, TouchableWithoutFeedback, Linking } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import UIHeader from "../../components/UIHeader";
 import { Avatar, Chip } from "react-native-paper";
@@ -113,7 +113,11 @@ export default function JobApplied({ navigation }) {
                         </View>
                     </View>
                     <View style={StyleShare.flexBetween}>
-                        <TouchableOpacity onPress={() => navigation.navigate('ResumeClientView', { pdfUri: item?.url })}
+                        <TouchableOpacity
+                            onPress={() => {
+                                Linking.openURL(item?.cv);
+                            }}
+
                         >
                             <View style={[StyleShare.buttonDetailApply]} >
                                 <Icon name="document-outline" size={20} />

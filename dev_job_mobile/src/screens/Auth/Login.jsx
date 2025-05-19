@@ -94,8 +94,8 @@ export default function Login({ navigation }) {
             let data = {
                 // username: email || 'nguyenykhoali2003@gmail.com',
                 // username: 'nykhoa2405@gmail.com',
-                // username: '2151050202khoa@ou.edu.vn',
-                username: '2151050462toan@ou.edu.vn',
+                username: '2151050202khoa@ou.edu.vn',
+                // username: '2151050462toan@ou.edu.vn',
 
                 password: password || '123456',
             };
