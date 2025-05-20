@@ -6,7 +6,7 @@ import { Avatar, Chip } from "react-native-paper";
 import Icon from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
-import { orange, textColor } from "../../assets/themes/Color";
+import { orange, textColor, white } from "../../assets/themes/Color";
 import Loading from "../../components/Loading";
 import moment from "moment";
 import { ToastMess } from "../../components/ToastMess";
@@ -121,8 +121,11 @@ export default function JobSaved({ navigation }) {
                             </Chip>
                         ))}
                         {item?.isUrgent && (
-                            <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
-                                GẤP
+                            <Chip
+                                style={[StyleShare.chip, { backgroundColor: '#FF4500', marginLeft: 5 }]}
+                                icon={() => <Icon name="flame" size={16} color={white} />}
+                            >
+                                <Text style={{ color: white, fontSize: 12 }}>Gấp</Text>
                             </Chip>
                         )}
                     </View>

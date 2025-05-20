@@ -32,7 +32,7 @@ export const endpoints = {
     'subscribers': '/subscribers',
     'subscribersUser': '/subscribers/user',
     'subscribersDetail': (subId) => `/subscribers/${subId}`,
- 
+
     // suggestions
     'suggestions': '/suggestions',
     'popularSuggestions': '/suggestions/popular',
@@ -67,7 +67,8 @@ export const endpoints = {
     // jobs
     'jobs': '/jobs',
     'jobsSearchKey': '/jobs/searchkey',
-    'jobsNearBy': (latitude, longitude, distance) => `https://devjob-yo64.onrender.com/jobs/nearby?latitude=${latitude}&longitude=${longitude}&radius=${distance}`,
+    'jobsNearBy': '/jobs/nearby',
+    // 'jobsNearBy': (latitude, longitude, distance) => `/jobs/nearby?latitude=${latitude}&longitude=${longitude}&radius=${distance}`,
     'jobsByCompany': (companyId) => `/jobs/${companyId}/jobs`,
     'jobDetail': (jobId) => `/jobs/${jobId}`,
 

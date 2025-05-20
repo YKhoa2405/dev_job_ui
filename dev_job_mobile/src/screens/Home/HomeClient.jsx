@@ -39,18 +39,18 @@ export default function HomeClient({ navigation }) {
       { type: 'urgent_header', id: 'urgent_header' },
       ...(jobUrgentList.length > 0
         ? jobUrgentList.map((job) => ({
-            type: 'urgent_job',
-            data: job,
-            id: `urgent_${job._id}`,
-          }))
+          type: 'urgent_job',
+          data: job,
+          id: `urgent_${job._id}`,
+        }))
         : [{ type: 'empty_urgent', id: 'empty_urgent' }]),
       { type: 'recommend_header', id: 'recommend_header' },
       ...(jobRecommendList.length > 0
         ? jobRecommendList.map((job) => ({
-            type: 'recommend_job',
-            data: job,
-            id: `recommend_${job._id}`,
-          }))
+          type: 'recommend_job',
+          data: job,
+          id: `recommend_${job._id}`,
+        }))
         : [{ type: 'empty_recommend', id: 'empty_recommend' }]),
     ];
     setSectionData(sections);
@@ -124,8 +124,11 @@ export default function HomeClient({ navigation }) {
               </Chip>
             ))}
             {item.isUrgent && (
-              <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
-                GẤP
+              <Chip
+                style={[StyleShare.chip, { backgroundColor: '#FF4500', marginLeft: 5 }]}
+                icon={() => <Icon name="flame" size={16} color={white} />}
+              >
+                <Text style={{ color: white, fontSize: 12 }}>Gấp</Text>
               </Chip>
             )}
           </View>
@@ -146,7 +149,7 @@ export default function HomeClient({ navigation }) {
       switch (item.type) {
         case 'urgent_header':
           return (
-            <View style={[StyleShare.flexBetween, { marginHorizontal: 20, marginTop: 20 }]}> 
+            <View style={[StyleShare.flexBetween, { marginHorizontal: 20, marginTop: 20 }]}>
               <Text style={StyleShare.titleText20}>Việc làm Gấp</Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('JobSuggestions', { title: 'Việc làm gấp', api: 'jobs' })}
@@ -157,7 +160,7 @@ export default function HomeClient({ navigation }) {
           );
         case 'recommend_header':
           return (
-            <View style={[StyleShare.flexBetween, { marginHorizontal: 20, marginTop: 30 }]}> 
+            <View style={[StyleShare.flexBetween, { marginHorizontal: 20, marginTop: 30 }]}>
               <Text style={StyleShare.titleText20}>Gợi ý việc làm</Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate('JobSuggestions', { title: 'Gợi ý việc làm', api: 'recommend' })}
@@ -184,7 +187,7 @@ export default function HomeClient({ navigation }) {
     () => (
       <ImageBackground source={require('../../assets/images/background.png')} style={styles.background}>
         <View style={{ flex: 1, marginHorizontal: 20 }}>
-          <View style={[StyleShare.flexBetween, { marginTop: 40 }]}> 
+          <View style={[StyleShare.flexBetween, { marginTop: 40 }]}>
             <Text style={[StyleShare.titleText16, { color: white, fontStyle: 'italic' }]}>Chào bạn, {currentUser?.name || 'Khách'}.</Text>
             <View style={StyleShare.flexBetween}>
               <TouchableOpacity

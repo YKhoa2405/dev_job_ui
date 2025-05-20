@@ -35,9 +35,7 @@ const Notification = ({ navigation, route }) => {
   });
 
   useEffect(() => {
-    // Kết nối WebSocket và tham gia phòng với userId
     socket.emit("join", userId);
-
     // Lắng nghe thông báo mới
     socket.on("notification", (notification) => {
       setNotifications((prev) => [notification, ...prev]); // Thêm thông báo mới vào đầu danh sách
@@ -104,8 +102,7 @@ const Notification = ({ navigation, route }) => {
         )
       );
     } catch (error) {
-      console.log("Error marking notification as read:", error);
-    }
+      console.log("Error marking notification as read:", error);}
   };
 
   const renderNotificationItem = ({ item }) => (

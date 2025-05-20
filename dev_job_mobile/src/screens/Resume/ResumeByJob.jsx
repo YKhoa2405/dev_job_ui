@@ -171,8 +171,11 @@ export default function ResumeByJob({ navigation, route }) {
                             </View>
                             <View style={{ flex: 1 }}>
                                 {jobDetail.isUrgent && (
-                                    <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
-                                        GẤP
+                                    <Chip
+                                        style={[StyleShare.chip, { backgroundColor: '#FF4500', marginLeft: 5 }]}
+                                        icon={() => <Icon name="flame" size={16} color={white} />}
+                                    >
+                                        <Text style={{ color: white, fontSize: 12 }}>Gấp</Text>
                                     </Chip>
                                 )}
                             </View>
@@ -420,7 +423,7 @@ export default function ResumeByJob({ navigation, route }) {
                         />
                     </View>
                     <View style={StyleShare.flexBetween}>
-                        <View style={{ flex: 1}}>
+                        <View style={{ flex: 1 }}>
                             <Text style={StyleShare.titleText16}>{totalItems} hồ sơ</Text>
                         </View>
                         <View style={{ flex: 1, alignItems: 'flex-end' }}>

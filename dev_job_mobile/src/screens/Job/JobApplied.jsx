@@ -8,7 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
 import Loading from "../../components/Loading";
 import moment from "moment";
-import { grey, mainColor, textColor } from "../../assets/themes/Color";
+import { grey, mainColor, textColor, white } from "../../assets/themes/Color";
 
 
 export default function JobApplied({ navigation }) {
@@ -85,8 +85,11 @@ export default function JobApplied({ navigation }) {
                             </Chip>
                         ))}
                         {item.jobId.isUrgent && (
-                            <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
-                                GẤP
+                            <Chip
+                                style={[StyleShare.chip, { backgroundColor: '#FF4500', marginLeft: 5 }]}
+                                icon={() => <Icon name="flame" size={16} color={white} />}
+                            >
+                                <Text style={{ color: white, fontSize: 12 }}>Gấp</Text>
                             </Chip>
                         )}
                     </View>

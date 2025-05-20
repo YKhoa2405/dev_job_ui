@@ -130,8 +130,11 @@ export default function JobDetail({ route, navigation }) {
                     <View style={styles.containerMain}>
                         <Text style={StyleShare.titleText20}>Thông tin chung</Text>
                         {jobDetail?.isUrgent && (
-                            <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
-                                GẤP
+                            <Chip
+                                style={[StyleShare.chip, { backgroundColor: '#FF4500', marginLeft: 5 }]}
+                                icon={() => <Icon name="flame" size={16} color={white} />}
+                            >
+                                <Text style={{ color: white, fontSize: 12 }}>Gấp</Text>
                             </Chip>
                         )}
                         <View style={{ marginBottom: 20 }}>

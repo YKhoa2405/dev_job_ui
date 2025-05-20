@@ -166,8 +166,11 @@ export default function CompanyDetail({ navigation, route }) {
                             <Chip key={index} style={StyleShare.chip}>{skill}</Chip>
                         ))}
                         {item.isUrgent && (
-                            <Chip style={[StyleShare.chip, { backgroundColor: 'red' }]} textStyle={{ color: 'white' }}>
-                                GẤP
+                            <Chip
+                                style={[StyleShare.chip, { backgroundColor: '#FF4500', marginLeft: 5 }]}
+                                icon={() => <Icon name="flame" size={16} color={white} />}
+                            >
+                                <Text style={{ color: white, fontSize: 12 }}>Gấp</Text>
                             </Chip>
                         )}
                     </View>

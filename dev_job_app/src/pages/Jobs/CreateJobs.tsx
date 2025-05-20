@@ -43,8 +43,7 @@ const CreateJobs = () => {
         description: '',
         prioritize: '',
         location: '',
-        latitude: 0,
-        longitude: 0,
+        geoLocation: { type: 'Point', coordinates: [0, 0] },
         isUrgent: false
     });
     const [selectedProvinceId, setSelectedProvinceId] = useState<string>('');

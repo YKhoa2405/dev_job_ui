@@ -1,6 +1,6 @@
 export type IJobDetail = {
-    _id: string;              
-    name: string;      
+    _id: string;
+    name: string;
     startDate: Date;
     endDate: Date;
     companyId: {
@@ -9,16 +9,18 @@ export type IJobDetail = {
     }
     description: string;
     requirement: string;
-    prioritize:string;
+    prioritize: string;
     location: string;
     jobType: string;
     city: string;
-    level:string
+    level: string
     quantity: number;
     skills: [];
     salary: string;
-    latitude:number;
-    longitude:number
+    geoLocation: {
+        type: 'Point',
+        coordinates: [number, number],
+    },
     isActive: boolean;
     isUrgent: boolean;
     createdAt: Date;

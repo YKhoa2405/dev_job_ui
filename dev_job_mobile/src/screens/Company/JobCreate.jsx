@@ -215,6 +215,9 @@ export default function JobCreate({ navigation, route }) {
             ToastMess({ type: 'error', text1: 'Thời gian không hợp lệ.' });
             return;
         }
+        if(!lon || !lat) {
+            ToastMess({ type: 'error', text1: 'Vui lòng nhập địa chiề.' });
+        }
         const jobData = {
             name,
             companyId,
@@ -230,8 +233,10 @@ export default function JobCreate({ navigation, route }) {
             salary,
             quantity,
             level,
-            latitude: lat,
-            longitude: lon,
+            geoLocation: {
+                type: 'Point',
+                coordinates: [Number(lon), Number(lat)],
+            },
             isUrgent: isUrgent || false,
         };
 
