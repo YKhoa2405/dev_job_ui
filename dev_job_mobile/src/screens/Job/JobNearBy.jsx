@@ -5,8 +5,7 @@ import Slider from '@react-native-community/slider';
 import { mainColor, grey, orange, white } from "../../assets/themes/Color";
 import { Avatar, Chip } from "react-native-paper";
 import * as Location from 'expo-location';
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState, useRef } from "react"; // Added useRef
 import Loading from "../../components/Loading";
 import API, { endpoints } from "../../assets/config/API";
 import { ToastMess } from "../../components/ToastMess";
@@ -14,6 +13,11 @@ import Modal from "react-native-modal";
 import Icon from "react-native-vector-icons/Ionicons";
 import Dropdown from "../../components/Dropdown";
 import Button from "../../components/Button";
+import Mapbox from '@rnmapbox/maps';
+import * as turf from '@turf/turf';
+
+// Replace with your Mapbox access token
+Mapbox.setAccessToken('pk.eyJ1IjoibnlraG9hMjQwNSIsImEiOiJjbWF3bGNwMTcwY3N0MmtzZTBscWJqN2lrIn0.Oe8YNd6rmHEyvU4nVMhocg');
 
 export default function JobNearBy({ navigation }) {
     const [latitude, setLatitude] = useState(0);
@@ -22,6 +26,8 @@ export default function JobNearBy({ navigation }) {
     const [loading, setLoading] = useState(false);
     const [jobs, setJobs] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
+    const [selectedJobId, setSelectedJobId] = useState(null); // State for selected job
+    const flatListRef = useRef(null); // Ref for FlatList
 
     const [level, setLevel] = useState('');
     const [salary, setSalary] = useState('');
@@ -58,6 +64,13 @@ export default function JobNearBy({ navigation }) {
         { title: 'Hybrid' },
     ];
 
+    // Generate GeoJSON circle for radius
+    const circle = latitude && longitude ? turf.circle(
+        [longitude, latitude],
+        distance,
+        { steps: 64, units: 'kilometers' }
+    ) : null;
+
     useEffect(() => {
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
@@ -81,20 +94,7 @@ export default function JobNearBy({ navigation }) {
         }
     }, [distance]);
 
-    const haversineDistance = (lat1, lon1, lat2, lon2) => {
-        const toRad = (value) => (value * Math.PI) / 180;
-        const R = 6371; // Radius of the Earth in kilometers
-        const dLat = toRad(lat2 - lat1);
-        const dLon = toRad(lon2 - lon1);
-        const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c; // Distance in kilometers
-    };
-
     const fetchListJobNearby = async (latitude, longitude) => {
-
         setLoading(true);
         try {
             const params = {
@@ -106,20 +106,9 @@ export default function JobNearBy({ navigation }) {
                 ...(jobType && { jobType }),
             };
             const res = await API.get(endpoints['jobsNearBy'], { params });
-            const jobsWithDistance = res.data.data.result.map(job => {
-                if (!job.geoLocation || !job.geoLocation.coordinates) {
-                    return { ...job, distance: null };
-                }
-                const jobLatitude = job.geoLocation.coordinates[1];
-                const jobLongitude = job.geoLocation.coordinates[0];
-                const distanceToJob = haversineDistance(latitude, longitude, jobLatitude, jobLongitude);
-                return { ...job, distance: distanceToJob };
-                // return { job };
-
-            });
-            setJobs(jobsWithDistance);
+            const result = res.data.data.result;
+            setJobs(result);
         } catch (error) {
-            console.log(error);
             ToastMess({ type: 'error', text1: 'Lỗi khi tải danh sách công việc' });
         } finally {
             setLoading(false);
@@ -143,7 +132,10 @@ export default function JobNearBy({ navigation }) {
 
     const renderItem = ({ item }) => (
         <TouchableWithoutFeedback key={item._id} onPress={() => navigation.navigate('JobDetail', { jobId: item._id })}>
-            <View style={styles.jobItemContainer}>
+            <View style={[
+                styles.jobItemContainer,
+                selectedJobId === item._id && styles.selectedJobItem // Apply bold border if selected
+            ]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Avatar.Image
                         source={{ uri: item.companyId.avatar }}
@@ -156,7 +148,6 @@ export default function JobNearBy({ navigation }) {
                     </View>
                 </View>
                 <View style={StyleShare.technologyContainer}>
-                    <Chip style={StyleShare.chip}>{item.salary}</Chip>
                     <Chip style={StyleShare.chip}>{item.level}</Chip>
                     {item.distance !== null && (
                         <Chip style={{ alignSelf: 'flex-start', backgroundColor: orange, marginTop: 10 }}>
@@ -175,6 +166,31 @@ export default function JobNearBy({ navigation }) {
             </View>
         </TouchableWithoutFeedback>
     );
+
+    const renderMarkers = () => {
+        return jobs.map((job) => (
+            <Mapbox.PointAnnotation
+                key={job._id}
+                id={job._id}
+                coordinate={job.geoLocation.coordinates}
+                onSelected={() => {
+                    setSelectedJobId(job._id); // Set selected job ID
+                    const index = jobs.findIndex(item => item._id === job._id); // Find index of selected job
+                    if (index !== -1 && flatListRef.current) {
+                        flatListRef.current.scrollToIndex({
+                            index,
+                            animated: true,
+                            viewPosition: 0.5, // Center the item in the view
+                        });
+                    }
+                }}
+            >
+                <View style={styles.markerContainer}>
+                    <Icon name="briefcase" size={24} color={mainColor} />
+                </View>
+            </Mapbox.PointAnnotation>
+        ));
+    };
 
     return (
         <View style={StyleShare.container}>
@@ -261,6 +277,39 @@ export default function JobNearBy({ navigation }) {
                     thumbTintColor={mainColor}
                 />
             </View>
+            <View style={StyleShare.container}>
+                {latitude && longitude ? (
+                    <Mapbox.MapView style={StyleShare.container} zoomEnabled pitchEnabled rotateEnabled>
+                        <Mapbox.Camera
+                            zoomLevel={12}
+                            centerCoordinate={[longitude, latitude]}
+                            animationMode="flyTo"
+                            animationDuration={1000}
+                        />
+                        <Mapbox.UserLocation visible />
+                        {renderMarkers()}
+                        {circle && (
+                            <Mapbox.ShapeSource id="circleSource" shape={circle}>
+                                <Mapbox.FillLayer
+                                    id="circleFill"
+                                    style={{
+                                        fillColor: "rgba(255, 0, 0, 0.5)", fillOpacity: 0.3
+                                    }}
+                                />
+                                <Mapbox.LineLayer
+                                    id="circleLine"
+                                    style={{
+                                        lineColor: "rgba(255, 0, 0, 0.5)", lineWidth: 2
+                                    }}
+                                />
+                            </Mapbox.ShapeSource>
+                        )}
+                    </Mapbox.MapView>
+                ) : (
+                    <Loading />
+                )}
+            </View>
+
             {loading ? (
                 <View style={styles.containerListJob}>
                     <Loading />
@@ -274,11 +323,17 @@ export default function JobNearBy({ navigation }) {
                         </View>
                     </View>
                     <FlatList
+                        ref={flatListRef} // Attach ref to FlatList
                         renderItem={renderItem}
                         data={jobs}
-                        horizontal={false} // Chuyển sang dạng dọc để hiển thị nhiều công việc hơn
-                        showsVerticalScrollIndicator={false}
+                        horizontal={true}
+                        showsHorizontalScrollIndicator={false}
                         keyExtractor={(item) => item._id}
+                        getItemLayout={(data, index) => ({
+                            length: 300, // Approximate width of each item (adjust based on your jobItemContainer width)
+                            offset: 300 * index,
+                            index,
+                        })}
                     />
                 </View>
             )}
@@ -288,7 +343,7 @@ export default function JobNearBy({ navigation }) {
 
 const styles = StyleSheet.create({
     containerListJob: {
-        flex: 1, // Chiếm toàn bộ không gian còn lại
+        height: 160,
         backgroundColor: grey,
         borderTopWidth: 1,
         borderTopColor: '#ddd',
@@ -309,10 +364,25 @@ const styles = StyleSheet.create({
     },
     jobItemContainer: {
         backgroundColor: white,
-        marginVertical: 5,
+        marginRight: 10,
         paddingVertical: 10,
         paddingHorizontal: 20,
+        marginVertical: 5,
         borderRadius: 10,
         elevation: 2,
+        borderWidth: 1, // Default border
+        borderColor: '#ddd', // Default border color
+    },
+    selectedJobItem: {
+        borderWidth: 3, // Bold border for selected item
+        borderColor: mainColor, // Use mainColor for the bold border
+    },
+    markerContainer: {
+        alignItems: 'center',
+        backgroundColor: white,
+        borderRadius: 5,
+        padding: 5,
+        borderWidth: 1,
+        borderColor: mainColor,
     },
 });

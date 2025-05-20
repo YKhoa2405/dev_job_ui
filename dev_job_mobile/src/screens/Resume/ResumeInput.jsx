@@ -208,28 +208,28 @@ export default function ResumeInput({ route, navigation }) {
 
 
     const handleSubmit = () => {
-        // if (
-        //     !personalInfo.nameCV.trim() ||
-        //     !personalInfo.fullName.trim() ||
-        //     !personalInfo.email.trim() ||
-        //     !personalInfo.phone.trim() ||
-        //     !personalInfo.dateOfBirth.trim() ||
-        //     !personalInfo.position.trim() ||
-        //     !personalInfo.gender.trim()
-        // ) {
-        //     ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
-        //     return;
-        // }
+        if (
+            !personalInfo.nameCV.trim() ||
+            !personalInfo.fullName.trim() ||
+            !personalInfo.email.trim() ||
+            !personalInfo.phone.trim() ||
+            !personalInfo.dateOfBirth.trim() ||
+            !personalInfo.position.trim() ||
+            !personalInfo.gender.trim()
+        ) {
+            ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
+            return;
+        }
 
-        // if (educationInfo.length === 0) {
-        //     ToastMess({ type: 'error', text1: 'Vui lòng thêm ít nhất một học vấn.' });
-        //     return;
-        // }
+        if (educationInfo.length === 0) {
+            ToastMess({ type: 'error', text1: 'Vui lòng thêm ít nhất một học vấn.' });
+            return;
+        }
 
-        // if (skillInfo.length === 0) {
-        //     ToastMess({ type: 'error', text1: 'Vui lòng thêm ít nhất một kĩ nắng.' });
-        //     return;
-        // }
+        if (skillInfo.length === 0) {
+            ToastMess({ type: 'error', text1: 'Vui lòng thêm ít nhất một kĩ nắng.' });
+            return;
+        }
 
 
         dispatch(addEducation(educationInfo));
@@ -321,7 +321,7 @@ export default function ResumeInput({ route, navigation }) {
                     </View>
 
                     {/* Tên trường */}
-                    <Text style={styles.textInput}>Tên trường <Text style={{ color: 'red' }}>*</Text></Text>
+                    <Text style={styles.textInput}>Tên trường hoặc trung tâm <Text style={{ color: 'red' }}>*</Text></Text>
                     <TextInput
                         value={education.schoolName}
                         onChangeText={(value) => handleEducationChange('schoolName', value)}
