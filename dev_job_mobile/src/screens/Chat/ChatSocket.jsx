@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Linking } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Linking, ActivityIndicator } from "react-native";
 import { Avatar } from "react-native-paper";
 import Icon from "react-native-vector-icons/Ionicons";
 import { GiftedChat, Send } from "react-native-gifted-chat";
 import StyleShare from "../../assets/themes/StyleShare";
-import { bgNotifi, grey, mainColor, white } from "../../assets/themes/Color";
+import { bgNotifi, grey, mainColor, orange, white } from "../../assets/themes/Color";
 import io from "socket.io-client";
 import * as DocumentPicker from 'expo-document-picker';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -27,6 +27,7 @@ export default function ChatSocket({ route, navigation }) {
     const { recipient, senderId } = route.params;
     const [messages, setMessages] = useState([]);
     const [socket, setSocket] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         const socketIo = io("http://192.168.1.120:8000", {
@@ -94,48 +95,61 @@ export default function ChatSocket({ route, navigation }) {
     }, [socket, senderId, recipient?.id]);
 
     const handleChooseFile = async () => {
-        const result = await DocumentPicker.getDocumentAsync({
-            type: [
-                'application/pdf',                                             // PDF
-                'application/msword',                                          // .doc
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
-                'image/jpeg',                                                  // JPG
-                'image/jpg',
-                'image/png',
-                'image/heic',                                                  // iOS HEIC
-            ],
-            copyToCacheDirectory: true,
-        });
-        if (!result.canceled) {
-            const fileData = result.assets[0];
-            const formData = new FormData();
-            formData.append("file", {
-                uri: fileData.uri,
-                name: fileData.name,
-                type: fileData.mimeType,
-            });
-            try {
+        if (isUploading) return; // Ngăn gửi file khi đang tải
 
-                const token = await AsyncStorage.getItem("access_token");
-                const response = await authApi(token).post(endpoints['chatUploadFile'], formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: [
+                    'application/pdf',
+                    'application/msword',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'image/jpeg',
+                    'image/jpg',
+                    'image/png',
+                    'image/heic',
+                ],
+                copyToCacheDirectory: true,
+            });
+
+            if (!result.canceled) {
+                setIsUploading(true); // Bật loading
+                const fileData = result.assets[0];
+                const formData = new FormData();
+                formData.append("file", {
+                    uri: fileData.uri,
+                    name: fileData.name,
+                    type: fileData.mimeType,
                 });
 
-                const fileUrl = response.data.data.fileUrl
+                try {
+                    const token = await AsyncStorage.getItem("access_token");
+                    const response = await authApi(token).post(endpoints['chatUploadFile'], formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    });
 
-                const newMessage = {
-                    _id: Math.random().toString(36).substring(7),
-                    text: "",
-                    createdAt: new Date(),
-                    user: { _id: senderId },
-                    file: fileUrl,
-                };
-                onSend([newMessage]);
-            } catch (error) {
-                console.log("Upload error:", error.response?.data || error.message);
+                    const fileUrl = response.data.data.fileUrl;
+
+                    const newMessage = {
+                        _id: Math.random().toString(36).substring(7),
+                        text: "",
+                        createdAt: new Date(),
+                        user: { _id: senderId },
+                        file: fileUrl,
+                    };
+                    onSend([newMessage]);
+                } catch (error) {
+                    console.log("Upload error:", error.response?.data || error.message);
+                    Alert.alert("Lỗi", "Không thể tải file lên. Vui lòng thử lại."); // Thông báo lỗi
+                } finally {
+                    setIsUploading(false); // Tắt loading
+                }
             }
+        } catch (error) {
+            console.log("Document picker error:", error);
+            Alert.alert("Lỗi", "Không thể chọn file. Vui lòng thử lại.");
+            setIsUploading(false); // Tắt loading nếu chọn file thất bại
         }
     };
 
@@ -143,9 +157,6 @@ export default function ChatSocket({ route, navigation }) {
         <View style={{ backgroundColor: white, flex: 1 }}>
             <View style={styles.container}>
                 <View style={StyleShare.flexCenter}>
-                    {/* <TouchableOpacity onPress={() => navigation.navigate("ChatHome",{currentUserId: senderId})}>
-                        <Icon size={26} name="arrow-back" />
-                    </TouchableOpacity> */}
                     <TouchableOpacity onPress={() => navigation.goBack()}>
                         <Icon size={26} name="arrow-back" />
                     </TouchableOpacity>
@@ -154,7 +165,6 @@ export default function ChatSocket({ route, navigation }) {
                         source={{ uri: recipient?.avatar }}
                         style={{ marginLeft: 10, marginRight: 5 }}
                     />
-
                     <View>
                         <Text style={StyleShare.titleText16}>
                             {recipient?.name}
@@ -203,7 +213,7 @@ export default function ChatSocket({ route, navigation }) {
                                         style={{
                                             flexDirection: "row",
                                             alignItems: "center",
-                                            maxWidth: '90%', // giới hạn chiều ngang
+                                            maxWidth: '90%',
                                         }}
                                     >
                                         <Icon
@@ -215,15 +225,14 @@ export default function ChatSocket({ route, navigation }) {
                                             style={{
                                                 color: currentMessage?.user?._id === senderId ? "white" : "black",
                                                 marginLeft: 5,
-                                                flexShrink: 1, // cho phép text co lại trong container
+                                                flexShrink: 1,
                                             }}
-                                            numberOfLines={1} // chỉ hiện 1 dòng
-                                            ellipsizeMode="middle" // hoặc "tail"
+                                            numberOfLines={1}
+                                            ellipsizeMode="middle"
                                         >
                                             {currentMessage.file.split("/").pop()}
                                         </Text>
                                     </TouchableOpacity>
-
                                 ) : (
                                     <Text
                                         style={{
@@ -242,9 +251,22 @@ export default function ChatSocket({ route, navigation }) {
                     );
                 }}
                 renderActions={() => (
-                    <TouchableOpacity style={{ marginBottom: 6, marginLeft: 5 }} onPress={() => handleChooseFile()}>
-                        <Icon name="attach-outline" size={30} color='grey' />
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6, marginLeft: 5 }}>
+                        <TouchableOpacity
+                            onPress={handleChooseFile}
+                            disabled={isUploading} // Vô hiệu hóa khi đang tải
+                            style={{ opacity: isUploading ? 0.5 : 1 }} // Làm mờ nút khi đang tải
+                        >
+                            <Icon name="attach-outline" size={30} color='grey' />
+                        </TouchableOpacity>
+                        {isUploading && (
+                            <ActivityIndicator
+                                size="small"
+                                color={orange}
+                                style={{ marginLeft: 10 }} // Đặt spinner cạnh nút đính kèm
+                            />
+                        )}
+                    </View>
                 )}
             />
         </View>

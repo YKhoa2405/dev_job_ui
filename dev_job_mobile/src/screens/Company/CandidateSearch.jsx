@@ -268,8 +268,8 @@ export default function CandidateSearch({ navigation, route }) {
                         ListEmptyComponent={
                             <View style={{ marginTop: 50, alignItems: 'center' }}>
                                 <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
-                                <Text style={StyleShare.titleText20}>Bạn chưa mua gói dịch vụ</Text>
-                                <Text style={{ padding: 20, textAlign: 'center' }}>Hãy mua gói dịch vụ để có thể xem danh sách ứng viên.</Text>
+                                <Text style={StyleShare.titleText20}>Không có ứng viên phù hợp</Text>
+                                <Text style={{ padding: 20, textAlign: 'center' }}>Hãy thay đổi tiêu chí bộ lọc và quay lại sau.</Text>
                             </View>
                         }
                         onEndReached={loadMoreJobs}

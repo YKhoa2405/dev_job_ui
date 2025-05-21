@@ -16,9 +16,9 @@ import { github_client_id } from "../../assets/config/Key";
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Login({ navigation }) {
-    const [email, setEmail] = useState('');
+    const [userName, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false); // For email/password login
+    const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
 
     const redirectUri = AuthSession.makeRedirectUri({
@@ -86,6 +86,10 @@ export default function Login({ navigation }) {
     };
 
     const handleLogin = async () => {
+        if (!userName || !password) {
+            ToastMess({ type: 'error', text1: 'Vui lòng nhập thông tin' });
+            return;
+        }
         setLoading(true);
         try {
             let header = {
@@ -94,11 +98,17 @@ export default function Login({ navigation }) {
             let data = {
                 // username: email || 'nguyenykhoali2003@gmail.com',
                 // username: 'nykhoa2405@gmail.com',
-                username: '2151050202khoa@ou.edu.vn',
+                // username: '2151050202khoa@ou.edu.vn',
                 // username: '2151050462toan@ou.edu.vn',
+                // password: password || '123456',
+                // password: password || 'Caichyrua11@',
+                // username: email,
+                // password: '123456'
+                username:userName,
+                password
 
-                password: password || '123456',
             };
+            console.log('data', data);
             let res = await API.post(endpoints['login'], data, { headers: header });
             const { access_token, _id, email, name, role, avatar } = res.data.data;
 
@@ -147,8 +157,8 @@ export default function Login({ navigation }) {
                 <Text style={styles.textInput}>Email</Text>
                 <Input
                     placeholder="Nhập Email"
-                    onChangeText={setEmail}
-                    value={email}
+                    onChangeText={setUsername}
+                    value={userName}
                     autoCapitalize="none"
                 />
                 <Text style={styles.textInput}>Mật khẩu</Text>

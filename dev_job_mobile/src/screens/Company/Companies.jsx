@@ -134,8 +134,8 @@ export default function Companies({ navigation }) {
                     ListEmptyComponent={
                         <View style={{ marginTop: 50, alignItems: 'center' }}>
                             <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
-                            <Text style={StyleShare.titleText20}>Bạn chưa có bài tuyển dụng nào</Text>
-                            <Text style={{ padding: 20, textAlign: 'center' }}>Bạn không có bất kỳ bài tuyển dụng nào, hãy đăng bài tuyển dụng để tìm kiếm ứng viên tiềm năng</Text>
+                            <Text style={StyleShare.titleText20}>Không có công ty nào</Text>
+                            <Text style={{ padding: 20, textAlign: 'center' }}>Không tìm thấy công ty nào, hãy thử thay đổi tiêu chí lọc.</Text>
                         </View>
                     }
                     contentContainerStyle={{ paddingBottom: 40 }}

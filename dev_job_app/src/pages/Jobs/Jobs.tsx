@@ -54,7 +54,7 @@ const Jobs = () => {
 
   useEffect(() => {
     fetchListJob(currentPage, limit, '', salary, level);
-  }, [currentPage, salary, level]);
+  }, [currentPage, salary, level,limit]);
 
   const fetchListJob = async (currentPage = 1, limit = 10, name = '', salary = '', level = '') => {
     setLoading(true)

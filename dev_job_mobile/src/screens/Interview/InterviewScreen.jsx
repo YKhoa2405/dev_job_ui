@@ -7,7 +7,6 @@ import { geminiService } from '../../assets/config/GeminiService';
 import StyleShare from '../../assets/themes/StyleShare';
 import { ToastMess } from '../../components/ToastMess';
 import { Audio } from 'expo-av';
-import axios from 'axios';
 
 export default function InterviewScreen({ route, navigation }) {
   const { job, mode, numQuestions = 3, difficulty = 'medium' } = route.params; // Default to 3 questions, medium difficulty
@@ -123,23 +122,33 @@ export default function InterviewScreen({ route, navigation }) {
 
   async function transcribeAudio(uri) {
     try {
-      const apiKey = '7O0jO8IPE1zsouf38SHnwocbq6MrrOIgvCo3mfeSVf7yPsldL4ubJQQJ99BCAC3pKaRXJ3w3AAAYACOGLxpU';
-      const endpoint = 'https://eastasia.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=vi-VN';
-
       // Read the audio file as a blob
       const response = await fetch(uri);
       const audioBlob = await response.blob();
 
-      const result = await axios.post(endpoint, audioBlob, {
-        headers: {
-          'Ocp-Apim-Subscription-Key': apiKey,
-          'Content-Type': 'audio/wav; codecs=audio/pcm; samplerate=16000',
-        },
-      });
+      // Convert blob to base64 for Gemini API
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      const base64Audio = Buffer.from(arrayBuffer).toString('base64');
 
-      const { DisplayText } = result.data;
-      if (DisplayText) {
-        setCurrentAnswer(DisplayText);
+      // Prepare the payload for Gemini API
+      const prompt = `
+        Transcribe the following audio content to text in Vietnamese (vi-VN).
+        The audio is a response to an IT interview question.
+        Return the transcribed text as a string.
+      `;
+      const payload = {
+        prompt,
+        audio: {
+          data: base64Audio,
+          mimeType: 'audio/wav',
+        },
+      };
+
+      // Call Gemini API for transcription
+      const result = await geminiService(payload);
+
+      if (result && result !== 'Không có phản hồi từ AI.') {
+        setCurrentAnswer(result);
       } else {
         setCurrentAnswer('Không nhận diện được nội dung.');
         ToastMess({ type: 'warning', text1: 'Không nhận diện được giọng nói.' });
