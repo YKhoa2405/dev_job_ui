@@ -37,6 +37,10 @@ export const endpoints = {
     'suggestions': '/suggestions',
     'popularSuggestions': '/suggestions/popular',
 
+    // search history
+    'searchHistory': '/search-history',
+    'deleteSearchHistory': '/search-history/all',
+
     //services
     'services': '/services',
     'servicesDetail': (serviceId) => `/services/${serviceId}`,

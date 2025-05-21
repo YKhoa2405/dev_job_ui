@@ -32,6 +32,14 @@ export default function ProfileCompany({ navigation }) {
             ToastMess({ type: 'error', text1: 'Không thể mở bản đồ.' });
         }
     };
+
+    const handleOpenWebsite = (url) => {
+        if (!url) return;
+        const formattedUrl = url.startsWith("http") ? url : `https://${url}`;
+        Linking.openURL(formattedUrl).catch(() => {
+            ToastMess({ type: 'error', text1: 'Không thể mở website.' });
+        });
+    };
     return (
         <View style={StyleShare.container}>
             <UIHeader leftIcon={"arrow-back"}

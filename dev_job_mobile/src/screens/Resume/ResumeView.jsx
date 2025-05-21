@@ -14,8 +14,7 @@ import * as FileSystem from 'expo-file-system';
 
 export default function ResumeView({ route, navigation }) {
   const { resumeDetail } = route.params;
-  console.log(resumeDetail)
-  const [selectedStatus, setSelectedStatus] = useState();
+  const [selectedStatus, setSelectedStatus] = useState('Đã xem');
   const [isWebViewLoading, setIsWebViewLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
 

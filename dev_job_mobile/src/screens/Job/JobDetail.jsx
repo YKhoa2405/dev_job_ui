@@ -48,9 +48,15 @@ export default function JobDetail({ route, navigation }) {
         {
             id: '3',
             icon: 'calendar',
+            title: 'Ngày đăng tuyển',
+            info: jobDetail?.createdAt ? moment(jobDetail.createdAt).format('DD/MM/YYYY') : "N/A",
+        },
+        {
+            id: '5',
+            icon: 'calendar',
             title: 'Ngày hết hạn',
             info: jobDetail?.endDate ? moment(jobDetail.endDate).format('DD/MM/YYYY') : "N/A",
-        }
+        },
     ];
 
     const handleNavigateToCompany = () => {

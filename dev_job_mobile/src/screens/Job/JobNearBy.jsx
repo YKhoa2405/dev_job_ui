@@ -81,6 +81,7 @@ export default function JobNearBy({ navigation }) {
             }
 
             let currentLocation = await Location.getCurrentPositionAsync({});
+            console.log(currentLocation);
             const { latitude, longitude } = currentLocation.coords;
             setLatitude(latitude);
             setLongitude(longitude);
