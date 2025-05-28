@@ -125,13 +125,15 @@ export default function JobByCompany({ navigation, route }) {
                     onPress: async () => {
                         try {
                             const token = await AsyncStorage.getItem("access_token");
-                            await authApi(token).delete(endpoints["jobDetail"](jobId));
-                            ToastMess({ type: "success", text1: "Xóa tin tuyển dụng thành công" });
-                            setJobData((prevJobs) => prevJobs.filter((job) => job._id !== jobId));
-                            setTotalItems((prevTotalItems) => prevTotalItems - 1);
+                            const res = await authApi(token).delete(endpoints["jobDetail"](jobId));
+                            console.log(res.data);
+                            if (res.data.statusCode === 200) {
+                                ToastMess({ type: "success", text1: "Xóa tin tuyển dụng thành công" });
+                                setJobData((prevJobs) => prevJobs.filter((job) => job._id !== jobId));
+                                setTotalItems((prevTotalItems) => prevTotalItems - 1);
+                            }
                         } catch (error) {
                             ToastMess({ type: "error", text1: "Có lỗi xảy ra, vui lòng thử lại" });
-                            console.log(error);
                         }
                     },
                 },
@@ -158,7 +160,6 @@ export default function JobByCompany({ navigation, route }) {
                             );
                         } catch (error) {
                             ToastMess({ type: "error", text1: "Có lỗi xảy ra, vui lòng thử lại" });
-                            console.log(error);
                         }
                     },
                 },

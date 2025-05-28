@@ -143,7 +143,7 @@ export default function CompanyCreate({ navigation }) {
     };
 
     const handleCreateCompany = async () => {
-        if (!name || !taxCode || !about || !size || !field || !address || !slogan || !website || !businessLicense) {
+        if (!name || !taxCode || !about || !size || !field || !address || !slogan || !website ) {
             ToastMess({ type: 'error', text1: 'Vui lòng không để trống các trường, bao gồm giấy đăng ký kinh doanh.' });
             return;
         }

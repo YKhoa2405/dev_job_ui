@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Image, TouchableOpacity, Text, FlatList, TouchableWithoutFeedback, Linking } from "react-native";
+import { View, Image, TouchableOpacity, Text, FlatList, TouchableWithoutFeedback, Linking, Alert } from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import UIHeader from "../../components/UIHeader";
 import { Avatar, Chip } from "react-native-paper";
@@ -9,6 +9,7 @@ import { authApi, endpoints } from "../../assets/config/API";
 import Loading from "../../components/Loading";
 import moment from "moment";
 import { grey, mainColor, textColor, white } from "../../assets/themes/Color";
+import { ToastMess } from "../../components/ToastMess";
 
 
 export default function JobApplied({ navigation }) {
@@ -29,7 +30,6 @@ export default function JobApplied({ navigation }) {
         else setLoadingMore(true);
         try {
             const token = await AsyncStorage.getItem("access_token");
-            console.log(token)
             const res = await authApi(token).get(endpoints['resumeByCandidate'], {
                 params: {
                     page: currentPage,
@@ -37,7 +37,6 @@ export default function JobApplied({ navigation }) {
                 },
             });
             const data = res.data.data;
-            console.log(data)
             if (currentPage === 1) {
                 setJobs(data.result);
             } else {
@@ -53,6 +52,38 @@ export default function JobApplied({ navigation }) {
             setLoadingMore(false);
         }
     };
+
+    const handleDeleteManyAppliedJob = async () => {
+        Alert.alert(
+            'Xóa toàn bộ lịch sử ứng tuyển', // Tiêu đề của cảnh báo
+            'Bạn có chắc chắn muốn xóa lịch sử ứng tuyển?', // Mô tả
+            [
+                {
+                    text: 'Hủy',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Đồng ý',
+                    onPress: async () => {
+                        try {
+                            const token = await AsyncStorage.getItem("access_token");
+                            const res = await authApi(token).delete(endpoints['resume']);
+                            if (res.data.statusCode === 200) {
+                                setJobs([]);
+                                setTotalItems(0)
+                                ToastMess({ type: 'success', text1: 'Xóa lịch sử ứng tuyển thành công.' });
+                            }
+
+                        } catch (error) {
+                            ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
+                            console.log(error);
+                        }
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
+    }
 
     const loadMoreJobs = () => {
         if (currentPage < totalPages && !loadingMore) {
@@ -146,7 +177,9 @@ export default function JobApplied({ navigation }) {
         <View style={StyleShare.container}>
             <UIHeader
                 leftIcon={"arrow-back"}
+                rightIcon={"flash-off-outline"}
                 title={'Việc làm đã ứng tuyển'}
+                handleRightIcon={() => handleDeleteManyAppliedJob()}
                 handleLeftIcon={() => { navigation.navigate("MainTab", { "screen": "Profile" }) }} />
             {loading ? (
                 <Loading />

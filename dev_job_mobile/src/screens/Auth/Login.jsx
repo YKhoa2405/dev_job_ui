@@ -86,10 +86,10 @@ export default function Login({ navigation }) {
     };
 
     const handleLogin = async () => {
-        if (!userName || !password) {
-            ToastMess({ type: 'error', text1: 'Vui lòng nhập thông tin' });
-            return;
-        }
+        // if (!userName || !password) {
+        //     ToastMess({ type: 'error', text1: 'Vui lòng nhập thông tin' });
+        //     return;
+        // }
         setLoading(true);
         try {
             let header = {
@@ -100,12 +100,12 @@ export default function Login({ navigation }) {
                 // username: 'nykhoa2405@gmail.com',
                 // username: '2151050202khoa@ou.edu.vn',
                 // username: '2151050462toan@ou.edu.vn',
-                // password: password || '123456',
+                username: userName,
+                password: 'Caichyrua11@',
                 // password: password || 'Caichyrua11@',
                 // username: email,
                 // password: '123456'
-                username:userName,
-                password
+                // password
 
             };
             console.log('data', data);
@@ -141,6 +141,7 @@ export default function Login({ navigation }) {
             } else {
                 ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
             }
+            console.log(error);
         } finally {
             setLoading(false);
         }

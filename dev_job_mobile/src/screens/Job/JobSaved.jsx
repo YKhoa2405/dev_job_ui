@@ -75,9 +75,11 @@ export default function JobSaved({ navigation }) {
                         try {
                             const token = await AsyncStorage.getItem("access_token");
                             const res = await authApi(token).delete(endpoints['deleteAllSaveJob']);
-                            setJobs([]);
-                            setTotalItems(0)
-                            ToastMess({ type: 'success', text1: 'Bỏ lưu việc làm thành công.' });
+                            if (res.data.statusCode === 200) {
+                                setJobs([]);
+                                setTotalItems(0)
+                                ToastMess({ type: 'success', text1: 'Bỏ lưu việc làm thành công.' });
+                            }
 
                         } catch (error) {
                             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
