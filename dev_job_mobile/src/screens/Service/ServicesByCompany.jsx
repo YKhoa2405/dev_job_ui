@@ -70,7 +70,7 @@ const PaymentItem = memo(({ item }) => (
                     Mã giao dịch: {item.vnp_TransactionNo}
                 </Text>
                 <Text style={{ fontWeight: '500', color: textColor }}>
-                    Số tiền: <Text style={{ color: green }}>{formatVND(item.vnp_Amount / 100)}</Text>
+                    Số tiền: <Text style={{ color: green }}>{formatVND(item.vnp_Amount)}</Text>
                 </Text>
             </View>
         </View>

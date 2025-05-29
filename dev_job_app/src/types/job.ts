@@ -31,6 +31,7 @@ export type IJobList = {
     _id: string;               // ID của người dùng       // Tên đăng nhập của người dùng
     name: string;            // Email của người dùng
     isActive: boolean;
+    isUrgent: boolean;
     salary: string;
     level: string;
     quantity: number;

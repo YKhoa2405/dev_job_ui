@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX, Pencil, Plus, Search, TrashIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX, Flame, Pencil, Plus, Search, TrashIcon } from 'lucide-react';
 
 import { Link } from 'react-router-dom';
 import { IJobList } from '../../types/job';
@@ -54,7 +54,7 @@ const Jobs = () => {
 
   useEffect(() => {
     fetchListJob(currentPage, limit, '', salary, level);
-  }, [currentPage, salary, level,limit]);
+  }, [currentPage, salary, level, limit]);
 
   const fetchListJob = async (currentPage = 1, limit = 10, name = '', salary = '', level = '') => {
     setLoading(true)
@@ -254,11 +254,15 @@ const Jobs = () => {
                       {item.level}
                     </p>
                   </div>
-                  <div className="col-span-1 flex items-center ">
+                  <div className="col-span-1 flex items-center space-x-2">
                     {item.isActive ? (
                       <CircleCheckBigIcon size={20} color="green" />
                     ) : (
                       <CircleX size={20} color="red" />
+                    )}
+
+                    {item.isUrgent && (
+                      <Flame size={20} color="red" />
                     )}
                   </div>
 

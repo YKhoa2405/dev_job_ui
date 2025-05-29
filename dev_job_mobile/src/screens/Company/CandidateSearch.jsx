@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, FlatList, TouchableWithoutFeedback, Image, ActivityIndicator, SafeAreaViewBase } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons"
 import { mainColor, bgButton2, grey, orange, white } from "../../assets/themes/Color";
@@ -12,6 +12,7 @@ import UIHeader from "../../components/UIHeader";
 import Modal from "react-native-modal";
 import axios from "axios";
 import Button from "../../components/Button";
+import FastImage from 'react-native-fast-image';
 
 export default function CandidateSearch({ navigation, route }) {
     const { companyId } = route.params
@@ -70,16 +71,16 @@ export default function CandidateSearch({ navigation, route }) {
         fetchListCandidate();
     }, [])
 
-    const fetchProvinces = async () => {
+    const fetchProvinces = useCallback(async () => {
         try {
             const res = await axios.get('https://esgoo.net/api-tinhthanh/1/0.htm');
             setProvinces(res.data.data || []);
         } catch (error) {
             console.log('Error fetching provinces:', error);
         }
-    };
+    }, []);
 
-    const fetchListCandidate = async (currentPage = 1, limit = 10) => {
+    const fetchListCandidate = useCallback(async (currentPage = 1, limit = 10) => {
         if (currentPage === 1) setLoading(true);
         else setLoadingMore(true);
         try {
@@ -96,7 +97,7 @@ export default function CandidateSearch({ navigation, route }) {
                     availability: availability,
                 },
             });
-            const data = res.data.data;
+            const data = res.data.data || { result: [], meta: { currentPage: 1, totalPages: 1, totalItems: 0 } };
             if (currentPage === 1) {
                 setJobData(data.result);
             } else {
@@ -112,27 +113,26 @@ export default function CandidateSearch({ navigation, route }) {
             setLoading(false);
             setLoadingMore(false);
         }
-    };
+    }, [companyId, level, salary, jobType, selectedProvinceId, availability]);
 
-    const loadMoreJobs = () => {
+    const loadMoreJobs = useCallback(() => {
         if (currentPage < totalPages && !loadingMore) {
-            fetchJobByCompany(currentPage + 1);
+            fetchListCandidate(currentPage + 1); // Sửa lỗi gọi sai hàm
         }
-    };
+    }, [currentPage, totalPages, loadingMore, fetchListCandidate]);
 
-    const applyFilters = () => {
+    const applyFilters = useCallback(() => {
         // Gọi API với các tham số đã chọn
         fetchListCandidate(1, 10);
         // Đóng modal
         setModalVisible(false);
-    };
-
+    }, [fetchListCandidate]);
 
     const renderItem = ({ item }) => (
         <TouchableWithoutFeedback key={item._id} onPress={() => { navigation.navigate('CandidatesProfile', { userId: item.userId }) }}>
             <View style={StyleShare.jobItemContainer}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Avatar.Image source={{ uri: item.avatar || 'https://via.placeholder.com/60' }} size={50} style={{  marginRight: 5 }} />
+                    <Avatar.Image source={{ uri: item.avatar || 'https://via.placeholder.com/60' }} size={50} style={{ marginRight: 5 }} />
                     <View>
                         <Text style={StyleShare.titleText16}>{item.fullName}</Text>
                         <Text style={{ marginTop: 5 }}>{item.email}</Text>
@@ -141,7 +141,7 @@ export default function CandidateSearch({ navigation, route }) {
                 <View style={StyleShare.technologyContainer}>
                     <Chip style={StyleShare.chip}>{item.jobType}</Chip>
                     <Chip style={StyleShare.chip}>{item.location}</Chip>
-                    {item.skills.map((s, index) => (
+                    {(item.skills || []).map((s, index) => (
                         <Chip key={index} style={StyleShare.chip}>
                             {s}
                         </Chip>
@@ -150,7 +150,6 @@ export default function CandidateSearch({ navigation, route }) {
             </View>
         </TouchableWithoutFeedback>
     );
-
 
     return (
         <View style={StyleShare.container}>
@@ -256,12 +255,15 @@ export default function CandidateSearch({ navigation, route }) {
                 handleRightIcon={() => setModalVisible(true)}
                 handleLeftIcon={() => { navigation.goBack() }} />
             <View style={{ flex: 1 }}>
+                {/* <View style={{ marginHorizontal: 20 }}>
+                    <AlertBanner message={"Chỉ khi mua dịch vụ mới có thể sử dụng chức năng này."} type={'info'} />
+                </View> */}
                 {loading ? (
                     <Loading />
                 ) : (
                     <FlatList
                         data={jobData}
-                        keyExtractor={(item) => item._id}
+                        keyExtractor={(item) => item._id.toString()} // Tối ưu keyExtractor
                         renderItem={renderItem}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{ paddingBottom: 15 }}

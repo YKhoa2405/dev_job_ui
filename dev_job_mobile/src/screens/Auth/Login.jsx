@@ -100,7 +100,7 @@ export default function Login({ navigation }) {
                 // username: 'nykhoa2405@gmail.com',
                 // username: '2151050202khoa@ou.edu.vn',
                 // username: '2151050462toan@ou.edu.vn',
-                username: userName,
+                username: userName.trim(),
                 password: 'Caichyrua11@',
                 // password: password || 'Caichyrua11@',
                 // username: email,
@@ -108,7 +108,6 @@ export default function Login({ navigation }) {
                 // password
 
             };
-            console.log('data', data);
             let res = await API.post(endpoints['login'], data, { headers: header });
             const { access_token, _id, email, name, role, avatar } = res.data.data;
 
@@ -136,7 +135,7 @@ export default function Login({ navigation }) {
                 });
             }
         } catch (error) {
-            if (error.response && error.response.status === 400) {
+            if (error.response && error.response.status === 401) {
                 ToastMess({ type: 'error', text1: 'Email hoặc mật khẩu không chính xác' });
             } else {
                 ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
