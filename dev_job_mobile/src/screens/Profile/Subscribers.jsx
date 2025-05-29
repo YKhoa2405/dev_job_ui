@@ -87,7 +87,7 @@ export default function Subscribers({ navigation, route }) {
         );
     };
 
-    const fetchSkills = async (currentPage = 1, limit = 40) => {
+    const fetchSkills = async (currentPage = 1, limit = 100) => {
         try {
             const res = await API.get(endpoints['skills'], {
                 params: { page: currentPage, limit: limit },
@@ -203,7 +203,8 @@ export default function Subscribers({ navigation, route }) {
                         min={0}
                         max={10}
                         placeholder="Chọn kỹ năng"
-                        searchable={false}
+                        searchable={true}
+                        searchPlaceholder="Tìm kiếm kỹ năng..." // Văn bản placeholder cho thanh tìm kiếm
                         mode="BADGE"
                         badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a"]}
                         listMode="SCROLLVIEW"
@@ -232,6 +233,8 @@ export default function Subscribers({ navigation, route }) {
                         setItems={setScheduleOptions}
                         placeholder="Chọn lịch nhận thông báo"
                         listMode="SCROLLVIEW"
+
+
                         style={{
                             borderWidth: 0,
                             borderColor: white,

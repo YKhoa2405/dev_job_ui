@@ -49,6 +49,8 @@ const Skills = () => {
     { value: 'database', label: 'Database Administration' },
     { value: 'uxui', label: 'UX/UI Design' },
     { value: 'security', label: 'Cyber Security' },
+    { value: 'testing', label: 'Testing' },
+
   ];
 
   useEffect(() => {

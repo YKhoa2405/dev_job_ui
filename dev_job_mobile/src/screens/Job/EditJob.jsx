@@ -137,8 +137,12 @@ export default function EditJob({ navigation, route }) {
 
     // Save handler
     const handleSaveJob = async () => {
-        if (!name || !description || !requirement) {
+        if (!name || !description || !requirement || !startDate || !endDate || !street || !salary || !level || !jobType || !quantity || !selectedSkills || !prioritize) {
             ToastMess({ type: "error", text1: "Vui lòng điền đầy đủ các trường bắt buộc" });
+            return;
+        }
+        if (startDate >= endDate) {
+            ToastMess({ type: 'error', text1: 'Thời gian không hợp lệ.' });
             return;
         }
 
@@ -295,10 +299,12 @@ export default function EditJob({ navigation, route }) {
                             mode="BADGE"
                             badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a"]}
                             listMode="SCROLLVIEW"
+                            searchable={true} // Kích hoạt thanh tìm kiếm
+                            searchPlaceholder="Tìm kiếm kỹ năng..." // Văn bản placeholder cho thanh tìm kiếm
                             style={{
                                 borderWidth: 0,
-                                borderColor: white,
                                 borderRadius: 10,
+                                backgroundColor: white, // Đồng bộ với kiểu của các input khác
                             }}
                             dropDownContainerStyle={{
                                 backgroundColor: white,
@@ -307,6 +313,7 @@ export default function EditJob({ navigation, route }) {
                                 borderRadius: 10,
                                 maxHeight: 200,
                             }}
+
                             textStyle={{ fontWeight: "500" }}
                         />
 
@@ -319,9 +326,14 @@ export default function EditJob({ navigation, route }) {
                                     onPress={() => showDatePicker("start")}
                                 >
                                     <Text style={{ fontWeight: "500" }}>
-                                        {startDate ? startDate.toLocaleDateString() : "Chọn ngày bắt đầu"}
+                                        {startDate
+                                            ? `${startDate.getDate().toString().padStart(2, '0')}/${(startDate.getMonth() + 1)
+                                                .toString()
+                                                .padStart(2, '0')}/${startDate.getFullYear()}`
+                                            : "Chọn ngày bắt đầu"}
                                     </Text>
                                 </TouchableOpacity>
+
                             </View>
                             <View style={{ flex: 1, marginLeft: 20 }}>
                                 <Text style={styles.textInput}>Ngày kết thúc</Text>
@@ -330,9 +342,14 @@ export default function EditJob({ navigation, route }) {
                                     onPress={() => showDatePicker("end")}
                                 >
                                     <Text style={{ fontWeight: "500" }}>
-                                        {endDate ? endDate.toLocaleDateString() : "Chọn ngày kết thúc"}
+                                        {endDate
+                                            ? `${endDate.getDate().toString().padStart(2, '0')}/${(endDate.getMonth() + 1)
+                                                .toString()
+                                                .padStart(2, '0')}/${endDate.getFullYear()}`
+                                            : "Chọn ngày kết thúc"}
                                     </Text>
                                 </TouchableOpacity>
+
                             </View>
                         </View>
                         <DateTimePickerModal

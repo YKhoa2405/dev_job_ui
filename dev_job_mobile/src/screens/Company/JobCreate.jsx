@@ -215,9 +215,6 @@ export default function JobCreate({ navigation, route }) {
             ToastMess({ type: 'error', text1: 'Thời gian không hợp lệ.' });
             return;
         }
-        if(!lon || !lat) {
-            ToastMess({ type: 'error', text1: 'Vui lòng nhập địa chiề.' });
-        }
         const jobData = {
             name,
             companyId,
@@ -470,14 +467,15 @@ export default function JobCreate({ navigation, route }) {
                             min={0} // Số lượng chọn tối thiểu
                             max={10} // Số lượng chọn tối đa
                             placeholder="Chọn kỹ năng" // Placeholder khi chưa chọn
-                            searchable={false} // Bật tìm kiếm
                             mode="BADGE" // Hiển thị các mục đã chọn dưới dạng badge
                             badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a"]} // Màu badge
                             listMode={"SCROLLVIEW"}
+                            searchable={true} // Kích hoạt thanh tìm kiếm
+                            searchPlaceholder="Tìm kiếm kỹ năng..." // Văn bản placeholder cho thanh tìm kiếm
                             style={{
                                 borderWidth: 0,
-                                borderColor: white,
                                 borderRadius: 10,
+                                backgroundColor: white, // Đồng bộ với kiểu của các input khác
                             }}
                             dropDownContainerStyle={{
                                 backgroundColor: white, // Màu nền
@@ -499,9 +497,14 @@ export default function JobCreate({ navigation, route }) {
                                 onPress={() => showDatePicker('start')}
                             >
                                 <Text style={{ fontWeight: '500' }}>
-                                    {startDate ? startDate.toLocaleDateString() : 'Chọn ngày bắt đầu'}
+                                    {startDate
+                                        ? `${startDate.getDate().toString().padStart(2, '0')}/${(startDate.getMonth() + 1)
+                                            .toString()
+                                            .padStart(2, '0')}/${startDate.getFullYear()}`
+                                        : 'Chọn ngày bắt đầu'}
                                 </Text>
                             </TouchableOpacity>
+
                         </View>
 
                         {/* End Date */}
@@ -512,9 +515,14 @@ export default function JobCreate({ navigation, route }) {
                                 onPress={() => showDatePicker('end')}
                             >
                                 <Text style={{ fontWeight: '500' }}>
-                                    {endDate ? endDate.toLocaleDateString() : 'Chọn ngày kết thúc'}
+                                    {endDate
+                                        ? `${endDate.getDate().toString().padStart(2, '0')}/${(endDate.getMonth() + 1)
+                                            .toString()
+                                            .padStart(2, '0')}/${endDate.getFullYear()}`
+                                        : 'Chọn ngày kết thúc'}
                                 </Text>
                             </TouchableOpacity>
+
                         </View>
                         <DateTimePickerModal
                             isVisible={isDatePickerVisible}

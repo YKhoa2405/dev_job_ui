@@ -280,11 +280,12 @@ export default function CandidatesCreate({ navigation, route }) {
                         min={0}
                         max={10}
                         placeholder="Chọn kỹ năng"
-                        searchable={false}
                         mode="BADGE"
                         badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a"]}
                         listMode={"SCROLLVIEW"}
                         style={{ borderWidth: 0, borderColor: white, borderRadius: 10 }}
+                        searchable={true} // Kích hoạt thanh tìm kiếm
+                        searchPlaceholder="Tìm kiếm kỹ năng..." // Văn bản placeholder cho thanh tìm kiếm
                         dropDownContainerStyle={{
                             backgroundColor: white,
                             borderWidth: 1,

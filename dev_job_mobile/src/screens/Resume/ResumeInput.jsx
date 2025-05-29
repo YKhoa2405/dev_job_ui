@@ -90,7 +90,7 @@ export default function ResumeInput({ route, navigation }) {
         }
     };
 
-    const fetchSkills = async (currentPage = 1, limit = 40) => {
+    const fetchSkills = async (currentPage = 1, limit = 100) => {
         try {
             const res = await API.get(endpoints['skills'], {
                 params: {
@@ -275,10 +275,12 @@ export default function ResumeInput({ route, navigation }) {
                         min={0} // Số lượng chọn tối thiểu
                         max={10} // Số lượng chọn tối đa
                         placeholder="Chọn kỹ năng" // Placeholder khi chưa chọn
-                        searchable={false} // Bật tìm kiếm
+                        searchable={true} // Bật tìm kiếm
                         mode="BADGE" // Hiển thị các mục đã chọn dưới dạng badge
                         badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a"]} // Màu badge
                         listMode={"SCROLLVIEW"}
+                        searchPlaceholder="Tìm kiếm kỹ năng..." // Văn bản placeholder cho thanh tìm kiếm
+
                         style={{
                             borderWidth: 0,
                             borderColor: white,

@@ -40,7 +40,6 @@ export default function Companies({ navigation }) {
             setProvinceData(formattedData);
         } catch (error) {
             console.log('Error fetching provinces:', error);
-            Alert.alert('Lỗi', 'Không thể tải danh sách tỉnh/thành phố.');
         }
     };
 
@@ -63,14 +62,12 @@ export default function Companies({ navigation }) {
                 },
             });
             const data = res.data.data;
-            console.log('API response:', data); // Log để kiểm tra dữ liệu
             setCompanyData((prev) => (page === 1 ? data.result : [...prev, ...data.result]));
             setCurrentPage(data.meta.currentPage);
             setTotalPages(data.meta.totalPages);
             setTotalItems(data.meta.totalItems);
         } catch (error) {
             console.log('Error fetching companies:', error);
-            Alert.alert('Lỗi', 'Không thể tải danh sách công ty. Vui lòng thử lại.');
         } finally {
             setLoading(false);
             setLoadingMore(false);
@@ -179,7 +176,3 @@ export default function Companies({ navigation }) {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    // Style của bạn không thay đổi, chỉ cần đảm bảo StyleShare.jobItemContainer hợp lệ
-});
