@@ -28,6 +28,7 @@ import Loader from './common/Loader';
 import NotificationCreate from './pages/Notifications/NotificationCreate';
 import Notifications from './pages/Notifications/Notifications';
 import CreateCandidate from './pages/Candidates/CreateCandidate';
+import OrderSummary from './pages/Orders/OrderSummary';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -241,6 +242,15 @@ function App() {
             <>
               <PageTitle title="Đơn hàng" />
               <Orders />
+            </>
+          }
+        />
+        <Route
+          path="/admin/orderssummary"
+          element={
+            <>
+              <PageTitle title="Doanh thu" />
+              <OrderSummary />
             </>
           }
         />

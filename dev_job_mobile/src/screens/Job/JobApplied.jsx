@@ -185,6 +185,9 @@ export default function JobApplied({ navigation }) {
                 <Loading />
             ) : (
                 <>
+                    <View style={{ marginHorizontal: 20, marginTop: 5 }}>
+                        <Text style={StyleShare.titleText16}>{totalItems} việc làm</Text>
+                    </View>
                     <FlatList
                         data={jobs}
                         renderItem={renderItem}

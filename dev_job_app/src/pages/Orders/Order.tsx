@@ -1,5 +1,4 @@
-import { Plus, TrashIcon, ChevronLeft, ChevronRight, Eye, Search } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { TrashIcon, ChevronLeft, ChevronRight, Eye, Search } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { Fragment, useEffect, useState, useCallback } from 'react';
 import { authApi, endpoints } from '../../common/API';
@@ -45,7 +44,7 @@ const Orders = () => {
 
     const handleSearch = useCallback(() => {
         fetchListOrders(1, limit);
-      }, [searchKeyword, limit]);
+    }, [searchKeyword, limit]);
 
     const fetchOrderDetail = useCallback(async (id: string) => {
         setLoadingModal(true);

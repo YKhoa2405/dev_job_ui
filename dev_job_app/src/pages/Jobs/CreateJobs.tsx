@@ -412,6 +412,7 @@ const CreateJobs = () => {
                                             className="custom-react-select"
                                             classNamePrefix="react-select"
                                             isDisabled={loading}
+                                            
                                         />
                                     </div>
                                     <div className="flex-1">
