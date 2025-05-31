@@ -4,7 +4,7 @@ import { Route, Routes, useLocation, Navigate } from 'react-router-dom'; // Thê
 import PageTitle from './components/PageTitle';
 import DefaultLayout from './layout/DefaultLayout';
 
-import Roles from './pages/Roles';
+import Roles from './pages/Roles/Roles';
 import CreateJobs from './pages/Jobs/CreateJobs';
 import Jobs from './pages/Jobs/Jobs';
 import Companies from './pages/Companies/Companies';
@@ -30,6 +30,7 @@ import Notifications from './pages/Notifications/Notifications';
 import CreateCandidate from './pages/Candidates/CreateCandidate';
 import OrderSummary from './pages/Orders/OrderSummary';
 import OrderTransactions from './pages/Orders/OrderTransactions';
+import Permissions from './pages/Roles/Permission';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -275,7 +276,16 @@ function App() {
             </>
           }
         />
-
+        {/* Permission */}
+        <Route
+          path="/admin/permissions"
+          element={
+            <>
+              <PageTitle title="Quyền hạn" />
+              <Permissions />
+            </>
+          }
+        />
         {/* Role */}
         <Route
           path="/admin/roles"
@@ -287,25 +297,7 @@ function App() {
           }
         />
 
-        {/* Notification */}
-        <Route
-          path="/admin/notifications"
-          element={
-            <>
-              <PageTitle title="Danh sách thông báo" />
-              <Notifications />
-            </>
-          }
-        />
-        <Route
-          path="/admin/notifications/create"
-          element={
-            <>
-              <PageTitle title="Tạo thông báo" />
-              <NotificationCreate />
-            </>
-          }
-        />
+
       </Routes>
     </DefaultLayout>
   );

@@ -38,10 +38,10 @@ export const endpoints = {
     'orderSummary': '/orders/summary',
     'orderTransactions': (companyId: string) => `/payments/${companyId}`,
 
+
     // company
     'companies': '/companies',
     'companiesAdmin': '/companies/admin',
-
     'companiesDetail': (companyId: string) => `/companies/${companyId}`,
 
 

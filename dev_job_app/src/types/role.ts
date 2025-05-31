@@ -4,5 +4,6 @@ export type IRole = {
     description: string;
     permissions: string[],
     createdAt: string,
+    updatedAt: string,
     isActive:boolean
 }

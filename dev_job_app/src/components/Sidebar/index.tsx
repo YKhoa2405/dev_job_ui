@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import Logo from '../../images/logo/logoAdmin1.png';
-import { BriefcaseBusiness, Building2, Code, Coins, FileUser, LayoutDashboard, RollerCoaster, ShoppingCart, TicketCheck, User2Icon, UsersRound } from 'lucide-react';
+import { BriefcaseBusiness, Building2, Code, Coins, FileUser, LayoutDashboard, Link, RollerCoaster, ShoppingCart, TicketCheck, User2Icon, UsersRound } from 'lucide-react';
 
 
 interface SidebarProps {
@@ -192,7 +192,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   Đơn hàng
                 </NavLink>
               </li>
-
+              <li>
+                <NavLink
+                  to="admin/permissions"
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('permissions') && 'bg-graydark dark:bg-meta-4'}`}>
+                  <Link width={20} />
+                  Quyền hạn
+                </NavLink>
+              </li>
               <li>
                 <NavLink
                   to="admin/roles"
