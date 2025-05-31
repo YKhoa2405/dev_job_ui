@@ -51,11 +51,10 @@ const Companies = () => {
 
 
   const fetchListCompany = async (currentPage = 1, limit = 10, name = '') => {
+    setLoading(true)
     try {
-      setLoading(true)
       const searchQuery = name ? `/${name}/i` : '';
 
-      console.log(searchQuery)
       const res = await API.get(endpoints['companies'], { // Update the endpoint as needed
         params: {
           page: currentPage,

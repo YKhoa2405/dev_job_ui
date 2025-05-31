@@ -36,6 +36,7 @@ export const endpoints = {
     'ordersDetail': (orderId: string) => `/orders/${orderId}/detail`,
     'ordersByCompany': (companyId: string) => `/orders/${companyId}`,
     'orderSummary': '/orders/summary',
+    'orderTransactions': (companyId: string) => `/payments/${companyId}`,
 
     // company
     'companies': '/companies',

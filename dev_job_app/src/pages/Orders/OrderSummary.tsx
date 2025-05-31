@@ -1,19 +1,15 @@
-import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX, Search, History } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { useEffect, useState, useCallback } from 'react';
 import { authApi, endpoints } from '../../common/API';
 import { toast } from 'react-toastify';
 import Loading from '../../common/Loader/Loading';
+import { Link } from 'react-router-dom';
+import { IOrderSummary } from '../../types/order';
 
-interface ICompany {
-    companyName: string;
-    totalOrders: number;
-    totalSpent: number;
-    companyStatus: string;
-}
 
 const OrderSummary = () => {
-    const [companiesData, setCompaniesData] = useState<ICompany[]>([]);
+    const [companiesData, setCompaniesData] = useState<IOrderSummary[]>([]);
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -54,7 +50,7 @@ const OrderSummary = () => {
             setTotalPages(meta.totalPages);
             setTotalSpentAll(meta.totalSpentAll);
         } catch (error) {
-            console.log('Error fetching companies:', error);
+            console.error('Error fetching companies:', error);
             toast.error('Không thể tải danh sách công ty!');
         } finally {
             setLoading(false);
@@ -107,20 +103,16 @@ const OrderSummary = () => {
                             <select
                                 value={sort}
                                 onChange={(e) => handleSortChange(e.target.value)}
-                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
-
+                                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
                             >
                                 <option value="-totalSpent">Giảm dần</option>
                                 <option value="totalSpent">Tăng dần</option>
                             </select>
                         </div>
                         <div className="col-span-3 flex items-center relative">
-                            {/* Icon Search */}
                             <div className="absolute left-0 top-1/2 -translate-y-1/2">
                                 <Search size={20} />
                             </div>
-
-                            {/* Input Search */}
                             <input
                                 type="text"
                                 value={searchKeyword}
@@ -128,10 +120,8 @@ const OrderSummary = () => {
                                 placeholder="Nhập tên công ty..."
                                 className="w-full bg-transparent pl-9 pr-4 text-black focus:outline-none"
                             />
-
-                            {/* Search Button */}
                             <button
-                                onClick={() => handleSearch()}
+                                onClick={handleSearch}
                                 className="absolute right-0 top-1/2 -translate-y-1/2 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 focus:outline-none"
                             >
                                 Tìm kiếm
@@ -148,7 +138,7 @@ const OrderSummary = () => {
                         </h6>
                     </div>
 
-                    <div className="grid grid-cols-4 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-4 md:px-6 2xl:px-7.5">
+                    <div className="grid grid-cols-5 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-5 md:px-6 2xl:px-7.5">
                         <div className="col-span-1 flex items-center">
                             <p className="font-medium">Tên công ty</p>
                         </div>
@@ -161,6 +151,8 @@ const OrderSummary = () => {
                         <div className="col-span-1 flex items-center">
                             <p className="font-medium">Trạng thái</p>
                         </div>
+                        <div className="col-span-1 flex items-center">
+                        </div>
                     </div>
 
                     {loading ? (
@@ -169,11 +161,15 @@ const OrderSummary = () => {
                         <div>
                             {companiesData.map((item, index) => (
                                 <div
-                                    className="grid grid-cols-4 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-4 md:px-6 2xl:px-7.5"
+                                    className="grid grid-cols-5 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-5 md:px-6 2xl:px-7.5"
                                     key={index}
                                 >
                                     <div className="col-span-1 flex items-center">
-                                        <p className="text-sm text-blue-600 dark:text-white">{item.companyName}</p>
+                                        <Link to={`/admin/companies/${item.companyId}/detail`}>
+                                            <p className="text-sm text-blue-600 dark:text-white cursor-pointer hover:underline">
+                                                {item.companyName}
+                                            </p>
+                                        </Link>
                                     </div>
                                     <div className="col-span-1 flex items-center">
                                         <p className="text-sm text-black dark:text-white">{item.totalOrders}</p>
@@ -182,12 +178,22 @@ const OrderSummary = () => {
                                         <p className="text-sm text-green-600 dark:text-white">{item.totalSpent.toLocaleString('vi-VN')}</p>
                                     </div>
                                     <div className="col-span-1 flex items-center">
-                                        <p className="text-sm text-black ">
+                                        <p className="text-sm text-black">
                                             {item.companyStatus ? (
                                                 <CircleCheckBigIcon size={20} color="green" />
                                             ) : (
                                                 <CircleX size={20} color="red" />
-                                            )}</p>
+                                            )}
+                                        </p>
+                                    </div>
+                                    <div className="col-span-1 flex items-center">
+                                        <Link
+                                            to={`${item.companyId}/transactions`}
+                                            className="flex items-center gap-1 text-sm text-white bg-blue-500 px-3 py-1 rounded hover:bg-blue-600 transition"
+                                        >
+                                            <History size={16} />
+                                            Lịch sử giao dịch
+                                        </Link>
                                     </div>
                                 </div>
                             ))}

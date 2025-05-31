@@ -1,4 +1,4 @@
-import { CircleCheckBigIcon, CircleX, Pencil, Plus, Search, TrashIcon } from 'lucide-react';
+import { CircleCheckBigIcon, CircleX, Pencil, Plus, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { IServiceDetail, IServiceList } from '../../types/service';
@@ -229,6 +229,7 @@ const Services = () => {
                                                     <label className="mb-2.5 block text-black dark:text-white">Số lượt sử dụng</label>
                                                     <input
                                                         type="number"
+                                                        min={0}
                                                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white"
                                                         value={serviceDetail?.usageLimit || 'Không có'}
                                                         onChange={(e) =>

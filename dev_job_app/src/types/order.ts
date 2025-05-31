@@ -27,3 +27,25 @@ export type IOrder = {
     createdAt: Date;
     updatedAt: Date;
 };
+
+export type IOrderSummary = {
+    companyId: string;
+    companyName: string;
+    totalOrders: number;
+    totalSpent: number;
+    companyStatus: string;
+};
+
+export type ITransaction = {
+    _id: string;
+    vnp_Amount: string;
+    vnp_OrderInfo: string;
+    vnp_PayDate: string;
+    vnp_TransactionNo: string;
+    vnp_TransactionStatus: string;
+    createdAt: string;
+    createBy: {
+        _id: string;
+        email: string;
+    };
+};

@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 import { Dialog, Transition } from '@headlessui/react';
 import moment from 'moment';
 import { IOrder } from '../../types/order';
+import { Link } from 'react-router-dom';
 
 const Orders = () => {
     const [ordersData, setOrdersData] = useState<IOrder[]>([]);
@@ -352,8 +353,14 @@ const Orders = () => {
                                         <p className="text-sm text-black dark:text-white">{item?.serviceId?.name}</p>
                                     </div>
                                     <div className="col-span-2 hidden sm:flex items-center">
-                                        <p className="text-sm text-black dark:text-white">{item?.companyId?.name}</p>
+                                        <Link
+                                            to={`/admin/companies/${item?.companyId?._id}/detail`}
+                                            className="text-sm text-blue-600 dark:text-white hover:underline truncate"
+                                        >
+                                            {item?.companyId?.name}
+                                        </Link>
                                     </div>
+
                                     <div className="col-span-1 hidden sm:flex items-center">
                                         <p className="text-sm text-green-600 dark:text-white">
                                             {item.amount.toLocaleString('vi-VN')}

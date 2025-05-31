@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 import { Dialog, Transition } from '@headlessui/react';
 import moment from 'moment';
+import { Link } from 'react-router-dom';
 
 // Constants
 const DISPLAY_OPTIONS = [
@@ -269,10 +270,9 @@ const Resumes = () => {
                         <h4 className="text-xl font-semibold text-black dark:text-white">Danh sách hồ sơ ứng tuyển</h4>
                     </div>
 
-                    <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
-                        <div className="col-span-2 flex items-center"><p className="font-medium">Id</p></div>
-                        <div className="col-span-1 flex items-center"><p className="font-medium">Trạng thái</p></div>
+                    <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-6 md:px-6 2xl:px-7.5">
                         <div className="col-span-2 hidden items-center sm:flex"><p className="font-medium">Tin tuyển dụng</p></div>
+                        <div className="col-span-1 flex items-center"><p className="font-medium">Trạng thái</p></div>
                         <div className="col-span-2 hidden items-center sm:flex"><p className="font-medium">Công ty</p></div>
                         <div className="col-span-1 flex items-center"><p className="font-medium">Hành động</p></div>
                     </div>
@@ -285,19 +285,22 @@ const Resumes = () => {
                         resumeData.map(item => (
                             <div
                                 key={item._id}
-                                className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
+                                className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-6 md:px-6 2xl:px-7.5"
                             >
-                                <div className="col-span-2 flex items-center">
-                                    <p className="text-sm text-blue-600 dark:text-white truncate">{item._id}</p>
+
+                                <div className="col-span-2 hidden items-center sm:flex">
+                                    <Link to={`/admin/jobs/${item.jobId._id}`} className="truncate text-sm text-blue-600 dark:text-white hover:underline">
+                                        {item.jobId.name}
+                                    </Link>
                                 </div>
+
                                 <div className="col-span-1 flex items-center">
                                     <p className={`text-sm font-bold px-2 rounded ${getStatusStyle(item.status)}`}>{item.status}</p>
                                 </div>
                                 <div className="col-span-2 hidden items-center sm:flex">
-                                    <p className="text-sm text-black dark:text-white truncate">{item.jobId.name}</p>
-                                </div>
-                                <div className="col-span-2 hidden items-center sm:flex">
-                                    <p className="text-sm text-black dark:text-white truncate">{item.companyId.name}</p>
+                                    <Link to={`/admin/companies/${item.companyId._id}/detail`} className="truncate text-sm  dark:text-white hover:underline">
+                                        {item.companyId.name}
+                                    </Link>
                                 </div>
                                 <div className="col-span-1 flex items-center">
                                     <div className="flex items-center space-x-3.5">

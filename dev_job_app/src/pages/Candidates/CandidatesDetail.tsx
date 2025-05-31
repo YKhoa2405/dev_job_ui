@@ -260,9 +260,10 @@ const CandidatesDetail = () => {
                                     className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
                                     key={item._id}
                                 >
-                                    <a className="col-span-2 flex items-center" href={`/admin/jobs/${item._id}`}>
-                                        <p className="text-sm text-blue-600 ">{item?.jobId?.name}</p>
-                                    </a>
+                                    <Link to={`/admin/jobs/${item?.jobId._id}`} className="col-span-2 flex items-center">
+                                        <p className="text-sm text-blue-600">{item?.jobId?.name}</p>
+                                    </Link>
+
                                     <div className="col-span-2 hidden items-center sm:flex">
                                         <p className="text-sm text-black ">{item.companyId?.name}</p>
                                     </div>

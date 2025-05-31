@@ -29,6 +29,7 @@ import NotificationCreate from './pages/Notifications/NotificationCreate';
 import Notifications from './pages/Notifications/Notifications';
 import CreateCandidate from './pages/Candidates/CreateCandidate';
 import OrderSummary from './pages/Orders/OrderSummary';
+import OrderTransactions from './pages/Orders/OrderTransactions';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -246,11 +247,20 @@ function App() {
           }
         />
         <Route
-          path="/admin/orderssummary"
+          path="/admin/summary"
           element={
             <>
               <PageTitle title="Doanh thu" />
               <OrderSummary />
+            </>
+          }
+        />
+        <Route
+          path="/admin/summary/:companyId/transactions"
+          element={
+            <>
+              <PageTitle title="Lịch sử giao dịch" />
+              <OrderTransactions />
             </>
           }
         />
