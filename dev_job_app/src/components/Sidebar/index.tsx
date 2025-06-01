@@ -192,6 +192,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   Đơn hàng
                 </NavLink>
               </li>
+            </ul>
+            <ul className="mb-6 flex flex-col gap-1.5">
+              <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
+                PHÂN QUYỀN
+              </h3>
               <li>
                 <NavLink
                   to="admin/permissions"
@@ -209,7 +214,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
             </ul>
-
           </div>
         </nav>
         {/* <!-- Sidebar Menu --> */}

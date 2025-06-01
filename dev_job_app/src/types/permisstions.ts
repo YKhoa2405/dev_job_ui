@@ -10,5 +10,11 @@ export type IPermission = {
     };
     createdAt: string;
     updatedAt: string;
+    enabled?: boolean;
     __v: number;
+}
+
+export type PermissionGroup = {
+    group: string;
+    permissions: IPermission[];
 }

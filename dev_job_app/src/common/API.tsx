@@ -56,6 +56,8 @@ export const endpoints = {
     // permissions
     'permissions': 'permission',
     'permissionsDetail': (permissionId: string) => `/permission/${permissionId}`,
+    'permissionModuleName': '/permission/modules',
+    'permissionGroup': '/permission/grouped',
 
     // resume
     'resume': 'applications',
