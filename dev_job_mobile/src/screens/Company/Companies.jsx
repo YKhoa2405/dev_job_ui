@@ -7,8 +7,9 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { Avatar, Chip } from "react-native-paper";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import API, { endpoints } from "../../assets/config/API";
+import API, { authApi, endpoints } from "../../assets/config/API";
 import Loading from "../../components/Loading";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Companies({ navigation }) {
     const [provinceData, setProvinceData] = useState([]);
@@ -46,6 +47,7 @@ export default function Companies({ navigation }) {
     const fetchListCompany = async (page = 1, limit = 10, name = "") => {
         const searchQuery = name.trim() ? `/${name.trim()}/i` : '';
         try {
+            const token = await AsyncStorage.getItem('access_token');
             if (page === 1) {
                 setLoading(true);
                 setCompanyData([]); // Xóa dữ liệu cũ khi tải trang 1
@@ -53,7 +55,7 @@ export default function Companies({ navigation }) {
                 setLoadingMore(true);
             }
 
-            const res = await API.get(endpoints['companies'], {
+            const res = await authApi(token).get(endpoints['companies'], {
                 params: {
                     page: page,
                     limit: limit,

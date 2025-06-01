@@ -53,6 +53,7 @@ export const endpoints = {
 
     // roles
     'roles': 'roles',
+    'rolesDetail': (roleId: string) => `/roles/${roleId}`,
     // permissions
     'permissions': 'permission',
     'permissionsDetail': (permissionId: string) => `/permission/${permissionId}`,

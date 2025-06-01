@@ -53,9 +53,10 @@ const Companies = () => {
   const fetchListCompany = async (currentPage = 1, limit = 10, name = '') => {
     setLoading(true)
     try {
+      const token = localStorage.getItem('access_token');
       const searchQuery = name ? `/${name}/i` : '';
 
-      const res = await API.get(endpoints['companies'], { // Update the endpoint as needed
+      const res = await authApi(token).get(endpoints['companies'], { // Update the endpoint as needed
         params: {
           page: currentPage,
           limit: limit,
