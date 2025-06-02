@@ -25,8 +25,6 @@ import CandidatesDetail from './pages/Candidates/CandidatesDetail';
 import CandidatesEdit from './pages/Candidates/CandidatesEdit';
 import Orders from './pages/Orders/Order';
 import Loader from './common/Loader';
-import NotificationCreate from './pages/Notifications/NotificationCreate';
-import Notifications from './pages/Notifications/Notifications';
 import CreateCandidate from './pages/Candidates/CreateCandidate';
 import OrderSummary from './pages/Orders/OrderSummary';
 import OrderTransactions from './pages/Orders/OrderTransactions';

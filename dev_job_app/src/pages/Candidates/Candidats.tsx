@@ -69,7 +69,7 @@ const Candidates = () => {
         const searchQuery = email ? `/${email}/i` : '';
         setLoading(true)
         try {
-            const token: any = localStorage.getItem("access_token");
+            const token = localStorage.getItem("access_token");
             const res = await authApi(token).get(endpoints['candidates'], {
                 params: {
                     page: currentPage,

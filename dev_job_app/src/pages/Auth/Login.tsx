@@ -16,7 +16,12 @@ const Login: React.FC = () => {
         username: email,
         password: password
       });
-      localStorage.setItem("access_token", response.data.data.access_token);
+      const { access_token, _id, email: userEmail, name, role } = response.data.data;
+      console.log(response.data.data);
+      // Lưu thông tin vào localStorage
+      localStorage.setItem('access_token', access_token);
+      localStorage.setItem('user', JSON.stringify({ _id, email: userEmail, name }));
+      localStorage.setItem('permissions', JSON.stringify(role.permissions));
       navigate("/dashboard");
       toast.success('Đăng nhập thành công!', {
         position: "top-right",

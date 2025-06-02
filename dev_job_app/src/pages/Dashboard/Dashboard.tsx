@@ -3,7 +3,6 @@ import Chart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
 import { authApi, endpoints } from '../../common/API';
 import Loading from '../../common/Loader/Loading';
-import { Link } from 'react-router-dom';
 
 // Định nghĩa interface
 interface OverviewData {
@@ -42,6 +41,7 @@ const Dashboard: React.FC = () => {
       setLoadingOverview(true);
       try {
         const token = localStorage.getItem('access_token');
+        console.log(localStorage.getItem('user'))
         if (!token) throw new Error('No token found');
         const overviewRes = await authApi(token).get(`${endpoints['overViewAdmin']}?timeRange=${selectedTimeRange}`);
         if (overviewRes.data.statusCode === 200) {

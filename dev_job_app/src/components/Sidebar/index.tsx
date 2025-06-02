@@ -2,12 +2,28 @@ import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import Logo from '../../images/logo/logoAdmin1.png';
 import { BriefcaseBusiness, Building2, Code, Coins, FileUser, LayoutDashboard, Link, RollerCoaster, ShoppingCart, TicketCheck, User2Icon, UsersRound } from 'lucide-react';
+import { hasPermission } from '../../common/HasPermission';
 
 
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (arg: boolean) => void;
 }
+
+const menuPermissions: { [key: string]: string } = {
+  users: '683bcd19b0844882a0ba039c',
+  candidates: '683bc704789be1bf151451b4',
+  companies: '683bc4f6789be1bf15145160',
+  jobs: '683bc650789be1bf1514517f',
+  resumes: '683bc7bb789be1bf151451d7',
+  skills: '683bc845789be1bf151451ec',
+  services: '683bc8a4789be1bf151451fe',
+  summary: '683bc9a9789be1bf1514521e',
+  orders: '683bc97b789be1bf1514521b',
+  permissions: '683bcb12b0844882a0ba0386',
+  roles: '683bcb7db0844882a0ba038f',
+};
+
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const location = useLocation();
@@ -21,7 +37,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
   );
 
-  // close on click outside
+  // Đóng sidebar khi click bên ngoài
   useEffect(() => {
     const clickHandler = ({ target }: MouseEvent) => {
       if (!sidebar.current || !trigger.current) return;
@@ -37,7 +53,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     return () => document.removeEventListener('click', clickHandler);
   });
 
-  // close if the esc key is pressed
+  // Đóng sidebar khi nhấn phím Esc
   useEffect(() => {
     const keyHandler = ({ keyCode }: KeyboardEvent) => {
       if (!sidebarOpen || keyCode !== 27) return;
@@ -47,6 +63,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     return () => document.removeEventListener('keydown', keyHandler);
   });
 
+  // Cập nhật trạng thái sidebar-expanded
   useEffect(() => {
     localStorage.setItem('sidebar-expanded', sidebarExpanded.toString());
     if (sidebarExpanded) {
@@ -100,7 +117,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               <li>
                 <NavLink
                   to="/dashboard"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('dashboard') && 'bg-graydark dark:bg-meta-4'}`}>
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('dashboard') && 'bg-graydark dark:bg-meta-4'
+                    }`}
+                >
                   <LayoutDashboard width={20} />
                   Dashboard
                 </NavLink>
@@ -110,109 +129,148 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
                 QUẢN LÝ
               </h3>
-              <li>
-                <NavLink
-                  to="admin/users"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('users') && 'bg-graydark dark:bg-meta-4'}`}>
-                  <User2Icon width={20} />
-                  Người dùng hệ thống
-                </NavLink>
-              </li>
-
-              <li>
-                <NavLink
-                  to="admin/candidates"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('candidates') && 'bg-graydark dark:bg-meta-4'}`}>
-                  <UsersRound width={20} />
-                  Ứng viên tìm việc
-                </NavLink>
-              </li>
-
-              <li>
-                <NavLink
-                  to="admin/companies"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('companies') && 'bg-graydark dark:bg-meta-4'}`}>
-                  <Building2 width={20} />
-                  Công ty
-                </NavLink>
-              </li>
-
-              <li>
-                <NavLink
-                  to="/admin/jobs"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('jobs') && 'bg-graydark dark:bg-meta-4'}`}>
-                  <BriefcaseBusiness width={20} />
-                  Tin tuyển dụng
-                </NavLink>
-              </li>
-
-              <li>
-                <NavLink
-                  to="admin/resumes"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('resumes') && 'bg-graydark dark:bg-meta-4'}`}>
-                  <FileUser width={20} />
-                  Ứng tuyển
-                </NavLink>
-              </li>
-
-              <li>
-                <NavLink
-                  to="admin/skills"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('skills') && 'bg-graydark dark:bg-meta-4'}`}>
-                  <Code width={20} />
-                  Công nghệ
-                </NavLink>
-              </li>
+              {hasPermission(menuPermissions.users) && (
+                <li>
+                  <NavLink
+                    to="admin/users"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('users') && 'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    <User2Icon width={20} />
+                    Người dùng hệ thống
+                  </NavLink>
+                </li>
+              )}
+              {hasPermission(menuPermissions.candidates) && (
+                <li>
+                  <NavLink
+                    to="admin/candidates"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('candidates') && 'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    <UsersRound width={20} />
+                    Ứng viên tìm việc
+                  </NavLink>
+                </li>
+              )}
+              {hasPermission(menuPermissions.companies) && (
+                <li>
+                  <NavLink
+                    to="admin/companies"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('companies') && 'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    <Building2 width={20} />
+                    Công ty
+                  </NavLink>
+                </li>
+              )}
+              {hasPermission(menuPermissions.jobs) && (
+                <li>
+                  <NavLink
+                    to="/admin/jobs"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('jobs') && 'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    <BriefcaseBusiness width={20} />
+                    Tin tuyển dụng
+                  </NavLink>
+                </li>
+              )}
+              {hasPermission(menuPermissions.resumes) && (
+                <li>
+                  <NavLink
+                    to="admin/resumes"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('resumes') && 'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    <FileUser width={20} />
+                    Ứng tuyển
+                  </NavLink>
+                </li>
+              )}
+              {hasPermission(menuPermissions.skills) && (
+                <li>
+                  <NavLink
+                    to="admin/skills"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('skills') && 'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    <Code width={20} />
+                    Công nghệ
+                  </NavLink>
+                </li>
+              )}
             </ul>
             <ul className="mb-6 flex flex-col gap-1.5">
               <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
                 TIỆN ÍCH
               </h3>
-              <li>
-                <NavLink
-                  to="admin/services"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('services') && 'bg-graydark dark:bg-meta-4'}`}>
-                  <TicketCheck width={20} />
-                  Dịch vụ
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="admin/summary"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('summary') && 'bg-graydark dark:bg-meta-4'}`}>
-                  <Coins width={20} />
-                  Doanh thu
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="admin/orders"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('orders') && 'bg-graydark dark:bg-meta-4'}`}>
-                  <ShoppingCart width={20} />
-                  Đơn hàng
-                </NavLink>
-              </li>
+              {hasPermission(menuPermissions.services) && (
+                <li>
+                  <NavLink
+                    to="admin/services"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('services') && 'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    <TicketCheck width={20} />
+                    Dịch vụ
+                  </NavLink>
+                </li>
+              )}
+              {hasPermission(menuPermissions.summary) && (
+                <li>
+                  <NavLink
+                    to="admin/summary"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('summary') && 'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    <Coins width={20} />
+                    Doanh thu
+                  </NavLink>
+                </li>
+              )}
+              {hasPermission(menuPermissions.orders) && (
+                <li>
+                  <NavLink
+                    to="admin/orders"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('orders') && 'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    <ShoppingCart width={20} />
+                    Đơn hàng
+                  </NavLink>
+                </li>
+              )}
             </ul>
             <ul className="mb-6 flex flex-col gap-1.5">
               <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
                 PHÂN QUYỀN
               </h3>
-              <li>
-                <NavLink
-                  to="admin/permissions"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('permissions') && 'bg-graydark dark:bg-meta-4'}`}>
-                  <Link width={20} />
-                  Quyền hạn
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="admin/roles"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('roles') && 'bg-graydark dark:bg-meta-4'}`}>
-                  <RollerCoaster width={20} />
-                  Vai trò
-                </NavLink>
-              </li>
+              {hasPermission(menuPermissions.permissions) && (
+                <li>
+                  <NavLink
+                    to="admin/permissions"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('permissions') && 'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    <Link width={20} />
+                    Quyền hạn
+                  </NavLink>
+                </li>
+              )}
+              {hasPermission(menuPermissions.roles) && (
+                <li>
+                  <NavLink
+                    to="admin/roles"
+                    className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('roles') && 'bg-graydark dark:bg-meta-4'
+                      }`}
+                  >
+                    <RollerCoaster width={20} />
+                    Vai trò
+                  </NavLink>
+                </li>
+              )}
             </ul>
           </div>
         </nav>

@@ -188,9 +188,9 @@ const Users = () => {
       const res = await authApi(token).post(
         endpoints['verify'],
         {
-          name: tempUserData.name,
-          email: tempUserData.email,
-          password: tempUserData.password,
+          name: tempUserData.name.trim(),
+          email: tempUserData.email.trim(),
+          password: tempUserData.password.trim(),
         },
         {
           params: {
@@ -216,6 +216,9 @@ const Users = () => {
           if (user._id) {
             navigate(`/admin/candidates/create?userId=${user._id}&email=${encodeURIComponent(user.email)}&name=${encodeURIComponent(user.name)}`);
           }
+        } else {
+          closeOtpModal();
+          fetchListUser();
         }
       }, 500);
     } catch (error) {
