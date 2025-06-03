@@ -8,6 +8,7 @@ import { authApi, endpoints } from '../../common/API';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 import Loading from '../../common/Loader/Loading';
+import { usePermissions } from '../../hooks/usePermissions';
 
 
 const Jobs = () => {
@@ -20,8 +21,7 @@ const Jobs = () => {
   const [salary, setSalary] = useState('')
   const [loading, setLoading] = useState(false)
   const [searchKeyword, setSearchKeyword] = useState<string>('')
-
-  console.log(level)
+  const { hasPermission } = usePermissions();
 
   const displayOptions = [
     { value: 5, label: '5 mục' },
@@ -201,12 +201,14 @@ const Jobs = () => {
             <h4 className="text-xl font-semibold text-black ">
               Danh sách tin tuyển dụng
             </h4>
-            <Link
-              to="create"
-              className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md">
-              <Plus size={20} />
-              Thêm mới
-            </Link>
+            {hasPermission('683bc5f3789be1bf15145176') && (
+              <Link
+                to="create"
+                className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md">
+                <Plus size={20} />
+                Thêm mới
+              </Link>
+            )}
           </div>
 
 
@@ -271,12 +273,18 @@ const Jobs = () => {
                     <div className="flex items-center space-x-3.5">
                       <div className="hover:text-primary">
                       </div>
-                      <Link className="hover:text-primary" to={`${item._id}`}>
-                        <Pencil size={20} />
-                      </Link>
-                      <button onClick={() => handleDeleteJob(item._id)} className="hover:text-red-500">
-                        <TrashIcon size={20} />
-                      </button>
+                      {hasPermission('683bc610789be1bf15145179') && (
+                        <Link className="hover:text-primary" to={`${item._id}`}>
+                          <Pencil size={20} />
+                        </Link>
+                      )}
+
+                      {hasPermission('683bc630789be1bf1514517c') && (
+                        <button onClick={() => handleDeleteJob(item._id)} className="hover:text-red-500">
+                          <TrashIcon size={20} />
+                        </button>
+                      )}
+
                     </div>
                   </div>
                 </div>

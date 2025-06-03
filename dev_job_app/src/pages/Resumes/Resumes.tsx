@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import { Dialog, Transition } from '@headlessui/react';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
+import { usePermissions } from '../../hooks/usePermissions';
 
 // Constants
 const DISPLAY_OPTIONS = [
@@ -38,6 +39,8 @@ const Resumes = () => {
     const [loadingModal, setLoadingModal] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [resumeDetail, setResumeDetail] = useState<IResumeDetail | null>(null);
+    const { hasPermission } = usePermissions();
+
 
     // Memoized fetch functions
     const fetchListResume = useCallback(async (page = 1, limitVal = 10, statusVal = '') => {
@@ -304,12 +307,18 @@ const Resumes = () => {
                                 </div>
                                 <div className="col-span-1 flex items-center">
                                     <div className="flex items-center space-x-3.5">
-                                        <button onClick={() => openModal(item._id)} className="hover:text-primary" title="Chỉnh sửa">
-                                            <Pencil size={20} />
-                                        </button>
-                                        <button onClick={() => handleDeleteResume(item._id)} className="hover:text-red-600" title="Xóa hồ sơ">
-                                            <TrashIcon size={20} />
-                                        </button>
+                                        {hasPermission('683bc7de789be1bf151451dd') && (
+                                            <button onClick={() => openModal(item._id)} className="hover:text-primary" title="Chỉnh sửa">
+                                                <Pencil size={20} />
+                                            </button>
+                                        )}
+
+                                        {hasPermission('683bc7cb789be1bf151451da') && (
+                                            <button onClick={() => handleDeleteResume(item._id)} className="hover:text-red-600" title="Xóa hồ sơ">
+                                                <TrashIcon size={20} />
+                                            </button>
+                                        )}
+
                                     </div>
                                 </div>
                             </div>

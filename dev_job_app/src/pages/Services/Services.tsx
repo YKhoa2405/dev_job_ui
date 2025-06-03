@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { IServiceDetail, IServiceList } from '../../types/service';
 import { Fragment, useEffect, useState, useCallback } from 'react';
-import API, { authApi, endpoints } from '../../common/API';
+import { authApi, endpoints } from '../../common/API';
 import { toast } from 'react-toastify';
 import Loading from '../../common/Loader/Loading';
 import Swal from 'sweetalert2';
 import { Dialog, Transition } from '@headlessui/react';
 import moment from 'moment';
+import { usePermissions } from '../../hooks/usePermissions';
 
 const Services = () => {
     const [serviceData, setServiceData] = useState<IServiceList[]>([]);
@@ -17,6 +18,8 @@ const Services = () => {
     const [loadingModal, setLoadingModal] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [serviceDetail, setServiceDetail] = useState<IServiceDetail | null>(null);
+    const { hasPermission } = usePermissions();
+
 
     const openModal = (id: string) => {
         fetchServiceDetail(id);
@@ -328,13 +331,15 @@ const Services = () => {
                 <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
                     <div className="mb-6 flex items-center justify-between">
                         <h4 className="text-xl font-semibold text-black dark:text-white">Danh sách dịch vụ</h4>
-                        <Link
-                            to="create"
-                            className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md"
-                        >
-                            <Plus size={20} />
-                            Thêm mới
-                        </Link>
+                        {hasPermission('683bc898789be1bf151451fb') && (
+                            <Link
+                                to="create"
+                                className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md"
+                            >
+                                <Plus size={20} />
+                                Thêm mới
+                            </Link>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
@@ -393,9 +398,11 @@ const Services = () => {
                                             {/* <button onClick={() => handleDeleteService(item._id)} className="hover:text-red-500">
                                                 <TrashIcon size={20} />
                                             </button> */}
-                                            <button onClick={() => openModal(item._id)} className="hover:text-primary">
-                                                <Pencil size={20} />
-                                            </button>
+                                            {hasPermission('683bc8bd789be1bf15145201') && (
+                                                <button onClick={() => openModal(item._id)} className="hover:text-primary">
+                                                    <Pencil size={20} />
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

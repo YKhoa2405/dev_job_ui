@@ -9,6 +9,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { PermissionGroup } from '../../types/permisstions';
 import { toast } from 'react-toastify';
+import { usePermissions } from '../../hooks/usePermissions';
 
 const Roles = () => {
     moment.locale('vi');
@@ -30,9 +31,10 @@ const Roles = () => {
         permissions: [] as PermissionGroup[],
     });
     const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
+    const { hasPermission } = usePermissions();
 
     // Lấy danh sách tất cả quyền (dùng để hiển thị trong modal)
-    const fetchPermissions = async () => {
+    async function fetchPermissions() {
         try {
             const token = localStorage.getItem('access_token');
             const res = await authApi(token).get(endpoints['permissionGroup']);
@@ -54,7 +56,7 @@ const Roles = () => {
                 autoClose: 3000,
             });
         }
-    };
+    }
 
     // Lấy danh sách role (bao gồm permissions của từng role)
     const fetchListRole = async () => {
@@ -293,35 +295,37 @@ const Roles = () => {
                         <h4 className="text-xl font-semibold text-black dark:text-white">
                             Danh sách vai trò trong hệ thống
                         </h4>
-                        <button
-                            onClick={() => {
-                                if (!permissionsData.length) {
-                                    toast.error('Danh sách quyền chưa được tải', {
-                                        position: 'top-right',
-                                        autoClose: 3000,
-                                    });
-                                    return;
-                                }
-                                setCreateForm({
-                                    name: '',
-                                    description: '',
-                                    isActive: true,
-                                    permissions: permissionsData.map((group: PermissionGroup) => ({
-                                        ...group,
-                                        permissions: group.permissions.map((perm: any) => ({
-                                            ...perm,
-                                            enabled: false,
+                        {hasPermission('683bcba2b0844882a0ba0396') && (
+                            <button
+                                onClick={() => {
+                                    if (!permissionsData.length) {
+                                        toast.error('Danh sách quyền chưa được tải', {
+                                            position: 'top-right',
+                                            autoClose: 3000,
+                                        });
+                                        return;
+                                    }
+                                    setCreateForm({
+                                        name: '',
+                                        description: '',
+                                        isActive: true,
+                                        permissions: permissionsData.map((group: PermissionGroup) => ({
+                                            ...group,
+                                            permissions: group.permissions.map((perm: any) => ({
+                                                ...perm,
+                                                enabled: false,
+                                            })),
                                         })),
-                                    })),
-                                });
-                                setExpandedGroups(permissionsData.map((group) => group.group));
-                                setIsCreateModalOpen(true);
-                            }}
-                            className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md"
-                        >
-                            <Plus size={20} />
-                            Thêm mới
-                        </button>
+                                    });
+                                    setExpandedGroups(permissionsData.map((group) => group.group));
+                                    setIsCreateModalOpen(true);
+                                }}
+                                className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md"
+                            >
+                                <Plus size={20} />
+                                Thêm mới
+                            </button>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 sm:grid-cols-8 md:px-6 2xl:px-7.5">
@@ -377,21 +381,23 @@ const Roles = () => {
                             </div>
                             <div className="col-span-1 flex items-center">
                                 <div className="flex items-center space-x-3.5">
-                                    <button
-                                        onClick={() => {
-                                            if (!permissionsData.length) {
-                                                toast.error('Danh sách quyền chưa được tải', {
-                                                    position: 'top-right',
-                                                    autoClose: 3000,
-                                                });
-                                                return;
-                                            }
-                                            handleEditRole(item);
-                                        }}
-                                        className="hover:text-blue-500"
-                                    >
-                                        <Pencil size={20} />
-                                    </button>
+                                    {hasPermission('683bcbbab0844882a0ba0399') && (
+                                        <button
+                                            onClick={() => {
+                                                if (!permissionsData.length) {
+                                                    toast.error('Danh sách quyền chưa được tải', {
+                                                        position: 'top-right',
+                                                        autoClose: 3000,
+                                                    });
+                                                    return;
+                                                }
+                                                handleEditRole(item);
+                                            }}
+                                            className="hover:text-blue-500"
+                                        >
+                                            <Pencil size={20} />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>

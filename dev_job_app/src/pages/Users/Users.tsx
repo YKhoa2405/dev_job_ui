@@ -10,6 +10,7 @@ import Swal from 'sweetalert2';
 import Loading from '../../common/Loader/Loading';
 import { Dialog, Transition } from '@headlessui/react';
 import { useNavigate } from 'react-router-dom';
+import { usePermissions } from '../../hooks/usePermissions';
 
 const Users = () => {
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ const Users = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [limit, setLimit] = useState(10);
   const [searchKeyword, setSearchKeyword] = useState<string>('');
+  const { hasPermission } = usePermissions();
 
   const displayOptions = [
     { value: 5, label: '5 mục' },
@@ -463,13 +465,15 @@ const Users = () => {
             <h4 className="text-xl font-semibold text-black dark:text-white">
               Danh sách người dùng
             </h4>
-            <button
-              onClick={openModal}
-              className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md"
-            >
-              <Plus size={20} />
-              Thêm mới
-            </button>
+            {hasPermission('683bcd6bb0844882a0ba03a9') && (
+              <button
+                onClick={openModal}
+                className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md"
+              >
+                <Plus size={20} />
+                Thêm mới
+              </button>
+            )}
           </div>
           <div className="grid grid-cols-6 border-t border-stroke py-4 px-4 dark:border-strokedark sm:grid-cols-7 md:px-6 2xl:px-7.5">
             <div className="col-span-2 flex items-center">

@@ -1,29 +1,31 @@
-import { TrashIcon, ChevronLeft, ChevronRight, Eye, Search } from 'lucide-react';
+import { TrashIcon, ChevronLeft, ChevronRight, Eye, Search, Edit2, CircleCheckBigIcon, CircleX } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { Fragment, useEffect, useState, useCallback } from 'react';
 import { authApi, endpoints } from '../../common/API';
 import { toast } from 'react-toastify';
 import Loading from '../../common/Loader/Loading';
-import Swal from 'sweetalert2';
 import { Dialog, Transition } from '@headlessui/react';
 import moment from 'moment';
 import { IOrder } from '../../types/order';
 import { Link } from 'react-router-dom';
+import { usePermissions } from '../../hooks/usePermissions';
 
 const Orders = () => {
     const [ordersData, setOrdersData] = useState<IOrder[]>([]);
     const [loading, setLoading] = useState(false);
     const [loadingModal, setLoadingModal] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
     const [orderDetail, setOrderDetail] = useState<IOrder | null>(null);
+    const [editOrder, setEditOrder] = useState<IOrder | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [limit, setLimit] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [startDate, setStartDate] = useState<string>('');
     const [endDate, setEndDate] = useState<string>('');
-
     const [searchKeyword, setSearchKeyword] = useState('');
+    const { hasPermission } = usePermissions();
 
     const displayOptions = [
         { value: 5, label: '5 mục' },
@@ -41,6 +43,20 @@ const Orders = () => {
     const closeModal = () => {
         setIsOpen(false);
         setOrderDetail(null);
+    };
+
+    const openEditModal = (order: IOrder) => {
+        setEditOrder(order);
+        setIsEditOpen(true);
+    };
+
+    const closeEditModal = () => {
+        setIsEditOpen(false);
+        setEditOrder(null);
+    };
+
+    const toggleActiveStatus = () => {
+        setEditOrder((prev) => (prev ? { ...prev, isActive: !prev.isActive } : prev));
     };
 
     const handleSearch = useCallback(() => {
@@ -71,13 +87,11 @@ const Orders = () => {
             };
 
             if (startDate) {
-                // Start of day in UTC
                 const start = new Date(startDate);
                 start.setUTCHours(0, 0, 0, 0);
                 params.createdAtFrom = start.toISOString();
             }
             if (endDate) {
-                // End of day in UTC
                 const end = new Date(endDate);
                 end.setUTCHours(23, 59, 59, 999);
                 params.createdAtTo = end.toISOString();
@@ -98,37 +112,24 @@ const Orders = () => {
         }
     }, [startDate, endDate]);
 
-    const handleDeleteOrders = useCallback(async (id: string) => {
+    const handleUpdateOrder = async () => {
+        if (!editOrder) return;
+        setLoadingModal(true);
         try {
-            const result = await Swal.fire({
-                title: 'Bạn có chắc chắn?',
-                text: 'Thông tin về đơn hàng này sẽ bị xóa!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Có, xóa!',
-                cancelButtonText: 'Hủy',
+            const token = localStorage.getItem('access_token');
+            await authApi(token).patch(endpoints['ordersUpdate'](editOrder._id), {
+                isActive: editOrder.isActive, // Gửi dưới dạng object với khóa isActive
             });
-            if (result.isConfirmed) {
-                const token = localStorage.getItem('access_token');
-                await authApi(token).delete(endpoints['ordersDetail'](id));
-                setOrdersData((prev) => prev.filter((item) => item._id !== id));
-                setTotalItems((prev) => prev - 1);
-                toast.success('Xóa thành công!', {
-                    position: 'top-right',
-                    autoClose: 3000,
-                });
-                fetchListOrders(currentPage, limit);
-            }
+            toast.success('Cập nhật trạng thái đơn hàng thành công!');
+            fetchListOrders(currentPage, limit);
+            closeEditModal();
         } catch (error) {
-            toast.error('Có lỗi xảy ra!', {
-                position: 'top-right',
-                autoClose: 3000,
-            });
+            console.log('Error updating order:', error);
+            toast.error('Không thể cập nhật trạng thái đơn hàng!');
+        } finally {
+            setLoadingModal(false);
         }
-    }, [currentPage, limit, fetchListOrders]);
-
+    };
 
     const handlePrevClick = () => {
         if (currentPage > 1) {
@@ -157,6 +158,8 @@ const Orders = () => {
     return (
         <>
             <Breadcrumb pageName="Quản lý đơn hàng" />
+
+            {/* Detail Modal */}
             <Transition appear show={isOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={closeModal}>
                     <Transition.Child
@@ -243,7 +246,15 @@ const Orders = () => {
                                                         {moment(orderDetail.createdAt).format('ddd, DD/MM/YYYY, HH:mm')}
                                                     </div>
                                                 </div>
-
+                                                <div className="flex-1">
+                                                    <label className="mb-2.5 block text-black dark:text-white font-medium">Trạng thái</label>
+                                                    <div
+                                                        className={`w-full rounded py-3 px-5 text-white text-center ${orderDetail.isActive ? 'bg-green-500' : 'bg-red-500'
+                                                            }`}
+                                                    >
+                                                        {orderDetail.isActive ? 'Hoạt động' : 'Dừng hoạt động'}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     ) : null}
@@ -255,6 +266,129 @@ const Orders = () => {
                                         className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
                                     >
                                         Đóng
+                                    </button>
+                                </div>
+                            </Dialog.Panel>
+                        </Transition.Child>
+                    </div>
+                </Dialog>
+            </Transition>
+
+            {/* Edit Modal */}
+            <Transition appear show={isEditOpen} as={Fragment}>
+                <Dialog as="div" className="relative z-10" onClose={closeEditModal}>
+                    <Transition.Child
+                        as={Fragment}
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                    >
+                        <div className="fixed inset-0 bg-black bg-opacity-25" />
+                    </Transition.Child>
+
+                    <div className="fixed inset-0 flex items-center justify-center p-4">
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0 scale-95"
+                            enterTo="opacity-100 scale-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100 scale-100"
+                            leaveTo="opacity-0 scale-95"
+                        >
+                            <Dialog.Panel className="w-full max-w-2xl h-auto bg-white rounded-lg shadow-xl p-6">
+                                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900">
+                                    Chỉnh sửa đơn hàng
+                                </Dialog.Title>
+
+                                <div className="mt-4">
+                                    {loadingModal ? (
+                                        <Loading />
+                                    ) : editOrder ? (
+                                        <div>
+                                            <div className="flex space-x-4 mb-4.5">
+                                                <div className="flex-1">
+                                                    <label className="mb-2.5 block text-black dark:text-white font-medium">Mã đơn hàng</label>
+                                                    <div className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white">
+                                                        {editOrder._id}
+                                                    </div>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <label className="mb-2.5 block text-black dark:text-white font-medium">Tên dịch vụ</label>
+                                                    <div className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white">
+                                                        {editOrder.serviceId?.name}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex space-x-4 mb-4.5">
+                                                <div className="flex-1">
+                                                    <label className="mb-2.5 block text-black dark:text-white font-medium">Số tiền</label>
+                                                    <div className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white">
+                                                        {editOrder.amount.toLocaleString('vi-VN')}
+                                                    </div>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <label className="mb-2.5 block text-black dark:text-white font-medium">Công ty</label>
+                                                    <div className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white">
+                                                        {editOrder.companyId?.name}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex space-x-4 mb-4.5">
+                                                <div className="flex-1">
+                                                    <label className="mb-2.5 block text-black dark:text-white font-medium">Người tạo</label>
+                                                    <div className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white">
+                                                        {editOrder.createBy?.email}
+                                                    </div>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <label className="mb-2.5 block text-black dark:text-white font-medium">Mã dịch vụ</label>
+                                                    <div className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white">
+                                                        {editOrder.code || 'Không có'}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex space-x-4 mb-4.5">
+                                                <div className="flex-1">
+                                                    <label className="mb-2.5 block text-black dark:text-white font-medium">Ngày tạo</label>
+                                                    <div className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black dark:border-form-strokedark dark:bg-form-input dark:text-white">
+                                                        {moment(editOrder.createdAt).format('ddd, DD/MM/YYYY, HH:mm')}
+                                                    </div>
+                                                </div>
+                                                <div className="flex-1">
+                                                    <label className="mb-2.5 block text-black dark:text-white font-medium">Trạng thái</label>
+                                                    <button
+                                                        type="button"
+                                                        onClick={toggleActiveStatus}
+                                                        className={`w-full rounded py-3 px-5 text-white ${editOrder.isActive ? 'bg-green-500' : 'bg-red-500'
+                                                            } hover:bg-opacity-90`}
+                                                    >
+                                                        {editOrder.isActive ? 'Hoạt động' : 'Dừng hoạt động'}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : null}
+                                </div>
+
+                                <div className="mt-6 flex justify-end gap-3">
+                                    <button
+                                        onClick={closeEditModal}
+                                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
+                                    >
+                                        Hủy
+                                    </button>
+                                    <button
+                                        onClick={handleUpdateOrder}
+                                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                                    >
+                                        Lưu
                                     </button>
                                 </div>
                             </Dialog.Panel>
@@ -310,16 +444,9 @@ const Orders = () => {
                 <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
                     <div className="mb-6 flex items-center justify-between">
                         <h4 className="text-xl font-semibold text-black dark:text-white">Danh sách đơn hàng</h4>
-                        {/* <Link
-                            to="create"
-                            className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md"
-                        >
-                            <Plus size={20} />
-                            Thêm mới
-                        </Link> */}
                     </div>
 
-                    <div className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
+                    <div className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-9 md:px-6 2xl:px-7.5">
                         <div className="col-span-2 flex items-center">
                             <p className="font-medium">Mã đơn hàng</p>
                         </div>
@@ -333,6 +460,9 @@ const Orders = () => {
                             <p className="font-medium">Số tiền</p>
                         </div>
                         <div className="col-span-1 hidden sm:flex items-center">
+                            <p className="font-medium">Trạng thái</p>
+                        </div>
+                        <div className="col-span-1 hidden sm:flex items-center">
                             <p className="font-medium">Hành động</p>
                         </div>
                     </div>
@@ -343,7 +473,7 @@ const Orders = () => {
                         <div>
                             {ordersData.map((item) => (
                                 <div
-                                    className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
+                                    className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-9 md:px-6 2xl:px-7.5"
                                     key={item._id}
                                 >
                                     <div className="col-span-2 flex items-center">
@@ -360,20 +490,32 @@ const Orders = () => {
                                             {item?.companyId?.name}
                                         </Link>
                                     </div>
-
                                     <div className="col-span-1 hidden sm:flex items-center">
                                         <p className="text-sm text-green-600 dark:text-white">
                                             {item.amount.toLocaleString('vi-VN')}
                                         </p>
                                     </div>
+                                    <div className="col-span-1 flex items-center">
+                                        <p className="text-sm text-black dark:text-white">
+                                            {item.isActive ? (
+                                                <CircleCheckBigIcon size={20} color="green" />
+                                            ) : (
+                                                <CircleX size={20} color="red" />
+                                            )}
+                                        </p>
+                                    </div>
                                     <div className="col-span-1 hidden sm:flex items-center">
                                         <div className="flex items-center space-x-3.5">
-                                            <button onClick={() => openModal(item._id)} className="hover:text-primary">
-                                                <Eye size={20} />
-                                            </button>
-                                            <button onClick={() => handleDeleteOrders(item._id)} className="hover:text-red-500">
-                                                <TrashIcon size={20} />
-                                            </button>
+                                            {hasPermission('683bc9e6789be1bf15145224') && (
+                                                <button onClick={() => openModal(item._id)} className="hover:text-primary">
+                                                    <Eye size={20} />
+                                                </button>
+                                            )}
+                                            {hasPermission('683eb0b7a4e1d0caaab05dbe') && (
+                                                <button onClick={() => openEditModal(item)} className="hover:text-primary">
+                                                    <Edit2 size={20} />
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -401,7 +543,8 @@ const Orders = () => {
                                 <button
                                     onClick={handlePrevClick}
                                     disabled={currentPage === 1}
-                                    className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === 1 ? 'cursor-not-allowed bg-gray-300' : ''}`}
+                                    className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === 1 ? 'cursor-not-allowed bg-gray-300' : ''
+                                        }`}
                                 >
                                     <ChevronLeft size={18} />
                                 </button>
@@ -414,7 +557,8 @@ const Orders = () => {
                                 <button
                                     onClick={handleNextClick}
                                     disabled={currentPage === totalPages}
-                                    className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-300' : ''}`}
+                                    className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-300' : ''
+                                        }`}
                                 >
                                     <ChevronRight size={18} />
                                 </button>

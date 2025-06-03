@@ -31,13 +31,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     '/admin/users': '683bcd19b0844882a0ba039c', // GET /users/allUser
     '/admin/candidates': '683bc704789be1bf151451b4', // GET /candidates
     '/admin/companies': '683bc4f6789be1bf15145160', // GET /companies
-    '/admin/jobs': '683bc5f3789be1bf15145176', // GET /jobs
+    '/admin/jobs': '683bc650789be1bf1514517f', // GET /jobs
     '/admin/resumes': '683bc7bb789be1bf151451d7', // GET /applications (giả sử dùng chung endpoint ứng dụng)
     '/admin/skills': '683bc838789be1bf151451e9', // GET /skills
-    '/admin/services': '683bc898789be1bf151451fb', // GET /services
+    '/admin/services': '683bc8a4789be1bf151451fe', // GET /services
     '/admin/summary': '683bc9a9789be1bf1514521e', // GET /orders/summary
     '/admin/orders': '683bc97b789be1bf1514521b', // GET /orders
-    '/admin/permissions': '683bcb07b0844882a0ba0383', // GET /permission
+    '/admin/permissions': '683bcb12b0844882a0ba0386', // GET /permission
     '/admin/roles': '683bcb7db0844882a0ba038f', // GET /roles
   };
 

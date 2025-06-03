@@ -3,22 +3,22 @@ import { Link } from 'react-router-dom';
 import { ICompanyList } from '../../types/company';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { useEffect, useState } from 'react';
-import API, { authApi, endpoints } from '../../common/API';
+import { authApi, endpoints } from '../../common/API';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 import Loading from '../../common/Loader/Loading';
+import { usePermissions } from '../../hooks/usePermissions';
 
 const Companies = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [approved, setApproved] = useState('')
-
+  const [approved, setApproved] = useState('');
   const [companyData, setCompanyData] = useState<ICompanyList[]>([]);
-  const [currentPage, setCurrentPage] = useState(1); // To store current page
-  const [totalPages, setTotalPages] = useState(1); // To store total number of pages
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [limit, setLimit] = useState(10);
   const [loading, setLoading] = useState(false);
-
+  const { hasPermission } = usePermissions();
 
   const displayOptions = [
     { value: 5, label: '5 mục' },
@@ -38,7 +38,6 @@ const Companies = () => {
     }
   };
 
-  // Handler to go to the next page
   const handleNextClick = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
@@ -46,64 +45,67 @@ const Companies = () => {
   };
 
   const handleSearch = () => {
-    fetchListCompany(1, 10, searchKeyword);
+    fetchListCompany(1, limit, searchKeyword);
   };
 
-
   const fetchListCompany = async (currentPage = 1, limit = 10, name = '') => {
-    setLoading(true)
+    setLoading(true);
     try {
       const token = localStorage.getItem('access_token');
       const searchQuery = name ? `/${name}/i` : '';
-
-      const res = await authApi(token).get(endpoints['companies'], { // Update the endpoint as needed
+      const res = await authApi(token).get(endpoints['companies'], {
         params: {
           page: currentPage,
           limit: limit,
           name: searchQuery,
-          isApproved: approved
+          isApproved: approved,
         },
       });
       const data = res.data.data;
-      console.log(data.result)
-      setCompanyData(data.result); // Update company data
-      setCurrentPage(data.meta.currentPage); // Update the current page from API response
-      setTotalPages(data.meta.totalPages); // Update the total pages from API response
-      setTotalItems(data.meta.totalItems); // Update the total pages from API response
-
+      setCompanyData(data.result);
+      setCurrentPage(data.meta.currentPage);
+      setTotalPages(data.meta.total_pages);
+      setTotalItems(data.meta.totalCount);
     } catch (error) {
-      console.log('Error fetching companies:', error);
-    } finally { setLoading(false) }
+      console.error('Error fetching companies:', error);
+      toast.error('Không thể tải danh sách công ty', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
-
-
 
   const handleDeleteCompany = async (id: string) => {
     try {
       const result = await Swal.fire({
         title: 'Bạn có chắc chắn?',
-        text: 'Thông tin về công ty và các tin tuyển dụng liên quan sẽ bị xóa!',
+        text: 'Thông tin về công ty và các tin tuyển liên quan sẽ bị xóa!',
         icon: 'warning',
-        showCancelButton: true, // Hiển thị nút "Hủy"
-        confirmButtonColor: '#3085d6', // Màu nút "Yes"
-        cancelButtonColor: '#d33', // Màu nút "No"
-        confirmButtonText: 'Có, xóa!', // Nội dung nút "Yes"
-        cancelButtonText: 'Hủy', // Nội dung nút "No"
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Có, xóa!',
+        cancelButtonText: 'Hủy',
       });
 
       if (result.isConfirmed) {
-        const token: any = localStorage.getItem("access_token");
+        const token = localStorage.getItem('access_token');
         await authApi(token).delete(endpoints['companiesDetail'](id));
-
         toast.success('Xóa thông tin thành công!', {
-          position: "top-right",
+          position: 'top-right',
           autoClose: 3000,
         });
-        fetchListCompany()
+        fetchListCompany(currentPage, limit);
       }
-    } catch (error) {
-      toast.error('Có lỗi xảy ra!', {
-        position: "top-right",
+    } catch (error: any) {
+      console.error('Error deleting company:', error);
+      const errorMessage = error.response?.status === 403
+        ? 'Bạn không có quyền xóa công ty'
+        : 'Có lỗi xảy ra khi xóa công ty';
+      toast.error(errorMessage, {
+        position: 'top-right',
         autoClose: 3000,
       });
     }
@@ -120,21 +122,17 @@ const Companies = () => {
               <select
                 value={approved}
                 onChange={(e) => setApproved(e.target.value)}
-                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter "
+                className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter"
               >
                 <option value="">Tất cả</option>
-                <option value="false" >Chưa xét duyệt</option>
+                <option value="false">Chưa xét duyệt</option>
                 <option value="true">Đã xét duyệt</option>
-
               </select>
             </div>
             <div className="col-span-3 flex items-center relative">
-              {/* Icon Search */}
               <div className="absolute left-0 top-1/2 -translate-y-1/2">
                 <Search size={20} />
               </div>
-
-              {/* Input Search */}
               <input
                 type="text"
                 value={searchKeyword}
@@ -142,8 +140,6 @@ const Companies = () => {
                 placeholder="Nhập tên công ty..."
                 className="w-full bg-transparent pl-9 pr-4 text-black focus:outline-none"
               />
-
-              {/* Search Button */}
               <button
                 onClick={() => handleSearch()}
                 className="absolute right-0 top-1/2 -translate-y-1/2 bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 focus:outline-none"
@@ -157,7 +153,7 @@ const Companies = () => {
         <div className="rounded-sm border border-stroke bg-white shadow-default">
           <div className="py-6 px-4 md:px-6 xl:px-7.5">
             <div className="flex items-center justify-between">
-              <h4 className="text-xl font-semibold text-black ">Danh sách công ty</h4>
+              <h4 className="text-xl font-semibold text-black">Danh sách công ty</h4>
             </div>
           </div>
 
@@ -195,12 +191,11 @@ const Companies = () => {
                       <div className="w-12 h-12 rounded-full overflow-hidden">
                         <img src={item.avatar} alt="Avatar" className="w-full h-full object-cover" />
                       </div>
-
-                      <p className="text-sm text-blue-600 ">{item.name}</p>
+                      <p className="text-sm text-blue-600">{item.name}</p>
                     </div>
                   </div>
                   <div className="col-span-1 hidden items-center sm:flex">
-                    <p className="text-sm text-black ">{item.city}</p>
+                    <p className="text-sm text-black">{item.city}</p>
                   </div>
                   <div className="col-span-1 hidden items-center sm:flex">
                     {item?.businessLicenseUrl ? (
@@ -212,40 +207,45 @@ const Companies = () => {
                         Xem chi tiết
                       </a>
                     ) : (
-                      <p className="text-sm text-black ">Chưa cập nhật</p>
-
+                      <p className="text-sm text-black">Chưa cập nhật</p>
                     )}
                   </div>
-
                   <div className="col-span-2 flex items-center">
                     <a
                       href={item.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 "
+                      className="text-sm text-blue-600"
                     >
                       {item.website}
                     </a>
                   </div>
                   <div className="col-span-1 flex items-center">
-                    <p className="text-sm text-black ">
+                    <p className="text-sm text-black">
                       {item.isApproved ? (
                         <CircleCheckBigIcon size={20} color="green" />
                       ) : (
                         <CircleX size={20} color="red" />
-                      )}</p>
+                      )}
+                    </p>
                   </div>
                   <div className="col-span-1 hidden sm:flex items-center">
                     <div className="flex items-center space-x-3.5">
-                      <Link className="hover:text-primary" to={`${item._id}/detail`}>
-                        <Eye size={20} />
-                      </Link>
-                      <button onClick={() => handleDeleteCompany(item._id)} className="hover:text-red-500">
-                        <TrashIcon size={20} />
-                      </button>
-                      <Link className="hover:text-primary" to={`${item._id}/edit`}>
-                        <Pencil size={20} />
-                      </Link>
+                      {hasPermission('683bc521789be1bf15145163') && (
+                        <Link className="hover:text-primary" to={`${item._id}/detail`}>
+                          <Eye size={20} />
+                        </Link>
+                      )}
+                      {hasPermission('683bc576789be1bf1514516d') && (
+                        <button onClick={() => handleDeleteCompany(item._id)} className="hover:text-red-500">
+                          <TrashIcon size={20} />
+                        </button>
+                      )}
+                      {hasPermission('683bc550789be1bf1514516a') && (
+                        <Link className="hover:text-primary" to={`${item._id}/edit`}>
+                          <Pencil size={20} />
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -253,10 +253,9 @@ const Companies = () => {
             </div>
           )}
 
-
           <div className="py-6 px-4 md:px-6 xl:px-7.5 border-t border-stroke dark:border-strokedark">
             <div className="flex items-center justify-between">
-              <h6 className="text-base font-semibold text-black ">Tổng {totalItems} công ty </h6>
+              <h6 className="text-base font-semibold text-black">Tổng {totalItems} công ty</h6>
               <div className="flex items-center justify-center gap-4">
                 <select
                   value={limit}
@@ -269,7 +268,6 @@ const Companies = () => {
                     </option>
                   ))}
                 </select>
-                {/* Nút Previous */}
                 <button
                   onClick={handlePrevClick}
                   disabled={currentPage === 1}
@@ -277,13 +275,9 @@ const Companies = () => {
                 >
                   <ChevronLeft size={18} />
                 </button>
-
-                {/* Current Page */}
-                <p className="font-medium text-black  mx-4" style={{ width: '100px', textAlign: 'center' }}>
+                <p className="font-medium text-black mx-4" style={{ width: '100px', textAlign: 'center' }}>
                   {currentPage} / {totalPages} trang
                 </p>
-
-                {/* Next Button */}
                 <button
                   onClick={handleNextClick}
                   disabled={currentPage === totalPages}

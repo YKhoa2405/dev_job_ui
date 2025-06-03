@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import Loading from '../../common/Loader/Loading';
 import { ICandidate } from '../../types/candidates';
 import { Link } from 'react-router-dom';
+import { usePermissions } from '../../hooks/usePermissions';
 
 const Candidates = () => {
     moment.locale("vi");
@@ -22,6 +23,8 @@ const Candidates = () => {
     const [level, setLevel] = useState('')
     const [limit, setLimit] = useState(10);
     const [searchKeyword, setSearchKeyword] = useState<string>('')
+    const { hasPermission } = usePermissions();
+
 
     const displayOptions = [
         { value: 5, label: '5 mục' },
@@ -223,15 +226,24 @@ const Candidates = () => {
 
                                     <div className="col-span-1 hidden items-center sm:flex ">
                                         <div className="flex items-center space-x-3.5">
-                                            <Link className="hover:text-primary" to={`${item.userId}/detail`}>
-                                                <Eye size={20} />
-                                            </Link>
-                                            <button onClick={() => handleDeleteUser(item._id)} className="hover:text-red-500">
-                                                <TrashIcon size={20} />
-                                            </button>
-                                            <Link className="hover:text-primary" to={`${item.userId}/edit`}>
-                                                <Pencil size={20} />
-                                            </Link>
+                                            {hasPermission('683bc712789be1bf151451b7') && (
+                                                <Link className="hover:text-primary" to={`${item.userId}/detail`}>
+                                                    <Eye size={20} />
+                                                </Link>
+                                            )}
+
+                                            {hasPermission('683bc727789be1bf151451ba') && (
+                                                <Link className="hover:text-primary" to={`${item.userId}/edit`}>
+                                                    <Pencil size={20} />
+                                                </Link>
+                                            )}
+
+                                            {/* {hasPermission('DELETE_USER_PERMISSION_ID') && (
+                                                <button onClick={() => handleDeleteUser(item._id)} className="hover:text-red-500">
+                                                    <TrashIcon size={20} />
+                                                </button>
+                                            )} */}
+
                                         </div>
                                     </div>
                                 </div>

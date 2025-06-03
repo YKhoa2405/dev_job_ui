@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import Loading from '../../common/Loader/Loading';
 import { Link } from 'react-router-dom';
 import { IOrderSummary } from '../../types/order';
+import { usePermissions } from '../../hooks/usePermissions';
 
 
 const OrderSummary = () => {
@@ -18,6 +19,7 @@ const OrderSummary = () => {
     const [totalSpentAll, setTotalSpentAll] = useState(0);
     const [searchKeyword, setSearchKeyword] = useState('');
     const [sort, setSort] = useState('-totalSpent'); // Mặc định giảm dần theo totalSpent
+    const { hasPermission } = usePermissions();
 
     const displayOptions = [
         { value: 5, label: '5 mục' },
@@ -187,13 +189,15 @@ const OrderSummary = () => {
                                         </p>
                                     </div>
                                     <div className="col-span-1 flex items-center">
-                                        <Link
-                                            to={`${item.companyId}/transactions`}
-                                            className="flex items-center gap-1 text-sm text-white bg-blue-500 px-3 py-1 rounded hover:bg-blue-600 transition"
-                                        >
-                                            <History size={16} />
-                                            Lịch sử giao dịch
-                                        </Link>
+                                        {hasPermission('683bcac0b0844882a0ba037e') && (
+                                            <Link
+                                                to={`${item.companyId}/transactions`}
+                                                className="flex items-center gap-1 text-sm text-white bg-blue-500 px-3 py-1 rounded hover:bg-blue-600 transition"
+                                            >
+                                                <History size={16} />
+                                                Lịch sử giao dịch
+                                            </Link>
+                                        )}
                                     </div>
                                 </div>
                             ))}

@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import Loading from '../../common/Loader/Loading';
 import { IPermission } from '../../types/permisstions';
 import Swal from 'sweetalert2';
+import { usePermissions } from '../../hooks/usePermissions';
 
 // Constants
 const DISPLAY_OPTIONS = [
@@ -45,6 +46,7 @@ const Permissions = () => {
     const [apiPath, setApiPath] = useState('');
     const [modalMethod, setModalMethod] = useState('');
     const [module, setModule] = useState('');
+    const { hasPermission } = usePermissions();
 
     const [listModuleName, setListModuleName] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
@@ -252,13 +254,15 @@ const Permissions = () => {
                         <h4 className="text-xl font-semibold text-black dark:text-white">
                             Danh sách quyền hạn trong hệ thống
                         </h4>
-                        <button
-                            onClick={() => openModal()}
-                            className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md"
-                        >
-                            <Plus size={20} />
-                            Thêm mới
-                        </button>
+                        {hasPermission('683bcb07b0844882a0ba0383') && (
+                            <button
+                                onClick={() => openModal()}
+                                className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md"
+                            >
+                                <Plus size={20} />
+                                Thêm mới
+                            </button>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 sm:grid-cols-7 md:px-6 2xl:px-7.5">
@@ -317,18 +321,22 @@ const Permissions = () => {
                                 </div>
                                 <div className="col-span-1 flex items-center">
                                     <div className="flex items-center space-x-3.5">
-                                        <button
-                                            onClick={() => openModal(item)}
-                                            className="hover:text-blue-500"
-                                        >
-                                            <Pencil size={20} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeletePermission(item._id)}
-                                            className="hover:text-red-500"
-                                        >
-                                            <TrashIcon size={20} />
-                                        </button>
+                                        {hasPermission('683bcb27b0844882a0ba0389') && (
+                                            <button
+                                                onClick={() => openModal(item)}
+                                                className="hover:text-blue-500"
+                                            >
+                                                <Pencil size={20} />
+                                            </button>
+                                        )}
+                                        {hasPermission('683bcb3db0844882a0ba038c') && (
+                                            <button
+                                                onClick={() => handleDeletePermission(item._id)}
+                                                className="hover:text-red-500"
+                                            >
+                                                <TrashIcon size={20} />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
