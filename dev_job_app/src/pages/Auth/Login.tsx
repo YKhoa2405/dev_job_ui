@@ -1,12 +1,16 @@
+// File: src/components/Login.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API, { endpoints } from '../../common/API';
+import { useDispatch } from 'react-redux';
 import { toast, ToastContainer } from 'react-toastify';
+import API, { endpoints } from '../../common/API';
+import { setUser } from '../../store/userSlice';
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -14,27 +18,35 @@ const Login: React.FC = () => {
     try {
       const response = await API.post(endpoints['login'], {
         username: email,
-        password: password
+        password: password,
       });
-      const { access_token, _id, email: userEmail, name, role } = response.data.data;
-      console.log(response.data.data);
-      // Lưu thông tin vào localStorage
-      localStorage.setItem('access_token', access_token);
-      localStorage.setItem('user', JSON.stringify({ _id, email: userEmail, name }));
-      localStorage.setItem('permissions', JSON.stringify(role.permissions));
-      navigate("/dashboard");
+      const userData = response.data.data;
+      // Lưu access_token vào localStorage (theo yêu cầu hiện tại của API)
+      localStorage.setItem('access_token', userData.access_token);
+      
+      // Lưu thông tin người dùng và quyền vào Redux
+      dispatch(
+        setUser({
+          _id: userData._id,
+          email: userData.email,
+          name: userData.name,
+          role: userData.role,
+          access_token: userData.access_token,
+        })
+      );
+      navigate('/dashboard');
       toast.success('Đăng nhập thành công!', {
-        position: "top-right",
+        position: 'top-right',
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: false,
         progress: undefined,
-      })
+      });
     } catch (error) {
       toast.error('Thông tin đăng nhập không chính xác!', {
-        position: "top-right",
+        position: 'top-right',
         autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
@@ -51,13 +63,9 @@ const Login: React.FC = () => {
       <div className="flex flex-wrap items-center">
         <div className="hidden w-full xl:block xl:w-1/2">
           <div className="py-17.5 px-26 text-center">
-            {/* <Link className="mb-5.5 inline-block" to="/">
-              <img className="" src={Logo} alt="Logo" />
-            </Link> */}
             <p className="2xl:px-20">
               Hệ thống tuyển dụng và tìm kiếm việc làm nhanh chóng, hiệu quả
             </p>
-
             <span className="mt-15 inline-block">
               <img src="/images/login_image.svg" alt="Logo" />
             </span>
@@ -84,7 +92,6 @@ const Login: React.FC = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
-
                   <span className="absolute right-4 top-4">
                     <svg
                       className="fill-current"
@@ -118,7 +125,6 @@ const Login: React.FC = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
-
                   <span className="absolute right-4 top-4">
                     <svg
                       className="fill-current"

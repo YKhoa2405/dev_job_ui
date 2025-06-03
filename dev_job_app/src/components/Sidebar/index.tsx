@@ -1,29 +1,14 @@
+// File: src/components/Sidebar.tsx
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import Logo from '../../images/logo/logoAdmin1.png';
 import { BriefcaseBusiness, Building2, Code, Coins, FileUser, LayoutDashboard, Link, RollerCoaster, ShoppingCart, TicketCheck, User2Icon, UsersRound } from 'lucide-react';
-import { hasPermission } from '../../common/HasPermission';
-
+import { usePermissions } from '../../hooks/usePermissions';
 
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (arg: boolean) => void;
 }
-
-const menuPermissions: { [key: string]: string } = {
-  users: '683bcd19b0844882a0ba039c',
-  candidates: '683bc704789be1bf151451b4',
-  companies: '683bc4f6789be1bf15145160',
-  jobs: '683bc650789be1bf1514517f',
-  resumes: '683bc7bb789be1bf151451d7',
-  skills: '683bc845789be1bf151451ec',
-  services: '683bc8a4789be1bf151451fe',
-  summary: '683bc9a9789be1bf1514521e',
-  orders: '683bc97b789be1bf1514521b',
-  permissions: '683bcb12b0844882a0ba0386',
-  roles: '683bcb7db0844882a0ba038f',
-};
-
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const location = useLocation();
@@ -37,7 +22,26 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
   );
 
-  // Đóng sidebar khi click bên ngoài
+  // Sử dụng hook usePermissions
+  const { hasPermission } = usePermissions();
+
+  // Ánh xạ quyền với các tab (cần cập nhật _id quyền thực tế từ backend)
+  const menuPermissions: { [key: string]: string } = {
+    '/dashboard': '', // Dashboard không yêu cầu quyền
+    '/admin/users': '683bcd19b0844882a0ba039c', // GET /users/allUser
+    '/admin/candidates': '683bc704789be1bf151451b4', // GET /candidates
+    '/admin/companies': '683bc4f6789be1bf15145160', // GET /companies
+    '/admin/jobs': '683bc5f3789be1bf15145176', // GET /jobs
+    '/admin/resumes': '683bc7bb789be1bf151451d7', // GET /applications (giả sử dùng chung endpoint ứng dụng)
+    '/admin/skills': '683bc838789be1bf151451e9', // GET /skills
+    '/admin/services': '683bc898789be1bf151451fb', // GET /services
+    '/admin/summary': '683bc9a9789be1bf1514521e', // GET /orders/summary
+    '/admin/orders': '683bc97b789be1bf1514521b', // GET /orders
+    '/admin/permissions': '683bcb07b0844882a0ba0383', // GET /permission
+    '/admin/roles': '683bcb7db0844882a0ba038f', // GET /roles
+  };
+
+
   useEffect(() => {
     const clickHandler = ({ target }: MouseEvent) => {
       if (!sidebar.current || !trigger.current) return;
@@ -51,9 +55,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     };
     document.addEventListener('click', clickHandler);
     return () => document.removeEventListener('click', clickHandler);
-  });
+  }, [sidebarOpen, setSidebarOpen]);
 
-  // Đóng sidebar khi nhấn phím Esc
   useEffect(() => {
     const keyHandler = ({ keyCode }: KeyboardEvent) => {
       if (!sidebarOpen || keyCode !== 27) return;
@@ -61,9 +64,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     };
     document.addEventListener('keydown', keyHandler);
     return () => document.removeEventListener('keydown', keyHandler);
-  });
+  }, [sidebarOpen, setSidebarOpen]);
 
-  // Cập nhật trạng thái sidebar-expanded
   useEffect(() => {
     localStorage.setItem('sidebar-expanded', sidebarExpanded.toString());
     if (sidebarExpanded) {
@@ -79,12 +81,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
     >
-      {/* <!-- SIDEBAR HEADER --> */}
       <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
         <NavLink to="/dashboard">
           <img src={Logo} alt="Logo" />
         </NavLink>
-
         <button
           ref={trigger}
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -107,13 +107,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           </svg>
         </button>
       </div>
-      {/* <!-- SIDEBAR HEADER --> */}
 
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
-        {/* <!-- Sidebar Menu --> */}
         <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
           <div>
             <ul className="mb-6 flex flex-col gap-1.5">
+              {/* Dashboard không yêu cầu quyền */}
               <li>
                 <NavLink
                   to="/dashboard"
@@ -126,13 +125,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </li>
             </ul>
             <ul className="mb-6 flex flex-col gap-1.5">
-              <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
-                QUẢN LÝ
-              </h3>
-              {hasPermission(menuPermissions.users) && (
+              <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">QUẢN LÝ</h3>
+              {hasPermission(menuPermissions['/admin/users']) && (
                 <li>
                   <NavLink
-                    to="admin/users"
+                    to="/admin/users"
                     className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('users') && 'bg-graydark dark:bg-meta-4'
                       }`}
                   >
@@ -141,10 +138,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </NavLink>
                 </li>
               )}
-              {hasPermission(menuPermissions.candidates) && (
+              {hasPermission(menuPermissions['/admin/candidates']) && (
                 <li>
                   <NavLink
-                    to="admin/candidates"
+                    to="/admin/candidates"
                     className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('candidates') && 'bg-graydark dark:bg-meta-4'
                       }`}
                   >
@@ -153,10 +150,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </NavLink>
                 </li>
               )}
-              {hasPermission(menuPermissions.companies) && (
+              {hasPermission(menuPermissions['/admin/companies']) && (
                 <li>
                   <NavLink
-                    to="admin/companies"
+                    to="/admin/companies"
                     className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('companies') && 'bg-graydark dark:bg-meta-4'
                       }`}
                   >
@@ -165,7 +162,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </NavLink>
                 </li>
               )}
-              {hasPermission(menuPermissions.jobs) && (
+              {hasPermission(menuPermissions['/admin/jobs']) && (
                 <li>
                   <NavLink
                     to="/admin/jobs"
@@ -177,10 +174,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </NavLink>
                 </li>
               )}
-              {hasPermission(menuPermissions.resumes) && (
+              {hasPermission(menuPermissions['/admin/resumes']) && (
                 <li>
                   <NavLink
-                    to="admin/resumes"
+                    to="/admin/resumes"
                     className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('resumes') && 'bg-graydark dark:bg-meta-4'
                       }`}
                   >
@@ -189,10 +186,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </NavLink>
                 </li>
               )}
-              {hasPermission(menuPermissions.skills) && (
+              {hasPermission(menuPermissions['/admin/skills']) && (
                 <li>
                   <NavLink
-                    to="admin/skills"
+                    to="/admin/skills"
                     className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('skills') && 'bg-graydark dark:bg-meta-4'
                       }`}
                   >
@@ -203,13 +200,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               )}
             </ul>
             <ul className="mb-6 flex flex-col gap-1.5">
-              <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
-                TIỆN ÍCH
-              </h3>
-              {hasPermission(menuPermissions.services) && (
+              <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">TIỆN ÍCH</h3>
+              {hasPermission(menuPermissions['/admin/services']) && (
                 <li>
                   <NavLink
-                    to="admin/services"
+                    to="/admin/services"
                     className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('services') && 'bg-graydark dark:bg-meta-4'
                       }`}
                   >
@@ -218,10 +213,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </NavLink>
                 </li>
               )}
-              {hasPermission(menuPermissions.summary) && (
+              {hasPermission(menuPermissions['/admin/summary']) && (
                 <li>
                   <NavLink
-                    to="admin/summary"
+                    to="/admin/summary"
                     className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('summary') && 'bg-graydark dark:bg-meta-4'
                       }`}
                   >
@@ -230,10 +225,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </NavLink>
                 </li>
               )}
-              {hasPermission(menuPermissions.orders) && (
+              {hasPermission(menuPermissions['/admin/orders']) && (
                 <li>
                   <NavLink
-                    to="admin/orders"
+                    to="/admin/orders"
                     className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('orders') && 'bg-graydark dark:bg-meta-4'
                       }`}
                   >
@@ -244,13 +239,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               )}
             </ul>
             <ul className="mb-6 flex flex-col gap-1.5">
-              <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
-                PHÂN QUYỀN
-              </h3>
-              {hasPermission(menuPermissions.permissions) && (
+              <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">PHÂN QUYỀN</h3>
+              {hasPermission(menuPermissions['/admin/permissions']) && (
                 <li>
                   <NavLink
-                    to="admin/permissions"
+                    to="/admin/permissions"
                     className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('permissions') && 'bg-graydark dark:bg-meta-4'
                       }`}
                   >
@@ -259,10 +252,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   </NavLink>
                 </li>
               )}
-              {hasPermission(menuPermissions.roles) && (
+              {hasPermission(menuPermissions['/admin/roles']) && (
                 <li>
                   <NavLink
-                    to="admin/roles"
+                    to="/admin/roles"
                     className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('roles') && 'bg-graydark dark:bg-meta-4'
                       }`}
                   >
@@ -274,7 +267,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             </ul>
           </div>
         </nav>
-        {/* <!-- Sidebar Menu --> */}
       </div>
     </aside>
   );
