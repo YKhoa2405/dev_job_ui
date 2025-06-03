@@ -1,15 +1,20 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import ClickOutside from '../ClickOutside';
+import { RootState } from '../../store';
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const navigate = useNavigate(); // useNavigate phải nằm bên trong component
+  const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.user); // Lấy thông tin user từ Redux
+  const roleName = user?.role?.name || 'Người dùng'; // Fallback nếu role.name không tồn tại
 
   const handleLogout = () => {
     localStorage.removeItem('access_token'); // Xóa token
     navigate('/auth/login'); // Điều hướng về trang đăng nhập
   };
+
   return (
     <ClickOutside onClick={() => setDropdownOpen(false)} className="relative">
       <Link
@@ -19,11 +24,9 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            Administrator
+            {user?.name} - {roleName}
           </span>
         </span>
-
-
         <svg
           className="hidden fill-current sm:block"
           width="12"
@@ -41,10 +44,10 @@ const DropdownUser = () => {
         </svg>
       </Link>
 
-      {/* <!-- Dropdown Start --> */}
+      {/* Dropdown Start */}
       {dropdownOpen && (
         <div
-          className={`absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark`}
+          className="absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark"
         >
           <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
             <li>
@@ -70,7 +73,7 @@ const DropdownUser = () => {
             </li>
           </ul>
           <button
-            onClick={handleLogout} // Gọi hàm logout khi bấm nút
+            onClick={handleLogout}
             className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
           >
             <svg
@@ -94,7 +97,7 @@ const DropdownUser = () => {
           </button>
         </div>
       )}
-      {/* <!-- Dropdown End --> */}
+      {/* Dropdown End */}
     </ClickOutside>
   );
 };

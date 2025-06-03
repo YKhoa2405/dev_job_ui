@@ -102,9 +102,9 @@ export default function Login({ navigation }) {
                 // username: 'nguyenhoangnam@gmail.com',
                 username: userName.trim(),
                 // password: 'Caichyrua11@',
-                // password: password || 'Caichyrua11@',
+                password: password || 'Caichyrua11@',
                 // username: email,
-                password: '123456'
+                // password: '123456'
                 // password
 
             };

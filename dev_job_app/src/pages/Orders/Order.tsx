@@ -1,4 +1,4 @@
-import { TrashIcon, ChevronLeft, ChevronRight, Eye, Search, Edit2, CircleCheckBigIcon, CircleX } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Search, Edit2, CircleCheckBigIcon, CircleX } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { Fragment, useEffect, useState, useCallback } from 'react';
 import { authApi, endpoints } from '../../common/API';

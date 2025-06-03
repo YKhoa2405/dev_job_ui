@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Route, Routes, useLocation, Navigate } from 'react-router-dom'; // Thêm Navigate
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from './store';
 
 import PageTitle from './components/PageTitle';
 import DefaultLayout from './layout/DefaultLayout';
@@ -25,14 +27,32 @@ import CandidatesDetail from './pages/Candidates/CandidatesDetail';
 import CandidatesEdit from './pages/Candidates/CandidatesEdit';
 import Orders from './pages/Orders/Order';
 import Loader from './common/Loader';
-
 import CreateCandidate from './pages/Candidates/CreateCandidate';
 import OrderSummary from './pages/Orders/OrderSummary';
 import OrderTransactions from './pages/Orders/OrderTransactions';
 import Permissions from './pages/Roles/Permission';
 
+// Component bảo vệ route
+const ProtectedRoute = ({ children, permissionId }: { children: JSX.Element, permissionId?: string }) => {
+  const user = useSelector((state: RootState) => state.user);
+  const permissions = user?.role?.permissions || [];
+  const hasPermission = permissionId ? permissions.includes(permissionId) : true;
+
+  // Chưa đăng nhập
+  if (!user) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  // Không có quyền truy cập
+  if (!hasPermission) {
+    return <Navigate to="/403" replace />;
+  }
+
+  return children;
+};
+
 function App() {
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -50,18 +70,10 @@ function App() {
   return (
     <DefaultLayout>
       <Routes>
+        {/* Route mặc định */}
         <Route path="/" element={<Navigate to="/auth/login" replace />} />
 
-        <Route
-          path="/dashboard"
-          element={
-            <>
-              <PageTitle title="Bảng điều khiển" />
-              <Dashboard />
-            </>
-          }
-        />
-
+        {/* Route không cần quyền */}
         <Route
           path="/auth/login"
           element={
@@ -71,7 +83,6 @@ function App() {
             </>
           }
         />
-
         <Route
           path="/auth/register"
           element={
@@ -81,222 +92,262 @@ function App() {
             </>
           }
         />
-
-        {/* USer */}
+        {/* Trang 403 */}
         <Route
-          path="/admin/users"
+          path="/403"
           element={
             <>
-              <PageTitle title="Người dùng" />
-              <Users />
+              <PageTitle title="Không có quyền" />
+              <div className="flex items-center justify-center h-screen">
+                <h1 className="text-2xl font-bold">403 - Bạn không có quyền truy cập trang này</h1>
+              </div>
             </>
           }
         />
 
-        {/* Candidates */}
+        {/* Protected Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <>
+                <PageTitle title="Bảng điều khiển" />
+                <Dashboard />
+              </>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute permissionId="683bcd19b0844882a0ba039c">
+              <>
+                <PageTitle title="Người dùng" />
+                <Users />
+              </>
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin/candidates"
           element={
-            <>
-              <PageTitle title="Ứng viên tìm việc" />
-              <Candidates />
-            </>
+            <ProtectedRoute permissionId="683bc704789be1bf151451b4">
+              <>
+                <PageTitle title="Ứng viên tìm việc" />
+                <Candidates />
+              </>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/admin/candidates/:id/detail"
           element={
-            <>
-              <PageTitle title="Chi tiết ứng viên" />
-              <CandidatesDetail />
-            </>
+            <ProtectedRoute permissionId="683bc712789be1bf151451b7">
+              <>
+                <PageTitle title="Chi tiết ứng viên" />
+                <CandidatesDetail />
+              </>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/admin/candidates/:id/edit"
           element={
-            <>
-              <PageTitle title="Chỉnh sửa ứng viên" />
-              <CandidatesEdit />
-            </>
+            <ProtectedRoute permissionId="683bc727789be1bf151451ba">
+              <>
+                <PageTitle title="Chỉnh sửa ứng viên" />
+                <CandidatesEdit />
+              </>
+            </ProtectedRoute>
           }
         />
-
         <Route
           path="/admin/candidates/create"
           element={
-            <>
-              <PageTitle title="Thêm mới ứng viên" />
-              <CreateCandidate />
-            </>
+            <ProtectedRoute permissionId="683bc73b789be1bf151451bd">
+              <>
+                <PageTitle title="Thêm mới ứng viên" />
+                <CreateCandidate />
+              </>
+            </ProtectedRoute>
           }
         />
-
-        {/* Companies */}
         <Route
           path="/admin/companies"
           element={
-            <>
-              <PageTitle title="Công ty" />
-              <Companies />
-            </>
+            <ProtectedRoute permissionId="683bc4f6789be1bf15145160">
+              <>
+                <PageTitle title="Công ty" />
+                <Companies />
+              </>
+            </ProtectedRoute>
           }
         />
-
         <Route
           path="/admin/companies/create"
           element={
-            <>
-              <PageTitle title="Thêm mới công ty" />
-              <CreateCompany />
-            </>
+            <ProtectedRoute permissionId="683bc4a8789be1bf1514515d">
+              <>
+                <PageTitle title="Thêm mới công ty" />
+                <CreateCompany />
+              </>
+            </ProtectedRoute>
           }
         />
-
         <Route
           path="/admin/companies/:id/edit"
           element={
-            <>
-              <PageTitle title="Chỉnh sửa công ty" />
-              <EditCompanies />
-            </>
+            <ProtectedRoute permissionId="683bc550789be1bf1514516a">
+              <>
+                <PageTitle title="Chỉnh sửa công ty" />
+                <EditCompanies />
+              </>
+            </ProtectedRoute>
           }
         />
-
         <Route
           path="/admin/companies/:id/detail"
           element={
-            <>
-              <PageTitle title="Chi tiết công ty" />
-              <CompanyDetail />
-            </>
+            <ProtectedRoute permissionId="683bc521789be1bf15145163">
+              <>
+                <PageTitle title="Chi tiết công ty" />
+                <CompanyDetail />
+              </>
+            </ProtectedRoute>
           }
         />
-
-        {/* Jobs */}
         <Route
           path="/admin/jobs"
           element={
-            <>
-              <PageTitle title="Tin tuyển dụng" />
-              <Jobs />
-            </>
+            <ProtectedRoute permissionId="683bc650789be1bf1514517f">
+              <>
+                <PageTitle title="Tin tuyển dụng" />
+                <Jobs />
+              </>
+            </ProtectedRoute>
           }
         />
-
         <Route
           path="/admin/jobs/create"
           element={
-            <>
-              <PageTitle title="Thêm tin tuyển dụng" />
-              <CreateJobs />
-            </>
+            <ProtectedRoute permissionId="683bc5f3789be1bf15145176">
+              <>
+                <PageTitle title="Thêm tin tuyển dụng" />
+                <CreateJobs />
+              </>
+            </ProtectedRoute>
           }
         />
-
         <Route
           path="/admin/jobs/:id"
           element={
-            <>
-              <PageTitle title="Chi tiết tin tuyển dụng" />
-              <EditJobs />
-            </>
+            <ProtectedRoute permissionId="683bc610789be1bf15145179">
+              <>
+                <PageTitle title="Chi tiết tin tuyển dụng" />
+                <EditJobs />
+              </>
+            </ProtectedRoute>
           }
         />
-
-        {/* Resume */}
         <Route
           path="/admin/resumes"
           element={
-            <>
-              <PageTitle title="Ứng tuyển" />
-              <Resumes />
-            </>
+            <ProtectedRoute permissionId="683bc7bb789be1bf151451d7">
+              <>
+                <PageTitle title="Ứng tuyển" />
+                <Resumes />
+              </>
+            </ProtectedRoute>
           }
         />
-
-        {/* Service */}
         <Route
           path="/admin/services"
           element={
-            <>
-              <PageTitle title="Dịch vụ" />
-              <Services />
-            </>
+            <ProtectedRoute permissionId="683bc8a4789be1bf151451fe">
+              <>
+                <PageTitle title="Dịch vụ" />
+                <Services />
+              </>
+            </ProtectedRoute>
           }
         />
-
         <Route
           path="/admin/services/create"
           element={
-            <>
-              <PageTitle title="Thêm mới dịch vụ" />
-              <CreateService />
-            </>
+            <ProtectedRoute permissionId="683bc898789be1bf151451fb">
+              <>
+                <PageTitle title="Thêm mới dịch vụ" />
+                <CreateService />
+              </>
+            </ProtectedRoute>
           }
         />
-
-        {/* Order */}
         <Route
           path="/admin/orders"
           element={
-            <>
-              <PageTitle title="Đơn hàng" />
-              <Orders />
-            </>
+            <ProtectedRoute permissionId="683bc97b789be1bf1514521b">
+              <>
+                <PageTitle title="Đơn hàng" />
+                <Orders />
+              </>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/admin/summary"
           element={
-            <>
-              <PageTitle title="Doanh thu" />
-              <OrderSummary />
-            </>
+            <ProtectedRoute permissionId="683bc9a9789be1bf1514521e">
+              <>
+                <PageTitle title="Doanh thu" />
+                <OrderSummary />
+              </>
+            </ProtectedRoute>
           }
         />
         <Route
           path="/admin/summary/:companyId/transactions"
           element={
-            <>
-              <PageTitle title="Lịch sử giao dịch" />
-              <OrderTransactions />
-            </>
+            <ProtectedRoute permissionId="683bcac0b0844882a0ba037e">
+              <>
+                <PageTitle title="Lịch sử giao dịch" />
+                <OrderTransactions />
+              </>
+            </ProtectedRoute>
           }
         />
-
-        {/* Skill */}
         <Route
           path="/admin/skills"
           element={
-            <>
-              <PageTitle title="Kĩ năng" />
-              <Skills />
-            </>
+            <ProtectedRoute permissionId="683bc845789be1bf151451ec">
+              <>
+                <PageTitle title="Kĩ năng" />
+                <Skills />
+              </>
+            </ProtectedRoute>
           }
         />
-        {/* Permission */}
         <Route
           path="/admin/permissions"
           element={
-            <>
-              <PageTitle title="Quyền hạn" />
-              <Permissions />
-            </>
+            <ProtectedRoute permissionId="683bcb12b0844882a0ba0386">
+              <>
+                <PageTitle title="Quyền hạn" />
+                <Permissions />
+              </>
+            </ProtectedRoute>
           }
         />
-        {/* Role */}
         <Route
           path="/admin/roles"
           element={
-            <>
-              <PageTitle title="Vai trò" />
-              <Roles />
-            </>
+            <ProtectedRoute permissionId="683bcb7db0844882a0ba038f">
+              <>
+                <PageTitle title="Vai trò" />
+                <Roles />
+              </>
+            </ProtectedRoute>
           }
         />
-
-
       </Routes>
     </DefaultLayout>
   );
