@@ -8,7 +8,7 @@ import { ToastMess } from "../../components/ToastMess";
 import API, { endpoints } from "../../assets/config/API";
 import UIHeader from "../../components/UIHeader";
 export default function RegisterSendOtp({ navigation, route }) {
-    const { email, password, name, role } = route.params;
+    const { email, password, name, role, phone } = route.params;
     const [loading, setLoading] = useState(false);
     const [otp, setOtp] = useState();
 
@@ -21,7 +21,7 @@ export default function RegisterSendOtp({ navigation, route }) {
         try {
             await API.post(
                 endpoints['verify'], // URL endpoint
-                { name, email, password }, // Body JSON
+                { name, email, phone, password }, // Body JSON
                 {
                     params: {
                         code: otp, // Query parameter

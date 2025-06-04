@@ -102,19 +102,20 @@ export default function Login({ navigation }) {
                 // username: 'nguyenhoangnam@gmail.com',
                 username: userName.trim(),
                 // password: 'Caichyrua11@',
-                password: password || 'Caichyrua11@',
+                // password: password || 'Caichyrua11@',
                 // username: email,
-                // password: '123456'
+                password: '123456'
                 // password
 
             };
             let res = await API.post(endpoints['login'], data, { headers: header });
-            const { access_token, _id, email, name, role, avatar } = res.data.data;
+            const { access_token, _id, email, name, role, avatar,phone } = res.data.data;
 
             const user = {
                 _id,
                 email,
                 name,
+                phone,
                 role,
                 avatar: avatar || 'https://via.placeholder.com/100',
             };

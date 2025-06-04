@@ -25,7 +25,7 @@ const ReportJob = ({ navigation, route }) => {
     const [otherReason, setOtherReason] = useState('');
     const [fullName, setFullName] = useState(currentUser?.name || '');
     const [email, setEmail] = useState(currentUser?.email || '');
-    const [phone, setPhone] = useState('');
+    const [phone, setPhone] = useState(currentUser?.phone || '');
     const [address, setAddress] = useState();
     const [loading, setLoading] = useState(false);
 
@@ -59,7 +59,7 @@ const ReportJob = ({ navigation, route }) => {
             const token = await AsyncStorage.getItem("access_token");
             const response = await authApi(token).post(endpoints['reportJob'], reportData);
             console.log(response.data);
-            if (response.status === 201) { 
+            if (response.status === 201) {
                 ToastMess({ type: 'success', text1: 'Báo cáo đã được gửi thành công!' });
                 navigation.goBack();
             }
@@ -136,6 +136,7 @@ const ReportJob = ({ navigation, route }) => {
                         placeholder="Nhập họ và tên"
                         value={fullName}
                         onChangeText={setFullName}
+                        editable={false}
                     />
                     <Text style={styles.label}>Email <Text style={styles.required}>*</Text></Text>
                     <TextInput
@@ -144,6 +145,7 @@ const ReportJob = ({ navigation, route }) => {
                         value={email}
                         onChangeText={setEmail}
                         keyboardType="email-address"
+                        editable={false}
                     />
                     <Text style={styles.label}>Số điện thoại <Text style={styles.required}>*</Text></Text>
                     <TextInput
@@ -152,6 +154,7 @@ const ReportJob = ({ navigation, route }) => {
                         value={phone}
                         onChangeText={setPhone}
                         keyboardType="phone-pad"
+                        editable={false}
                     />
                     <Text style={styles.label}>Địa chỉ <Text style={styles.required}>*</Text></Text>
                     <TextInput

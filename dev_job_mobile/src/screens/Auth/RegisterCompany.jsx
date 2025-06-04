@@ -15,26 +15,66 @@ export default function RegisterClient({ navigation, route }) {
     const { role } = route.params
     const [userName, setUsername] = useState('');
     const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [passwordAg, setPasswordAg] = useState('');
     const [loading, setLoading] = useState(false)
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const validatePhone = (phone) => {
+        // Chấp nhận: bắt đầu bằng 0 hoặc +84, theo sau là các đầu số hợp lệ, 9 chữ số
+        const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/g;
+        return phoneRegex.test(phone);
+    };
+
+    const validatePassword = (password) => {
+        // Password must be at least 8 characters, include a number and a special character
+        const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
+        return passwordRegex.test(password);
+    };
 
     const handleRegister = async () => {
-        if (!email || !password || !passwordAg) {
-            ToastMess({ type: 'error', text1: 'Vui lòng không để trống các trường.' });
+        // Check for empty fields
+        if (!email || !password || !userName || !passwordAg || !phone) {
+            ToastMess({ type: 'error', text1: 'Vui lòng điền đầy đủ tất cả các trường.' });
             return;
         }
 
+        // Validate email
+        if (!validateEmail(email)) {
+            ToastMess({ type: 'error', text1: 'Email không hợp lệ.' });
+            return;
+        }
+
+        // Validate phone number
+        if (!validatePhone(phone)) {
+            ToastMess({ type: 'error', text1: 'Số điện thoại không hợp lệ.' });
+            return;
+        }
+
+        // Validate password
+        if (!validatePassword(password)) {
+            ToastMess({ type: 'error', text1: 'Mật khẩu có ít nhất 8 ký tự, gồm số và ký tự đặc biệt.' });
+            return;
+        }
+
+        // Check if passwords match
         if (password !== passwordAg) {
             ToastMess({ type: 'error', text1: 'Mật khẩu và mật khẩu xác nhận không khớp.' });
             return;
         }
+
         setLoading(true);
 
         const formRegister = new URLSearchParams();
         formRegister.append('email', email);
         formRegister.append('name', userName);
+        formRegister.append('phone', phone);
         formRegister.append('password', password);
+        console.log(formRegister);
         try {
             const res = await API.post(endpoints['registerUser'], formRegister, {
                 headers: {
@@ -46,16 +86,17 @@ export default function RegisterClient({ navigation, route }) {
                 email: email,
                 password: password,
                 name: userName,
+                phone: phone,
                 role: role,
             });
 
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 ToastMess({ type: 'error', text1: error.response.data.message });
-                console.log(error.response.data)
+                console.log(error.response.data);
             } else {
-                ToastMess({ type: 'error', text1: 'Đã xảy ra lỗi. Vui lòng thử lại.' });
-                console.log(error)
+                ToastMess({ type: 'error', text1: 'Có lỗi xảy ra. Vui lòng thử lại.' });
+                console.log(error);
             }
         } finally {
             setLoading(false);
@@ -89,6 +130,13 @@ export default function RegisterClient({ navigation, route }) {
                         onChangeText={setEmail}
                         autoCapitalize="none"
                     />
+                    <Text style={styles.textInput}>Số diện thoại</Text>
+                    <Input
+                        placeholder="Số điện thoại +84"
+                        onChangeText={setPhone}
+                        autoCapitalize="none"
+                        keyboardType="phone-pad"
+                    />
                     <Text style={styles.textInput}>Mật khẩu</Text>
                     <Input
                         placeholder="Mật khẩu"
@@ -103,37 +151,7 @@ export default function RegisterClient({ navigation, route }) {
                         onChangeText={setPasswordAg}
                         autoCapitalize="none"
                     />
-                    {/* <Text style={[styles.textInput, { color: orange }]}>Thông tin công ty</Text>
-                    <Text style={styles.textInput}>Tên công ty</Text>
-                    <Input
-                        placeholder="Nhập tên công ty đăng ký kinh doanh"
 
-                    />
-                    <Text style={styles.textInput}>Mã số thuế</Text>
-                    <Input
-                        placeholder="Nhập mã số thuế "
-
-                    />
-                    <Text style={styles.textInput}>Website công ty</Text>
-                    <Input
-                        placeholder="Nhập website công ty"
-
-                    />
-                    <Text style={styles.textInput}>Quy mô công ty</Text>
-                    <Input
-                        placeholder="Nhập số lượng nhân viên công ty"
-                        keyboardType="numeric"
-                    />
-                    <Text style={styles.textInput}>Lĩnh vực hoạt động</Text>
-                    <Input
-                        placeholder="Nhập lĩnh vực hoạt động"
-
-                    />
-                    <Text style={styles.textInput}>Giới thiệu công ty</Text>
-                    <Input
-                        placeholder="Nhập giới thiệu về công ty"
-
-                    /> */}
                 </View>
                 <View style={styles.containerFooter}>
                     {loading ? <>

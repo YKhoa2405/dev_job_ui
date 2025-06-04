@@ -177,21 +177,21 @@ export default function Subscribers({ navigation, route }) {
                             <Icon name="close" size={26} color={'red'} />
                         </TouchableOpacity>
                     </View>
-                    <Text style={styles.textInput}>Email</Text>
+                    <Text style={styles.textInput}>Email <Text style={{ color: 'red' }}>*</Text></Text>
                     <TextInput
                         placeholder="Email nhận thông báo việc làm"
                         onChangeText={setEmail}
                         value={email}
                         style={styles.introduceInput}
                     />
-                    <Text style={styles.textInput}>Họ và tên</Text>
+                    <Text style={styles.textInput}>Họ và tên <Text style={{ color: 'red' }}>*</Text></Text>
                     <TextInput
                         placeholder="Nhập họ và tên"
                         onChangeText={setName}
                         value={name}
                         style={styles.introduceInput}
                     />
-                    <Text style={styles.textInput}>Kỹ năng</Text>
+                    <Text style={styles.textInput}>Kỹ năng <Text style={{ color: 'red' }}>*</Text></Text>
                     <DropDownPicker
                         open={openSkills}
                         value={selectedSkills}
@@ -223,7 +223,7 @@ export default function Subscribers({ navigation, route }) {
                         textStyle={{ fontWeight: '500' }}
                         zIndex={2000} // Đảm bảo không bị chồng lấn bởi DropDownPicker khác
                     />
-                    <Text style={styles.textInput}>Lịch nhận thông báo</Text>
+                    <Text style={styles.textInput}>Lịch nhận thông báo <Text style={{ color: 'red' }}>*</Text></Text>
                     <DropDownPicker
                         open={openSchedule}
                         value={notificationSchedule}

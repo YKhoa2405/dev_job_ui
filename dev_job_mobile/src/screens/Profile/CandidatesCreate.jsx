@@ -25,7 +25,7 @@ export default function CandidatesCreate({ navigation, route }) {
     const [fullName, setFullName] = useState(user?.name || '');
     const [avatar, setAvatar] = useState(user?.avatar || '');
     const [avatarPreview, setAvatarPreview] = useState(user?.avatar || '');
-    const [phone, setPhone] = useState('');
+    const [phone, setPhone] = useState(user?.phone || '');
     const [email, setEmail] = useState(user?.email || '');
     const [selectedSkills, setSelectedSkills] = useState([]);
     const [level, setLevel] = useState('');
@@ -231,7 +231,7 @@ export default function CandidatesCreate({ navigation, route }) {
                         )}
                     </TouchableOpacity>
 
-                    <Text style={styles.textInput}>Họ tên</Text>
+                    <Text style={styles.textInput}>Họ tênv <Text style={{ color: 'red' }}>*</Text></Text>
                     <TextInput
                         placeholder="Họ tên ứng viên..."
                         onChangeText={setFullName}
@@ -240,7 +240,7 @@ export default function CandidatesCreate({ navigation, route }) {
                         editable={false}
                     />
 
-                    <Text style={styles.textInput}>Email</Text>
+                    <Text style={styles.textInput}>Email <Text style={{ color: 'red' }}>*</Text></Text>
                     <TextInput
                         placeholder="Email ứng viên..."
                         onChangeText={setEmail}
@@ -250,13 +250,14 @@ export default function CandidatesCreate({ navigation, route }) {
                         editable={false}
                     />
 
-                    <Text style={styles.textInput}>Số điện thoại</Text>
+                    <Text style={styles.textInput}>Số điện thoại <Text style={{ color: 'red' }}>*</Text></Text>
                     <TextInput
                         placeholder="Số điện thoại..."
                         onChangeText={setPhone}
                         value={phone}
                         style={styles.introduceInput}
                         keyboardType="phone-pad"
+                        editable={false}
                     />
 
                     <Text style={styles.textInput}>Địa điểm</Text>
