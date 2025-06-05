@@ -1,23 +1,30 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    ScrollView,
+} from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import { mainColor, orange, white } from "../../assets/themes/Color";
 import UIHeader from "../../components/UIHeader";
-import * as ImagePicker from 'expo-image-picker';
 import { ToastMess } from "../../components/ToastMess";
 import API, { endpoints } from "../../assets/config/API";
 import Loading from "../../components/Loading";
 
 export default function RegisterClient({ navigation, route }) {
     const { role } = route.params;
-    const [userName, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [password, setPassword] = useState('');
-    const [passwordAg, setPasswordAg] = useState('');
+    const [userName, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [password, setPassword] = useState("");
+    const [passwordAg, setPasswordAg] = useState("");
+    const [method, setMethod] = useState("email"); // Mặc định là email
     const [loading, setLoading] = useState(false);
+
 
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -25,77 +32,79 @@ export default function RegisterClient({ navigation, route }) {
     };
 
     const validatePhone = (phone) => {
-        // Chấp nhận: bắt đầu bằng 0 hoặc +84, theo sau là các đầu số hợp lệ, 9 chữ số
         const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/g;
         return phoneRegex.test(phone);
     };
 
     const validatePassword = (password) => {
-        // Password must be at least 8 characters, include a number and a special character
         const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
         return passwordRegex.test(password);
     };
 
     const handleRegister = async () => {
-        // Check for empty fields
+        // Kiểm tra các trường trống
         if (!email || !password || !userName || !passwordAg || !phone) {
-            ToastMess({ type: 'error', text1: 'Vui lòng điền đầy đủ tất cả các trường.' });
+            ToastMess({ type: "error", text1: "Vui lòng điền đầy đủ tất cả các trường." });
             return;
         }
 
-        // Validate email
+        // Xác thực email
         if (!validateEmail(email)) {
-            ToastMess({ type: 'error', text1: 'Email không hợp lệ.' });
+            ToastMess({ type: "error", text1: "Email không hợp lệ." });
             return;
         }
 
-        // Validate phone number
-        if (!validatePhone(phone)) {
-            ToastMess({ type: 'error', text1: 'Số điện thoại không hợp lệ.' });
-            return;
-        }
+        // Xác thực số điện thoại
+        // if (!validatePhone(phone)) {
+        //     ToastMess({ type: "error", text1: "Số điện thoại không hợp lệ." });
+        //     return;
+        // }
 
-        // Validate password
+        // Xác thực mật khẩu
         if (!validatePassword(password)) {
-            ToastMess({ type: 'error', text1: 'Mật khẩu có ít nhất 8 ký tự, gồm số và ký tự đặc biệt.' });
+            ToastMess({
+                type: "error",
+                text1: "Mật khẩu phải có ít nhất 8 ký tự, gồm số và ký tự đặc biệt.",
+            });
             return;
         }
 
-        // Check if passwords match
+        // Kiểm tra mật khẩu khớp
         if (password !== passwordAg) {
-            ToastMess({ type: 'error', text1: 'Mật khẩu và mật khẩu xác nhận không khớp.' });
+            ToastMess({ type: "error", text1: "Mật khẩu và mật khẩu xác nhận không khớp." });
             return;
         }
 
         setLoading(true);
 
         const formRegister = new URLSearchParams();
-        formRegister.append('email', email);
-        formRegister.append('name', userName);
-        formRegister.append('phone', phone);
-        formRegister.append('password', password);
-        console.log(formRegister);
+        formRegister.append("email", email);
+        formRegister.append("name", userName);
+        formRegister.append("phone", phone);
+        formRegister.append("password", password);
+        formRegister.append("method", method); // Thêm trường method
+
         try {
-            const res = await API.post(endpoints['registerUser'], formRegister, {
+            const res = await API.post(endpoints["registerUser"], formRegister, {
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    "Content-Type": "application/x-www-form-urlencoded",
                 },
             });
-            ToastMess({ type: 'success', text1: res.data.data.message });
+            ToastMess({ type: "success", text1: res.data.data.message }); // Điều chỉnh theo cấu trúc phản hồi từ backend
             navigation.navigate("RegisterSendOtp", {
-                email: email,
-                password: password,
+                email,
+                password,
                 name: userName,
-                phone: phone,
-                role: role,
+                phone,
+                role,
+                method, // Truyền method sang màn hình xác minh
             });
-
         } catch (error) {
             if (error.response && error.response.status === 400) {
-                ToastMess({ type: 'error', text1: error.response.data.message });
+                ToastMess({ type: "error", text1: error.response.data.data.message });
                 console.log(error.response.data);
             } else {
-                ToastMess({ type: 'error', text1: 'Có lỗi xảy ra. Vui lòng thử lại.' });
+                ToastMess({ type: "error", text1: "Có lỗi xảy ra. Vui lòng thử lại." });
                 console.log(error);
             }
         } finally {
@@ -107,7 +116,7 @@ export default function RegisterClient({ navigation, route }) {
         <View style={StyleShare.container}>
             <UIHeader
                 leftIcon={"arrow-back"}
-                handleLeftIcon={() => { navigation.goBack() }}
+                handleLeftIcon={() => navigation.goBack()}
             />
             <ScrollView contentContainerStyle={{ marginHorizontal: 20 }} showsVerticalScrollIndicator={false}>
                 <View style={styles.containerTop}>
@@ -152,13 +161,48 @@ export default function RegisterClient({ navigation, route }) {
                         onChangeText={setPasswordAg}
                         autoCapitalize="none"
                     />
+                    <Text style={styles.textInput}>Phương thức xác minh</Text>
+                    <View style={styles.methodContainer}>
+                        <TouchableOpacity
+                            style={[
+                                styles.methodButton,
+                                method === "email" ? styles.methodButtonSelected : null,
+                            ]}
+                            onPress={() => setMethod("email")}
+                        >
+                            <Text
+                                style={[
+                                    styles.methodText,
+                                    method === "email" ? styles.methodTextSelected : null,
+                                ]}
+                            >
+                                Email
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[
+                                styles.methodButton,
+                                method === "sms" ? styles.methodButtonSelected : null,
+                            ]}
+                            onPress={() => setMethod("sms")}
+                        >
+                            <Text
+                                style={[
+                                    styles.methodText,
+                                    method === "sms" ? styles.methodTextSelected : null,
+                                ]}
+                            >
+                                SMS
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
                 <View style={styles.containerFooter}>
                     {loading ? (
                         <Loading />
                     ) : (
                         <Button
-                            title={'Đăng ký'}
+                            title={"Đăng ký"}
                             backgroundColor={mainColor}
                             textColor={white}
                             onPress={handleRegister}
@@ -173,29 +217,46 @@ export default function RegisterClient({ navigation, route }) {
 const styles = StyleSheet.create({
     containerTop: {
         marginTop: 20,
-        alignItems: 'center',
+        alignItems: "center",
     },
     containerMain: {
         marginTop: 20,
     },
     containerFooter: {
         marginTop: 30,
+        marginBottom: 20,
     },
     desc: {
         marginTop: 20,
-        textAlign: 'center',
+        textAlign: "center",
     },
     textInput: {
-        fontWeight: 'bold',
+        fontWeight: "bold",
         color: mainColor,
         marginTop: 15,
     },
-    imageUpload: {
+    methodContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
         marginTop: 10,
-        width: 60,
-        height: 60,
-        resizeMode: 'cover',
-        borderRadius: 100,
+    },
+    methodButton: {
+        flex: 1,
+        padding: 10,
         borderWidth: 1,
+        borderColor: mainColor,
+        borderRadius: 10,
+        alignItems: "center",
+        marginHorizontal: 5,
+    },
+    methodButtonSelected: {
+        backgroundColor: mainColor,
+    },
+    methodText: {
+        color: mainColor,
+        fontWeight: "bold",
+    },
+    methodTextSelected: {
+        color: white,
     },
 });

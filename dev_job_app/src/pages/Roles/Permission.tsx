@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Pencil, Plus, TrashIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Pencil, Plus, Search, TrashIcon } from 'lucide-react';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import { Fragment, useEffect, useState, useCallback } from 'react';
 import API, { authApi, endpoints } from '../../common/API';
@@ -237,7 +237,7 @@ const Permissions = () => {
                             </select>
                         </div>
                         <div className="col-span-4 flex items-center">
-                            <p className="font-medium mr-2 whitespace-nowrap">Tìm kiếm</p>
+                            <Search size={20} />
                             <input
                                 type="text"
                                 value={searchName}

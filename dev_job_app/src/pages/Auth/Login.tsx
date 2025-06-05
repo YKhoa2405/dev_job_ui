@@ -20,10 +20,23 @@ const Login: React.FC = () => {
         username: email,
         password: password,
       });
+
       const userData = response.data.data;
+      if (userData.role === 'EMPLOYER_USER' || userData.role === 'NORMAL_USER') {
+        toast.error('Bạn không có quyền truy cập vào hệ thống Administrator!', {
+          position: 'top-right',
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: false,
+          progress: undefined,
+        });
+        return; // Dừng xử lý nếu role không hợp lệ
+      }
       // Lưu access_token vào localStorage (theo yêu cầu hiện tại của API)
       localStorage.setItem('access_token', userData.access_token);
-      
+
       // Lưu thông tin người dùng và quyền vào Redux
       dispatch(
         setUser({
