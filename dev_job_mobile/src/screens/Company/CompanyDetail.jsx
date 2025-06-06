@@ -136,7 +136,6 @@ export default function CompanyDetail({ navigation, route }) {
                 ToastMess({ type: 'error', text1: 'Vui lòng nhập bình luận.' });
                 return;
             }
-
             setSubmitting(true);
 
             try {
@@ -146,24 +145,7 @@ export default function CompanyDetail({ navigation, route }) {
                     comment,
                     companyId: _id,
                 });
-
-                const newReview = {
-                    rating,
-                    comment,
-                    createdAt: new Date().toISOString(),
-                };
-
-                setReviews(prev => [newReview, ...prev]);
-
-                // Tính toán lại điểm trung bình và tổng số đánh giá
-                const newReviewCount = (companyDetail.reviewCount || 0) + 1;
-                const newAverage = ((companyDetail.averageRating || 0) * (companyDetail.reviewCount || 0) + rating) / newReviewCount;
-
-                setCompanyDetail(prev => ({
-                    ...prev,
-                    reviewCount: newReviewCount,
-                    averageRating: newAverage,
-                }));
+                await Promise.all([fetchReviews(), fetchCompanyDetail()]); // Sync with server
 
                 ToastMess({ type: 'success', text1: 'Đánh giá đã được gửi.' });
                 setRating(0);
@@ -172,6 +154,19 @@ export default function CompanyDetail({ navigation, route }) {
                 ToastMess({ type: 'error', text1: error.response?.data?.message || 'Không thể gửi đánh giá.' });
             } finally {
                 setSubmitting(false);
+            }
+        };
+
+        const handleDeleteReview = async (reviewId) => {
+            try {
+                const token = await getToken();
+                await authApi(token).delete(endpoints['deleteReview'](reviewId), {
+                    data: { companyId: _id }
+                });
+                ToastMess({ type: 'success', text1: 'Đã xóa đánh giá.' });
+                await Promise.all([fetchReviews(), fetchCompanyDetail()]); // Sync with server
+            } catch (error) {
+                ToastMess({ type: 'error', text1: error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại.' });
             }
         };
 
@@ -203,11 +198,7 @@ export default function CompanyDetail({ navigation, route }) {
             <View key={item._id} style={styles.reviewItemContainer}>
                 <View style={StyleShare.flexBetween}>
                     <View style={StyleShare.flexCenter}>
-                        <Avatar.Image
-                            source={{ uri: item.user?.avatar || 'https://via.placeholder.com/40' }}
-                            size={40}
-                        />
-                        <View style={{ marginLeft: 10 }}>
+                        <View >
                             <Text style={StyleShare.titleText16}>{item.user?.name || 'Ẩn danh'}</Text>
                             <View style={StyleShare.flexCenter}>
                                 {renderStars(item.rating)}
@@ -217,9 +208,18 @@ export default function CompanyDetail({ navigation, route }) {
                             </View>
                         </View>
                     </View>
+                    {item.user?._id === user._id && (
+                        <TouchableOpacity
+                            onPress={() => handleDeleteReview(item._id)}
+                            accessibilityLabel="Xóa đánh giá"
+                            accessibilityRole="button"
+                        >
+                            <Icon name="trash-outline" size={20} color={'red'} />
+                        </TouchableOpacity>
+                    )}
                 </View>
                 <Text style={{ color: textColor, marginTop: 5, fontSize: 14 }}>
-                    {item.comment || 'Không có bình luận.'}
+                    {item.comment || 'Không có đánh giá nào.'}
                 </Text>
             </View>
         );

@@ -61,6 +61,7 @@ export const endpoints = {
     // reviews
     'reviews': '/reviews',
     'reviewsCompany': (companyId) => `/reviews/company/${companyId}`,
+    'deleteReview': (reviewId) => `/reviews/${reviewId}`,
 
     //candidates
 
