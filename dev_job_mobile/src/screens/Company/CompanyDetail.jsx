@@ -1,4 +1,16 @@
-import { StyleSheet, View, Text, Image, TouchableOpacity, TouchableWithoutFeedback, ActivityIndicator, Linking, FlatList, ScrollView, Platform } from "react-native";
+import {
+    StyleSheet,
+    View,
+    Text,
+    Image,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    ActivityIndicator,
+    Linking,
+    ScrollView,
+    FlatList,
+    TextInput,
+} from "react-native";
 import StyleShare from "../../assets/themes/StyleShare";
 import { mainColor, bgButton2, grey, orange, textColor, white } from "../../assets/themes/Color";
 import { Avatar, Chip } from "react-native-paper";
@@ -12,6 +24,7 @@ import Loading from "../../components/Loading";
 import moment from "moment";
 import { ToastMess } from "../../components/ToastMess";
 import { useSelector } from "react-redux";
+import Input from "../../components/Input";
 
 export default function CompanyDetail({ navigation, route }) {
     const { _id } = route.params;
@@ -26,10 +39,26 @@ export default function CompanyDetail({ navigation, route }) {
         checkFollowStatus();
     }, [_id]);
 
+    const getToken = async () => await AsyncStorage.getItem("access_token");
+
+    const fetchCompanyDetail = async () => {
+        setLoading(true);
+        try {
+            const token = await getToken();
+            const res = await authApi(token).get(endpoints['companiesDetail'](_id));
+            setCompanyDetail(res.data.data);
+        } catch (error) {
+            console.error('Error fetching company detail:', error);
+            ToastMess({ type: 'error', text1: 'Không thể tải thông tin công ty.' });
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const checkFollowStatus = async () => {
         setLoading(true);
         try {
-            const token = await AsyncStorage.getItem("access_token");
+            const token = await getToken();
             const res = await authApi(token).get(endpoints['followSaved'](_id));
             setSaved(res.data.data.saved);
         } catch (error) {
@@ -42,7 +71,7 @@ export default function CompanyDetail({ navigation, route }) {
 
     const handleFollowToggle = async () => {
         try {
-            const token = await AsyncStorage.getItem("access_token");
+            const token = await getToken();
             if (saved) {
                 await authApi(token).delete(endpoints['followDetail'](_id));
                 ToastMess({ type: 'success', text1: 'Đã hủy theo dõi.' });
@@ -58,7 +87,7 @@ export default function CompanyDetail({ navigation, route }) {
 
     const handleOpenWebsite = (url) => {
         if (!url) return;
-        const formattedUrl = url.startsWith("http") ? url : `https://${url}`;
+        const formattedUrl = url.match(/^(https?:\/\/)/) ? url : `https://${url}`;
         Linking.openURL(formattedUrl).catch(() => {
             ToastMess({ type: 'error', text1: 'Không thể mở website.' });
         });
@@ -66,10 +95,10 @@ export default function CompanyDetail({ navigation, route }) {
 
     const handleLocationPress = async () => {
         const address = companyDetail?.address;
+        if (!address) return;
         const encodedAddress = encodeURIComponent(address);
         const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
         const supported = await Linking.canOpenURL(mapUrl);
-
         if (supported) {
             await Linking.openURL(mapUrl);
         } else {
@@ -77,37 +106,199 @@ export default function CompanyDetail({ navigation, route }) {
         }
     };
 
-    const fetchCompanyDetail = async () => {
-        setLoading(true);
-        try {
-            const token = await AsyncStorage.getItem("access_token");
-            const res = await authApi(token).get(endpoints['companiesDetail'](_id));
-            setCompanyDetail(res.data.data);
-        } catch (error) {
-            console.error('Error fetching company detail:', error);
-            ToastMess({ type: 'error', text1: 'Không thể tải thông tin công ty.' });
-        } finally {
-            setLoading(false);
-        }
-    };
+    const ProfileTab1 = () => {
+        const [reviews, setReviews] = useState([]);
+        const [rating, setRating] = useState(0);
+        const [comment, setComment] = useState("");
+        const [submitting, setSubmitting] = useState(false);
 
-    const ProfileTab1 = () => (
-        <ScrollView contentContainerStyle={{ paddingBottom: 20, backgroundColor: 'white', paddingHorizontal: 20 }}>
-            <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Giới thiệu công ty</Text>
-            <Text style={{ color: textColor, marginTop: 5 }}>{companyDetail?.about || 'Chưa có thông tin.'}</Text>
-            <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Lĩnh vực hoạt động</Text>
-            <Text style={{ color: textColor, marginTop: 5 }}>{companyDetail?.field || 'Chưa có thông tin.'}</Text>
-            <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Website</Text>
-            <TouchableOpacity onPress={() => handleOpenWebsite(companyDetail?.website)}>
-                <Text style={{ color: orange, marginTop: 5 }}>{companyDetail?.website || 'Chưa có website.'}</Text>
-            </TouchableOpacity>
-            <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Địa chỉ công ty</Text>
-            <Text style={{ color: textColor, marginTop: 5 }}>{companyDetail?.address || 'Chưa có địa chỉ.'}</Text>
-            <TouchableOpacity style={StyleShare.buttonDetailApply} onPress={handleLocationPress}>
-                <Text style={{ fontWeight: '500', color: mainColor }}>Xem địa chỉ trên Map</Text>
-            </TouchableOpacity>
-        </ScrollView>
-    );
+        useEffect(() => {
+            fetchReviews();
+        }, []);
+
+        const fetchReviews = async () => {
+            try {
+                const token = await getToken();
+                const res = await authApi(token).get(endpoints['reviewsCompany'](_id));
+                setReviews(res.data.data);
+            } catch (error) {
+                console.error('Error fetching reviews:', error);
+                ToastMess({ type: 'error', text1: 'Không thể tải đánh giá.' });
+            }
+        };
+
+        const handleSubmitReview = async () => {
+            if (rating < 1 || rating > 5) {
+                ToastMess({ type: 'error', text1: 'Vui lòng chọn số sao từ 1 đến 5.' });
+                return;
+            }
+            if (!comment.trim()) {
+                ToastMess({ type: 'error', text1: 'Vui lòng nhập bình luận.' });
+                return;
+            }
+
+            setSubmitting(true);
+
+            try {
+                const token = await getToken();
+                await authApi(token).post(endpoints['reviews'], {
+                    rating,
+                    comment,
+                    companyId: _id,
+                });
+
+                const newReview = {
+                    rating,
+                    comment,
+                    createdAt: new Date().toISOString(),
+                };
+
+                setReviews(prev => [newReview, ...prev]);
+
+                // Tính toán lại điểm trung bình và tổng số đánh giá
+                const newReviewCount = (companyDetail.reviewCount || 0) + 1;
+                const newAverage = ((companyDetail.averageRating || 0) * (companyDetail.reviewCount || 0) + rating) / newReviewCount;
+
+                setCompanyDetail(prev => ({
+                    ...prev,
+                    reviewCount: newReviewCount,
+                    averageRating: newAverage,
+                }));
+
+                ToastMess({ type: 'success', text1: 'Đánh giá đã được gửi.' });
+                setRating(0);
+                setComment("");
+            } catch (error) {
+                ToastMess({ type: 'error', text1: error.response?.data?.message || 'Không thể gửi đánh giá.' });
+            } finally {
+                setSubmitting(false);
+            }
+        };
+
+
+        const renderStars = (rating, editable = false, onStarPress = null) => {
+            const stars = [];
+            for (let i = 1; i <= 5; i++) {
+                stars.push(
+                    <TouchableOpacity
+                        key={i}
+                        onPress={() => editable && onStarPress(i)}
+                        disabled={!editable}
+                        accessibilityLabel={`Chọn ${i} sao`}
+                        accessibilityRole="button"
+                    >
+                        <Icon
+                            name={i <= rating ? "star" : "star-outline"}
+                            size={editable ? 24 : 16}
+                            color={orange}
+                            style={{ marginRight: editable ? 5 : 2 }}
+                        />
+                    </TouchableOpacity>
+                );
+            }
+            return stars;
+        };
+
+        const renderReviewItem = (item) => (
+            <View key={item._id} style={styles.reviewItemContainer}>
+                <View style={StyleShare.flexBetween}>
+                    <View style={StyleShare.flexCenter}>
+                        <Avatar.Image
+                            source={{ uri: item.user?.avatar || 'https://via.placeholder.com/40' }}
+                            size={40}
+                        />
+                        <View style={{ marginLeft: 10 }}>
+                            <Text style={StyleShare.titleText16}>{item.user?.name || 'Ẩn danh'}</Text>
+                            <View style={StyleShare.flexCenter}>
+                                {renderStars(item.rating)}
+                                <Text style={{ marginLeft: 5, fontSize: 12, color: textColor }}>
+                                    {moment(item.createdAt).format("DD/MM/YYYY HH:mm")}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+                <Text style={{ color: textColor, marginTop: 5, fontSize: 14 }}>
+                    {item.comment || 'Không có bình luận.'}
+                </Text>
+            </View>
+        );
+
+        return (
+            <ScrollView>
+                <View style={styles.containerProfileTab1}>
+                    <Text style={[StyleShare.titleText16, { marginTop: 20 }]}>Giới thiệu công ty</Text>
+                    <Text style={{ color: textColor, marginTop: 5 }}>{companyDetail?.about || 'Chưa có thông tin.'}</Text>
+
+                    <Text style={[StyleShare.titleText16, { marginTop: 20 }]}>Đánh giá công ty</Text>
+                    <View style={[{ marginTop: 5, alignItems: 'flex-start' }]}>
+                        <View style={StyleShare.flexCenter}>
+                            {renderStars(Math.round(companyDetail?.averageRating || 0))}
+                            <Text style={{ marginLeft: 5, fontSize: 14, fontWeight: '500' }}>
+                                {companyDetail?.averageRating?.toFixed(1) || 0} ({companyDetail?.reviewCount || 0} lượt đánh giá)
+                            </Text>
+                        </View>
+                    </View>
+                    <Text style={[StyleShare.titleText16, { marginTop: 20 }]}>Lĩnh vực hoạt động</Text>
+                    <Text style={{ color: textColor, marginTop: 5 }}>{companyDetail?.field || 'Chưa có thông tin.'}</Text>
+
+                    <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Website</Text>
+                    <TouchableOpacity onPress={() => handleOpenWebsite(companyDetail?.website)}>
+                        <Text style={{ color: orange, marginTop: 5 }}>{companyDetail?.website || 'Chưa có website.'}</Text>
+                    </TouchableOpacity>
+
+                    <Text style={[StyleShare.titleText16, { marginTop: 10 }]}>Địa chỉ công ty</Text>
+                    <Text style={{ color: textColor, marginTop: 5 }}>{companyDetail?.address || 'Chưa có địa chỉ.'}</Text>
+                    <TouchableOpacity style={StyleShare.buttonDetailApply} onPress={handleLocationPress}>
+                        <Text style={{ fontWeight: '500', color: mainColor }}>Xem địa chỉ trên Map</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.containerProfileTab1}>
+                    <Text style={StyleShare.titleText16}>Gửi đánh giá của bạn</Text>
+                    <View style={styles.reviewForm}>
+                        <View style={[StyleShare.flexCenter, { marginVertical: 10 }]}>
+                            {renderStars(rating, true, setRating)}
+                        </View>
+                        <Input
+                            placeholder="Nhập nội dung của bạn..."
+                            value={comment}
+                            onChangeText={setComment}
+                            multiline
+                            numberOfLines={4}
+                            maxLength={500}
+                            accessibilityLabel="Nhập nội dung đánh giá"
+                        />
+                        <Text style={{ color: textColor, fontSize: 12, marginVertical: 5 }}>
+                            {comment.length}/500
+                        </Text>
+                        <TouchableOpacity
+                            style={[StyleShare.buttonDetailApply, { backgroundColor: submitting ? grey : orange }]}
+                            onPress={handleSubmitReview}
+                            disabled={submitting}
+                            accessibilityLabel="Gửi đánh giá"
+                            accessibilityRole="button"
+                        >
+                            <Text style={{ color: white, fontWeight: '500' }}>
+                                {submitting ? 'Đang gửi...' : 'Gửi đánh giá'}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <View style={styles.containerProfileTab1}>
+                    <Text style={StyleShare.titleText16}>Danh sách đánh giá</Text>
+                    {reviews?.length > 0 ? (
+                        <View style={{ marginTop: 10 }}>
+                            {reviews.map((item) => renderReviewItem(item))}
+                        </View>
+                    ) : (
+                        <Text style={{ color: textColor, marginTop: 5 }}>Chưa có đánh giá nào.</Text>
+                    )}
+
+                </View>
+
+            </ScrollView>
+        );
+    };
 
     const ProfileTab2 = () => {
         const [jobData, setJobData] = useState([]);
@@ -125,7 +316,7 @@ export default function CompanyDetail({ navigation, route }) {
             if (page === 1) setLoading(true);
             else setLoadingMore(true);
             try {
-                const token = await AsyncStorage.getItem("access_token");
+                const token = await getToken();
                 const res = await authApi(token).get(endpoints['jobsByCompany'](_id), {
                     params: { page, limit },
                 });
@@ -343,4 +534,26 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginHorizontal: 20,
     },
+    reviewItemContainer: {
+        backgroundColor: white,
+        borderRadius: 10,
+        padding: 15,
+        marginTop: 10,
+        borderWidth: 1,
+        borderColor: grey,
+    },
+    containerProfileTab1: {
+        backgroundColor: white,
+        padding: 20,
+        marginBottom: 20,
+    },
+    reviewForm: {
+        backgroundColor: white,
+        padding: 15,
+        borderRadius: 10,
+        marginTop: 10,
+        borderWidth: 1,
+        borderColor: grey,
+    },
+
 });

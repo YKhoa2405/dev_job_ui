@@ -58,6 +58,10 @@ export const endpoints = {
     'companyByUser': '/companies/user',
     'companiesDetail': (companyId) => `/companies/${companyId}`,
 
+    // reviews
+    'reviews': '/reviews',
+    'reviewsCompany': (companyId) => `/reviews/company/${companyId}`,
+
     //candidates
 
     'candidates': '/candidates',
