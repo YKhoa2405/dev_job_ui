@@ -80,14 +80,13 @@ export default function JobSearchResult({ navigation, route }) {
     const fetchListJob = async (currentPage = 1, limit = 10) => {
         if (currentPage === 1) setLoading(true);
         else setLoadingMore(true);
-        const searchQuery = searchKeywork ? `/${searchKeywork}/i` : '';
         try {
             const token = await AsyncStorage.getItem("access_token");
             const res = await authApi(token).get(endpoints['jobsSearchKey'], {
                 params: {
                     page: currentPage,
                     limit: limit,
-                    name: searchQuery,
+                    name: searchKeywork,
                     level: level,
                     salary: salary,
                     jobType: jobType,
@@ -114,7 +113,7 @@ export default function JobSearchResult({ navigation, route }) {
 
     const loadMoreJobs = () => {
         if (currentPage < totalPages && !loadingMore) {
-            fetchJobByCompany(currentPage + 1);
+            fetchListJob(currentPage + 1);
         }
     };
 

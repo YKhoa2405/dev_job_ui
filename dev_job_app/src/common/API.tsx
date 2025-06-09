@@ -48,6 +48,7 @@ export const endpoints = {
 
     // jobs
     'jobs': '/jobs',
+    'jobsAdmin': '/jobs/admin',
     'jobsByCompany': (companyId: string) => `/jobs/${companyId}/jobs`,
     'jobDetail': (jobId: string) => `/jobs/${jobId}`,
 

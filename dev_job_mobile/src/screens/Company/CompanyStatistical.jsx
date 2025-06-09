@@ -9,10 +9,11 @@ import {
 } from "react-native";
 import UIHeader from "../../components/UIHeader";
 import StyleShare from "../../assets/themes/StyleShare";
-import {  PieChart } from "react-native-chart-kit";
-import {  mainColor, orange, white } from "../../assets/themes/Color";
+import { PieChart } from "react-native-chart-kit";
+import { mainColor, orange, white } from "../../assets/themes/Color";
 import { DataTable } from 'react-native-paper';
 import API, { endpoints } from "../../assets/config/API";
+import { ToastMess } from "../../components/ToastMess";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -57,6 +58,8 @@ export default function CompanyStatistical({ navigation, route }) {
             setSkillsData(skillsResponse.data.data || []);
 
         } catch (error) {
+            ToastMess({ type: 'error', text1: error.response.data.message });
+
             setApplicationsData([]);
             setSalaryData([]);
             setStatusData([]);

@@ -201,7 +201,7 @@ const Jobs = () => {
             <h4 className="text-xl font-semibold text-black ">
               Danh sách tin tuyển dụng
             </h4>
-            {hasPermission('683bc5f3789be1bf15145176') && (
+            {hasPermission('6845a513ed5eeaeff541dcc8') && (
               <Link
                 to="create"
                 className="inline-flex items-center justify-center gap-2.5 bg-primary py-2 px-5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 rounded-md">

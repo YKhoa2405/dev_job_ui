@@ -230,7 +230,7 @@ function App() {
         <Route
           path="/admin/jobs/create"
           element={
-            <ProtectedRoute permissionId="683bc5f3789be1bf15145176">
+            <ProtectedRoute permissionId="6845a513ed5eeaeff541dcc8">
               <>
                 <PageTitle title="Thêm tin tuyển dụng" />
                 <CreateJobs />

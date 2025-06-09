@@ -23,8 +23,6 @@ import moment from 'moment';
 import { useSelector } from 'react-redux';
 import debounce from 'lodash/debounce';
 
-// [Rest of imports remain unchanged]
-
 export default function JobSuggestions({ navigation, route }) {
   const { title, api } = route.params;
   const { user: currentUser } = useSelector((state) => state.user);
@@ -68,49 +66,6 @@ export default function JobSuggestions({ navigation, route }) {
     { title: 'Remote' },
     { title: 'Hybrid' },
   ];
-  const cacheKey = useMemo(
-    () =>
-      `job_data_${api}_${currentUser?._id || 'guest'}_${searchKeyword}_${level}_${salary}_${jobType}`,
-    [api, currentUser?._id, searchKeyword, level, salary, jobType]
-  );
-
-  // Load cached data
-  const loadCachedData = useCallback(async () => {
-    try {
-      const cached = await AsyncStorage.getItem(cacheKey);
-      if (cached) {
-        const { data, timestamp } = JSON.parse(cached);
-        // Cache valid for 5 minutes
-        if (Date.now() - timestamp < 5 * 60 * 1000) {
-          setJobData(data.result);
-          setCurrentPage(data.meta.currentPage);
-          setTotalPages(data.meta.totalPages);
-          setTotalItems(data.meta.totalItems);
-          setNoMoreData(data.meta.currentPage >= data.meta.totalPages);
-          return true;
-        }
-      }
-      return false;
-    } catch (err) {
-      console.error('Error loading cache:', err);
-      return false;
-    }
-  }, [cacheKey]);
-
-  // Save data to cache
-  const saveToCache = useCallback(
-    async (data) => {
-      try {
-        await AsyncStorage.setItem(
-          cacheKey,
-          JSON.stringify({ data, timestamp: Date.now() })
-        );
-      } catch (err) {
-        console.error('Error saving cache:', err);
-      }
-    },
-    [cacheKey]
-  );
 
   const fetchListJob = useCallback(
     async (page = 1, limit = 10, name = '') => {
@@ -125,7 +80,7 @@ export default function JobSuggestions({ navigation, route }) {
               isUrgent: true,
               page,
               limit,
-              name: name ? `/${name}/i` : '',
+              name,
               level,
               salary,
               jobType,
@@ -134,7 +89,7 @@ export default function JobSuggestions({ navigation, route }) {
         } else if (api === 'recommend') {
           res = await API.post(
             endpoints[api],
-            { user_id: currentUser?._id },
+            { user_id: currentUser?._id, search_level: level, search_salary: salary, search_job_type: jobType, search_name: name },
             {
               params: {
                 page: page,
@@ -148,20 +103,17 @@ export default function JobSuggestions({ navigation, route }) {
         const data = res.data.data;
         if (page === 1) {
           setJobData(data.result);
-          saveToCache(data);
         } else {
           setJobData((prev) => {
             const existingIds = new Set(prev.map((item) => item._id));
             const newJobs = data.result.filter((item) => !existingIds.has(item._id));
-            const updatedData = [...prev, ...newJobs];
-            saveToCache({ ...data, result: updatedData });
-            return updatedData;
+            return [...prev, ...newJobs];
           });
         }
         setCurrentPage(data.meta.currentPage);
         setTotalPages(data.meta.totalPages);
         setTotalItems(data.meta.totalItems);
-        setNoMoreData(data.meta.currentPage >= data.meta.totalPages)
+        setNoMoreData(data.meta.currentPage >= data.meta.totalPages);
       } catch (error) {
         console.log('Error fetching jobs:', error);
       } finally {
@@ -169,7 +121,7 @@ export default function JobSuggestions({ navigation, route }) {
         setLoadingMore(false);
       }
     },
-    [api, currentUser?._id, navigation, saveToCache]
+    [api, currentUser?._id, level, salary, jobType]
   );
 
   const debouncedFetchListJob = useMemo(
@@ -178,14 +130,8 @@ export default function JobSuggestions({ navigation, route }) {
   );
 
   useEffect(() => {
-    const initialize = async () => {
-      const cached = await loadCachedData();
-      if (!cached) {
-        fetchListJob(1, limit);
-      }
-    };
-    initialize();
-  }, [fetchListJob, loadCachedData]);
+    fetchListJob(1, limit);
+  }, [fetchListJob]);
 
   const loadMoreJobs = useCallback(() => {
     if (currentPage < totalPages && !loadingMore && !noMoreData) {
@@ -267,7 +213,7 @@ export default function JobSuggestions({ navigation, route }) {
           </View>
         </TouchableWithoutFeedback>
       ),
-    [navigation, api]
+    [navigation]
   );
 
   return (
@@ -324,16 +270,16 @@ export default function JobSuggestions({ navigation, route }) {
               marginBottom: 20,
             }}
           />
-          <Button
+          {/* <Button
             title={'Áp dụng'}
             backgroundColor={mainColor}
             textColor={white}
             onPress={applyFilters}
-          />
+          /> */}
           <Button
             title={'Đặt lại'}
-            backgroundColor={'#e0e0e0'}
-            textColor={'black'}
+            backgroundColor={'grey'}
+            textColor={"white"}
             onPress={resetFilters}
           />
         </View>
@@ -354,7 +300,9 @@ export default function JobSuggestions({ navigation, route }) {
             value={searchKeyword}
             onChangeText={(text) => {
               setSearchKeyword(text);
-              debouncedFetchListJob(1, limit, text);
+            }}
+            onSubmitEditing={() => {
+              debouncedFetchListJob(1, limit, searchKeyword);
             }}
             returnKeyType="search"
           />
@@ -389,11 +337,7 @@ export default function JobSuggestions({ navigation, route }) {
                 </Text>
               </View>
             }
-            ListFooterComponent={
-              loadingMore ? (
-                <Loading />
-              ) : null
-            }
+            ListFooterComponent={loadingMore ? <Loading /> : null}
           />
         )}
       </View>

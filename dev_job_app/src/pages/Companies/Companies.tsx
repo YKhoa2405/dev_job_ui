@@ -51,21 +51,20 @@ const Companies = () => {
   const fetchListCompany = async (currentPage = 1, limit = 10, name = '') => {
     setLoading(true);
     try {
+      const searchQuery = name.trim() ? `/${name.trim()}/i` : '';
       const token = localStorage.getItem('access_token');
-      const searchQuery = name ? `/${name}/i` : '';
       const res = await authApi(token).get(endpoints['companies'], {
         params: {
           page: currentPage,
           limit: limit,
           name: searchQuery,
-          isApproved: approved,
         },
       });
       const data = res.data.data;
       setCompanyData(data.result);
       setCurrentPage(data.meta.currentPage);
-      setTotalPages(data.meta.total_pages);
-      setTotalItems(data.meta.totalCount);
+      setTotalPages(data.meta.totalPages);
+      setTotalItems(data.meta.totalItems);
     } catch (error) {
       console.error('Error fetching companies:', error);
       toast.error('Không thể tải danh sách công ty', {

@@ -90,7 +90,7 @@ export default function JobByCompany({ navigation, route }) {
                 params: {
                     page: currentPage,
                     limit: limit,
-                    name: searchQuery,
+                    name: searchKeywork,
                     isActive: active,
                     level: level,
                     salary: salary,
@@ -298,8 +298,8 @@ export default function JobByCompany({ navigation, route }) {
                     <Button title={"Áp dụng"} backgroundColor={mainColor} textColor={white} onPress={applyFilters} />
                     <Button
                         title={"Đặt lại"}
-                        backgroundColor={bgButton2}
-                        textColor={"black"}
+                        backgroundColor={'grey'}
+                        textColor={"white"}
                         onPress={resetFilters}
                         style={{ marginTop: 10 }}
                     />

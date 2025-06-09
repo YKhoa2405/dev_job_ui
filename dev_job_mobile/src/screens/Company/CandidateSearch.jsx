@@ -13,6 +13,7 @@ import Modal from "react-native-modal";
 import axios from "axios";
 import Button from "../../components/Button";
 import FastImage from 'react-native-fast-image';
+import { ToastMess } from "../../components/ToastMess";
 
 export default function CandidateSearch({ navigation, route }) {
     const { companyId } = route.params
@@ -23,7 +24,7 @@ export default function CandidateSearch({ navigation, route }) {
     const [selectedProvinceId, setSelectedProvinceId] = useState('');
     const [availability, setAvailability] = useState(null);
 
-    const [jobData, setJobData] = useState([]);
+    const [candidateData, setCandidateData] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
@@ -99,16 +100,15 @@ export default function CandidateSearch({ navigation, route }) {
             });
             const data = res.data.data || { result: [], meta: { currentPage: 1, totalPages: 1, totalItems: 0 } };
             if (currentPage === 1) {
-                setJobData(data.result);
+                setCandidateData(data.result);
             } else {
-                setJobData((prev) => [...prev, ...data.result]);
+                setCandidateData((prev) => [...prev, ...data.result]);
             }
             setCurrentPage(data.meta.currentPage);
             setTotalPages(data.meta.totalPages);
             setTotalItems(data.meta.totalItems);
-            console.log(data.result)
         } catch (error) {
-            console.log('Error fetching companies:', error);
+            ToastMess({ type: 'error', text1: error.response.data.message });
         } finally {
             setLoading(false);
             setLoadingMore(false);
@@ -262,7 +262,7 @@ export default function CandidateSearch({ navigation, route }) {
                     <Loading />
                 ) : (
                     <FlatList
-                        data={jobData}
+                        data={candidateData}
                         keyExtractor={(item) => item._id.toString()} // Tối ưu keyExtractor
                         renderItem={renderItem}
                         showsVerticalScrollIndicator={false}

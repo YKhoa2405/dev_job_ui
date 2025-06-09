@@ -146,8 +146,13 @@ const CreateJobs = () => {
     const fetchCompany = async () => {
         try {
             const token = localStorage.getItem("access_token");
-            if (!token) throw new Error("No access token found");
-            const res = await authApi(token).get(endpoints['companies']);
+            const res = await authApi(token).get(endpoints['companies'], {
+                params: {
+                    page: 1,
+                    limit: 100,
+                    isApproved: true,
+                },
+            });
             setCompanies(res.data.data.result);
         } catch (error) {
             console.error('Error fetching companies:', error);
@@ -235,14 +240,12 @@ const CreateJobs = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem("access_token");
-            if (!token) throw new Error("No access token found");
-
             const payload = {
                 ...jobData,
                 companyId: jobData.companyId?._id, // Send only the ID
             };
 
-            await authApi(token).post(endpoints['jobs'], payload, {
+            await authApi(token).post(endpoints['jobsAdmin'], payload, {
                 headers: { 'Content-Type': 'application/json' },
             });
 
@@ -412,7 +415,7 @@ const CreateJobs = () => {
                                             className="custom-react-select"
                                             classNamePrefix="react-select"
                                             isDisabled={loading}
-                                            
+
                                         />
                                     </div>
                                     <div className="flex-1">

@@ -122,8 +122,7 @@ export default function CompanyDetail({ navigation, route }) {
                 const res = await authApi(token).get(endpoints['reviewsCompany'](_id));
                 setReviews(res.data.data);
             } catch (error) {
-                console.error('Error fetching reviews:', error);
-                ToastMess({ type: 'error', text1: 'Không thể tải đánh giá.' });
+                ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
             }
         };
 
@@ -145,8 +144,7 @@ export default function CompanyDetail({ navigation, route }) {
                     comment,
                     companyId: _id,
                 });
-                await Promise.all([fetchReviews(), fetchCompanyDetail()]); // Sync with server
-
+                fetchReviews();
                 ToastMess({ type: 'success', text1: 'Đánh giá đã được gửi.' });
                 setRating(0);
                 setComment("");
@@ -164,7 +162,7 @@ export default function CompanyDetail({ navigation, route }) {
                     data: { companyId: _id }
                 });
                 ToastMess({ type: 'success', text1: 'Đã xóa đánh giá.' });
-                await Promise.all([fetchReviews(), fetchCompanyDetail()]); // Sync with server
+                fetchReviews();
             } catch (error) {
                 ToastMess({ type: 'error', text1: error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại.' });
             }
