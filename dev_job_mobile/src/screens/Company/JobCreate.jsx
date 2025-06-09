@@ -30,6 +30,7 @@ export default function JobCreate({ navigation, route }) {
     const [wards, setWards] = useState([]);
     const [skills, setSkills] = useState([]);
     const [open, setOpen] = useState(false);
+    const [open1, setOpen1] = useState(false);
 
     const [selectedProvinceId, setSelectedProvinceId] = useState('');
     const [selectedDistrictId, setSelectedDistrictId] = useState('');
@@ -41,7 +42,7 @@ export default function JobCreate({ navigation, route }) {
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [salary, setSalary] = useState('');
-    const [level, setLevel] = useState('');
+    const [level, setLevel] = useState([]);
     const [quantity, setQuantity] = useState(1);
     const [jobType, setJobType] = useState('');
     const [city, setCity] = useState('')
@@ -207,7 +208,7 @@ export default function JobCreate({ navigation, route }) {
 
     const handleCreateJob = async () => {
         // Kiểm tra các trường bắt buộc
-        if (!name || !location || !city || !salary || !level || !jobType || !quantity || !selectedSkills || !startDate || !endDate || !description || !prioritize || !requirement) {
+        if (!name || !location || !city || !salary || !level.length || !jobType || !quantity || !selectedSkills || !startDate || !endDate || !description || !prioritize || !requirement) {
             ToastMess({ type: 'error', text1: 'Vui lòng không để trống các trường.' });
             return;
         }
@@ -275,7 +276,7 @@ export default function JobCreate({ navigation, route }) {
     const handleGenerateDescription = async () => {
         setLoadingE(true);
         try {
-            if (!name || !level || !jobType) {
+            if (!name || !level.length || !jobType) {
                 ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
                 return;
             }
@@ -409,15 +410,34 @@ export default function JobCreate({ navigation, route }) {
                         </View>
                         <View style={{ flex: 1, marginLeft: 20 }}>
                             <Text style={styles.textInput}>Level</Text>
-                            <Dropdown
-                                data={levelData}
-                                onSelect={(item) => {
-                                    setLevel(item.title)
-                                }}
+                            <DropDownPicker
+                                open={open1}
+                                value={level}
+                                items={levelData.map((item) => ({ label: item.title, value: item.title }))}
+                                setOpen={setOpen1}
+                                setValue={setLevel}
+                                multiple={true}
+                                min={0}
+                                max={8}
                                 placeholder="Chọn level"
-                                buttonStyle={{
-                                    height: 50,
+                                mode="BADGE"
+                                badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a"]}
+                                listMode="SCROLLVIEW"
+                                searchable={true}
+                                searchPlaceholder="Tìm kiếm level..."
+                                style={{
+                                    borderWidth: 0,
+                                    borderRadius: 10,
+                                    backgroundColor: white,
                                 }}
+                                dropDownContainerStyle={{
+                                    backgroundColor: white,
+                                    borderWidth: 1,
+                                    borderColor: grey,
+                                    borderRadius: 10,
+                                    maxHeight: 200,
+                                }}
+                                textStyle={{ fontWeight: "500" }}
                             />
                         </View>
                     </View>
@@ -454,41 +474,7 @@ export default function JobCreate({ navigation, route }) {
 
                         </View>
                     </View>
-                    <View>
-                        <Text style={styles.textInput}>Kĩ năng</Text>
-                        <DropDownPicker
-                            open={open} // Trạng thái mở/đóng
-                            value={selectedSkills} // Giá trị được chọn
-                            items={skills} // Dữ liệu hiển thị
-                            setOpen={setOpen} // Hàm thay đổi trạng thái mở/đóng
-                            setValue={setSelectedSkills} // Hàm thay đổi giá trị được chọn
-                            setItems={setSkills} // Hàm cập nhật dữ liệu nguồn
-                            multiple={true} // Cho phép chọn nhiều giá trị
-                            min={0} // Số lượng chọn tối thiểu
-                            max={10} // Số lượng chọn tối đa
-                            placeholder="Chọn kỹ năng" // Placeholder khi chưa chọn
-                            mode="BADGE" // Hiển thị các mục đã chọn dưới dạng badge
-                            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a"]} // Màu badge
-                            listMode={"SCROLLVIEW"}
-                            searchable={true} // Kích hoạt thanh tìm kiếm
-                            searchPlaceholder="Tìm kiếm kỹ năng..." // Văn bản placeholder cho thanh tìm kiếm
-                            style={{
-                                borderWidth: 0,
-                                borderRadius: 10,
-                                backgroundColor: white, // Đồng bộ với kiểu của các input khác
-                            }}
-                            dropDownContainerStyle={{
-                                backgroundColor: white, // Màu nền
-                                borderWidth: 1,             // Độ dày đường viền
-                                borderColor: grey,        // Màu đường viền
-                                borderRadius: 10,            // Bo góc
-                                maxHeight: 200,             // Giới hạn chiều cao
-                            }}
-                            textStyle={{
-                                fontWeight: '500'
-                            }}
-                        />
-                    </View>
+
                     <View style={StyleShare.flexBetween}>
                         <View style={{ flex: 1 }}>
                             <Text style={styles.textInput}>Ngày bắt đầu</Text>
@@ -531,7 +517,41 @@ export default function JobCreate({ navigation, route }) {
                             onCancel={hideDatePicker}
                         />
                     </View>
-
+                    <View>
+                        <Text style={styles.textInput}>Kĩ năng</Text>
+                        <DropDownPicker
+                            open={open} // Trạng thái mở/đóng
+                            value={selectedSkills} // Giá trị được chọn
+                            items={skills} // Dữ liệu hiển thị
+                            setOpen={setOpen} // Hàm thay đổi trạng thái mở/đóng
+                            setValue={setSelectedSkills} // Hàm thay đổi giá trị được chọn
+                            setItems={setSkills} // Hàm cập nhật dữ liệu nguồn
+                            multiple={true} // Cho phép chọn nhiều giá trị
+                            min={0} // Số lượng chọn tối thiểu
+                            max={10} // Số lượng chọn tối đa
+                            placeholder="Chọn kỹ năng" // Placeholder khi chưa chọn
+                            mode="BADGE" // Hiển thị các mục đã chọn dưới dạng badge
+                            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a"]} // Màu badge
+                            listMode={"SCROLLVIEW"}
+                            searchable={true} // Kích hoạt thanh tìm kiếm
+                            searchPlaceholder="Tìm kiếm kỹ năng..." // Văn bản placeholder cho thanh tìm kiếm
+                            style={{
+                                borderWidth: 0,
+                                borderRadius: 10,
+                                backgroundColor: white, // Đồng bộ với kiểu của các input khác
+                            }}
+                            dropDownContainerStyle={{
+                                backgroundColor: white, // Màu nền
+                                borderWidth: 1,             // Độ dày đường viền
+                                borderColor: grey,        // Màu đường viền
+                                borderRadius: 10,            // Bo góc
+                                maxHeight: 200,             // Giới hạn chiều cao
+                            }}
+                            textStyle={{
+                                fontWeight: '500'
+                            }}
+                        />
+                    </View>
                     <View style={[StyleShare.flexBetween, { marginTop: 20, marginBottom: 10 }]}>
                         <Text style={{ color: mainColor, fontWeight: 'bold' }}>Mô tả</Text>
                         {loadingE ? (

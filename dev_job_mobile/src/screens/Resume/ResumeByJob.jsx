@@ -107,7 +107,17 @@ export default function ResumeByJob({ navigation, route }) {
                             </View>
                             <View style={{ flex: 1 }}>
                                 <Text style={StyleShare.titleText16}>Level</Text>
-                                <Text style={{ color: textColor, marginTop: 5 }}>{jobDetail.level}</Text>
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 5 }}>
+                                    {jobDetail?.level?.map((item, index) => (
+                                        <Text
+                                            key={index}
+                                            style={{
+                                                color: textColor
+                                            }}>
+                                            {item}{index < jobDetail.level.length - 1 ? ', ' : ''}
+                                        </Text>
+                                    ))}
+                                </View>
                             </View>
                         </View>
 

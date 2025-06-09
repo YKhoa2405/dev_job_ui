@@ -108,9 +108,10 @@ export default function JobApplied({ navigation }) {
                     </View>
                     <View style={StyleShare.technologyContainer}>
                         <Chip style={StyleShare.chip}>{item.jobId.city || 'N/A'}</Chip>
-                        <Chip style={StyleShare.chip}>{item.jobId.level || 'N/A'}</Chip>
-
-                        {item.jobId.skills.map((s, index) => (
+                        {item?.jobId?.level.map((l, index) => (
+                            <Chip key={index} style={StyleShare.chip}>{l || 'N/A'}</Chip>
+                        ))}
+                        {item?.jobId?.skills.map((s, index) => (
                             <Chip key={index} style={StyleShare.chip}>
                                 {s || 'N/A'}
                             </Chip>

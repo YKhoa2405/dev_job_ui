@@ -137,11 +137,14 @@ export default function JobSearchResult({ navigation, route }) {
                 </View>
                 <View style={StyleShare.technologyContainer}>
                     <Chip style={StyleShare.chip}>{item.city || 'N/A'}</Chip>
-                    <Chip style={StyleShare.chip}>{item.level || 'N/A'}</Chip>
-
-                    {item.skills.map((s, index) => (
+                    {item?.level?.map((level, index) => (
                         <Chip key={index} style={StyleShare.chip}>
-                            {s}
+                            {level || 'N/A'}
+                        </Chip>
+                    ))}
+                    {item?.skills?.map((s, index) => (
+                        <Chip key={index} style={StyleShare.chip}>
+                            {s || 'N/A'}
                         </Chip>
                     ))}
                     {item.isUrgent && (

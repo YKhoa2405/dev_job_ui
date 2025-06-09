@@ -28,8 +28,8 @@ export default function Companies({ navigation }) {
     }, []);
 
     useEffect(() => {
-        fetchListCompany(currentPage, limit, searchKeywork); // Thêm currentPage và searchKeywork vào dependency
-    }, [selectProvince, currentPage, searchKeywork]);
+        fetchListCompany(currentPage, limit, searchKeywork);
+    }, [selectProvince, currentPage]);
 
     const fetchProvinces = async () => {
         try {
@@ -84,8 +84,8 @@ export default function Companies({ navigation }) {
     };
 
     const handleSearch = () => {
-        setCurrentPage(1); // Reset về trang 1 khi tìm kiếm
-        // fetchListCompany được gọi tự động qua useEffect nhờ searchKeywork
+        setCurrentPage(1);
+        fetchListCompany(1, limit, searchKeywork);
     };
 
     const renderItem = ({ item }) => {

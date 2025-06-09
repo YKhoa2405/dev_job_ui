@@ -12,24 +12,24 @@ import axios from 'axios';
 import { azuze_map_primary_key_api } from '../../common/KEY';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-// Định nghĩa type cho SkillOption
-type SkillOption = {
+// Định nghĩa type cho SkillOption và LevelOption
+type Option = {
   value: string;
   label: string;
 };
 
 const EditJobs = () => {
   moment.locale('vi');
-  const [skills, setSkills] = useState<SkillOption[]>([]);
-  const [skillValue, setSkillValue] = useState<MultiValue<SkillOption>>([]);
+  const [skills, setSkills] = useState<Option[]>([]);
+  const [skillValue, setSkillValue] = useState<MultiValue<Option>>([]);
+  const [levelValue, setLevelValue] = useState<MultiValue<Option>>([]); // Thêm state cho level
   const [jobDetail, setJobDetail] = useState<IJobDetail | null>(null);
   const [loading, setLoading] = useState(false);
-  const [reportData, setReportData] = useState<any[]>([]); // Dữ liệu báo cáo từ API
+  const [reportData, setReportData] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [limit, setLimit] = useState(5);
-
 
   const navigate = useNavigate();
   const { id } = useParams<{ id?: string }>();
@@ -46,7 +46,6 @@ const EditJobs = () => {
   ];
 
   const levelOptions = [
-    { value: '', label: 'Chọn level' },
     { value: 'Intern', label: 'Intern' },
     { value: 'Fresher', label: 'Fresher' },
     { value: 'Junior', label: 'Junior' },
@@ -75,7 +74,7 @@ const EditJobs = () => {
   useEffect(() => {
     fetchJobDetail();
     fetchSkills();
-    fetchReportsByJob(); // Gọi API để lấy danh sách báo cáo
+    fetchReportsByJob();
   }, [id, currentPage, limit]);
 
   useEffect(() => {
@@ -85,6 +84,15 @@ const EditJobs = () => {
         label: skill,
       }));
       setSkillValue(initialSkills);
+    }
+    if (jobDetail?.level) {
+      const initialLevels = Array.isArray(jobDetail.level)
+        ? jobDetail.level.map((level) => ({
+          value: level,
+          label: level,
+        }))
+        : [];
+      setLevelValue(initialLevels);
     }
   }, [jobDetail]);
 
@@ -97,38 +105,36 @@ const EditJobs = () => {
           limit: limit,
         },
       });
-      const data = res.data.data; // Truy cập vào res.data.data
+      const data = res.data.data;
       setReportData(data.result);
       setCurrentPage(data.meta.currentPage);
       setTotalPages(data.meta.totalPages);
       setTotalItems(data.meta.totalItems);
     } catch (error) {
-      console.log('Error fetching reports:', error);
-      toast.error('Không thể tải danh sách báo cáo!');
+      toast.error('Không thể tải danh sách báo cáo!', { position: 'top-right', autoClose: 3000 });
     }
   };
 
   const reclassifyReport = async (id: string, updates: { category?: string; isGoodForTraining?: boolean }) => {
     try {
       const token = localStorage.getItem('access_token');
-      const res = await authApi(token).patch(endpoints['reportDetail'](id), updates);
-      console.log(res);
-      toast.success('Cập nhật thành công!', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
+      await authApi(token).patch(endpoints['reportDetail'](id), updates);
+      toast.success('Cập nhật báo cáo thành công!', { position: 'top-right', autoClose: 3000 });
       fetchReportsByJob();
     } catch (error) {
-      console.error('Lỗi khi cập nhật:', error);
-      toast.error('Cập nhật thất bại!', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
+      toast.error('Cập nhật báo cáo thất bại!', { position: 'top-right', autoClose: 3000 });
     }
   };
 
-  const handleSkillChange = (selectedOptions: MultiValue<SkillOption>) => {
+  const handleSkillChange = (selectedOptions: MultiValue<Option>) => {
     setSkillValue(selectedOptions);
+  };
+
+  const handleLevelChange = (selectedOptions: MultiValue<Option>) => {
+    setLevelValue(selectedOptions);
+    setJobDetail((prev) =>
+      prev ? { ...prev, level: selectedOptions.map((option) => option.value) } : null
+    );
   };
 
   const fetchSkills = async () => {
@@ -139,13 +145,13 @@ const EditJobs = () => {
           limit: 100,
         },
       });
-      const formattedOptions = res?.data.data.result.map((item: any) => ({
+      const formattedOptions = res.data.data.result.map((item: any) => ({
         value: item.name,
         label: item.name,
       }));
       setSkills(formattedOptions);
     } catch (error) {
-      console.log('Lỗi khi lấy danh sách kỹ năng:', error);
+      toast.error('Không thể tải danh sách kỹ năng!', { position: 'top-right', autoClose: 3000 });
     }
   };
 
@@ -158,22 +164,18 @@ const EditJobs = () => {
           query: locationDetail,
         },
       });
-      const { data } = response;
-      const location = data.results[0].position;
+      const location = response.data.results[0]?.position;
       return {
-        latitude: location.lat,
-        longitude: location.lon,
+        latitude: location?.lat ?? null,
+        longitude: location?.lon ?? null,
       };
     } catch (error) {
-      console.log('Lỗi khi lấy tọa độ:', error);
       return null;
     }
   };
 
   const toggleActiveStatus = () => {
-    if (jobDetail) {
-      setJobDetail((prev) => (prev ? { ...prev, isActive: !prev.isActive } : null));
-    }
+    setJobDetail((prev) => (prev ? { ...prev, isActive: !prev.isActive } : null));
   };
 
   const fetchJobDetail = async () => {
@@ -182,10 +184,8 @@ const EditJobs = () => {
       const token = localStorage.getItem('access_token');
       const res = await authApi(token).get(endpoints['jobDetail'](id!));
       setJobDetail(res.data.data);
-      console.log(res.data.data);
     } catch (error) {
-      console.log('Error fetching job detail:', error);
-      toast.error('Không thể tải chi tiết công việc!');
+      toast.error('Không thể tải chi tiết công việc!', { position: 'top-right', autoClose: 3000 });
     } finally {
       setLoading(false);
     }
@@ -193,43 +193,41 @@ const EditJobs = () => {
 
   const handleUpdateJobs = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!jobDetail) return;
+
     setLoading(true);
     try {
-      const coordinates = jobDetail?.location
+      const coordinates = jobDetail.location
         ? await getCoordinatesFromAddress(jobDetail.location)
-        : { latitude: jobDetail?.latitude, longitude: jobDetail?.longitude };
+        : null;
 
       const token = localStorage.getItem('access_token');
+      if (!token) throw new Error('Không tìm thấy token');
+
       await authApi(token).patch(endpoints['jobDetail'](id!), {
-        name: jobDetail?.name,
-        level: jobDetail?.level,
-        quantity: jobDetail?.quantity,
-        salary: jobDetail?.salary,
-        jobType: jobDetail?.jobType,
-        description: jobDetail?.description,
+        name: jobDetail.name,
+        level: levelValue.map((level) => level.value), // Gửi mảng level
+        quantity: jobDetail.quantity,
+        salary: jobDetail.salary,
+        jobType: jobDetail.jobType,
+        description: jobDetail.description,
         skills: skillValue.map((skill) => skill.value),
-        prioritize: jobDetail?.prioritize,
-        requirement: jobDetail?.requirement,
-        startDate: jobDetail?.startDate,
-        endDate: jobDetail?.endDate,
-        location: jobDetail?.location,
-        latitude: coordinates?.latitude ?? jobDetail?.latitude,
-        longitude: coordinates?.longitude ?? jobDetail?.longitude,
-        isActive: jobDetail?.isActive,
-        isUrgent: jobDetail?.isUrgent,
+        prioritize: jobDetail.prioritize,
+        requirement: jobDetail.requirement,
+        startDate: jobDetail.startDate,
+        endDate: jobDetail.endDate,
+        location: jobDetail.location,
+        geoLocation: coordinates
+          ? { type: 'Point', coordinates: [coordinates.longitude, coordinates.latitude] }
+          : jobDetail.geoLocation,
+        isActive: jobDetail.isActive,
+        isUrgent: jobDetail.isUrgent,
       });
 
-      toast.success('Cập nhật thành công!', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
+      toast.success('Cập nhật công việc thành công!', { position: 'top-right', autoClose: 3000 });
       navigate('/admin/jobs');
     } catch (error) {
-      console.log('Error updating job:', error);
-      toast.error('Cập nhật thất bại!', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
+      toast.error('Cập nhật công việc thất bại!', { position: 'top-right', autoClose: 3000 });
     } finally {
       setLoading(false);
     }
@@ -337,8 +335,9 @@ const EditJobs = () => {
                       prev
                         ? {
                           ...prev,
-                          latitude: coordinates?.latitude ?? prev.latitude,
-                          longitude: coordinates?.longitude ?? prev.longitude,
+                          geoLocation: coordinates
+                            ? { type: 'Point', coordinates: [coordinates.longitude, coordinates.latitude] }
+                            : prev.geoLocation,
                         }
                         : null
                     );
@@ -346,8 +345,7 @@ const EditJobs = () => {
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                 />
               </div>
-
-              <div className="flex space-x-4 mb-4.5">
+              <div className='flex space-x-4 mb-4.5'>
                 <div className="flex-1">
                   <label className="mb-2.5 block text-black dark:text-white">Mức lương</label>
                   <select
@@ -367,20 +365,26 @@ const EditJobs = () => {
 
                 <div className="flex-1">
                   <label className="mb-2.5 block text-black dark:text-white">Level</label>
-                  <select
-                    value={jobDetail?.level || ''}
-                    onChange={(e) =>
-                      setJobDetail((prev) => (prev ? { ...prev, level: e.target.value } : null))
-                    }
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  >
-                    {levelOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+                  <Select<Option, true>
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        padding: '0.3rem 1.0rem',
+                      }),
+                    }}
+                    isMulti
+                    value={levelValue}
+                    options={levelOptions}
+                    onChange={handleLevelChange}
+                    placeholder="Chọn level..."
+                    closeMenuOnSelect={false}
+                    className="custom-react-select"
+                    classNamePrefix="react-select"
+                    isLoading={loading}
+                  />
                 </div>
+              </div>
+              <div className="flex space-x-4 mb-4.5">
 
                 <div className="flex-1">
                   <label className="mb-2.5 block text-black dark:text-white">Số lượng</label>
@@ -418,7 +422,7 @@ const EditJobs = () => {
               <div className="flex space-x-4 mb-4.5">
                 <div className="flex-1">
                   <label className="mb-2.5 block text-black dark:text-white">Kĩ năng</label>
-                  <Select<SkillOption, true>
+                  <Select<Option, true>
                     styles={{
                       control: (base) => ({
                         ...base,
@@ -429,7 +433,7 @@ const EditJobs = () => {
                     value={skillValue}
                     options={skills}
                     onChange={handleSkillChange}
-                    placeholder="Chọn Kĩ năng liên quan..."
+                    placeholder="Chọn kỹ năng liên quan..."
                     closeMenuOnSelect={false}
                     className="custom-react-select"
                     classNamePrefix="react-select"
@@ -543,7 +547,7 @@ const EditJobs = () => {
                 <div className="flex-1">
                   <label className="mb-2.5 block text-black dark:text-white">Ngày tạo</label>
                   <div className="w-full py-3 px-5 text-black dark:text-white bg-gray-100 border-[1.5px] border-stroke rounded dark:border-form-strokedark">
-                    {moment(jobDetail?.createdAt).format("ddd, DD/MM/YYYY, HH:mm")}
+                    {moment(jobDetail?.createdAt).format('ddd, DD/MM/YYYY, HH:mm')}
                   </div>
                 </div>
               </div>
@@ -551,7 +555,7 @@ const EditJobs = () => {
                 <div className="flex-1">
                   <label className="mb-2.5 block text-black dark:text-white">Ngày cập nhật</label>
                   <div className="w-full py-3 px-5 text-black dark:text-white bg-gray-100 border-[1.5px] border-stroke rounded dark:border-form-strokedark">
-                    {moment(jobDetail?.updatedAt).format("ddd, DD/MM/YYYY, HH:mm")}
+                    {moment(jobDetail?.updatedAt).format('ddd, DD/MM/YYYY, HH:mm')}
                   </div>
                 </div>
               </div>
@@ -559,139 +563,139 @@ const EditJobs = () => {
           </form>
 
           {/* Phần danh sách báo cáo liên quan */}
-        </div>
-      )}
-      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mt-10">
-        <div className="py-6 px-4 md:px-6 xl:px-7.5">
-          <div className="flex items-center justify-between">
-            <h4 className="text-xl font-semibold text-black">Báo cáo liên quan</h4>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-9 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-9 md:px-6 2xl:px-7.5">
-          <div className="col-span-2 flex items-center">
-            <p className="font-medium">Người báo cáo</p>
-          </div>
-          <div className="col-span-2 hidden items-center sm:flex">
-            <p className="font-medium">Lý do</p>
-          </div>
-          <div className="col-span-2 flex items-center">
-            <p className="font-medium">Phân loại</p>
-          </div>
-          <div className="col-span-2 hidden sm:flex items-center">
-            <p className="font-medium">Hành động</p>
-          </div>
-          <div className="col-span-1 flex items-center">
-            <p className="font-medium">Dữ liệu tốt</p>
-          </div>
-        </div>
-
-        <div>
-          {reportData.length === 0 ? (
-            <div className="py-4 px-4 text-center text-gray-500">
-              Không có báo cáo nào cho tin tuyển dụng này.
+          <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mt-10">
+            <div className="py-6 px-4 md:px-6 xl:px-7.5">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xl font-semibold text-black">Báo cáo liên quan</h4>
+              </div>
             </div>
-          ) : (
-            reportData.map((item) => (
-              <div
-                className="grid grid-cols-9 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-9 md:px-6 2xl:px-7.5"
-                key={item._id}
-              >
-                <div className="col-span-2 flex items-center">
-                  <p className="text-sm text-blue-600">{item.email}</p>
+
+            <div className="grid grid-cols-9 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-9 md:px-6 2xl:px-7.5">
+              <div className="col-span-2 flex items-center">
+                <p className="font-medium">Người báo cáo</p>
+              </div>
+              <div className="col-span-2 hidden items-center sm:flex">
+                <p className="font-medium">Lý do</p>
+              </div>
+              <div className="col-span-2 flex items-center">
+                <p className="font-medium">Phân loại</p>
+              </div>
+              <div className="col-span-2 hidden sm:flex items-center">
+                <p className="font-medium">Hành động</p>
+              </div>
+              <div className="col-span-1 flex items-center">
+                <p className="font-medium">Dữ liệu tốt</p>
+              </div>
+            </div>
+
+            <div>
+              {reportData.length === 0 ? (
+                <div className="py-4 px-4 text-center text-gray-500">
+                  Không có báo cáo nào cho tin tuyển dụng này.
                 </div>
-                <div className="col-span-2 hidden items-center sm:flex">
-                  <p className="text-sm text-black truncate">{item.reason || 'Không có'}</p>
-                </div>
-                <div className="col-span-2 flex items-center">
-                  <p
-                    className={`text-sm ${item.category === 'Lừa đảo'
-                      ? 'text-red-500'
-                      : item.category === 'Nội dung không phù hợp'
-                        ? 'text-yellow-500'
-                        : item.category === 'Ứng xử không chuyên nghiệp'
-                          ? 'text-purple-500'
-                          : 'text-gray-500'
+              ) : (
+                reportData.map((item) => (
+                  <div
+                    className="grid grid-cols-9 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-9 md:px-6 2xl:px-7.5"
+                    key={item._id}
+                  >
+                    <div className="col-span-2 flex items-center">
+                      <p className="text-sm text-blue-600">{item.email}</p>
+                    </div>
+                    <div className="col-span-2 hidden items-center sm:flex">
+                      <p className="text-sm text-black truncate">{item.reason || 'Không có'}</p>
+                    </div>
+                    <div className="col-span-2 flex items-center">
+                      <p
+                        className={`text-sm ${item.category === 'Lừa đảo'
+                          ? 'text-red-500'
+                          : item.category === 'Nội dung không phù hợp'
+                            ? 'text-yellow-500'
+                            : item.category === 'Ứng xử không chuyên nghiệp'
+                              ? 'text-purple-500'
+                              : 'text-gray-500'
+                          }`}
+                      >
+                        {item.category}
+                      </p>
+                    </div>
+                    <div className="col-span-2 flex items-center">
+                      <select
+                        defaultValue=""
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value) {
+                            reclassifyReport(item._id, { category: value });
+                          }
+                        }}
+                        className="text-sm text-black border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                      >
+                        <option value="" disabled hidden>
+                          Gắn nhãn lại
+                        </option>
+                        <option value="Lừa đảo">Lừa đảo</option>
+                        <option value="Nội dung không phù hợp">Nội dung không phù hợp</option>
+                        <option value="Ứng xử không chuyên nghiệp">Ứng xử không chuyên nghiệp</option>
+                      </select>
+                    </div>
+                    <div className="col-span-1 flex items-center justify-center">
+                      <input
+                        type="checkbox"
+                        checked={item.isGoodForTraining || false}
+                        onChange={() =>
+                          reclassifyReport(item._id, { isGoodForTraining: !item.isGoodForTraining })
+                        }
+                        className="h-5 w-5 cursor-pointer accent-primary"
+                      />
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="py-6 px-4 md:px-6 xl:px-7.5 border-t border-stroke dark:border-strokedark">
+              <div className="flex items-center justify-between">
+                <h6 className="text-base font-semibold text-black">Tổng {totalItems} báo cáo</h6>
+                <div className="flex items-center justify-center gap-4">
+                  <select
+                    value={limit}
+                    onChange={(e) => setLimit(Number(e.target.value))}
+                    className="rounded border-[1.5px] border-stroke bg-transparent py-1 px-2 text-black outline-none transition focus:border-primary active:border-primary"
+                  >
+                    {displayOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={handlePrevClick}
+                    disabled={currentPage === 1}
+                    className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === 1 ? 'cursor-not-allowed bg-gray-300' : ''
                       }`}
                   >
-                    {item.category}
-                  </p>
-                </div>
-                <div className="col-span-2 flex items-center">
-                  <select
-                    defaultValue=""
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (value) {
-                        reclassifyReport(item._id, { category: value });
-                      }
-                    }}
-                    className="text-sm text-black border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    <ChevronLeft size={18} />
+                  </button>
+                  <p
+                    className="font-medium text-black mx-4"
+                    style={{ width: '100px', textAlign: 'center' }}
                   >
-                    <option value="" disabled hidden>
-                      Gắn nhãn lại
-                    </option>
-                    <option value="Lừa đảo">Lừa đảo</option>
-                    <option value="Nội dung không phù hợp">Nội dung không phù hợp</option>
-                    <option value="Ứng xử không chuyên nghiệp">Ứng xử không chuyên nghiệp</option>
-                  </select>
-                </div>
-                <div className="col-span-1 flex items-center justify-center">
-                  <input
-                    type="checkbox"
-                    checked={item.isGoodForTraining || false}
-                    onChange={() =>
-                      reclassifyReport(item._id, { isGoodForTraining: !item.isGoodForTraining })
-                    }
-                    className="h-5 w-5 cursor-pointer accent-primary"
-                  />
+                    {currentPage} / {totalPages} trang
+                  </p>
+                  <button
+                    onClick={handleNextClick}
+                    disabled={currentPage === totalPages}
+                    className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-300' : ''
+                      }`}
+                  >
+                    <ChevronRight size={18} />
+                  </button>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-
-        <div className="py-6 px-4 md:px-6 xl:px-7.5 border-t border-stroke dark:border-strokedark">
-          <div className="flex items-center justify-between">
-            <h6 className="text-base font-semibold text-black">Tổng {totalItems} báo cáo</h6>
-            <div className="flex items-center justify-center gap-4">
-              <select
-                value={limit}
-                onChange={(e) => setLimit(Number(e.target.value))}
-                className="rounded border-[1.5px] border-stroke bg-transparent py-1 px-2 text-black outline-none transition focus:border-primary active:border-primary"
-              >
-                {displayOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={handlePrevClick}
-                disabled={currentPage === 1}
-                className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === 1 ? 'cursor-not-allowed bg-gray-300' : ''
-                  }`}
-              >
-                <ChevronLeft size={18} />
-              </button>
-              <p
-                className="font-medium text-black mx-4"
-                style={{ width: '100px', textAlign: 'center' }}
-              >
-                {currentPage} / {totalPages} trang
-              </p>
-              <button
-                onClick={handleNextClick}
-                disabled={currentPage === totalPages}
-                className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-300' : ''
-                  }`}
-              >
-                <ChevronRight size={18} />
-              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 };

@@ -13,7 +13,7 @@ export type IJobDetail = {
     location: string;
     jobType: string;
     city: string;
-    level: string
+    level: []
     quantity: number;
     skills: [];
     salary: string;

@@ -252,8 +252,8 @@ const Jobs = () => {
                   </div>
 
                   <div className="col-span-1 hidden items-center sm:flex">
-                    <p className="text-sm text-black ">
-                      {item.level}
+                    <p className="text-sm text-black">
+                      {Array.isArray(item.level) ? item.level.join(', ') : item.level || 'Không xác định'}
                     </p>
                   </div>
                   <div className="col-span-1 flex items-center space-x-2">

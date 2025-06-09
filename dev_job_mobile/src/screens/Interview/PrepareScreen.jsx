@@ -76,8 +76,10 @@ export default function PrepareScreen({ route, navigation }) {
                 <View style={styles.jobDetails}>
                     <Text style={StyleShare.titleText16}>{job.jobId.name}</Text>
                     <Text style={styles.jobLabel}>Công ty: {job.companyId?.name || 'Không xác định'}</Text>
-                    <Text style={styles.jobLabel}>Cấp độ: {job.jobId.level}</Text>
-                    <Text style={styles.jobLabel}>Mức lương: {job.jobId.salary}</Text>
+                    <Text style={styles.jobLabel}>
+                        Cấp độ: {job?.jobId?.level.join(', ')}
+                    </Text>
+                    <Text style={styles.jobLabel}>Kĩ năng: {job?.jobId?.skills.join(', ')}</Text>
                 </View>
             </View>
 
@@ -152,7 +154,7 @@ export default function PrepareScreen({ route, navigation }) {
             {/* Policy Modal */}
             <Modal
                 isVisible={isPolicyModalVisible}
-                onBackdropPress={() => {}} // Prevent closing by tapping outside
+                onBackdropPress={() => { }} // Prevent closing by tapping outside
                 animationIn="slideInUp"
                 animationOut="slideOutDown"
                 backdropTransitionInTiming={500}

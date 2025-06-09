@@ -116,7 +116,9 @@ export default function JobSaved({ navigation }) {
 
                     <View style={StyleShare.technologyContainer}>
                         <Chip style={StyleShare.chip}>{item?.jobId?.city || 'N/A'}</Chip>
-                        <Chip style={StyleShare.chip}>{item?.jobId?.level || 'N/A'}</Chip>
+                        {item?.jobId?.level.map((level, index) => (
+                            <Chip key={index} style={StyleShare.chip}>{level || 'N/A'}</Chip>
+                        ))}
                         {item?.jobId?.skills.map((skill, index) => (
                             <Chip key={index} style={StyleShare.chip}>
                                 {skill || 'N/A'}

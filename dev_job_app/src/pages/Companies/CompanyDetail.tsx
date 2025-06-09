@@ -288,7 +288,9 @@ const CompanyDetail = () => {
                                         <p className="text-sm text-black">{item.salary || 'N/A'}</p>
                                     </div>
                                     <div className="col-span-1 flex items-center">
-                                        <p className="text-sm text-black">{item.level || 'N/A'}</p>
+                                        <p className="text-sm text-black">
+                                            {Array.isArray(item.level) ? item.level.join(', ') : item.level || 'N/A'}
+                                        </p>
                                     </div>
                                     <div className="col-span-1 flex items-center">
                                         <p className="text-sm text-black">

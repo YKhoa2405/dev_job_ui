@@ -7,7 +7,7 @@ import { ICompanyList } from '../../types/company';
 import Select, { MultiValue } from 'react-select';
 import { azuze_map_primary_key_api } from '../../common/KEY';
 import Loader from '../../common/Loader';
-import { IJobDetail } from '../../types/job'; // Assuming this is where IJobDetail is defined
+import { IJobDetail } from '../../types/job';
 
 interface Province {
     id: string;
@@ -34,7 +34,7 @@ const CreateJobs = () => {
         startDate: new Date(),
         endDate: new Date(),
         salary: '',
-        level: '',
+        level: [], // Initialize as an empty array
         quantity: 1,
         jobType: '',
         city: '',
@@ -63,7 +63,6 @@ const CreateJobs = () => {
     ];
 
     const levelOptions = [
-        { value: '', label: 'Chọn level' },
         { value: 'Intern', label: 'Intern' },
         { value: 'Fresher', label: 'Fresher' },
         { value: 'Junior', label: 'Junior' },
@@ -88,7 +87,6 @@ const CreateJobs = () => {
     }, []);
 
     useEffect(() => {
-        // Custom debounce implementation
         const timer = setTimeout(() => {
             updateLocationDetail();
         }, 500);
@@ -173,11 +171,11 @@ const CreateJobs = () => {
     }, []);
 
     const handleSkillChange = useCallback((selected: MultiValue<Option>) => {
-        if (selected && selected.length > 0) {
-            setJobData(prev => ({ ...prev, skills: selected.map(option => option.value) as [] }));
-        } else {
-            setJobData(prev => ({ ...prev, skills: [] }));
-        }
+        setJobData(prev => ({ ...prev, skills: selected.map(option => option.value) }));
+    }, []);
+
+    const handleLevelChange = useCallback((selected: MultiValue<Option>) => {
+        setJobData(prev => ({ ...prev, level: selected.map(option => option.value) }));
     }, []);
 
     const getCoordinatesFromAddress = async (locationDetail: string) => {
@@ -217,8 +215,7 @@ const CreateJobs = () => {
             const { latitude, longitude } = await getCoordinatesFromAddress(detail);
             setJobData(prev => ({
                 ...prev,
-                latitude,
-                longitude,
+                geoLocation: { type: 'Point', coordinates: [longitude, latitude] },
             }));
         }
     };
@@ -227,7 +224,7 @@ const CreateJobs = () => {
         e.preventDefault();
         const { name, companyId, salary, level, quantity, jobType, city, skills, requirement, description, location, startDate, endDate, isUrgent } = jobData;
 
-        if (!name || !companyId?._id || !salary || !level || !quantity || !jobType || !city || !skills?.length || !requirement || !description || !location) {
+        if (!name || !companyId?._id || !salary || !level?.length || !quantity || !jobType || !city || !skills?.length || !requirement || !description || !location) {
             toast.error('Vui lòng nhập đầy đủ thông tin bắt buộc!', { position: "top-right", autoClose: 3000 });
             return;
         }
@@ -242,7 +239,7 @@ const CreateJobs = () => {
             const token = localStorage.getItem("access_token");
             const payload = {
                 ...jobData,
-                companyId: jobData.companyId?._id, // Send only the ID
+                companyId: jobData.companyId?._id,
             };
 
             await authApi(token).post(endpoints['jobsAdmin'], payload, {
@@ -308,17 +305,21 @@ const CreateJobs = () => {
                                     </div>
                                     <div className="flex-1">
                                         <label className="mb-2.5 block text-black dark:text-white">Level <span className="text-meta-1">*</span></label>
-                                        <select
-                                            value={jobData.level}
-                                            onChange={(e) => setJobData(prev => ({ ...prev, level: e.target.value }))}
-                                            className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                            disabled={loading}
-                                        >
-                                            {levelOptions.map(option => (
-                                                <option key={option.value} value={option.value}>{option.label}</option>
-                                            ))}
-                                        </select>
+                                        <Select
+                                            styles={{ control: (base) => ({ ...base, padding: '0.3rem 1.0rem' }) }}
+                                            isMulti
+                                            options={levelOptions}
+                                            value={levelOptions.filter(option => jobData.level?.includes(option.value))}
+                                            onChange={handleLevelChange}
+                                            placeholder="Chọn level..."
+                                            closeMenuOnSelect={false}
+                                            className="custom-react-select"
+                                            classNamePrefix="react-select"
+                                            isDisabled={loading}
+                                        />
                                     </div>
+                                </div>
+                                <div className="flex space-x-4 mb-4.5">
                                     <div className="flex-1">
                                         <label className="mb-2.5 block text-black dark:text-white">Số lượng <span className="text-meta-1">*</span></label>
                                         <input
@@ -415,7 +416,6 @@ const CreateJobs = () => {
                                             className="custom-react-select"
                                             classNamePrefix="react-select"
                                             isDisabled={loading}
-
                                         />
                                     </div>
                                     <div className="flex-1">
@@ -476,7 +476,6 @@ const CreateJobs = () => {
                                         Tin tuyển dụng Gấp
                                     </label>
                                 </div>
-
 
                                 <div className="mb-6">
                                     <label className="mb-2.5 block text-black dark:text-white">Mô tả <span className="text-meta-1">*</span></label>

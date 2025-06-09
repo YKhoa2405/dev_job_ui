@@ -350,9 +350,11 @@ export default function CompanyDetail({ navigation, route }) {
                     </View>
                     <View style={StyleShare.technologyContainer}>
                         <Chip style={StyleShare.chip}>{item.city}</Chip>
-                        <Chip style={StyleShare.chip}>{item.level}</Chip>
-                        {item.skills?.map((skill, index) => (
-                            <Chip key={index} style={StyleShare.chip}>{skill}</Chip>
+                        {item?.level?.map((level, index) => (
+                            <Chip key={index} style={StyleShare.chip}>{level || 'N/A'}</Chip>
+                        ))}
+                        {item?.skills?.map((skill, index) => (
+                            <Chip key={index} style={StyleShare.chip}>{skill || 'N/A'}</Chip>
                         ))}
                         {item.isUrgent && (
                             <Chip

@@ -31,7 +31,7 @@ export default function JobByCompany({ navigation, route }) {
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
 
-    const [level, setLevel] = useState(null);
+    const [level, setLevel] = useState([]);
     const [salary, setSalary] = useState(null);
     const [jobType, setJobType] = useState(null);
     const [active, setActive] = useState(null);
@@ -92,7 +92,7 @@ export default function JobByCompany({ navigation, route }) {
                     limit: limit,
                     name: searchKeywork,
                     isActive: active,
-                    level: level,
+                    level: level.length > 0 ? level : undefined,
                     salary: salary,
                     jobType: jobType,
                 },
@@ -180,7 +180,7 @@ export default function JobByCompany({ navigation, route }) {
     };
 
     const resetFilters = () => {
-        setLevel(null);
+        setLevel([]);
         setSalary(null);
         setJobType(null);
         setActive(null);
@@ -210,7 +210,9 @@ export default function JobByCompany({ navigation, route }) {
                     </View>
                     <View style={StyleShare.technologyContainer}>
                         <Chip style={StyleShare.chip}>{item?.city}</Chip>
-                        <Chip style={StyleShare.chip}>{item?.level}</Chip>
+                        {item?.level?.map((l, index) => (
+                            <Chip key={index} style={StyleShare.chip}>{l}</Chip>
+                        ))}
                         {item?.skills?.map((s, index) => (
                             <Chip key={index} style={StyleShare.chip}>{s}</Chip>
                         ))}

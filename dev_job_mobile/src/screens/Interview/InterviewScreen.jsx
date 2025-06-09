@@ -24,12 +24,11 @@ export default function InterviewScreen({ route, navigation }) {
       setLoading(true);
       try {
         const prompt = `
+          Bạn là chuyên gia phỏng vấn IT.
           Tạo ${numQuestions} câu hỏi phỏng vấn IT cho công việc:
           - Tên: "${jobDetails.name}"
-          - Cấp độ: "${jobDetails.level}"
           - Độ khó: "${difficulty}" (dễ, trung bình, hoặc khó)
           - Kỹ năng: "${jobDetails.skills?.join(', ') || 'Không xác định'}"
-          - Yêu cầu kỹ năng: "${jobDetails.requirements?.join(', ') || 'Không xác định'}"
           Trả về JSON: ["câu hỏi 1", "câu hỏi 2", ..., "câu hỏi ${numQuestions}"]
         `;
         const result = await geminiService(prompt);
@@ -174,7 +173,7 @@ export default function InterviewScreen({ route, navigation }) {
     setLoading(true);
     try {
       const prompt = `
-        Bạn là chuyên gia phỏng vấn IT. Công việc: "${jobDetails.name}", Cấp độ: "${jobDetails.level}", Độ khó: "${difficulty}", Kỹ năng: "${jobDetails.skills?.join(', ') || 'Không xác định'}".
+        Bạn là chuyên gia phỏng vấn IT. Công việc: "${jobDetails.name}",  Độ khó: "${difficulty}", Kỹ năng: "${jobDetails.skills?.join(', ') || 'Không xác định'}".
         Đánh giá các câu trả lời sau:
         ${questions.map((q, i) => `Câu hỏi ${i + 1}: "${q}"\nCâu trả lời: "${answers[i] || currentAnswer}"`).join('\n')}
         Hãy:

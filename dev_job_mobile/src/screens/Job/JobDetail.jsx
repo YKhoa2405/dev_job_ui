@@ -37,7 +37,7 @@ export default function JobDetail({ route, navigation }) {
             id: '4',
             icon: 'checkmark-circle-sharp',
             title: 'Kinh nghiệm',
-            info: jobDetail?.level || "N/A",
+            info: jobDetail?.level.join(', ') || "N/A",
         },
         {
             id: '2',
@@ -57,6 +57,12 @@ export default function JobDetail({ route, navigation }) {
             title: 'Ngày hết hạn',
             info: jobDetail?.endDate ? moment(jobDetail.endDate).format('DD/MM/YYYY') : "N/A",
         },
+        {
+            id: '6',
+            icon: 'podium',
+            title: 'Kĩ năng',
+            info: jobDetail?.skills?.join(',  ') || "N/A",
+        }
     ];
 
     const handleNavigateToCompany = () => {
@@ -153,23 +159,6 @@ export default function JobDetail({ route, navigation }) {
                                     </View>
                                 </View>
                             ))}
-                            {jobDetail?.skills && jobDetail.skills.length > 0 && (
-                                <View style={styles.infoContainer}>
-                                    <Icon name={'podium'} size={26} color={mainColor} />
-                                    <View style={styles.infoDesc}>
-                                        <Text style={{ color: textColor }}>Công nghệ</Text>
-                                        <View style={[StyleShare.flexCenter, { flexDirection: 'row', flexWrap: 'wrap' }]}>
-                                            {jobDetail.skills.map((item, index) => (
-                                                <View key={index} style={styles.skillTag}>
-                                                    <Text style={{ fontSize: 16, }}>{item}</Text>
-                                                </View>
-                                            ))}
-                                        </View>
-
-                                    </View>
-                                </View>
-                            )}
-
                         </View>
                         <View style={{ marginBottom: 20 }}>
                             <Text style={StyleShare.titleText20}>Mô tả công việc</Text>
