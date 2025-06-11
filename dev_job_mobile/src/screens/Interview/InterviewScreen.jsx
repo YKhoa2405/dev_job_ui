@@ -121,36 +121,37 @@ export default function InterviewScreen({ route, navigation }) {
 
   async function transcribeAudio(uri) {
     try {
+      // Azure Speech Service credentials
+      const speechKey = "1ahvACXLLoMmE3Umxiq9wDfneS93QCnObP09K3ebGh7wk3IjpH5QJQQJ99BCAC3pKaRXJ3w3AAAYACOGkqDO"; // Thay bằng khóa Azure Speech
+      const speechRegion = "eastasia"; // Thay bằng khu vực (ví dụ: eastus)
+      const speechEndpoint = `https://${speechRegion}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=vi-VN`;
+
       // Read the audio file as a blob
       const response = await fetch(uri);
       const audioBlob = await response.blob();
 
-      // Convert blob to base64 for Gemini API
-      const arrayBuffer = await audioBlob.arrayBuffer();
-      const base64Audio = Buffer.from(arrayBuffer).toString('base64');
-
-      // Prepare the payload for Gemini API
-      const prompt = `
-        Transcribe the following audio content to text in Vietnamese (vi-VN).
-        The audio is a response to an IT interview question.
-        Return the transcribed text as a string.
-      `;
-      const payload = {
-        prompt,
-        audio: {
-          data: base64Audio,
-          mimeType: 'audio/wav',
-        },
+      // Prepare the request to Azure Speech-to-Text REST API
+      const headers = {
+        'Ocp-Apim-Subscription-Key': speechKey,
+        'Content-Type': 'audio/wav',
+        'Accept': 'application/json',
       };
 
-      // Call Gemini API for transcription
-      const result = await geminiService(payload);
+      // Call Azure Speech-to-Text API
+      const apiResponse = await fetch(speechEndpoint, {
+        method: 'POST',
+        headers: headers,
+        body: audioBlob,
+      });
 
-      if (result && result !== 'Không có phản hồi từ AI.') {
-        setCurrentAnswer(result);
+      const result = await apiResponse.json();
+
+      if (apiResponse.ok && result.RecognitionStatus === 'Success') {
+        const transcribedText = result.DisplayText;
+        setCurrentAnswer(transcribedText);
       } else {
         setCurrentAnswer('Không nhận diện được nội dung.');
-        ToastMess({ type: 'warning', text1: 'Không nhận diện được giọng nói.' });
+        ToastMess({ type: 'error', text1: 'Không nhận diện được giọng nói.' });
       }
     } catch (err) {
       console.error('Lỗi chuyển giọng nói:', err);
@@ -173,7 +174,7 @@ export default function InterviewScreen({ route, navigation }) {
     setLoading(true);
     try {
       const prompt = `
-        Bạn là chuyên gia phỏng vấn IT. Công việc: "${jobDetails.name}",  Độ khó: "${difficulty}", Kỹ năng: "${jobDetails.skills?.join(', ') || 'Không xác định'}".
+        Bạn là chuyên gia phỏng vấn IT. Công việc: "${jobDetails.name}", Độ khó: "${difficulty}", Kỹ năng: "${jobDetails.skills?.join(', ') || 'Không xác định'}".
         Đánh giá các câu trả lời sau:
         ${questions.map((q, i) => `Câu hỏi ${i + 1}: "${q}"\nCâu trả lời: "${answers[i] || currentAnswer}"`).join('\n')}
         Hãy:

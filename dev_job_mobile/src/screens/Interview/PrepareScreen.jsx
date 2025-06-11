@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { grey, mainColor, textColor, white } from '../../assets/themes/Color';
+import { ToastMess } from '../../components/ToastMess';
 
 export default function PrepareScreen({ route, navigation }) {
     const { job } = route.params;
@@ -55,6 +56,10 @@ export default function PrepareScreen({ route, navigation }) {
 
     // Handle start button
     const handleStart = () => {
+        if (!numQuestions || !difficulty) {
+            ToastMess({ type: 'error', text1: 'Vui lòng chọn chọn số lượng câu hỏi và độ khó.' });
+            return;
+        };
         if (policyAccepted && Object.values(todos).every((v) => v)) {
             navigation.navigate('InterviewScreen', {
                 job,

@@ -56,16 +56,16 @@ export default function ResumeTools({ navigation }) {
                 });
 
                 const token = await AsyncStorage.getItem('access_token');
-                const res = await authApi(token).post(endpoints['uploadCV'], formData, {
+                await authApi(token).post(endpoints['uploadCV'], formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
                 });
 
                 dispatch(fetchListCvByUser(user?._id));
-                if (res.data.data.url) {
-                    await handScanCV(res.data.data.url, res.data.data._id);
-                }
+                // if (res.data.data.url) {
+                //     await handScanCV(res.data.data.url, res.data.data._id);
+                // }
 
             }
         } catch (error) {
