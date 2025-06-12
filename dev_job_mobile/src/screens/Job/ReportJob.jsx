@@ -154,7 +154,6 @@ const ReportJob = ({ navigation, route }) => {
                         value={phone}
                         onChangeText={setPhone}
                         keyboardType="phone-pad"
-                        editable={false}
                     />
                     <Text style={styles.label}>Địa chỉ <Text style={styles.required}>*</Text></Text>
                     <TextInput

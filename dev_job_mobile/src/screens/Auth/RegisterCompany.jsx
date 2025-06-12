@@ -26,10 +26,17 @@ export default function RegisterClient({ navigation, route }) {
         return emailRegex.test(email);
     };
 
-    const validatePhone = (phone) => {
-        // Chấp nhận: bắt đầu bằng +84, theo sau là đầu số hợp lệ và 8 chữ số
-        const phoneRegex = /^\+84[3|5|7|8|9][0-9]{8}$/;
-        return phoneRegex.test(phone);
+    const normalizePhoneNumber = (inputPhone) => {
+        const digits = inputPhone.replace(/\D/g, ""); // chỉ giữ số
+        if (digits.startsWith("0")) {
+            return "+84" + digits.slice(1); // thay 0 đầu bằng +84
+        } else if (digits.startsWith("84")) {
+            return "+84" + digits.slice(2); // loại bỏ 84 đầu (nếu có), thêm lại +84
+        } else if (digits.startsWith("8") && digits.length === 9) {
+            return "+84" + digits; // nếu là số bắt đầu bằng 8 và đủ 9 số
+        } else {
+            return "+84" + digits; // fallback: thêm +84 vào đầu
+        }
     };
 
     const validatePassword = (password) => {
@@ -48,10 +55,7 @@ export default function RegisterClient({ navigation, route }) {
             return;
         }
 
-        // if (!validatePhone(phone)) {
-        //     ToastMess({ type: "error", text1: "Số điện thoại không hợp lệ." });
-        //     return;
-        // }
+        const formattedPhone = normalizePhoneNumber(phone);
 
         if (!validatePassword(password)) {
             ToastMess({
@@ -67,13 +71,14 @@ export default function RegisterClient({ navigation, route }) {
         }
 
         setLoading(true);
-
-        const formRegister = new URLSearchParams();
-        formRegister.append("email", email);
-        formRegister.append("name", userName);
-        formRegister.append("phone", phone);
-        formRegister.append("password", password);
-        formRegister.append("method", method); // Thêm method
+        console.log(method)
+        const formRegister = {
+            email,
+            name: userName,
+            phone: formattedPhone,
+            password,
+            method,
+        };
 
         try {
             const res = await API.post(endpoints["registerUser"], formRegister, {
@@ -134,7 +139,7 @@ export default function RegisterClient({ navigation, route }) {
                     />
                     <Text style={styles.textInput}>Số điện thoại</Text>
                     <Input
-                        placeholder="Số điện thoại (0866695643 hoặc 866695643)"
+                        placeholder="Số điện thoại +84"
                         value={phone}
                         onChangeText={setPhone}
                         autoCapitalize="none"

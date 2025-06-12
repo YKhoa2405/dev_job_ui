@@ -60,7 +60,7 @@ export default function ResumeByJob({ navigation, route }) {
         };
 
         const renderCandidateItem = ({ item }) => (
-            <TouchableWithoutFeedback key={item._id} onPress={() => { navigation.navigate('CandidatesProfile', { userId: item.userId }) }}>
+            <TouchableWithoutFeedback key={item?._id} onPress={() => { navigation.navigate('CandidatesProfile', { userId: item.userId }) }}>
                 <View style={{
                     backgroundColor: white,
                     borderRadius: 10,
@@ -315,7 +315,7 @@ export default function ResumeByJob({ navigation, route }) {
                 // Cập nhật trạng thái trong danh sách
                 setResumeData((prev) =>
                     prev.map((resume) =>
-                        resume._id === resumeId ? { ...resume, status: 'Đã xem' } : resume
+                        resume?._id === resumeId ? { ...resume, status: 'Đã xem' } : resume
                     )
                 );
             } catch (error) {
@@ -334,7 +334,7 @@ export default function ResumeByJob({ navigation, route }) {
                 <TouchableWithoutFeedback
                     onPress={() => {
                         if (item.status !== 'Chấp nhận' && item.status !== 'Từ chối') {
-                            markAsViewed(item._id);
+                            markAsViewed(item?._id);
                         }
                         navigation.navigate("ResumeView", { resumeDetail: item });
                     }}
@@ -458,7 +458,7 @@ export default function ResumeByJob({ navigation, route }) {
                     <FlatList
                         extraData={resumeData}
                         data={resumeData}
-                        keyExtractor={(item) => item._id}
+                        keyExtractor={(item) => item?._id}
                         renderItem={renderItem}
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{ paddingBottom: 15 }}

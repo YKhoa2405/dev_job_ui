@@ -31,9 +31,17 @@ export default function RegisterClient({ navigation, route }) {
         return emailRegex.test(email);
     };
 
-    const validatePhone = (phone) => {
-        const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/g;
-        return phoneRegex.test(phone);
+    const normalizePhoneNumber = (inputPhone) => {
+        const digits = inputPhone.replace(/\D/g, ""); // chỉ giữ số
+        if (digits.startsWith("0")) {
+            return "+84" + digits.slice(1); // thay 0 đầu bằng +84
+        } else if (digits.startsWith("84")) {
+            return "+84" + digits.slice(2); // loại bỏ 84 đầu (nếu có), thêm lại +84
+        } else if (digits.startsWith("8") && digits.length === 9) {
+            return "+84" + digits; // nếu là số bắt đầu bằng 8 và đủ 9 số
+        } else {
+            return "+84" + digits; // fallback: thêm +84 vào đầu
+        }
     };
 
     const validatePassword = (password) => {
@@ -54,11 +62,8 @@ export default function RegisterClient({ navigation, route }) {
             return;
         }
 
-        // Xác thực số điện thoại
-        // if (!validatePhone(phone)) {
-        //     ToastMess({ type: "error", text1: "Số điện thoại không hợp lệ." });
-        //     return;
-        // }
+        const formattedPhone = normalizePhoneNumber(phone);
+
 
         // Xác thực mật khẩu
         if (!validatePassword(password)) {
@@ -80,7 +85,7 @@ export default function RegisterClient({ navigation, route }) {
         const formRegister = new URLSearchParams();
         formRegister.append("email", email);
         formRegister.append("name", userName);
-        formRegister.append("phone", phone);
+        formRegister.append("phone", formattedPhone);
         formRegister.append("password", password);
         formRegister.append("method", method); // Thêm trường method
 

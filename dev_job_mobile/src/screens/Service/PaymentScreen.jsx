@@ -62,6 +62,7 @@ export default function PaymentScreen({ navigation, route }) {
                 // Lưu thông tin thanh toán
                 const requestParams = new URLSearchParams({
                     companyId,
+                    serviceId,
                     vnp_BankCode,
                     vnp_Amount: amountInVND,
                     vnp_PayDate,

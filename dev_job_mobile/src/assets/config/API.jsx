@@ -47,11 +47,12 @@ export const endpoints = {
     'paymentUrl': '/payments/create',
     'paymentSave': '/payments/save',
     'paymentByCompany': (companyId) => `/payments/${companyId}`,
+    'paymentRefunt': '/payments/refund',
 
     // order
     'order': '/orders',
+    'orderDetailByCompany': (companyId, serviceId) => `/orders/${companyId}/service/${serviceId}/detail`,
     'orderByCompany': (companyId) => `/orders/${companyId}`,
-
 
     // company
     'companies': '/companies',

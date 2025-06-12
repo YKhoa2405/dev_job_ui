@@ -69,6 +69,7 @@ import messaging from '@react-native-firebase/messaging';
 import { setFcmToken } from './src/redux/slice/userSlice';
 import { createRef } from 'react';
 import { useEffect } from 'react';
+import RefundRequestScreen from './src/screens/Service/RefundRequestScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -237,6 +238,8 @@ export default function App() {
           <Stack.Screen name="Services" component={Services} />
           <Stack.Screen name="ServicesByCompany" component={ServicesByCompany} />
           <Stack.Screen name="PaymentScreen" component={PaymentScreen} />
+          <Stack.Screen name="RefundRequestScreen" component={RefundRequestScreen} />
+
 
         </Stack.Navigator>
         <Toast />

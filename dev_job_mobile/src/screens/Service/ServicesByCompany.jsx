@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, memo } from "react";
-import { View, Text, TouchableWithoutFeedback, StyleSheet, FlatList, Image, TextInput, TouchableOpacity } from "react-native";
+import { View, Text, TouchableWithoutFeedback, StyleSheet, FlatList, Image, TextInput, TouchableOpacity, Alert } from "react-native";
 import UIHeader from "../../components/UIHeader";
 import StyleShare from "../../assets/themes/StyleShare";
 import { grey, mainColor, orange, white, green, textColor } from "../../assets/themes/Color";
@@ -53,29 +53,48 @@ const ServiceItem = memo(({ item, navigation, companyId }) => (
     </View>
 ));
 
-const PaymentItem = memo(({ item }) => (
-    <TouchableWithoutFeedback>
-        <View style={StyleShare.jobItemContainer}>
-            <View style={StyleShare.flexBetween}>
-                <Text style={{ fontWeight: '500', color: textColor }}>
-                    {moment(item.vnp_PayDate, "YYYYMMDDHHmmss").format("DD-MM-YYYY HH:mm")}
-                </Text>
-                <Text style={{ fontWeight: '500', color: item.vnp_TransactionStatus === 'Success' ? green : '#dc3545' }}>
-                    {item.vnp_TransactionStatus === 'Success' ? 'Thành công' : 'Thất bại'}
-                </Text>
+const PaymentItem = memo(({ item, navigation }) => {
+    const canRequestRefund = item.vnp_TransactionStatus === 'Success';
+
+    return (
+        <TouchableWithoutFeedback>
+            <View style={StyleShare.jobItemContainer}>
+                <View style={StyleShare.flexBetween}>
+                    <Text style={{ fontWeight: '500', color: textColor }}>
+                        {moment(item.vnp_PayDate, "YYYYMMDDHHmmss").format("DD-MM-YYYY HH:mm")}
+                    </Text>
+                    <Text
+                        style={{
+                            fontWeight: '500',
+                            color: item.vnp_TransactionStatus === 'Success' ? green : '#dc3545',
+                        }}
+                    >
+                        {item.vnp_TransactionStatus === 'Success' ? 'Thành công' : 'Thất bại'}
+                    </Text>
+                </View>
+                <View style={{ marginTop: 10 }}>
+                    <Text style={StyleShare.titleText16}>
+                        {(item.vnp_OrderInfo).replace(/\+/g, ' ')}
+                    </Text>
+                    <Text style={{ fontWeight: '500', color: textColor, marginVertical: 5 }}>
+                        Mã giao dịch: {item.vnp_TransactionNo}
+                    </Text>
+                    <Text style={{ fontWeight: '500', color: textColor }}>
+                        Số tiền: <Text style={{ color: green }}>{formatVND(item.vnp_Amount)}</Text>
+                    </Text>
+                </View>
+                {/* {canRequestRefund && (
+                    <TouchableOpacity
+                        style={[StyleShare.buttonDetailApply, { marginTop: 10, backgroundColor: mainColor }]}
+                        onPress={() => navigation.navigate('RefundRequestScreen', { payment: item })}
+                    >
+                        <Text style={{ fontWeight: '500', color: white }}>Yêu cầu hoàn tiền</Text>
+                    </TouchableOpacity>
+                )} */}
             </View>
-            <View style={{ marginTop: 10 }}>
-                <Text style={StyleShare.titleText16}>{(item.vnp_OrderInfo).replace(/\+/g, ' ')}</Text>
-                <Text style={{ fontWeight: '500', color: textColor, marginVertical: 5 }}>
-                    Mã giao dịch: {item.vnp_TransactionNo}
-                </Text>
-                <Text style={{ fontWeight: '500', color: textColor }}>
-                    Số tiền: <Text style={{ color: green }}>{formatVND(item.vnp_Amount)}</Text>
-                </Text>
-            </View>
-        </View>
-    </TouchableWithoutFeedback>
-));
+        </TouchableWithoutFeedback>
+    );
+});
 
 export default function ServicesByCompany({ navigation, route }) {
     const Tab = createMaterialTopTabNavigator();
@@ -212,34 +231,103 @@ export default function ServicesByCompany({ navigation, route }) {
                         />
                     </View>
                     <TouchableOpacity
-                        style={[StyleShare.buttonDetailApply, { marginTop: 10,backgroundColor:orange }]}
+                        style={[StyleShare.buttonDetailApply, { marginTop: 10, backgroundColor: orange }]}
                         onPress={exportToCSV}
                     >
                         <Text style={{ fontWeight: '500', color: 'white' }}>Xuất file CSV</Text>
                     </TouchableOpacity>
                 </View>
                 {loading ? <Loading /> : (
+                    <>
+
+                        <FlatList
+                            data={paymentData}
+                            keyExtractor={(item) => item._id}
+                            renderItem={({ item }) => <PaymentItem item={item} navigation={navigation} />}
+                            initialNumToRender={10}
+                            maxToRenderPerBatch={10}
+                            windowSize={5}
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={{ paddingBottom: 15 }}
+                            onEndReached={loadMorePayment}
+                            onEndReachedThreshold={0.7}
+                            ListEmptyComponent={
+                                <View style={{ marginTop: 50, alignItems: 'center' }}>
+                                    <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
+                                    <Text style={StyleShare.titleText20}>Bạn chưa có bất kỳ giao dịch nào</Text>
+                                    <Text style={{ padding: 20, textAlign: 'center' }}>
+                                        Bạn chưa có bất kỳ giao dịch nào, hãy mua dịch vụ để tăng hiệu quả cho quá trình tuyển dụng
+                                    </Text>
+                                </View>
+                            }
+                            ListFooterComponent={loadingMore && <Loading />}
+                        />
+                    </>
+
+                )}
+            </View>
+        );
+    };
+
+    const Tab3 = () => {
+        const [refundRequests, setRefundRequests] = useState([]);
+        const [loading, setLoading] = useState(false);
+
+        const fetchRefundRequests = useCallback(async () => {
+            setLoading(true);
+            try {
+                const token = await AsyncStorage.getItem('access_token');
+                const res = await authApi(token).get(endpoints['refundRequests'](companyId));
+                setRefundRequests(res.data.data.result || []);
+            } catch (error) {
+                console.log('Fetch refund requests error:', error);
+            } finally {
+                setLoading(false);
+            }
+        }, [companyId]);
+
+        useEffect(() => {
+            fetchRefundRequests();
+        }, [fetchRefundRequests]);
+
+        return (
+            <View style={{ flex: 1, marginTop: 10 }}>
+                {loading ? <Loading /> : (
                     <FlatList
-                        data={paymentData}
+                        data={refundRequests}
                         keyExtractor={(item) => item._id}
-                        renderItem={({ item }) => <PaymentItem item={item} />}
-                        initialNumToRender={10}
-                        maxToRenderPerBatch={10}
-                        windowSize={5}
-                        showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingBottom: 15 }}
-                        onEndReached={loadMorePayment}
-                        onEndReachedThreshold={0.7}
-                        ListEmptyComponent={
-                            <View style={{ marginTop: 50, alignItems: 'center' }}>
-                                <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
-                                <Text style={StyleShare.titleText20}>Bạn chưa có bất kỳ giao dịch nào</Text>
-                                <Text style={{ padding: 20, textAlign: 'center' }}>
-                                    Bạn chưa có bất kỳ giao dịch nào, hãy mua dịch vụ để tăng hiệu quả cho quá trình tuyển dụng
+                        renderItem={({ item }) => (
+                            <View style={StyleShare.jobItemContainer}>
+                                <Text style={{ fontWeight: '500', color: textColor }}>
+                                    Mã giao dịch: {item.vnp_TxnRef}
+                                </Text>
+                                <Text style={{ fontWeight: '500', color: textColor, marginVertical: 5 }}>
+                                    Ngày yêu cầu: {moment(item.createdAt).format('DD-MM-YYYY HH:mm')}
+                                </Text>
+                                <Text style={{ fontWeight: '500', color: textColor }}>
+                                    Số tiền: <Text style={{ color: green }}>{formatVND(item.vnp_Amount)}</Text>
+                                </Text>
+                                <Text style={{ fontWeight: '500', color: textColor, marginVertical: 5 }}>
+                                    Lý do: {item.refundReason}
+                                </Text>
+                                <Text
+                                    style={{
+                                        fontWeight: '500',
+                                        color:
+                                            item.refundStatus === 'Success' ? green :
+                                                item.refundStatus === 'Failed' ? '#dc3545' : orange,
+                                    }}
+                                >
+                                    Trạng thái: {item.refundStatus === 'Success' ? 'Thành công' : item.refundStatus === 'Failed' ? 'Thất bại' : 'Đang xử lý'}
                                 </Text>
                             </View>
+                        )}
+                        ListEmptyComponent={
+                            <View style={{ marginTop: 50, alignItems: 'center' }}>
+                                <Image source={require('../../assets/images/save.png')} style={StyleShare.imageNullData} />
+                                <Text style={StyleShare.titleText20}>Chưa có yêu cầu hoàn tiền</Text>
+                            </View>
                         }
-                        ListFooterComponent={loadingMore && <Loading />}
                     />
                 )}
             </View>
@@ -264,7 +352,8 @@ export default function ServicesByCompany({ navigation, route }) {
                     }}
                 >
                     <Tab.Screen name="Dịch vụ đã áp dụng" component={Tab1} />
-                    <Tab.Screen name={'Lịch sử giao dịch'} component={Tab2} />
+                    <Tab.Screen name="Lịch sử giao dịch" component={Tab2} />
+                    {/* <Tab.Screen name="Yêu cầu hoàn tiền" component={Tab3} /> */}
                 </Tab.Navigator>
             </View>
         </View>

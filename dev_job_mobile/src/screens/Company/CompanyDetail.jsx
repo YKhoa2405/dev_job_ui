@@ -27,13 +27,23 @@ import { useSelector } from "react-redux";
 import Input from "../../components/Input";
 
 export default function CompanyDetail({ navigation, route }) {
-    const { _id } = route.params;
+    const { _id } = route?.params;
     const [loading, setLoading] = useState(true);
     const [companyDetail, setCompanyDetail] = useState(null);
     const [saved, setSaved] = useState(false);
     const user = useSelector((state) => state.user.user);
     const Tab = createMaterialTopTabNavigator();
 
+    if (!_id) {
+        return (
+            <View style={StyleShare.container}>
+                <UIHeader leftIcon={"arrow-back"} handleLeftIcon={() => navigation.goBack()} />
+                <Text style={{ color: textColor, textAlign: 'center', marginTop: 20 }}>
+                    Lỗi: Không tìm thấy ID công ty.
+                </Text>
+            </View>
+        );
+    }
     useEffect(() => {
         fetchCompanyDetail();
         checkFollowStatus();
