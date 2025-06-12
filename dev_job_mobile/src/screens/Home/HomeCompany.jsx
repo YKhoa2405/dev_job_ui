@@ -20,7 +20,6 @@ import { Badge } from "react-native-paper";
 export default function HomeCompany({ navigation }) {
   const dispatch = useDispatch();
   const { companyByUser, loading } = useSelector((state) => state.company);
-
   useEffect(() => {
     dispatch(fetchCompanyByUser());
   }, []);
@@ -95,7 +94,7 @@ export default function HomeCompany({ navigation }) {
         navigation.navigate("JobByCompany", { companyId: companyByUser?._id });
         break;
       case 3:
-        navigation.navigate("CandidateSearch", { companyId: companyByUser?._id });
+        navigation.navigate("CandidateSearch", { companyId: companyByUser?._id, userId: companyByUser?.userId });
         break;
       case 4:
         navigation.navigate("CompanyStatistical", { companyId: companyByUser?._id });

@@ -253,7 +253,14 @@ export default function ResumeInput({ route, navigation }) {
         return;
       }
 
-      const prompt = `Viết mô tả học vấn cho sinh viên ngành ${major} tại ${school}, ngắn gọn, sử dụng gạch đầu dòng. Bỏ tiêu đề, chỉ liệt kê nội dung.`;
+      const prompt = `
+        You are a professional resume writer.
+        Write a concise **Vietnamese** education description for a student majoring in "${major}" at "${school}".
+        Use bullet points only.
+        Do not include any titles or headings.
+        Return only the bullet points in Vietnamese.
+        `;
+
       const response = await geminiService(prompt);
       handleEducationChange('description', response);
     } catch (error) {

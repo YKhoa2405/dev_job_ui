@@ -12,7 +12,6 @@ export default function RegisterSendOtp({ navigation, route }) {
     const { email, password, name, phone, role, method } = route.params;
     const [otp, setOtp] = useState("");
     const [loading, setLoading] = useState(false);
-    console.log(route.params);
     const handleVerify = async () => {
         if (!otp) {
             ToastMess({ type: "error", text1: "Vui lòng nhập mã OTP." });

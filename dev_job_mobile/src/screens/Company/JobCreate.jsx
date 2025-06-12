@@ -247,8 +247,6 @@ export default function JobCreate({ navigation, route }) {
                 },
             });
 
-            console.log(res.data)
-
             // Chỉ hiển thị thông báo thành công nếu request thành công (status 2xx)
             if (res.status === 201 || res.status === 200) {
                 ToastMess({ type: 'success', text1: 'Thêm việc làm thành công.' });
@@ -267,7 +265,6 @@ export default function JobCreate({ navigation, route }) {
             } else {
                 ToastMess({ type: 'error', text1: 'Thêm việc làm thất bại. Vui lòng thử lại.' });
             }
-            console.log('Error:', error.response?.data || error.message);
         } finally {
             setLoading(false);
         }
@@ -295,7 +292,6 @@ export default function JobCreate({ navigation, route }) {
 
             const response = await geminiService(prompt);
             setDescription(response);
-            console.log(response);
         } catch (error) {
             console.error('Lỗi khi tạo mô tả công việc:', error);
         } finally {

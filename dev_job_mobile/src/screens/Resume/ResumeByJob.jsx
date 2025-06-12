@@ -289,7 +289,6 @@ export default function ResumeByJob({ navigation, route }) {
                     },
                 });
                 const data = res.data.data;
-                console.log(data);
                 if (currentPage === 1) {
                     setResumeData(data.result);
                 } else {

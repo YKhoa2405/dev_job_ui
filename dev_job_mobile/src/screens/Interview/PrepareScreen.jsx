@@ -2,25 +2,18 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, TouchableOpacity, StyleSheet } from 'react-native';
 import UIHeader from '../../components/UIHeader';
 import StyleShare from '../../assets/themes/StyleShare';
-import Icon from 'react-native-vector-icons/Ionicons';
-import Modal from 'react-native-modal';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { grey, mainColor, textColor, white } from '../../assets/themes/Color';
 import { ToastMess } from '../../components/ToastMess';
+import Modal from 'react-native-modal';
 
 export default function PrepareScreen({ route, navigation }) {
     const { job } = route.params;
 
     // State for todos
     const [todos, setTodos] = useState({
-        chooseMode: false,
-        prepareDevice: false,
         selectQuestions: false,
     });
-
-    // State for mode selection
-    const [mode, setMode] = useState('text');
-    const [isModeModalVisible, setModeModalVisible] = useState(false);
 
     // State for policy modal
     const [isPolicyModalVisible, setPolicyModalVisible] = useState(true);
@@ -57,13 +50,12 @@ export default function PrepareScreen({ route, navigation }) {
     // Handle start button
     const handleStart = () => {
         if (!numQuestions || !difficulty) {
-            ToastMess({ type: 'error', text1: 'Vui lòng chọn chọn số lượng câu hỏi và độ khó.' });
+            ToastMess({ type: 'error', text1: 'Vui lòng chọn số lượng câu hỏi và độ khó.' });
             return;
-        };
+        }
         if (policyAccepted && Object.values(todos).every((v) => v)) {
             navigation.navigate('InterviewScreen', {
                 job,
-                mode,
                 numQuestions,
                 difficulty,
             });
@@ -88,73 +80,47 @@ export default function PrepareScreen({ route, navigation }) {
                 </View>
             </View>
 
-            <View style={styles.content}>
-                {/* Step 1: Choose Mode */}
-                <View style={StyleShare.jobItemContainer}>
-                    <Pressable onPress={() => toggleTodo('chooseMode')} style={styles.checkboxContainer}>
-                        <View style={[styles.checkbox, todos.chooseMode && styles.checkboxChecked]}>
-                            {todos.chooseMode && <Text style={styles.checkmark}>✓</Text>}
-                        </View>
-                        <Text style={styles.label}>1. Chọn hình thức trả lời</Text>
-                    </Pressable>
-                    {todos.chooseMode && (
-                        <TouchableOpacity style={styles.selectBox} onPress={() => setModeModalVisible(true)}>
-                            <Text style={styles.selectText}>{mode === 'text' ? 'Text' : 'Voice'}</Text>
-                        </TouchableOpacity>
-                    )}
-                </View>
-
-                {/* Step 2: Prepare Device */}
-                <View style={StyleShare.jobItemContainer}>
-                    <Pressable onPress={() => toggleTodo('prepareDevice')} style={styles.checkboxContainer}>
-                        <View style={[styles.checkbox, todos.prepareDevice && styles.checkboxChecked]}>
-                            {todos.prepareDevice && <Text style={styles.checkmark}>✓</Text>}
-                        </View>
-                        <Text style={styles.label}>2. Chuẩn bị thiết bị (nếu dùng Voice)</Text>
-                    </Pressable>
-                </View>
-
-                {/* Step 3: Select Number of Questions and Difficulty */}
-                <View style={StyleShare.jobItemContainer}>
-                    <Pressable onPress={() => toggleTodo('selectQuestions')} style={styles.checkboxContainer}>
-                        <View style={[styles.checkbox, todos.selectQuestions && styles.checkboxChecked]}>
-                            {todos.selectQuestions && <Text style={styles.checkmark}>✓</Text>}
-                        </View>
-                        <Text style={styles.label}>3. Chọn số lượng câu hỏi và độ khó</Text>
-                    </Pressable>
-                    {todos.selectQuestions && (
-                        <View style={styles.dropdownContainer}>
-                            <DropDownPicker
-                                open={openQuestions}
-                                value={numQuestions}
-                                items={questionItems}
-                                setOpen={setOpenQuestions}
-                                setValue={setNumQuestions}
-                                setItems={setQuestionItems}
-                                placeholder="Chọn số lượng câu hỏi"
-                                containerStyle={styles.dropdownWrapper}
-                                style={styles.dropdown}
-                                dropDownContainerStyle={StyleShare.dropDownContainerStyle}
-                                zIndex={3000}
-                                zIndexInverse={1000}
-                            />
-                            <DropDownPicker
-                                open={openDifficulty}
-                                value={difficulty}
-                                items={difficultyItems}
-                                setOpen={setOpenDifficulty}
-                                setValue={setDifficulty}
-                                setItems={setDifficultyItems}
-                                placeholder="Chọn độ khó"
-                                style={styles.dropdown}
-                                dropDownContainerStyle={StyleShare.dropDownContainerStyle}
-                                zIndex={2000}
-                                zIndexInverse={2000}
-                            />
-                        </View>
-                    )}
-                </View>
+            {/* Step 1: Select Number of Questions and Difficulty */}
+            <View style={StyleShare.jobItemContainer}>
+                <Pressable onPress={() => toggleTodo('selectQuestions')} style={styles.checkboxContainer}>
+                    <View style={[styles.checkbox, todos.selectQuestions && styles.checkboxChecked]}>
+                        {todos.selectQuestions && <Text style={styles.checkmark}>✓</Text>}
+                    </View>
+                    <Text style={styles.label}>1. Chọn số lượng câu hỏi và độ khó</Text>
+                </Pressable>
+                {todos.selectQuestions && (
+                    <View style={styles.dropdownContainer}>
+                        <DropDownPicker
+                            open={openQuestions}
+                            value={numQuestions}
+                            items={questionItems}
+                            setOpen={setOpenQuestions}
+                            setValue={setNumQuestions}
+                            setItems={setQuestionItems}
+                            placeholder="Chọn số lượng câu hỏi"
+                            containerStyle={styles.dropdownWrapper}
+                            style={styles.dropdown}
+                            dropDownContainerStyle={StyleShare.dropDownContainerStyle}
+                            zIndex={3000}
+                            zIndexInverse={1000}
+                        />
+                        <DropDownPicker
+                            open={openDifficulty}
+                            value={difficulty}
+                            items={difficultyItems}
+                            setOpen={setOpenDifficulty}
+                            setValue={setDifficulty}
+                            setItems={setDifficultyItems}
+                            placeholder="Chọn độ khó"
+                            style={styles.dropdown}
+                            dropDownContainerStyle={StyleShare.dropDownContainerStyle}
+                            zIndex={2000}
+                            zIndexInverse={2000}
+                        />
+                    </View>
+                )}
             </View>
+
 
             {/* Policy Modal */}
             <Modal
@@ -173,46 +139,6 @@ export default function PrepareScreen({ route, navigation }) {
                     </Text>
                     <TouchableOpacity style={styles.acceptButton} onPress={handleAcceptPolicy}>
                         <Text style={styles.acceptButtonText}>Đồng ý</Text>
-                    </TouchableOpacity>
-                </View>
-            </Modal>
-
-            {/* Mode Selection Modal */}
-            <Modal
-                isVisible={isModeModalVisible}
-                onBackdropPress={() => setModeModalVisible(false)}
-                animationIn="slideInUp"
-                animationOut="slideOutDown"
-                backdropTransitionInTiming={500}
-                backdropTransitionOutTiming={500}
-                style={StyleShare.modalStyle}
-            >
-                <View style={styles.modalContent}>
-                    <View style={[StyleShare.flexBetween, { marginVertical: 15 }]}>
-                        <Text style={StyleShare.titleText20}>Chọn hình thức trả lời</Text>
-                        <TouchableOpacity onPress={() => setModeModalVisible(false)}>
-                            <Icon name="close" size={26} color={'red'} />
-                        </TouchableOpacity>
-                    </View>
-                    <TouchableOpacity
-                        style={styles.option}
-                        onPress={() => {
-                            setMode('text');
-                            setModeModalVisible(false);
-                        }}
-                    >
-                        <Icon name="text-outline" size={20} color={textColor} />
-                        <Text style={styles.optionText}>Text</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.option}
-                        onPress={() => {
-                            setMode('voice');
-                            setModeModalVisible(false);
-                        }}
-                    >
-                        <Icon name="mic-outline" size={20} color={textColor} />
-                        <Text style={styles.optionText}>Voice</Text>
                     </TouchableOpacity>
                 </View>
             </Modal>
@@ -238,11 +164,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: white,
-    },
-    content: {
-        flex: 1,
-        marginHorizontal: 20,
-        marginTop: 20,
     },
     jobDetails: {
         paddingVertical: 10,
@@ -280,19 +201,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: textColor,
     },
-    selectBox: {
-        marginTop: 12,
-        padding: 12,
-        borderWidth: 1,
-        borderColor: mainColor,
-        borderRadius: 8,
-        backgroundColor: grey,
-    },
-    selectText: {
-        fontSize: 16,
-        color: textColor,
-        textAlign: 'center',
-    },
     dropdownContainer: {
         marginTop: 12,
     },
@@ -328,18 +236,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: white,
         fontWeight: 'bold',
-    },
-    option: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: grey,
-    },
-    optionText: {
-        marginLeft: 15,
-        color: textColor,
-        fontSize: 16,
     },
     startButtonContainer: {
         position: 'absolute',

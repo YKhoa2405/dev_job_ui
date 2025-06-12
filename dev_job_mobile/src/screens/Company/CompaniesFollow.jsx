@@ -45,7 +45,6 @@ export default function CompaniesFollow({ navigation }) {
             setCurrentPage(data.meta.currentPage);
             setTotalPages(data.meta.totalPages);
             setTotalItems(data.meta.totalItems);
-            console.log(data.result)
         } catch (error) {
             console.log('Error fetching companies:', error);
         } finally {
@@ -69,7 +68,6 @@ export default function CompaniesFollow({ navigation }) {
                         try {
                             const token = await AsyncStorage.getItem("access_token");
                             const res = await authApi(token).delete(endpoints['followDetail'](companyId));
-                            console.log(res.data)
                             if (res.data.statusCode === 200) {
                                 setCompanies(prevJobs => prevJobs.filter(c => c.companyId._id !== companyId));
                                 setTotalItems(prevTotalItems => prevTotalItems - 1);
@@ -77,7 +75,6 @@ export default function CompaniesFollow({ navigation }) {
 
                         } catch (error) {
                             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
-                            console.log(error);
                         }
                     },
                 },

@@ -85,8 +85,7 @@ export default function CompanyCreate({ navigation }) {
                 setBusinessLicense(result.assets[0]); // Store the document object
             }
         } catch (error) {
-            console.log('Document picker error:', error);
-            alert('Error selecting document. Please try again.');
+                ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
         }
     };
 
@@ -143,7 +142,7 @@ export default function CompanyCreate({ navigation }) {
     };
 
     const handleCreateCompany = async () => {
-        if (!name || !taxCode || !about || !size || !field || !address || !slogan || !website ) {
+        if (!name || !taxCode || !about || !size || !field || !address || !slogan || !website) {
             ToastMess({ type: 'error', text1: 'Vui lòng không để trống các trường, bao gồm giấy đăng ký kinh doanh.' });
             return;
         }
@@ -204,12 +203,21 @@ export default function CompanyCreate({ navigation }) {
                 ToastMess({ type: 'error', text1: 'Vui lòng nhập đầy đủ thông tin.' });
                 return;
             }
-            const prompt = `Tạo một mô tả ngắn gọn, chuyên nghiệp về công ty ${name}, lĩnh vực hoạt động ${field}, quy mô ${size}, và điểm nổi bật, hiển thị thành một đoạn văn bản.`;
+            const prompt = `
+                You are a professional copywriter. 
+                Write a concise and professional company description in **Vietnamese**, based on the following details:
+                - Company name: ${name}
+                - Field of operation: ${field}
+                - Company size: ${size}
+                - Highlight key strengths and unique features.
+
+                Return a single paragraph in Vietnamese.
+                `;
+
             const response = await geminiService(prompt);
             setAbout(response);
         } catch (error) {
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
-            console.log("Lỗi:", error);
         } finally {
             setLoadingR(false);
         }

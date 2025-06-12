@@ -9,6 +9,7 @@ import io from "socket.io-client";
 import * as DocumentPicker from 'expo-document-picker';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { authApi, endpoints } from "../../assets/config/API";
+import { ToastMess } from "../../components/ToastMess";
 
 const fetchMessages = async (senderId, recipientId) => {
     const token = await AsyncStorage.getItem("access_token");
@@ -33,10 +34,6 @@ export default function ChatSocket({ route, navigation }) {
         const socketIo = io("http://192.168.1.120:8000", {
             transports: ["websocket"],
             query: { userId: senderId }, // Truyền senderId qua query
-        });
-
-        socketIo.on("connect", () => {
-            console.log("Connected to WebSocket server");
         });
 
         socketIo.on("receiveMessage", (data) => {
@@ -140,15 +137,13 @@ export default function ChatSocket({ route, navigation }) {
                     };
                     onSend([newMessage]);
                 } catch (error) {
-                    console.log("Upload error:", error.response?.data || error.message);
-                    Alert.alert("Lỗi", "Không thể tải file lên. Vui lòng thử lại."); // Thông báo lỗi
+                    ToastMess({ type: "error", text1: "Có lỗi xảy ra, vui lòng thử lại." });
                 } finally {
                     setIsUploading(false); // Tắt loading
                 }
             }
         } catch (error) {
-            console.log("Document picker error:", error);
-            Alert.alert("Lỗi", "Không thể chọn file. Vui lòng thử lại.");
+            ToastMess({ type: "error", text1: "Có lỗi xảy ra, vui lòng thử lại." });
             setIsUploading(false); // Tắt loading nếu chọn file thất bại
         }
     };

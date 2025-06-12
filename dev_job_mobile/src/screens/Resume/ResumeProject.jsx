@@ -78,7 +78,13 @@ export default function ResumeProject({ navigation }) {
         return;
       }
 
-      const prompt = `Viết mô tả chi tiết cho dự án ${name}, ngắn gọn, sử dụng gạch đầu dòng, bỏ các tiêu đề.`;
+      const prompt = `
+        You are a professional technical writer.
+        Write a detailed but concise **Vietnamese** description for the project "${name}" using bullet points only.
+        Do not include any headings or titles.
+        Return only the bullet points in Vietnamese.
+        `;
+
       const response = await geminiService(prompt);
       handleInputChange(index, 'description', response);
     } catch (error) {

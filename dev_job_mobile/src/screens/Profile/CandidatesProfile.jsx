@@ -17,8 +17,7 @@ export default function CandidatesProfile({ navigation, route }) {
     const dispatch = useDispatch()
     const [loading, setLoading] = useState(false);
     const [candidate, setCandidate] = useState(null);
-    const userId = route.params?.userId;
-
+    const { companyId, userId } = route.params;
     const { cvData, status } = useSelector((state) => state.cv);
 
     const primaryCvList = useMemo(() => cvData?.filter((cv) => cv.isPrimary) || [], [cvData]);
@@ -41,9 +40,6 @@ export default function CandidatesProfile({ navigation, route }) {
         }
     };
 
-    const handleEditPress = () => {
-        navigation.navigate('CandidatesCreate', { user });
-    };
 
     const handleChatPress = () => {
         ToastMess({ type: 'info', text1: 'Chức năng nhắn tin đang phát triển.' });
@@ -120,19 +116,36 @@ export default function CandidatesProfile({ navigation, route }) {
                     </View>
 
                     <View style={styles.containerMain}>
-                        <View style={[StyleShare.flexCenter, { marginHorizontal: 20 }]}>
+                        <View style={[StyleShare.flexBetween, { marginHorizontal: 20 }]}>
                             {candidate?.email && (
                                 <TouchableOpacity onPress={handleOpenEmail}>
-                                    <View style={[StyleShare.buttonDetailApply, { backgroundColor: white, marginRight: 10 }]}>
+                                    <View style={[StyleShare.buttonDetailApply, { backgroundColor: white }]}>
                                         <Icon name="mail-outline" size={20} />
-                                        <Text style={{ marginLeft: 5 }}>Gửi email</Text>
+                                        <Text style={{ marginLeft: 10 }}>Gửi email</Text>
                                     </View>
                                 </TouchableOpacity>
                             )}
-                            <TouchableOpacity onPress={handleOpenPhone}>
-                                <View style={[StyleShare.buttonDetailApply, { backgroundColor: white, marginLeft: 10 }]}>
-                                    <Icon name="call-outline" size={20} />
-                                    <Text style={{ marginLeft: 5 }}>Gọi điện</Text>
+                            {candidate?.phone && (
+                                <TouchableOpacity onPress={handleOpenPhone}>
+                                    <View style={[StyleShare.buttonDetailApply, { backgroundColor: white }]}>
+                                        <Icon name="call-outline" size={20} />
+                                        <Text style={{ marginLeft: 10 }}>Gọi điện</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            )}
+                            <TouchableOpacity onPress={() =>
+                                navigation.navigate("ChatSocket", {
+                                    recipient: {
+                                        id: candidate?.userId,
+                                        avatar: candidate?.avatar,
+                                        name: candidate?.fullName,
+                                    },
+                                    senderId: companyId
+                                })
+                            }>
+                                <View style={[StyleShare.buttonDetailApply, { backgroundColor: white }]}>
+                                    <Icon name="chatbubble-outline" size={20} />
+                                    <Text style={{ marginLeft: 10 }}>Nhắn tin</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>

@@ -81,7 +81,14 @@ export default function ResumeExperience({ navigation }) {
                 return;
             }
 
-            const prompt = `Viết mô tả công việc cho vị trí ${position} tại ${company}, ngắn gọn, sử dụng gạch đầu dòng, bỏ các tiêu đề.`;
+            const prompt = `
+                You are a professional HR writer.
+                Write a concise **Vietnamese** job description for the position "${position}" at the company "${company}".
+                Use bullet points only.
+                Do not include any titles or headings.
+                Return only the bullet points in Vietnamese.
+                `;
+
             const response = await geminiService(prompt);
             handleInputChange(index, 'description', response);
         } catch (error) {

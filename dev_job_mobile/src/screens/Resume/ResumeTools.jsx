@@ -130,7 +130,6 @@ export default function ResumeTools({ navigation }) {
             setModalVisible(false)
 
         } catch (error) {
-            console.log(error);
             ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại.' });
 
         }

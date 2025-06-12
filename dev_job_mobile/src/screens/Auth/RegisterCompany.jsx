@@ -71,7 +71,6 @@ export default function RegisterClient({ navigation, route }) {
         }
 
         setLoading(true);
-        console.log(method)
         const formRegister = {
             email,
             name: userName,

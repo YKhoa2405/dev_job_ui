@@ -78,7 +78,6 @@ export default function Companies({ navigation }) {
 
     const handleLoadMore = () => {
         if (!loadingMore && currentPage < totalPages) {
-            console.log('Loading more, currentPage:', currentPage); // Log để kiểm tra
             setCurrentPage((prev) => prev + 1);
         }
     };

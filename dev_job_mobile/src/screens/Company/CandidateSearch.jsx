@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, FlatList, TouchableWithoutFeedback, Image, ActivityIndicator, SafeAreaViewBase } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, TouchableWithoutFeedback, Image } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons"
-import { mainColor, bgButton2, grey, orange, white } from "../../assets/themes/Color";
-import { Searchbar, Chip, Avatar } from "react-native-paper";
+import { mainColor, white } from "../../assets/themes/Color";
+import { Chip, Avatar } from "react-native-paper";
 import StyleShare from "../../assets/themes/StyleShare";
 import Dropdown from "../../components/Dropdown";
 import { authApi, endpoints } from "../../assets/config/API";
@@ -12,11 +12,10 @@ import UIHeader from "../../components/UIHeader";
 import Modal from "react-native-modal";
 import axios from "axios";
 import Button from "../../components/Button";
-import FastImage from 'react-native-fast-image';
 import { ToastMess } from "../../components/ToastMess";
 
 export default function CandidateSearch({ navigation, route }) {
-    const { companyId } = route.params
+    const { companyId, userId } = route.params
     const [provinces, setProvinces] = useState([]);
     const [level, setLevel] = useState(null)
     const [salary, setSalary] = useState(null)
@@ -32,7 +31,6 @@ export default function CandidateSearch({ navigation, route }) {
     const [loading, setLoading] = useState(false)
     const [loadingMore, setLoadingMore] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
-
     const levelData = [
         { title: 'Intern' },
         { title: 'Fresher' },
@@ -129,7 +127,7 @@ export default function CandidateSearch({ navigation, route }) {
     }, [fetchListCandidate]);
 
     const renderItem = ({ item }) => (
-        <TouchableWithoutFeedback key={item._id} onPress={() => { navigation.navigate('CandidatesProfile', { userId: item.userId }) }}>
+        <TouchableWithoutFeedback key={item._id} onPress={() => { navigation.navigate('CandidatesProfile', { companyId: userId, userId: item?.userId }) }}>
             <View style={StyleShare.jobItemContainer}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Avatar.Image source={{ uri: item.avatar || 'https://via.placeholder.com/60' }} size={50} style={{ marginRight: 5 }} />

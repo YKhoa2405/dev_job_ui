@@ -42,8 +42,6 @@ const RefundRequestScreen = ({ navigation, route }) => {
         payment.vnp_TransactionStatus === 'Success' &&
         order?.isActive === true
 
-    console.log(payment.vnp_TransactionStatus)
-
     const daysSinceStart = order ? moment().diff(moment(order.startDate), 'days') : Infinity;
     const isWithinRefundPeriod = daysSinceStart <= 7;
 

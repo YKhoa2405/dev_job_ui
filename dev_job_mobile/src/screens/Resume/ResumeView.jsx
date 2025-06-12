@@ -39,7 +39,6 @@ export default function ResumeView({ route, navigation }) {
 
       ToastMess({ type: 'success', text1: 'Tải xuống thành công' });
     } catch (error) {
-      console.log(error);
       ToastMess({ type: 'error', text1: 'Có lỗi xảy ra, vui lòng thử lại' });
     }
   };

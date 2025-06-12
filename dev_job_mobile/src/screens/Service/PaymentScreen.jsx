@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Alert } from "react-native";
+import { View } from "react-native";
 import UIHeader from "../../components/UIHeader";
 import { WebView } from 'react-native-webview';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -44,7 +44,6 @@ export default function PaymentScreen({ navigation, route }) {
 
         // Kiểm tra nếu giao dịch đã được xử lý
         if (vnp_TxnRef && vnp_TxnRef === processedTxnRef) {
-            console.log('Giao dịch đã được xử lý:', vnp_TxnRef);
             return;
         }
 
@@ -124,8 +123,7 @@ export default function PaymentScreen({ navigation, route }) {
                 onNavigationStateChange={handleNavigationStateChange}
                 onError={(syntheticEvent) => {
                     const { nativeEvent } = syntheticEvent;
-                    console.log('WebView error:', nativeEvent);
-                    Alert.alert('Lỗi', 'Không thể tải trang thanh toán. Vui lòng kiểm tra kết nối mạng.');
+                    ToastMess({ type: 'error', text1: nativeEvent.description || 'Không thể tải trang thanh toán. Vui lòng kiểm tra kết nối mạng.' });
                 }}
             />
         </View>

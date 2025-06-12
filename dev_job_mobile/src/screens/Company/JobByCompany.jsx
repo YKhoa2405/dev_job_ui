@@ -126,7 +126,6 @@ export default function JobByCompany({ navigation, route }) {
                         try {
                             const token = await AsyncStorage.getItem("access_token");
                             const res = await authApi(token).delete(endpoints["jobDetail"](jobId));
-                            console.log(res.data);
                             if (res.data.statusCode === 200) {
                                 ToastMess({ type: "success", text1: "Xóa tin tuyển dụng thành công" });
                                 setJobData((prevJobs) => prevJobs.filter((job) => job._id !== jobId));

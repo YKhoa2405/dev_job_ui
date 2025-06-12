@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
     View,
     Text,
@@ -42,69 +42,71 @@ export default function ChatHome({ navigation, route }) {
     };
 
     useEffect(() => {
-        const socketIo = io("http://192.168.1.120:8000", {
-            transports: ["websocket"],
-            query: { userId: currentUserId }, // Thêm userId vào query
-        });
-
-        socketIo.on("connect", () => {
-            console.log("ChatHome: Connected to WebSocket server");
-        });
-
-        socketIo.on("connect_error", (error) => {
-            console.log("ChatHome: WebSocket connection error:", error);
-        });
-
-        socketIo.on("receiveMessage", (data) => {
-            console.log("ChatHome: Received message:", data);
-            setChatRooms((prevRooms) => {
-                // Loại bỏ room cũ để cập nhật room mới lên đầu
-                const updatedRooms = prevRooms.filter(
-                    (room) => room.id !== `${currentUserId}-${data.senderId}` && room.id !== `${currentUserId}-${data.recipientId}`
-                );
-                const participantId = data.senderId === currentUserId ? data.recipientId : data.senderId;
-                const newRoom = {
-                    id: `${currentUserId}-${participantId}`,
-                    participants: data.participant || {
-                        id: participantId,
-                        name: `User ${participantId}`,
-                        avatar: "https://example.com/avatar.jpg",
-                    },
-                    lastMessage: {
-                        text: data.message,
-                        timestamp: data.timestamp,
-                        senderId: data.senderId,
-                        fileUrl: data.fileUrl || null,
-                        isRead: data.isRead || false,
-                    },
-                };
-                return [newRoom, ...updatedRooms];
-            });
-        });
-
-        socketIo.on("messageRead", (data) => {
-            console.log("ChatHome: Message read:", data);
-            setChatRooms((prevRooms) => {
-                return prevRooms.map((room) =>
-                    room.id === `${currentUserId}-${data.recipientId}`
-                        ? { ...room, lastMessage: data.lastMessage }
-                        : room
-                );
-            });
-        });
-
-        setSocket(socketIo);
         fetchChatRooms();
+    }, []);
 
-        return () => socketIo.disconnect();
-    }, [currentUserId]);
+    // useEffect(() => {
+    //     const socketIo = io("http://192.168.1.120:8000", {
+    //         transports: ["websocket"],
+    //         query: { userId: currentUserId }, // Thêm userId vào query
+    //     });
 
-    // Gọi fetchChatRooms khi màn hình được focus
-    useFocusEffect(
-        React.useCallback(() => {
-            fetchChatRooms();
-        }, [])
-    );
+    //     socketIo.on("connect", () => {
+    //         console.log("ChatHome: Connected to WebSocket server");
+    //     });
+
+    //     socketIo.on("connect_error", (error) => {
+    //         console.log("ChatHome: WebSocket connection error:", error);
+    //     });
+
+    //     socketIo.on("receiveMessage", (data) => {
+    //         setChatRooms((prevRooms) => {
+    //             // Loại bỏ room cũ để cập nhật room mới lên đầu
+    //             const updatedRooms = prevRooms.filter(
+    //                 (room) => room.id !== `${currentUserId}-${data.senderId}` && room.id !== `${currentUserId}-${data.recipientId}`
+    //             );
+    //             const participantId = data.senderId === currentUserId ? data.recipientId : data.senderId;
+    //             const newRoom = {
+    //                 id: `${currentUserId}-${participantId}`,
+    //                 participants: data.participant || {
+    //                     id: participantId,
+    //                     name: `User ${participantId}`,
+    //                     avatar: "https://example.com/avatar.jpg",
+    //                 },
+    //                 lastMessage: {
+    //                     text: data.message,
+    //                     timestamp: data.timestamp,
+    //                     senderId: data.senderId,
+    //                     fileUrl: data.fileUrl || null,
+    //                     isRead: data.isRead || false,
+    //                 },
+    //             };
+    //             return [newRoom, ...updatedRooms];
+    //         });
+    //     });
+
+    //     socketIo.on("messageRead", (data) => {
+    //         setChatRooms((prevRooms) => {
+    //             return prevRooms.map((room) =>
+    //                 room.id === `${currentUserId}-${data.recipientId}`
+    //                     ? { ...room, lastMessage: data.lastMessage }
+    //                     : room
+    //             );
+    //         });
+    //     });
+
+    //     setSocket(socketIo);
+    //     fetchChatRooms();
+
+    //     return () => socketIo.disconnect();
+    // }, [currentUserId]);
+
+    // // Gọi fetchChatRooms khi màn hình được focus
+    // useFocusEffect(
+    //     useCallback(() => {
+    //         fetchChatRooms();
+    //     }, [])
+    // );
 
     const renderItem = ({ item }) => {
         const isSender = item.lastMessage?.senderId === currentUserId;
@@ -156,11 +158,7 @@ export default function ChatHome({ navigation, route }) {
             </TouchableWithoutFeedback>
         );
     };
-
-    if (loading) {
-        return <Loading />;
-    }
-
+    
     return (
         <View style={styles.container}>
             <UIHeader
@@ -168,45 +166,53 @@ export default function ChatHome({ navigation, route }) {
                 handleLeftIcon={() => navigation.goBack()}
                 title={"Nhắn tin"}
             />
-            <View style={{ marginHorizontal: 10 }}>
-                <View style={StyleShare.searchDetail}>
-                    <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
-                    <TextInput
-                        style={StyleShare.searchInput}
-                        placeholder="Nhập tên người dùng..."
-                        value={searchKeywork}
-                        onChangeText={(text) => setSearchKeywork(text)}
-                        onSubmitEditing={() => {}}
-                    />
-                </View>
-
-                <FlatList
-                    data={chatRooms}
-                    keyExtractor={(item) => item.id}
-                    renderItem={renderItem}
-                    contentContainerStyle={styles.chatList}
-                    ListEmptyComponent={
-                        <View style={styles.emptyContainer}>
-                            <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
-                            <Text style={StyleShare.titleText20}>Không có tin nhắn nào</Text>
-                            <Text style={styles.emptyText}>Bạn chưa có bất kỳ tin nhắn nào, kiểm tra lại sau</Text>
+            {loading ? (
+                <Loading />
+            ) : (
+                <View style={{ flex: 1 }}>
+                    <View style={{ marginHorizontal: 10 }}>
+                        <View style={StyleShare.searchDetail}>
+                            <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
+                            <TextInput
+                                style={StyleShare.searchInput}
+                                placeholder="Nhập tên người dùng..."
+                                value={searchKeywork}
+                                onChangeText={(text) => setSearchKeywork(text)}
+                                onSubmitEditing={() => { }}
+                            />
                         </View>
-                    }
-                />
-            </View>
-            {roleName === "client" && (
-                <TouchableOpacity
-                    style={styles.chatBotContainer}
-                    onPress={() => navigation.navigate("ChatBot", { senderId: currentUserId })}
-                    activeOpacity={0.8}
-                >
-                    <Avatar.Image
-                        source={require("../../assets/images/happy.png")}
-                        size={60}
-                        style={styles.chatBotAvatar}
-                    />
-                </TouchableOpacity>
+
+                        <FlatList
+                            data={chatRooms}
+                            keyExtractor={(item) => item.id}
+                            renderItem={renderItem}
+                            contentContainerStyle={styles.chatList}
+                            ListEmptyComponent={
+                                <View style={styles.emptyContainer}>
+                                    <Image source={require("../../assets/images/save.png")} style={StyleShare.imageNullData} />
+                                    <Text style={StyleShare.titleText20}>Không có tin nhắn nào</Text>
+                                    <Text style={styles.emptyText}>Bạn chưa có bất kỳ tin nhắn nào, kiểm tra lại sau</Text>
+                                </View>
+                            }
+                        />
+                    </View>
+
+                    {roleName === "client" && (
+                        <TouchableOpacity
+                            style={styles.chatBotContainer}
+                            onPress={() => navigation.navigate("ChatBot", { senderId: currentUserId })}
+                            activeOpacity={0.8}
+                        >
+                            <Avatar.Image
+                                source={require("../../assets/images/happy.png")}
+                                size={60}
+                                style={styles.chatBotAvatar}
+                            />
+                        </TouchableOpacity>
+                    )}
+                </View>
             )}
+
         </View>
     );
 }
