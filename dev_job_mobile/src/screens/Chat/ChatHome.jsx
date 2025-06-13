@@ -145,7 +145,7 @@ export default function ChatHome({ navigation, route }) {
                                     : item.participants?.name || "Unknown"}
                             </Text>
                             <Text style={styles.timestamp}>
-                                {item.lastMessage?.timestamp ? moment(item.lastMessage.timestamp).fromNow() : ""}
+                                {item.lastMessage?.timestamp || ""}
                             </Text>
                         </View>
                         <View style={[StyleShare.flexBetween, { marginTop: 5 }]}>
@@ -158,7 +158,7 @@ export default function ChatHome({ navigation, route }) {
             </TouchableWithoutFeedback>
         );
     };
-    
+
     return (
         <View style={styles.container}>
             <UIHeader
@@ -171,7 +171,7 @@ export default function ChatHome({ navigation, route }) {
             ) : (
                 <View style={{ flex: 1 }}>
                     <View style={{ marginHorizontal: 10 }}>
-                        <View style={StyleShare.searchDetail}>
+                        {/* <View style={StyleShare.searchDetail}>
                             <Icon name="search" color={mainColor} size={24} style={{ marginRight: 10 }} />
                             <TextInput
                                 style={StyleShare.searchInput}
@@ -180,7 +180,7 @@ export default function ChatHome({ navigation, route }) {
                                 onChangeText={(text) => setSearchKeywork(text)}
                                 onSubmitEditing={() => { }}
                             />
-                        </View>
+                        </View> */}
 
                         <FlatList
                             data={chatRooms}
