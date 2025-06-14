@@ -41,10 +41,6 @@ export default function CandidatesProfile({ navigation, route }) {
     };
 
 
-    const handleChatPress = () => {
-        ToastMess({ type: 'info', text1: 'Chức năng nhắn tin đang phát triển.' });
-    };
-
     const handleOpenPhone = (phone) => {
         if (phone) Linking.openURL(`tel:${phone}`);
     };

@@ -46,7 +46,9 @@ export default function ResumeByJob({ navigation, route }) {
                     companyId: jobDetail.companyId._id,
                     location: jobDetail.city || null,
                     skills: jobDetail.skills?.length > 0 ? jobDetail.skills.join(',') : null,
-                    level: jobDetail.level || null,
+                    level: jobDetail.level?.length > 0 ? jobDetail.level.join(',') : null,
+
+                    // level: jobDetail.level || null,
                     // salary: jobDetail.salary || null,
                     // jobType: jobDetail.jobType || null,
                 };
@@ -80,7 +82,6 @@ export default function ResumeByJob({ navigation, route }) {
                         </View>
                     </View>
                     <View style={StyleShare.technologyContainer}>
-                        <Chip style={StyleShare.chip}>{item?.jobType || 'Chưa cập nhật loại công việc'}</Chip>
                         <Chip style={StyleShare.chip}>{item?.location || 'Chưa cập nhật địa điểm'}</Chip>
                         {Array.isArray(item?.skills) && item?.skills?.length > 0 ?
                             item?.skills?.map((s, index) => (

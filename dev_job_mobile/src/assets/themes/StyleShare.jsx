@@ -170,8 +170,8 @@ const StyleShare = StyleSheet.create({
         height: 35,
         backgroundColor: white,
         borderRadius: 10,
-        borderWidth:1,
-        borderColor:'grey',
+        borderWidth: 1,
+        borderColor: 'grey',
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
@@ -205,7 +205,8 @@ const StyleShare = StyleSheet.create({
         padding: 20,
         borderTopLeftRadius: 10,   // Bo góc phía trên
         borderTopRightRadius: 10,  // Bo góc phía trên
-        minHeight: '50%',          // Chiều cao modal (nửa màn hình)
+        minHeight: 'auto',          // Chiều cao modal (nửa màn hình)
+        maxHeight: '80%'
     },
     modalStyle: {
         justifyContent: 'flex-end', // Hiển thị modal ở cuối màn hình
@@ -223,7 +224,7 @@ const StyleShare = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-      },
+    },
 
 })
 

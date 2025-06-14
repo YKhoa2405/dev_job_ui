@@ -204,10 +204,11 @@ const Candidates = () => {
                                     className="grid grid-cols-7 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-7 md:px-6 2xl:px-7.5"
                                     key={item._id}
                                 >
-                                    <div className="col-span-2 flex items-center">
-                                        <p className="text-sm text-blue-600 dark:text-white">
-                                            {item.fullName}
-                                        </p>
+                                    <div className="flex flex-col gap-4 col-span-2  sm:flex-row sm:items-center">
+                                        <div className="w-12 h-12 rounded-full overflow-hidden">
+                                            <img src={item.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                                        </div>
+                                        <p className="text-sm text-blue-600">{item.fullName}</p>
                                     </div>
                                     <div className="col-span-2 hidden items-center sm:flex">
                                         <p className="text-sm text-black dark:text-white">

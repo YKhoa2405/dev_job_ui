@@ -145,7 +145,7 @@ export default function ChatHome({ navigation, route }) {
                                     : item.participants?.name || "Unknown"}
                             </Text>
                             <Text style={styles.timestamp}>
-                                {item.lastMessage?.timestamp || ""}
+                                {item.lastMessage?.timestamp ? moment(item.lastMessage.timestamp).fromNow() : ""}
                             </Text>
                         </View>
                         <View style={[StyleShare.flexBetween, { marginTop: 5 }]}>

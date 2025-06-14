@@ -228,7 +228,7 @@ const Dashboard: React.FC = () => {
 
             <div className="border border-stroke rounded-xl p-6 dark:border-strokedark bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 shadow-sm hover:shadow-md">
               <p className="text-sm text-gray-600 dark:text-gray-300 uppercase tracking-wide">Tin tuyển dụng</p>
-              <p className="text-4xl font-extrabold text-blue-600 dark:text-blue-400 mt-3">
+              <p className="text-3xl font-extrabold text-blue-600 dark:text-blue-400 mt-3">
                 {overviewData.jobPostings.total.toLocaleString()}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
@@ -238,7 +238,7 @@ const Dashboard: React.FC = () => {
 
             <div className="border border-stroke rounded-xl p-6 dark:border-strokedark bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 shadow-sm hover:shadow-md">
               <p className="text-sm text-gray-600 dark:text-gray-300 uppercase tracking-wide">Doanh thu</p>
-              <p className="text-4xl font-extrabold text-blue-600 dark:text-blue-400 mt-3">
+              <p className="text-3xl font-extrabold text-blue-600 dark:text-blue-400 mt-3">
                 {overviewData.revenue.total}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">

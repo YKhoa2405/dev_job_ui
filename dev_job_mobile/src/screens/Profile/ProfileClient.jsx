@@ -12,7 +12,7 @@ export default function Profile({ navigation }) {
     const dispatch = useDispatch()
     const user = useSelector((state) => state.user.user)
     const aboutApp = [
-        { id: 1, icon: 'business', title: 'Về HeyJob' },
+        { id: 1, icon: 'business', title: 'Về DevJob' },
         { id: 2, icon: 'book', title: 'Điều khoản và dịch vụ' },
         { id: 3, icon: 'call', title: 'Trợ giúp' },
         { id: 4, icon: 'heart-circle-sharp', title: 'Đánh giá ứng dụng' },
