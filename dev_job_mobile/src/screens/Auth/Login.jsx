@@ -99,12 +99,12 @@ export default function Login({ navigation }) {
                 // username: email || 'nguyenykhoali2003@gmail.com',
                 // username: 'nykhoa2405@gmail.com',
                 // username: '2151050202khoa@ou.edu.vn',
-                // username: 'nguyenhoangnam@gmail.com',
-                username: userName.trim(),
+                username: 'nguyenhoangnam@gmail.com',
+                // username: userName.trim(),
                 // password: 'Caichyrua11@',
-                password: password || 'Caichyrua11@',
+                // password: password || 'Caichyrua11@',
                 // username: email,
-                // password: '123456'
+                password: '123456'
                 // password
 
             };

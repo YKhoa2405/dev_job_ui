@@ -5,7 +5,7 @@ import Slider from '@react-native-community/slider';
 import { mainColor, grey, orange, white } from "../../assets/themes/Color";
 import { Avatar, Chip } from "react-native-paper";
 import * as Location from 'expo-location';
-import { useEffect, useState, useRef } from "react"; // Added useRef
+import { useEffect, useState } from "react";
 import Loading from "../../components/Loading";
 import API, { endpoints } from "../../assets/config/API";
 import { ToastMess } from "../../components/ToastMess";
@@ -26,15 +26,20 @@ export default function JobNearBy({ navigation }) {
     const [loading, setLoading] = useState(false);
     const [jobs, setJobs] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
-    const [selectedJobId, setSelectedJobId] = useState(null); // State for selected job
-    const flatListRef = useRef(null); // Ref for FlatList
-
+    const [isJobDetailModalVisible, setJobDetailModalVisible] = useState(false);
+    const [selectedJob, setSelectedJob] = useState(null);
     const [level, setLevel] = useState('');
     const [salary, setSalary] = useState('');
     const [jobType, setJobType] = useState('');
+    // State for map mode
+    const [mapMode, setMapMode] = useState('standard');
 
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
+    };
+
+    const toggleJobDetailModal = () => {
+        setJobDetailModalVisible(!isJobDetailModalVisible);
     };
 
     const levelData = [
@@ -81,7 +86,6 @@ export default function JobNearBy({ navigation }) {
             }
 
             let currentLocation = await Location.getCurrentPositionAsync({});
-            console.log(currentLocation);
             const { latitude, longitude } = currentLocation.coords;
             setLatitude(latitude);
             setLongitude(longitude);
@@ -93,7 +97,7 @@ export default function JobNearBy({ navigation }) {
         if (latitude && longitude) {
             fetchListJobNearby(latitude, longitude);
         }
-    }, [distance]);
+    }, [distance, level, salary, jobType]); // Include filters in dependencies
 
     const fetchListJobNearby = async (latitude, longitude) => {
         setLoading(true);
@@ -116,27 +120,23 @@ export default function JobNearBy({ navigation }) {
         }
     };
 
+    // Count selected filters
+    const countSelectedFilters = () => {
+        return [level, salary, jobType].filter(item => item !== '').length;
+    };
+
     const applyFilters = () => {
-        let jobsfilter = [...jobs];
-        if (salary) {
-            jobsfilter = jobsfilter.filter((job) => job.salary.includes(salary));
+        if (countSelectedFilters() !== 2) {
+            ToastMess({ type: 'error', text1: 'Vui lòng chọn đúng 2 bộ lọc' });
+            return;
         }
-        if (level) {
-            jobsfilter = jobsfilter.filter((job) => job.level === level);
-        }
-        if (jobType) {
-            jobsfilter = jobsfilter.filter((job) => job.jobType === jobType);
-        }
-        setJobs(jobsfilter);
         setModalVisible(false);
+        // Filters are applied via useEffect, no need for client-side filtering
     };
 
     const renderItem = ({ item }) => (
         <TouchableWithoutFeedback key={item._id} onPress={() => navigation.navigate('JobDetail', { jobId: item._id })}>
-            <View style={[
-                styles.jobItemContainer,
-                selectedJobId === item._id && styles.selectedJobItem // Apply bold border if selected
-            ]}>
+            <View style={styles.jobItemContainer}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Avatar.Image
                         source={{ uri: item.companyId.avatar }}
@@ -149,7 +149,11 @@ export default function JobNearBy({ navigation }) {
                     </View>
                 </View>
                 <View style={StyleShare.technologyContainer}>
-                    <Chip style={StyleShare.chip}>{item.level}</Chip>
+                    {item?.level?.map((level, index) => (
+                        <Chip key={index} style={StyleShare.chip}>
+                            {level || 'N/A'}
+                        </Chip>
+                    ))}
                     {item.distance !== null && (
                         <Chip style={{ alignSelf: 'flex-start', backgroundColor: orange, marginTop: 10 }}>
                             <Text style={{ color: 'white' }}>{item.distance.toFixed(2)} km</Text>
@@ -175,19 +179,23 @@ export default function JobNearBy({ navigation }) {
                 id={job._id}
                 coordinate={job.geoLocation.coordinates}
                 onSelected={() => {
-                    setSelectedJobId(job._id); // Set selected job ID
-                    const index = jobs.findIndex(item => item._id === job._id); // Find index of selected job
-                    if (index !== -1 && flatListRef.current) {
-                        flatListRef.current.scrollToIndex({
-                            index,
-                            animated: true,
-                            viewPosition: 0.5, // Center the item in the view
-                        });
-                    }
+                    setSelectedJob(job);
+                    setJobDetailModalVisible(true);
                 }}
             >
-                <View style={styles.markerContainer}>
-                    <Icon name="briefcase" size={24} color={mainColor} />
+                <View style={[
+                    styles.markerContainer,
+                    job.isUrgent && styles.urgentMarker
+                ]}>
+                    <Icon
+                        name="briefcase"
+                        size={20}
+                    />
+                    {job.isUrgent && (
+                        <View style={styles.urgentBadge}>
+                            <Icon name="flame" size={8} color={white} />
+                        </View>
+                    )}
                 </View>
             </Mapbox.PointAnnotation>
         ));
@@ -202,6 +210,7 @@ export default function JobNearBy({ navigation }) {
                 handleLeftIcon={() => navigation.goBack()}
                 handleRightIcon={() => setModalVisible(true)}
             />
+            {/* Filter Modal */}
             <Modal
                 isVisible={isModalVisible}
                 onBackdropPress={toggleModal}
@@ -214,8 +223,39 @@ export default function JobNearBy({ navigation }) {
                 <View style={StyleShare.modalContent}>
                     <View style={[StyleShare.flexBetween, { marginVertical: 15 }]}>
                         <Text style={StyleShare.titleText20}>Bộ lọc việc làm</Text>
-                        <TouchableOpacity onPress={() => setModalVisible(false)}>
+                        <TouchableOpacity onPress={toggleModal}>
                             <Icon name="close" size={26} color={'red'} />
+                        </TouchableOpacity>
+                    </View>
+                    <Text style={StyleShare.titleText16}>Hiển thị bản đồ</Text>
+                    <View style={styles.mapControlsRow}>
+                        <TouchableOpacity
+                            style={[
+                                styles.controlButton,
+                                mapMode === 'standard' && styles.activeControlButton
+                            ]}
+                            onPress={() => setMapMode('standard')}
+                        >
+                            <Text style={[
+                                styles.controlButtonText,
+                                mapMode === 'standard' && styles.activeControlButtonText
+                            ]}>
+                                Tiêu chuẩn
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[
+                                styles.controlButton,
+                                mapMode === 'satellite' && styles.activeControlButton
+                            ]}
+                            onPress={() => setMapMode('satellite')}
+                        >
+                            <Text style={[
+                                styles.controlButtonText,
+                                mapMode === 'satellite' && styles.activeControlButtonText
+                            ]}>
+                                Vệ tinh
+                            </Text>
                         </TouchableOpacity>
                     </View>
                     <Text style={StyleShare.titleText16}>Level</Text>
@@ -254,14 +294,81 @@ export default function JobNearBy({ navigation }) {
                             marginBottom: 20,
                         }}
                     />
+                    <Text style={{ color: mainColor, marginBottom: 10 }}>
+                        Đã chọn: {countSelectedFilters()}/2
+                    </Text>
                     <Button
                         title={'Áp dụng'}
-                        backgroundColor={mainColor}
+                        backgroundColor={countSelectedFilters() === 2 ? mainColor : grey}
                         textColor={white}
-                        onPress={() => applyFilters()}
+                        onPress={applyFilters}
+                        disabled={countSelectedFilters() !== 2}
                     />
                 </View>
             </Modal>
+
+            {/* Job Detail Modal */}
+            <Modal
+                isVisible={isJobDetailModalVisible}
+                onBackdropPress={toggleJobDetailModal}
+                animationIn="slideInUp"
+                animationOut="slideOutDown"
+                backdropTransitionInTiming={500}
+                backdropTransitionOutTiming={500}
+                style={StyleShare.modalStyle}
+            >
+                <View style={StyleShare.modalContent}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+                        <TouchableOpacity onPress={toggleJobDetailModal}>
+                            <Icon name="close" size={26} color="red" />
+                        </TouchableOpacity>
+                    </View>
+                    {selectedJob && (
+                        <View>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Avatar.Image
+                                    source={{ uri: selectedJob.companyId.avatar }}
+                                    size={50}
+                                    style={{ backgroundColor: 'white', marginRight: 10 }}
+                                />
+                                <View style={{ flex: 1 }}>
+                                    <Text style={StyleShare.titleText16}>{selectedJob?.name || 'Chi tiết công việc'}</Text>
+                                    <Text>{selectedJob.companyId.name}</Text>
+                                </View>
+                            </View>
+                            <View style={[StyleShare.technologyContainer, { marginVertical: 10 }]}>
+                                {selectedJob?.level?.map((level, index) => (
+                                    <Chip key={index} style={StyleShare.chip}>
+                                        {level || 'N/A'}
+                                    </Chip>
+                                ))}
+                                <Chip
+                                    style={[StyleShare.chip, { backgroundColor: orange, color: white }]}>
+                                    <Text style={{ color: white, fontSize: 12 }}>{selectedJob.distance?.toFixed(2) || 'N/A'} km</Text>
+                                </Chip>
+                                {selectedJob.isUrgent && (
+                                    <Chip
+                                        style={[StyleShare.chip, { backgroundColor: '#FF4500', marginTop: 10 }]}
+                                        icon={() => <Icon name="flame" size={16} color={white} />}
+                                    >
+                                        <Text style={{ color: white, fontSize: 12 }}>Gấp</Text>
+                                    </Chip>
+                                )}
+                            </View>
+                            <Button
+                                title={'Xem chi tiết'}
+                                backgroundColor={mainColor}
+                                textColor={white}
+                                onPress={() => {
+                                    toggleJobDetailModal();
+                                    navigation.navigate('JobDetail', { jobId: selectedJob._id });
+                                }}
+                            />
+                        </View>
+                    )}
+                </View>
+            </Modal>
+
             <View style={styles.sliderContainer}>
                 <Text style={{ color: mainColor, fontWeight: '500', backgroundColor: 'white' }}>
                     Phạm vi: {distance} km
@@ -280,7 +387,17 @@ export default function JobNearBy({ navigation }) {
             </View>
             <View style={StyleShare.container}>
                 {latitude && longitude ? (
-                    <Mapbox.MapView style={StyleShare.container} zoomEnabled pitchEnabled rotateEnabled>
+                    <Mapbox.MapView
+                        style={StyleShare.container}
+                        zoomEnabled
+                        pitchEnabled
+                        rotateEnabled
+                        styleURL={
+                            mapMode === 'satellite' 
+                                ? Mapbox.StyleURL.Satellite 
+                                : Mapbox.StyleURL.Street
+                        }
+                    >
                         <Mapbox.Camera
                             zoomLevel={12}
                             centerCoordinate={[longitude, latitude]}
@@ -294,13 +411,15 @@ export default function JobNearBy({ navigation }) {
                                 <Mapbox.FillLayer
                                     id="circleFill"
                                     style={{
-                                        fillColor: "rgba(255, 0, 0, 0.5)", fillOpacity: 0.3
+                                        fillColor: "rgba(255, 0, 0, 0.5)",
+                                        fillOpacity: 0.3,
                                     }}
                                 />
                                 <Mapbox.LineLayer
                                     id="circleLine"
                                     style={{
-                                        lineColor: "rgba(255, 0, 0, 0.5)", lineWidth: 2
+                                        lineColor: "rgba(255, 0, 0, 0.5)",
+                                        lineWidth: 2,
                                     }}
                                 />
                             </Mapbox.ShapeSource>
@@ -324,17 +443,11 @@ export default function JobNearBy({ navigation }) {
                         </View>
                     </View>
                     <FlatList
-                        ref={flatListRef} // Attach ref to FlatList
                         renderItem={renderItem}
                         data={jobs}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
                         keyExtractor={(item) => item._id}
-                        getItemLayout={(data, index) => ({
-                            length: 300, // Approximate width of each item (adjust based on your jobItemContainer width)
-                            offset: 300 * index,
-                            index,
-                        })}
                     />
                 </View>
             )}
@@ -371,19 +484,62 @@ const styles = StyleSheet.create({
         marginVertical: 5,
         borderRadius: 10,
         elevation: 2,
-        borderWidth: 1, // Default border
-        borderColor: '#ddd', // Default border color
-    },
-    selectedJobItem: {
-        borderWidth: 3, // Bold border for selected item
-        borderColor: mainColor, // Use mainColor for the bold border
+        borderWidth: 1,
+        borderColor: '#ddd',
     },
     markerContainer: {
         alignItems: 'center',
+        justifyContent: 'center',
         backgroundColor: white,
-        borderRadius: 5,
-        padding: 5,
+        borderRadius: 20,
+        width: 36,
+        height: 36,
+        borderWidth: 2,
+        borderColor: mainColor,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    urgentMarker: {
+        borderColor: '#FF4500',
+    },
+    urgentBadge: {
+        position: 'absolute',
+        top: -5,
+        right: -5,
+        backgroundColor: '#FF4500',
+        borderRadius: 8,
+        width: 16,
+        height: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    mapControlsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginVertical: 10,
+    },
+    controlButton: {
+        flex: 1,
+        padding: 10,
         borderWidth: 1,
         borderColor: mainColor,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginHorizontal: 5,
+    },
+    activeControlButton: {
+        backgroundColor: mainColor,
+        borderColor: mainColor,
+    },
+    controlButtonText: {
+        color: mainColor,
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
+    activeControlButtonText: {
+        color: white,
     },
 });
