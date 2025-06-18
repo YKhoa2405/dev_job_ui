@@ -34,6 +34,7 @@
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
         "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
         "RECORD_AUDIO"
       ],
       "versionCode": 1,
@@ -68,7 +69,14 @@
       "@react-native-firebase/app",
       "@react-native-firebase/messaging",
       "@config-plugins/react-native-blob-util",
-      "@config-plugins/react-native-pdf"
+      "@config-plugins/react-native-pdf",
+      [
+        "@rnmapbox/maps",
+        {
+          "RNMapboxMapsImpl": "mapbox",
+          "RNMapboxMapsDownloadToken": "sk.eyJ1IjoibnlraG9hMjQwNSIsImEiOiJjbWMxYXV1MmowYWZ1MnFyM2tzczRuYWx5In0.IpviZvqb3a1rQk4OPhZVJw"
+        }
+      ]
     ],
     "updates": {
       "url": "https://u.expo.dev/1e6bc4e7-2494-401f-a02a-e0c8f9b29c7a",
