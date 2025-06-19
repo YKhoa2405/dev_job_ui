@@ -41,5 +41,7 @@ export type ICompanyDetail = {
     createBy: {
         _id: string
         email: string
-    }
+    },
+    averageRating: number,
+    reviewCount: number
 }

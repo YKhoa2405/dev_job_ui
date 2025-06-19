@@ -5,7 +5,7 @@ import "moment/locale/vi";
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { ICompanyDetail } from '../../types/company';
-import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX, StarIcon } from 'lucide-react';
 import { IJobList } from '../../types/job';
 import Loader from '../../common/Loader';
 import { IOrder } from '../../types/order';
@@ -132,6 +132,18 @@ const CompanyDetail = () => {
                                     <label className="mb-2.5 block text-black dark:text-white">Tên công ty</label>
                                     <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark">
                                         {companyDetail?.name || 'N/A'}
+                                    </div>
+                                </div>
+                                <div className="w-full py-3 px-5 text-black dark:text-white bg-transparent border-[1.5px] border-stroke rounded dark:border-form-strokedark flex items-center space-x-6">
+                                    <span className="text-sm font-medium">Size: {companyDetail?.size || 'N/A'}</span>
+                                    <div className="flex items-center space-x-1">
+                                        <StarIcon className="h-5 w-5 text-yellow-400" />
+                                        <span className="text-sm font-medium">
+                                            {companyDetail?.averageRating ? companyDetail.averageRating.toFixed(1) : 'N/A'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center space-x-1">
+                                        <span className="text-sm font-medium">{companyDetail?.reviewCount || 0}</span>
                                     </div>
                                 </div>
                                 <div className="flex-1">

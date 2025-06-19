@@ -27,5 +27,6 @@ export type IUserList = {
         _id: string,
         name: string
     },
+    phone:string
 
 }

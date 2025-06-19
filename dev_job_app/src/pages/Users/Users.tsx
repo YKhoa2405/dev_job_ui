@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX, Eye, Pencil, Plus, Search, TrashIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CircleCheckBigIcon, CircleX, Pencil, Plus, Search } from 'lucide-react';
 import { IUserList } from '../../types/user';
 import { authApi, endpoints } from '../../common/API';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
@@ -10,86 +10,64 @@ import Swal from 'sweetalert2';
 import Loading from '../../common/Loader/Loading';
 import { Dialog, Transition } from '@headlessui/react';
 import { useNavigate } from 'react-router-dom';
-import { usePermissions } from '../../hooks/usePermissions';
-
-const Users = () => {
+import { usePermissions } from '../../hooks/usePermissions'; const Users = () => {
   const navigate = useNavigate();
   moment.locale('vi');
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false); // Modal tạo tài khoản
-  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false); // Modal OTP
-  const [otp, setOtp] = useState(''); // Mã OTP
-
+  const [isEditOpen, setIsEditOpen] = useState(false); // Modal chỉnh sửa tài khoản
+  const [selectedUser, setSelectedUser] = useState<IUserList | null>(null); // User selected for editing
   const [roleData, setRoleData] = useState<any[]>([]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
-  const [tempUserData, setTempUserData] = useState<{
-    name: string;
-    email: string;
-    password: string;
-    roleName: string; // Lưu tên role thay vì _id
-  } | null>(null);
-
+  const [editRole, setEditRole] = useState(''); // Role for editing
   const [userData, setUserData] = useState<IUserList[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [limit, setLimit] = useState(10);
   const [searchKeyword, setSearchKeyword] = useState<string>('');
-  const { hasPermission } = usePermissions();
-
-  const displayOptions = [
+  const { hasPermission } = usePermissions(); const displayOptions = [
     { value: 5, label: '5 mục' },
     { value: 10, label: '10 mục' },
     { value: 20, label: '20 mục' },
     { value: 50, label: '50 mục' },
     { value: 100, label: '100 mục' },
-  ];
-
-  const closeModal = () => setIsOpen(false);
-  const openModal = () => setIsOpen(true);
-  const closeOtpModal = () => {
-    setIsOtpModalOpen(false);
-    setOtp('');
-    setTempUserData(null);
-  };
-
-  useEffect(() => {
+  ]; const closeModal = () => {
+    setIsOpen(false);
+    setEmail('');
+    setName('');
+    setPassword('');
+    setConfirmPassword('');
+    setPhone('');
+    setRole('');
+  }; const closeEditModal = () => {
+    setIsEditOpen(false);
+    setSelectedUser(null);
+    setEditRole('');
+  }; const openModal = () => setIsOpen(true); const openEditModal = (user: IUserList) => {
+    setSelectedUser(user);
+    setEditRole(user.role?._id || ''); // Pre-populate with current role _id
+    setIsEditOpen(true);
+  }; useEffect(() => {
     fetchListUser(currentPage, limit);
-  }, [limit, currentPage]);
-
-  useEffect(() => {
+  }, [limit, currentPage]); useEffect(() => {
     fetchListRole();
-  }, []);
-
-  useEffect(() => {
-    if (!isOpen) {
-      setEmail('');
-      setName('');
-      setPassword('');
-      setRole('');
-    }
-  }, [isOpen]);
-
-  const handlePrevClick = () => {
+  }, []); const handlePrevClick = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
-  };
-
-  const handleNextClick = () => {
+  }; const handleNextClick = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
-  };
-
-  const handleSearch = () => {
+  }; const handleSearch = () => {
     fetchListUser(1, limit, searchKeyword);
-  };
-
-  const fetchListRole = async () => {
+  }; const fetchListRole = async () => {
     try {
       const token = localStorage.getItem('access_token');
       const res = await authApi(token).get(endpoints['roles']);
@@ -97,10 +75,8 @@ const Users = () => {
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const fetchListUser = async (currentPage = 1, limit = 10, email = '') => {
-    const searchQuery = email ? `/${email}/i` : '';
+  }; const fetchListUser = async (currentPage = 1, limit = 10, email = '') => {
+    const searchQuery = email ? /${email}/i : '';
     setLoading(true);
     try {
       const token = localStorage.getItem('access_token');
@@ -121,119 +97,112 @@ const Users = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleCreateUser = async () => {
-    if (!name || !email || !password || !role) {
+  }; const handleCreateUser = async () => {
+    if (!name || !email || !password || !confirmPassword || !phone || !role) {
       toast.error('Vui lòng nhập đầy đủ thông tin!', {
         position: 'top-right',
         autoClose: 3000,
       });
       return;
+    } if (password !== confirmPassword) {
+      toast.error('Mật khẩu và xác nhận mật khẩu không khớp!', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+      return;
     }
 
     setLoading(true);
-    const userData = new URLSearchParams();
-    userData.append('name', name);
-    userData.append('email', email);
-    userData.append('password', password);
-
     try {
       const token = localStorage.getItem('access_token');
-      const response = await authApi(token).post(endpoints['registerUser'], userData, {
+      const selectedRole = roleData.find((r) => r._id === role);
+      const userData = {
+        email: email.trim(),
+        name: name.trim(),
+        phone: phone.trim(),
+        password: password.trim(),
+      };
+
+      const response = await authApi(token).post(endpoints['users'], {
+        createUserDto: userData,
+        roleName: selectedRole.name,
+      }, {
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
       });
 
-      if (response.status === 201 || response.status === 200) {
-        const selectedRole = roleData.find((r) => r._id === role);
-        toast.success(response.data.message || 'Mã OTP đã gửi về Email của bạn!', {
+      if (response.status === 200 || response.status === 201) {
+        toast.success(response.data.message || 'Đăng ký thành công!', {
           position: 'top-right',
           autoClose: 3000,
         });
-        setTempUserData({
-          name,
-          email,
-          password,
-          roleName: selectedRole.name,
-        });
-        setIsOpen(false);
-        setIsOtpModalOpen(true);
+        closeModal();
+        const user = response.data.user || { _id: null };
+        setTimeout(() => {
+          if (selectedRole.name === 'EMPLOYER_USER' && user._id) {
+            navigate(`/admin/companies/create?userId=${user._id}`);
+          } else if (selectedRole.name === 'NORMAL_USER' && user._id) {
+            navigate(`/admin/candidates/create?userId=${user._id}&email=${encodeURIComponent(user.email)}&name=${encodeURIComponent(user.name)}`);
+          }
+          fetchListUser();
+        }, 500);
       }
-    } catch (error) {
-      toast.error('Có lỗi xảy ra, vui lòng thử lại', {
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại', {
         position: 'top-right',
         autoClose: 3000,
       });
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleVerifyOtp = async () => {
-    if (!otp) {
-      toast.error('Vui lòng nhập mã OTP!', {
+  }; const handleEditUser = async () => {
+    if (!editRole) {
+      toast.error('Vui lòng chọn vai trò!', {
         position: 'top-right',
         autoClose: 3000,
       });
       return;
-    }
-
-    if (!tempUserData) {
+    } if (!selectedUser) {
+      toast.error('Không tìm thấy người dùng!', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
       return;
     }
 
     setLoading(true);
     try {
       const token = localStorage.getItem('access_token');
-      const res = await authApi(token).post(
-        endpoints['verify'],
-        {
-          name: tempUserData.name.trim(),
-          email: tempUserData.email.trim(),
-          password: tempUserData.password.trim(),
+      const selectedRole = roleData.find((r) => r._id === editRole);
+      const updateData = {
+        role: selectedRole._id, // Thay roleName thành role để khớp với UpdateUserDto
+      };
+
+      const response = await authApi(token).patch(endpoints['userDetail'](selectedUser._id), updateData, {
+        headers: {
+          'Content-Type': 'application/json',
         },
-        {
-          params: {
-            code: otp,
-            roleName: tempUserData.roleName, // Gửi tên role
-          },
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      console.log(res.data.data.user._id)
-      const user = res.data.data.user
-      toast.success('Thêm mới người dùng thành công!', {
-        position: 'top-right',
-        autoClose: 3000,
       });
-      closeOtpModal();
-      setTimeout(() => {
-        if (tempUserData.roleName === 'EMPLOYER_USER') {
-          navigate(`/admin/companies/create?userId=${user._id}`);
-        } else if (tempUserData.roleName === 'NORMAL_USER') {
-          if (user._id) {
-            navigate(`/admin/candidates/create?userId=${user._id}&email=${encodeURIComponent(user.email)}&name=${encodeURIComponent(user.name)}`);
-          }
-        } else {
-          closeOtpModal();
-          fetchListUser();
-        }
-      }, 500);
-    } catch (error) {
-      toast.error('Có lỗi xảy ra, vui lòng thử lại.', {
+      console.log(response)
+
+      if (response.status === 200 || response.status === 201) {
+        toast.success('Cập nhật vai trò thành công!', {
+          position: 'top-right',
+          autoClose: 3000,
+        });
+        closeEditModal();
+        fetchListUser();
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Có lỗi xảy ra, vui lòng thử lại', {
         position: 'top-right',
         autoClose: 3000,
       });
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDeleteUser = async (id: string) => {
+  }; const handleDeleteUser = async (id: string) => {
     try {
       const result = await Swal.fire({
         title: 'Bạn có chắc chắn?',
@@ -244,9 +213,7 @@ const Users = () => {
         cancelButtonColor: '#d33',
         confirmButtonText: 'Có, xóa!',
         cancelButtonText: 'Hủy',
-      });
-
-      if (result.isConfirmed) {
+      }); if (result.isConfirmed) {
         const token = localStorage.getItem('access_token');
         await authApi(token).delete(endpoints['userDetail'](id));
         toast.success('Xóa thông tin thành công!', {
@@ -261,13 +228,9 @@ const Users = () => {
         autoClose: 3000,
       });
     }
-  };
-
-  return (
+  }; return (
     <>
-      <Breadcrumb pageName="Quản lý người dùng" />
-
-      {/* Modal Tạo Tài Khoản */}
+      <Breadcrumb pageName="Quản lý người dùng" />  {/* Modal Tạo Tài Khoản */}
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={closeModal}>
           <Transition.Child
@@ -312,6 +275,20 @@ const Users = () => {
                     </div>
                     <div className="flex-1">
                       <label className="mb-2.5 block text-black dark:text-white">
+                        Số điện thoại <span className="text-meta-1">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="Nhập số điện thoại"
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex space-x-4 mb-4.5">
+                    <div className="flex-1">
+                      <label className="mb-2.5 block text-black dark:text-white">
                         Mật khẩu <span className="text-meta-1">*</span>
                       </label>
                       <input
@@ -319,6 +296,18 @@ const Users = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Nhập mật khẩu người dùng"
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="mb-2.5 block text-black dark:text-white">
+                        Xác nhận mật khẩu <span className="text-meta-1">*</span>
+                      </label>
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Nhập lại mật khẩu"
                         className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       />
                     </div>
@@ -377,9 +366,9 @@ const Users = () => {
         </Dialog>
       </Transition>
 
-      {/* Modal OTP */}
-      <Transition appear show={isOtpModalOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={closeOtpModal}>
+      {/* Modal Chỉnh Sửa Vai Trò */}
+      <Transition appear show={isEditOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={closeEditModal}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -391,6 +380,7 @@ const Users = () => {
           >
             <div className="fixed inset-0 bg-black bg-opacity-25" />
           </Transition.Child>
+
           <div className="fixed inset-0 flex items-center justify-center p-4">
             <Transition.Child
               as={Fragment}
@@ -401,32 +391,78 @@ const Users = () => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md bg-white rounded-lg shadow-xl p-6">
-                <Dialog.Title as="h3" className="text-lg font-semibold text-gray-900">
-                  Xác minh OTP
+              <Dialog.Panel className="w-full max-w-3xl h-auto bg-white rounded-lg shadow-xl p-6">
+                <Dialog.Title as="h3" className="text-lg font-semibold leading-6 text-gray-900">
+                  Chỉnh sửa vai trò người dùng
                 </Dialog.Title>
                 <div className="mt-4">
-                  <label className="mb-2.5 block text-black">
-                    Mã OTP <span className="text-meta-1">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    placeholder="Nhập mã OTP"
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none"
-                  />
+                  <div className="flex space-x-4 mb-4.5">
+                    <div className="flex-1">
+                      <label className="mb-2.5 block text-black dark:text-white">
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        value={selectedUser?.email || ''}
+                        disabled
+                        className="w-full rounded border-[1.5px] border-stroke bg-gray-100 py-3 px-5 text-black outline-none transition disabled:cursor-not-allowed disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="mb-2.5 block text-black dark:text-white">
+                        Số điện thoại
+                      </label>
+                      <input
+                        type="tel"
+                        value={selectedUser?.phone || ''}
+                        disabled
+                        className="w-full rounded border-[1.5px] border-stroke bg-gray-100 py-3 px-5 text-black outline-none transition disabled:cursor-not-allowed disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex space-x-4 mb-4.5">
+                    <div className="flex-1">
+                      <label className="mb-2.5 block text-black dark:text-white">
+                        Tên tài khoản
+                      </label>
+                      <input
+                        type="text"
+                        value={selectedUser?.name || ''}
+                        disabled
+                        className="w-full rounded border-[1.5px] border-stroke bg-gray-100 py-3 px-5 text-black outline-none transition disabled:cursor-not-allowed disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="mb-2.5 block text-black dark:text-white">
+                        Vai trò <span className="text-meta-1">*</span>
+                      </label>
+                      <select
+                        value={editRole}
+                        onChange={(e) => setEditRole(e.target.value)}
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      >
+                        <option value="" disabled>
+                          Chọn Role
+                        </option>
+                        {roleData.map((item) => (
+                          <option key={item._id} value={item._id}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-6 flex justify from-end gap-3">
+                <div className="mt-6 flex justify-end gap-3">
                   <button
-                    onClick={closeOtpModal}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                    onClick={closeEditModal}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
                   >
                     Hủy
                   </button>
                   <button
-                    onClick={handleVerifyOtp}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={handleEditUser}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
                   >
                     Xác nhận
                   </button>
@@ -475,7 +511,7 @@ const Users = () => {
               </button>
             )}
           </div>
-          <div className="grid grid-cols-6 border-t border-stroke py-4 px-4 dark:border-strokedark sm:grid-cols-7 md:px-6 2xl:px-7.5">
+          <div className="grid grid-cols-6 border-t border-stroke py-4 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
             <div className="col-span-2 flex items-center">
               <p className="font-medium">Id</p>
             </div>
@@ -488,6 +524,9 @@ const Users = () => {
             <div className="col-span-2 hidden items-center sm:flex">
               <p className="font-medium">Role</p>
             </div>
+            <div className="col-span-1 hidden items-center sm:flex">
+              <p className="font-medium">Hành động</p>
+            </div>
           </div>
 
           {loading ? (
@@ -496,7 +535,7 @@ const Users = () => {
             <div>
               {userData.map((item) => (
                 <div
-                  className="grid grid-cols-6 border-t border-stroke py-4 px-4 dark:border-strokedark sm:grid-cols-7 md:px-6 2xl:px-7.5"
+                  className="grid grid-cols-6 border-t border-stroke py-4 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
                   key={item._id}
                 >
                   <div className="col-span-2 flex items-center">
@@ -513,7 +552,16 @@ const Users = () => {
                     )}
                   </div>
                   <div className="col-span-2 hidden items-center sm:flex">
-                    <p className="text-sm text-black dark:text-white">{item.role.name}</p>
+                    <p className="text-sm text-black dark:text-white">{item.role?.name}</p>
+                  </div>
+                  <div className="col-span-1 hidden sm:flex items-center">
+                    <div className="flex items-center space-x-3.5">
+                      {hasPermission('6852da45b92d0b7c458255a4') && (
+                        <button onClick={() => openEditModal(item)}>
+                          <Pencil size={20} />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -540,19 +588,20 @@ const Users = () => {
                 <button
                   onClick={handlePrevClick}
                   disabled={currentPage === 1}
-                  className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === 1 ? 'cursor-not-allowed bg-gray-300' : ''
-                    }`}
+                  className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === 1 ? 'cursor-not-allowed bg-gray-300' : ''}`}
                 >
                   <ChevronLeft size={18} />
                 </button>
-                <p className="font-medium text-black dark:text-white mx-4" style={{ width: '100px', textAlign: 'center' }}>
+                <p
+                  className="font-medium text-black dark:text-white mx-4"
+                  style={{ width: '100px', textAlign: 'center' }}
+                >
                   {currentPage} / {totalPages} trang
                 </p>
                 <button
                   onClick={handleNextClick}
                   disabled={currentPage === totalPages}
-                  className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-300' : ''
-                    }`}
+                  className={`inline-flex items-center justify-center gap-2 bg-primary py-1.5 px-4 text-center font-medium text-white hover:bg-opacity-90 rounded-md ${currentPage === totalPages ? 'cursor-not-allowed bg-gray-300' : ''}`}
                 >
                   <ChevronRight size={18} />
                 </button>
@@ -561,8 +610,6 @@ const Users = () => {
           </div>
         </div>
       </div>
-    </>
-  );
-};
+    </>);
+}; export default Users;
 
-export default Users;

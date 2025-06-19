@@ -176,4 +176,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    implementation project(':rnmapbox_maps')
+    implementation 'com.mapbox.maps:android:10.1.0' // Hoặc 10.18.4 nếu cần
+    implementation 'com.mapbox.mapboxsdk:mapbox-sdk-turf:6.11.0'
 }
