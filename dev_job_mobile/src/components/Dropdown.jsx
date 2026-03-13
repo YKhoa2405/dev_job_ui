@@ -18,13 +18,13 @@ const Dropdown = ({
             defaultValue={data.find(item => item.title === defaultValue) || null} // Tìm item khớp với defaultValue
             renderButton={(selectedItem, isOpened) => {
                 return (
-                    <View style={[StyleShare.dropdownButtonStyle, buttonStyle]}>
-                        <Text style={StyleShare.dropdownButtonTxtStyle}>
+                    <View style={[styles.dropdownButtonStyle, buttonStyle]}>
+                        <Text style={styles.dropdownButtonTxtStyle}>
                             {(selectedItem && selectedItem.title) || placeholder}
                         </Text>
                         <Icon
                             name={isOpened ? 'chevron-up' : 'chevron-down'}
-                            style={StyleShare.dropdownButtonArrowStyle}
+                            style={ styles.dropdownButtonArrowStyle}
                         />
                     </View>
                 );
@@ -33,18 +33,56 @@ const Dropdown = ({
                 return (
                     <View
                         style={{
-                            ...StyleShare.dropdownItemStyle,
+                            ...styles.dropdownItemStyle,
                             ...(isSelected && { backgroundColor: '#D2D9DF' }),
                         }}
                     >
-                        <Text style={StyleShare.dropdownItemTxtStyle}>{item.title}</Text>
+                        <Text style={styles.dropdownItemTxtStyle}>{item.title}</Text>
                     </View>
                 );
             }}
             showsVerticalScrollIndicator={false}
-            dropdownStyle={StyleShare.dropdownMenuStyle}
+            dropdownStyle={styles.dropdownMenuStyle}
         />
     );
 };
 
 export default Dropdown;
+
+const styles = StyleSheet.create({
+    dropdownButtonStyle: {
+        width: 175,
+        height: 35,
+        backgroundColor: white,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'grey',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+    },
+    dropdownButtonTxtStyle: {
+        flex: 1,
+        fontWeight: '500',
+    },
+    dropdownButtonArrowStyle: {
+        fontSize: 20,
+    },
+    dropdownMenuStyle: {
+        borderRadius: 8,
+    },
+    dropdownItemStyle: {
+        width: '100%',
+        flexDirection: 'row',
+        paddingHorizontal: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 8,
+    },
+    dropdownItemTxtStyle: {
+        flex: 1,
+        fontSize: 16,
+        fontWeight: '500',
+    },
+});

@@ -1,12 +1,2 @@
 
 // Map
-export const client_id_api = "SC93qLAKpYHvP5G5tz0hOwuXOznK3jTnyte3YpKe"
-export const client_secret_api = "SvQzb8IX1MtX2wVfEUHGbrpjiK3H1CsYmqrgj32EMBu5fw9bAConICsLF6be9FRF7Dzd2fgAYnXJUoOBvuBqvKTXpY3TzNWVv3zTcZ9xfzvPEQtFXV1AHzuEqWhDmb9G"
-export const azuze_map_primary_key_api = "FaqJhLIckgPjz6XjhcxZfxsRukcyNyZhHJzRZ8H3eMlo4sISPeilJQQJ99AIACYeBjF6AxJHAAAgAZMPFtxq"
-export const clinet_id_google = "239735618406-cm48vh19b18p843uju9anq2jtsnha7ek.apps.googleusercontent.com"
-
-
-export const api_key_gemini = "AIzaSyCJbQIrPPeWjdEXlNAZITcUfyWlWAOvp90";
-export const api_key_speech = "AIzaSyCJbQIrPPeWjdEXlNAZIT1ahvACXLLoMmE3Umxiq9wDfneS93QCnObP09K3ebGh7wk3IjpH5QJQQJ99BCAC3pKaRXJ3w3AAAYACOGkqDOcUfyWlWAOvp90";
-
-export const github_client_id = "Ov23linSRUtRzaebNvHn"

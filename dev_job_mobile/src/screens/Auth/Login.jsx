@@ -109,7 +109,7 @@ export default function Login({ navigation }) {
 
             };
             let res = await API.post(endpoints['login'], data, { headers: header });
-            const { access_token, _id, email, name, role, avatar,phone } = res.data.data;
+
 
             const user = {
                 _id,
